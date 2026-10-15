@@ -8,7 +8,7 @@
   "scripts": {
     "install:ci": "bash scripts/install-pnpm.sh",
     "dev": "node scripts/run-framework.mjs dev",
-    "build": "node scripts/run-framework.mjs build",
+    "build": "node scripts/run-framework.mjs build && node scripts/package-standalone.mjs",
     "start": "node scripts/local-preview.mjs",
     "start:no-signin": "node scripts/local-preview.mjs --no-signin",
     "db:local": "node scripts/local-db.mjs",
