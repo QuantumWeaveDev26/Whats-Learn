@@ -230,3 +230,10 @@ test('resend reports provider mail delivery failures instead of claiming success
  }
  }finally{global.fetch=previous}
 });
+
+
+test('account recovery navigation uses browser links independent of the client router',()=>{
+ const source=fs.readFileSync(path.join(H.ROOT,'components/whatslearn/auth-forms.tsx'),'utf8');
+ assert.ok(source.includes('<a href="/signin">Back to sign in</a>'));
+ assert.ok(!source.includes("next/link"));
+});
