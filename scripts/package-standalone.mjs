@@ -1,11 +1,14 @@
 // Vinext beta standalone tracing omits React peer dependencies used by its server.
 // Copy the installed versions as real files so deployments need no pnpm symlinks.
-import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, copyFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
 const root = process.cwd();
 const standalone = path.join(root, 'dist', 'standalone');
+if (existsSync(path.join(root, 'runtime', 'start-node.mjs'))) {
+  copyFileSync(path.join(root, 'runtime', 'start-node.mjs'), path.join(standalone, 'server.js'));
+}
 if (existsSync(path.join(root, 'drizzle'))) {
   cpSync(path.join(root, 'drizzle'), path.join(standalone, 'drizzle'), { recursive: true });
 }

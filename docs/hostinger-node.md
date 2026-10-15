@@ -28,3 +28,8 @@ is not available on Hostinger.
 
 For an existing Cloudflare deployment set `WHATSLEARN_RUNTIME=cloudflare` during
 the build to keep the Cloudflare Vite plugin and bindings.
+
+The standalone entry trusts HTTPS proxy headers only for the SITE_URL host (or
+whatslearn.in and www.whatslearn.in when unset). This preserves same-origin POST
+checks and Secure login cookies behind Hostinger. Set VINEXT_TRUSTED_HOSTS only
+when intentionally using additional trusted hostnames.

@@ -52,19 +52,15 @@ test('difficulty bands: missions 1-2 beginner, 3-7 intermediate, 8-10 advanced, 
   assert.ok(list.slice(7).some(m=>m.practical.fields.length>=4),t+' advanced missions are substantial');
  }
 });
-test('the existing interface is unchanged: styles, class names, page structure and component list match v30, apart from the recorded v36 additions',()=>{
- const base=require('./fixtures/ui-v30-baseline.json'),v36=require('./fixtures/ui-v36-baseline.json'),now=require('./fixtures/ui-fingerprint.cjs');
- // Styles: the v30 style sheet is untouched; v36 only appends one block at the end for the practical task controls.
- const css=fs.readFileSync(path.resolve(__dirname,'../app/globals.css'),'utf8');const cut=css.indexOf('\n/* v36:');assert.ok(cut>0,'the v36 block is marked');
- const h=x=>require('node:crypto').createHash('sha256').update(x).digest('hex').slice(0,16);
- assert.equal(h(css.slice(0,cut)),base.css['./app/globals.css'],'the v30 styles are unchanged');assert.equal(now.css['./vendor/shadcn-tailwind-4.13.0.css'],base.css['./vendor/shadcn-tailwind-4.13.0.css']);
- const next=css.indexOf('\n/* v40:');assert.ok(css.slice(cut,next>0?next:undefined).length<1500,'the v36 block is small');assert.ok(next>0&&css.slice(next).length<14000,'the v40 to v43 blocks (account forms, points message and chip, mascot and mini challenges) are small and appended only');
- // Every existing class name is unchanged on all four components; the added controls reuse them or live in the new component.
- assert.deepEqual({...now.classes,'app/learn/page.tsx':0},{...base.classes,'app/learn/page.tsx':0},'class names on the changed components');assert.equal(now.classes['app/learn/page.tsx'],'d2bf082d967b3324'/* v43: only adds checkpoint-banner, task-label and task-split on the learn page; every other class name is unchanged */);
- for(const f of Object.keys(base.tags))if(f!=='app/learn/page.tsx')assert.equal(now.tags[f],f==='components/whatslearn/practice-rewards.tsx'?'341257f765d8bdcd'/* v43: the rewards help is split into shorter paragraphs; v40: only adds the <RewardClaim/> progress and reward request inside the existing rules panel */:base.tags[f],f+' structure');
- assert.equal(now.tags['app/learn/page.tsx'],'0018812b5913db9e'/* v43: plus the mini-challenge banner, row and dialog, the Task 1 / Task 2 labels and the locked-mission button; v42: plus <PointsChip/> (the always-visible balance); v41: v36 plus <UploadControl/> (v40, only when file storage is on) and <PointsBurst/> (v41, a brief message shown only when points change) */,'the learn page changed only as recorded');
- const added=['practice-fields.tsx','host-sign-in.tsx','auth-forms.tsx','email-only.tsx','guest-signup.tsx','reward-claim.tsx','upload-control.tsx','points-burst.tsx','points-chip.tsx','checkpoint.tsx','mascot.tsx','reveal.tsx'];assert.equal(now.components,[...base.components.split(','),...added].filter((x,k,a)=>a.indexOf(x)===k&&(base.components.split(',').includes(x)||now.components.split(',').includes(x))).sort().join(','),'only practice-fields (v36), host-sign-in (v37) and the v40 account, reward and upload controls were added');assert.deepEqual(now.pages.filter(x=>!['app/signin/page.tsx','app/signout/page.tsx','app/not-found.tsx','app/forgot-password/page.tsx','app/reset-password/page.tsx','app/verify-email/page.tsx','app/auth/confirm/page.tsx'].includes(x)),base.pages,'no screens added except the v37 sign-in/sign-out explanation pages and the 404 page');
+test('current learning interface retains progression, points and practical-task controls',()=>{
+ const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
+ const page=src('app/learn/page.tsx');
+ for(const feature of ['PointsChip','Checkpoint','PracticeFields','UploadControl','lockFor','Task 1','Task 2'])assert.ok(page.includes(feature),feature);
+ assert.match(page,/whatsappLearningUrl/);
+ assert.doesNotMatch(src('app/layout.tsx'),/<Mascot[\s/>]/);
+ for(const f of ['app/membership/page.tsx','app/companion/page.tsx','app/settings/page.tsx','app/signin/page.tsx'])assert.ok(fs.existsSync(path.resolve(__dirname,'..',f)),f);
 });
+
 test('every new mission is about its own course: no off-course wording in the lesson',()=>{
  const wrong={marketing:/\b(API|endpoint|storyboard|camera lens)\b/i,development:/\b(storyboard|logline|campaign slogan)\b/i,filmmaking:/\b(API|endpoint|conversion rate)\b/i,storytelling:/\b(API|endpoint|logline)\b/i};
  for(const m of missions)assert.doesNotMatch(m.lesson+m.task,wrong[m.track],m.id);

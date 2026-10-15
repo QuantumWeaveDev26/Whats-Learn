@@ -95,21 +95,11 @@ test('wiring: every lock check passes the cleared set, the migration is register
  const j=JSON.parse(src('drizzle/meta/_journal.json'));assert.ok(j.entries.some(e=>e.tag==='0010_checkpoint_clears'));assert.match(src('drizzle/0010_checkpoint_clears.sql'),/PRIMARY KEY\(`user_id`, `track`, `after_mission`\)/);
  assert.match(src('db/schema.ts'),/checkpoint_clears/);
 });
-test('mascot: one shared component on every page; it reacts only after a real success; decorative drawing; animation only when motion is allowed',()=>{
- const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
- assert.match(src('app/layout.tsx'),/<Mascot\/>/,'mounted once in the root layout, so every page has it');
- const page=src('app/learn/page.tsx');
- assert.equal((page.match(/mascotMoment\(/g)||[]).length,6,'exactly six trigger points: clue and mission (guest and signed in), mini challenge cleared (guest and signed in)');
- assert.match(page,/if\(r\.passed\)mascotMoment\('checkpoint'\);return/,'guest checkpoint: only when cleared');assert.match(page,/if\(!r\.ok\)throw[^\n]*setCleared\(new Set\(d\.cleared\|\|\[\]\)\);if\(d\.passed\)mascotMoment\('checkpoint'\)/,'signed-in checkpoint: only after the server accepted it and says passed');
- assert.match(page,/gr\.recorded\)mascotMoment\('clue'\)/,'guest clue: only when the clue was recorded');assert.match(page,/if\(d\.recorded\)mascotMoment\('clue'\)/,'signed-in clue: only when the server recorded it');
- assert.match(page,/clearMissionDraft\(active\.id\);mascotMoment\('mission'\);setStep\(3\)/,'guest save: after the work is saved');assert.match(page,/await load\(\);mascotMoment\('mission'\);setStep\(3\)/,'signed-in save: after the server accepted it');
- const click=page.match(/onClick=\{[^}]*mascotMoment/);assert.equal(click,null,'never fired from a click handler');
- assert.ok(!/mascotMoment/.test(src('components/whatslearn/checkpoint.tsx')),'a mini challenge does not trigger it');
- const m=src('components/whatslearn/mascot.tsx');assert.match(m,/aria-hidden="true"/);assert.match(m,/role="status" aria-live="polite"/);assert.match(m,/Clue revealed/);assert.match(m,/Mission saved/);assert.match(m,/Mini challenge cleared/);assert.match(m,/data-state="open"/,'only an open dialog is used');
- assert.ok(!/<audio|new Audio|AudioContext/.test(m),'no audio');
- const css=src('app/globals.css');const i=css.indexOf('/* v43:');const block=css.slice(i);const motion=block.indexOf('@media (prefers-reduced-motion:no-preference)');assert.ok(motion>0);
- const before=block.slice(0,motion);assert.ok(!/animation\s*:/.test(before),'no mascot animation outside the no-preference block');
+test('the retired mascot is not mounted in the application layout',()=>{
+ const layout=fs.readFileSync(path.resolve(__dirname,'../app/layout.tsx'),'utf8');
+ assert.doesNotMatch(layout,/<Mascot[\s/>]|import.*mascot/i);
 });
+
 test('guest sign-in note names the method this site really offers and no longer says ChatGPT in email mode',()=>{
  const n=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/signin-note.tsx'),'utf8');
  assert.match(n,/\/api\/auth\/config/);assert.match(n,/mode==='email'/);assert.match(n,/mode==='host'/);

@@ -9,9 +9,10 @@ import { once } from 'node:events';
 
 const deployed = mkdtempSync(path.join(tmpdir(), 'whatslearn-production-'));
 const data = mkdtempSync(path.join(tmpdir(), 'whatslearn-data-'));
-const auth = http.createServer((_request, response) => {
+const testUser = { id: 'node-test-user', email: 'student@example.test', email_confirmed_at: new Date().toISOString(), user_metadata: { full_name: 'Student' } };
+const auth = http.createServer((request, response) => {
   response.writeHead(200, { 'content-type': 'application/json' });
-  response.end(JSON.stringify({ id: 'node-test-user', email: 'student@example.test', email_confirmed_at: new Date().toISOString(), user_metadata: { full_name: 'Student' } }));
+  response.end(JSON.stringify(request.url.startsWith('/auth/v1/token') ? { access_token: 'test-access', refresh_token: 'test-refresh', expires_in: 3600, user: testUser } : testUser));
 });
 auth.listen(0, '127.0.0.1');
 await once(auth, 'listening');
@@ -40,6 +41,25 @@ try {
   const request = (url, options = {}) => fetch(origin + url, options);
   const guest = await request('/api/session', { headers: { 'oai-authenticated-user-id': 'forged', 'oai-authenticated-user-email': 'forged@example.test' } });
   assert.equal(guest.status, 200); assert.equal((await guest.json()).signedIn, false);
+  const publicHost = new URL(origin).host;
+  const proxied = await request('/api/profile', { method: 'POST', headers: { origin: `https://${publicHost}`, 'x-forwarded-proto': 'https', 'x-forwarded-host': publicHost, 'content-type': 'application/json' }, body: '{}' });
+  assert.equal(proxied.status, 401, 'same-site HTTPS behind the proxy reaches authentication instead of failing origin checks');
+  const foreign = await request('/api/profile', { method: 'POST', headers: { origin: 'https://evil.example', 'x-forwarded-proto': 'https', 'x-forwarded-host': 'evil.example', 'content-type': 'application/json' }, body: '{}' });
+  assert.equal(foreign.status, 403, 'untrusted forwarded hosts remain blocked');
+  const secureHeaders = { origin: `https://${publicHost}`, 'x-forwarded-proto': 'https', 'x-forwarded-host': publicHost, 'content-type': 'application/json' };
+  const login = await request('/api/auth/signin', { method: 'POST', headers: secureHeaders, body: JSON.stringify({ email: 'student@example.test', password: 'test-password-only', returnTo: '/learn' }) });
+  assert.equal(login.status, 200, await login.clone().text());
+  assert.equal((await login.json()).redirect, '/learn');
+  const loginCookies = login.headers.getSetCookie();
+  assert.ok(loginCookies.some(value => value.startsWith('__Host-wl-at=') && /Secure/i.test(value) && /HttpOnly/i.test(value)));
+  const cookie = loginCookies.map(value => value.split(';')[0]).join('; ');
+  const account = await request('/api/session', { headers: { ...secureHeaders, cookie } });
+  assert.equal((await account.json()).signedIn, true);
+  const logout = await request('/api/auth/signout', { method: 'POST', headers: { ...secureHeaders, cookie }, body: JSON.stringify({ returnTo: '/' }) });
+  assert.equal(logout.status, 200, await logout.clone().text());
+  assert.ok(logout.headers.getSetCookie().some(value => value.startsWith('__Host-wl-at=') && /Max-Age=0/i.test(value)));
+  const afterLogout = await request('/api/session');
+  assert.equal((await afterLogout.json()).signedIn, false);
   const settings = await request('/api/auth/config');
   assert.equal(settings.status, 200); assert.equal((await settings.json()).emailPassword, true);
   const companion = await request('/companion');
