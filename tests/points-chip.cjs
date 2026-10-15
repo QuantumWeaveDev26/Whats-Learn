@@ -7,7 +7,7 @@ test('points chip: every state has clear wording and no balance is hard-coded',(
  assert.match(c,/role="status"|aria-live/);
 });
 test('learn page feeds the chip from the server balance and shows a status on failure',()=>{
- const p=src('app/learn/page.tsx');
+ const p=src('app/learn/workspace.tsx');
  assert.match(p,/<PointsChip state=\{pointsState\}/);assert.match(p,/typeof d\.points\?\.balance==='number'/);assert.match(p,/'error'/);assert.match(p,/'guest'/);
 });
 test('shortened copy: no leftover duplicate link sentence and key terms kept',()=>{

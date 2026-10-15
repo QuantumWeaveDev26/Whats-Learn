@@ -48,7 +48,7 @@ test('the database itself refuses a second starting row for the same account, an
  const d1=await get();assert.equal(d1.points.balance,50);await get();await get();assert.deepEqual([rows(id,'starting'),await P.pointsBalance(id)],[1,50]);
 });
 test('the amount shown is the server balance: the page and the bar contain no hard-coded 50, and the server answers with it right after signup',async()=>{
- const chip=src('components/whatslearn/points-chip.tsx'),page=src('app/learn/page.tsx');
+ const chip=src('components/whatslearn/points-chip.tsx'),page=src('app/learn/workspace.tsx');
  assert.ok(!/\b50\b/.test(chip),'the bar never hard-codes the amount');
  assert.match(page,/Welcome! \$\{w\.amount\} points added/);assert.match(page,/typeof d\.points\?\.balance==='number'/);assert.ok(!/Welcome! 50/.test(page));
  const fake=H.reset({env:{STARTING_POINTS:'75'}});await doSignup();await H.call(confirm,'/api/auth/confirm',{body:linkOf(fake)});const d=await get();

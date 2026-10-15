@@ -91,7 +91,7 @@ test('guests: same rules on this device only, badge kept in this browser',()=>{
 test('wiring: every lock check passes the cleared set, the migration is registered and the answer key stays out of the page copy',()=>{
  const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
  for(const f of ['lib/mission-points.ts','app/api/work/route.ts','lib/guest-points.ts'])assert.match(src(f),/lockFor\(.*(clearedKeys|readGuestCheckpoints)/,f);
- assert.match(src('app/learn/page.tsx'),/lockFor\(m,doneIds,cleared\)/);
+ assert.match(src('app/learn/workspace.tsx'),/lockFor\(m,doneIds,cleared\)/);
  const j=JSON.parse(src('drizzle/meta/_journal.json'));assert.ok(j.entries.some(e=>e.tag==='0010_checkpoint_clears'));assert.match(src('drizzle/0010_checkpoint_clears.sql'),/PRIMARY KEY\(`user_id`, `track`, `after_mission`\)/);
  assert.match(src('db/schema.ts'),/checkpoint_clears/);
 });

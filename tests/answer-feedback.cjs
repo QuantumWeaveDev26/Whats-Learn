@@ -67,7 +67,7 @@ test('all 40 mission questions: every wrong option and the right option give dir
     assert.ok(!WRONG_VAGUE.test(f.text))}}}
  for(const c of ENGLISH_ONLY)assert.equal(QF.feedbackLines(c).wrong,'That answer is not correct.',c+' shows English until reviewed');
  const drafted=codes.filter(c=>!ENGLISH_ONLY.includes(c));assert.equal(drafted.length,codes.length-4);for(const c of drafted.filter(c=>c!=='en'))assert.notEqual(QF.feedbackLines(c).wrong,'That answer is not correct.',c+' has its own line');
- const page=fs.readFileSync(path.join(ROOT,'app/learn/page.tsx'),'utf8');assert.match(page,/quizFeedback\(profile\.language,quiz===active\.answer,active\.skill,active\.explanation\)/);
+ const page=fs.readFileSync(path.join(ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/quizFeedback\(profile\.language,quiz===active\.answer,active\.skill,active\.explanation\)/);
 });
 test('a wrong answer changes nothing: not saved, no points, no clue, next mission still locked; the retry then works',async()=>{
  user={userId:'z1',email:'z1@example.test',displayName:'Z'};delete env.STARTING_POINTS;
@@ -89,7 +89,7 @@ test('a wrong answer changes nothing: not saved, no points, no clue, next missio
 test('clues still cost points only when revealed, with the cost shown first; wrong answers never reveal or charge one',async()=>{
  user={userId:'cz',email:'cz@example.test',displayName:'cz'};const m=byId('m1');
  await PT.ensureAccount('cz');const bal=ledger('cz').s;await sendAnswer('m1',(m.answer+1)%m.options.length);assert.equal(ledger('cz').s,bal,'a wrong answer does not reveal a clue');
- const page=fs.readFileSync(path.join(ROOT,'app/learn/page.tsx'),'utf8');assert.match(page,/clueCost=/,'the cost is printed on the clue button');
+ const page=fs.readFileSync(path.join(ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/clueCost=/,'the cost is printed on the clue button');
  const r=await (await post(clues,{missionId:'m1',clue:'hint'})).json();assert.equal(r.charged,5);assert.equal(ledger('cz').s,bal-5);
  const again=await (await post(clues,{missionId:'m1',clue:'hint'})).json();assert.equal(again.charged,0);assert.equal(ledger('cz').s,bal-5,'the same clue is never charged twice');
 });

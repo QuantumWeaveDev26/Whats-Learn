@@ -56,22 +56,22 @@ test('a clue shows its cost before it is revealed and its deduction after; repea
  const post=body=>clues.POST(new Request('https://whatslearn.example.test/api/clues',{method:'POST',headers:{origin:'https://whatslearn.example.test','content-type':'application/json'},body:JSON.stringify(body)}));
  const a=await (await post({missionId:m.id,clue:'hint'})).json();assert.deepEqual([a.recorded,a.charged,a.balance],[true,5,45]);
  const b=await (await post({missionId:m.id,clue:'hint'})).json();assert.deepEqual([b.recorded,b.charged,b.balance],[false,0,45],'repeat: no second charge, no second message');
- const page=fs.readFileSync(path.join(H.ROOT,'app/learn/page.tsx'),'utf8');
+ const page=fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8');
  assert.match(page,/clueCost\(/,'the cost is shown beside each clue before reveal');assert.match(page,/each clue costs \{POINTS\.clue\} points/);assert.match(page,/d\.recorded&&typeof d\.charged==='number'&&d\.charged>0\)setBurst/,'the deduction message only follows a real charge');
 });
 test('guest mode says plainly: no account welcome balance, progress local to this browser',()=>{
  const r=fs.readFileSync(path.join(H.ROOT,'components/whatslearn/practice-rewards.tsx'),'utf8');
  assert.match(r,/guests get no welcome balance/);assert.match(r,/Guests get no welcome balance\. Guest progress is local to this browser/);
- const page=fs.readFileSync(path.join(H.ROOT,'app/learn/page.tsx'),'utf8');assert.match(page,/Guest points are kept in this browser only/);
+ const page=fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/Guest points are kept in this browser only/);
  assert.doesNotMatch(page.match(/if\(r\.status===401\)\{[^}]*\}/)?.[0]||'',/welcome/,'a guest never sees the welcome message');
 });
 test('the message is polite, quiet and motion-safe: no sound, reduced motion removes all movement, shown once per grant',()=>{
  const c=fs.readFileSync(path.join(H.ROOT,'components/whatslearn/points-burst.tsx'),'utf8'),css=fs.readFileSync(path.join(H.ROOT,'app/globals.css'),'utf8').split('/* v41:')[1];
  assert.match(c,/role="status"/);assert.match(c,/aria-live="polite"/);assert.match(c,/prefers-reduced-motion: reduce/);assert.match(c,/aria-hidden="true"/);assert.match(c,/Dismiss/);
- assert.doesNotMatch(c+fs.readFileSync(path.join(H.ROOT,'app/learn/page.tsx'),'utf8'),/new Audio\(|<audio|AudioContext|\.play\(\)\s*;?\s*\/\/sound/i,'no sound');
+ assert.doesNotMatch(c+fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8'),/new Audio\(|<audio|AudioContext|\.play\(\)\s*;?\s*\/\/sound/i,'no sound');
  const rm=css.match(/@media \(prefers-reduced-motion:reduce\)\{([^]*)\}\s*$/)[1];assert.match(rm,/\.points-burst\{animation:none\}/);assert.match(rm,/display:none/);
  assert.match(css,/animation:points-rise 1\.6s/,'the dots last under two seconds');assert.match(c,/calm\?6000:4200/,'auto-dismiss');assert.match(c,/calm\?0:particles/,'no dots drawn when calm');
- const page=fs.readFileSync(path.join(H.ROOT,'app/learn/page.tsx'),'utf8');assert.match(page,/Welcome! \$\{w\.amount\} points added/);assert.match(page,/whatslearn-welcome-'\+w\.grantedAt/,'one message per grant on this browser');assert.match(page,/welcomeShown\.current/,'not twice in one visit');assert.match(page,/\/api\/points\/welcome/);
+ const page=fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/Welcome! \$\{w\.amount\} points added/);assert.match(page,/whatslearn-welcome-'\+w\.grantedAt/,'one message per grant on this browser');assert.match(page,/welcomeShown\.current/,'not twice in one visit');assert.match(page,/\/api\/points\/welcome/);
 });
 test('host mode is honest: the Sites host cannot do verified email accounts, and the guide says what is needed',()=>{
  const s=fs.readFileSync(path.join(H.ROOT,'docs/sign-in-hosting.md'),'utf8'),g=fs.readFileSync(path.join(H.ROOT,'docs/deployment-guide.md'),'utf8');

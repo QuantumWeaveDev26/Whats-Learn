@@ -41,6 +41,12 @@ try {
   const request = (url, options = {}) => fetch(origin + url, options);
   const guest = await request('/api/session', { headers: { 'oai-authenticated-user-id': 'forged', 'oai-authenticated-user-email': 'forged@example.test' } });
   assert.equal(guest.status, 200); assert.equal((await guest.json()).signedIn, false);
+  const guestLearning = await request('/learn');
+  assert.equal(guestLearning.status, 200);
+  assert.ok((await guestLearning.text()).includes('<aside class="signin-note"'), 'guest guidance is rendered before hydration');
+  const accountLearning = await request('/learn', { headers: { cookie: 'wl-at=test-token' } });
+  assert.equal(accountLearning.status, 200);
+  assert.ok(!(await accountLearning.text()).includes('<aside class="signin-note"'), 'signed-in learners do not receive a guest notice');
   const publicHost = new URL(origin).host;
   const proxied = await request('/api/profile', { method: 'POST', headers: { origin: `https://${publicHost}`, 'x-forwarded-proto': 'https', 'x-forwarded-host': publicHost, 'content-type': 'application/json' }, body: '{}' });
   assert.equal(proxied.status, 401, 'same-site HTTPS behind the proxy reaches authentication instead of failing origin checks');

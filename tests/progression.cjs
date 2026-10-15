@@ -81,10 +81,10 @@ test('retry: a wrong understanding answer shows the explanation, can be retried,
  const LS=require('../lib/learning-service.ts');resetAll();const r=await LS.submitWork(user.userId,full('d1',{quiz:(byId('d1').answer+1)%byId('d1').options.length}));assert.equal(r.saved,false);assert.match(r.feedback,/never costs points/);
  const G=require('../lib/guest-points.ts');const gr=G.guestAward(full('m1',{quiz:wrong}));assert.equal(gr.saved,false);assert.match(gr.message,/never costs points/);
  // The page tells the learner before they answer.
- const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/page.tsx'),'utf8');assert.match(page,/quizFeedback\(/);assert.match(SUB.retryNote,/never costs points/);
+ const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(page,/quizFeedback\(/);assert.match(SUB.retryNote,/never costs points/);
 });
 test('points and clues: stated before starting, exact deductions, no hidden cost, never below zero, tracked per mission and course',async()=>{
- resetAll();const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/page.tsx'),'utf8');
+ resetAll();const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
  assert.match(page,/up to \$\{POINTS\.total\} mission points/);assert.match(page,/each clue costs \{POINTS\.clue\} points, at most \{POINTS\.clueCap\} per mission/);assert.match(page,/points available now/);
  assert.match(page,/clueNote=\{c=>clueCost\(active\.id,c\)\}/);
  const clue=(id,c)=>post(clues,{missionId:id,clue:c});
@@ -154,11 +154,11 @@ test('guests: order, retries and limits are enforced on this device and explaine
  assert.equal(G.guestAward(gi('m2'),new Date(Date.now()+26*3600*1000)).status,'awarded');
  // Guest clues: counted once each, exact deductions, listed for the page.
  G.recordGuestClue('d1','hint');const c=G.recordGuestClue('d1','example');assert.deepEqual([c.clues,c.deduction],[2,10]);assert.deepEqual(G.readGuestPoints().clues.d1.sort(),['example','hint']);
- const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/page.tsx'),'utf8');assert.match(src,/As a guest, this order is checked on this device only\. Sign in so your progress is checked on your account\./);
+ const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(src,/As a guest, this order is checked on this device only\. Sign in so your progress is checked on your account\./);
  for(const k of Object.keys(mem))delete mem[k];
 });
 test('the lock is visible: locked missions are disabled and say what to finish; deep links and the assistant tool open the locked panel, not the lesson',()=>{
- const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/page.tsx'),'utf8');
+ const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
  assert.equal((src.match(/Locked · finish “/g)||[]).length,2,'on the Today map and the Skill paths list');assert.match(src,/disabled=\{lk\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions always stay open to practise\./);
  assert.match(src,/active&&lockOf\(active\)\.locked\?/,'the lesson is replaced by the locked panel whatever opened it');
 });
@@ -180,7 +180,7 @@ test('structured answers: parts round-trip, links are https only and never fetch
 });
 test('attachments are not offered: no upload control exists, and nothing claims a file was reviewed',()=>{
  const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
- assert.doesNotMatch(src('components/whatslearn/practice-fields.tsx')+src('app/learn/page.tsx'),/type="file"|FormData|multipart/);
+ assert.doesNotMatch(src('components/whatslearn/practice-fields.tsx')+src('app/learn/workspace.tsx'),/type="file"|FormData|multipart/);
  assert.match(src('docs/changes-v36-2026-10-12.md'),/What file attachments would need/);
 });
 test('audit of all 40 missions: course-specific wording, scenario questions, practical formats and no essay-only tasks',()=>{

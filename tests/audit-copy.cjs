@@ -9,7 +9,7 @@ test('English missions never show an English translation pending notice',()=>{
  assert.match(renderToStaticMarkup(React.createElement(Notice,{language:'hi',missionId:'d1'})),/question and practical task are in English/);
 });
 test('email-hosted learner actions do not advertise a ChatGPT-only sign-in',()=>{
- for(const file of ['components/whatslearn/practice-coach.tsx','components/whatslearn/whatsapp-optin.tsx','app/learn/page.tsx'])assert.doesNotMatch(fs.readFileSync(path.join(root,file),'utf8'),/>\s*Sign in with ChatGPT/);
+ for(const file of ['components/whatslearn/practice-coach.tsx','components/whatslearn/whatsapp-optin.tsx','app/learn/workspace.tsx'])assert.doesNotMatch(fs.readFileSync(path.join(root,file),'utf8'),/>\s*Sign in with ChatGPT/);
 });
 test('settings do not promise automatic custom GPT synchronization',()=>{
  assert.doesNotMatch(fs.readFileSync(path.join(root,'app/settings/page.tsx'),'utf8'),/ChatGPT plugin/);

@@ -54,7 +54,7 @@ test('difficulty bands: missions 1-2 beginner, 3-7 intermediate, 8-10 advanced, 
 });
 test('current learning interface retains progression, points and practical-task controls',()=>{
  const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
- const page=src('app/learn/page.tsx');
+ const page=src('app/learn/workspace.tsx');
  for(const feature of ['PointsChip','Checkpoint','PracticeFields','UploadControl','lockFor','Task 1','Task 2'])assert.ok(page.includes(feature),feature);
  assert.match(page,/whatsappLearningUrl/);
  assert.doesNotMatch(src('app/layout.tsx'),/<Mascot[\s/>]/);
