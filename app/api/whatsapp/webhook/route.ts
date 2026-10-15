@@ -1,0 +1,4 @@
+import {processWebhook,whatsappConfig,WhatsAppError} from '@/lib/whatsapp';
+/** Meta calls GET once to verify the webhook URL. */
+export async function GET(request:Request){const q=new URL(request.url).searchParams;const token=whatsappConfig().verifyToken;if(token&&q.get('hub.mode')==='subscribe'&&q.get('hub.verify_token')===token)return new Response(q.get('hub.challenge')||'',{status:200});return new Response('Forbidden',{status:403})}
+export async function POST(request:Request){const raw=await request.text();if(raw.length>500000)return new Response('Payload too large',{status:413});try{return Response.json(await processWebhook(raw,request.headers.get('x-hub-signature-256')||''))}catch(e){return Response.json({error:e instanceof WhatsAppError?e.message:'Webhook processing could not finish.'},{status:e instanceof WhatsAppError?e.status:500})}}

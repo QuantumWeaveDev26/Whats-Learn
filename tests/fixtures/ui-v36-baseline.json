@@ -1,0 +1,4 @@
+{
+ "note": "v36 changes to the v30 interface, recorded on purpose: a block of CSS appended to globals.css for the practical task controls, one new component (practice-fields.tsx), and new elements in app/learn/page.tsx (locked states and the practical fields). Every existing class name, page and component is unchanged.",
+ "pageTags": "87f034268ad32348"
+}

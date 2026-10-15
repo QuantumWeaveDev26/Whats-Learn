@@ -1,0 +1,33 @@
+{
+ "css": {
+  "./app/globals.css": "6789a4b765d000be",
+  "./vendor/shadcn-tailwind-4.13.0.css": "bc7d83425702955b"
+ },
+ "classes": {
+  "app/learn/page.tsx": "1ad32bbf432d2ae7",
+  "components/whatslearn/mini-challenge.tsx": "7e87a3125b2f4e9c",
+  "components/whatslearn/practice-coach.tsx": "663b466fa0d18f5a",
+  "components/whatslearn/practice-rewards.tsx": "1ee5e7b24cf5ccb3"
+ },
+ "tags": {
+  "app/learn/page.tsx": "06d8c02e1150d3be",
+  "components/whatslearn/mini-challenge.tsx": "f24f0fe6e4831753",
+  "components/whatslearn/practice-coach.tsx": "9af0b4d23587b070",
+  "components/whatslearn/practice-rewards.tsx": "440e421eb9555ed3"
+ },
+ "components": "account-shell.tsx,billing-setup.tsx,brand.tsx,conversation-hero.tsx,language-notice.tsx,language-picker.tsx,legal-page.tsx,membership.tsx,mini-challenge.tsx,practice-coach.tsx,practice-rewards.tsx,programme-explorer.tsx,project-support.tsx,quick-play.tsx,razorpay-checkout.tsx,session-links.tsx,signin-note.tsx,visual-start.tsx,whatsapp-optin.tsx",
+ "pages": [
+  "app/billing/setup/page.tsx",
+  "app/companion/page.tsx",
+  "app/find-my-path/page.tsx",
+  "app/learn/page.tsx",
+  "app/membership/page.tsx",
+  "app/page.tsx",
+  "app/privacy/page.tsx",
+  "app/refunds/page.tsx",
+  "app/settings/page.tsx",
+  "app/signup/page.tsx",
+  "app/strategy/page.tsx",
+  "app/terms/page.tsx"
+ ]
+}

@@ -1,0 +1,96 @@
+{
+ "m1": {
+  "fields": {
+   "customer": "Office-goers in Indiranagar who skip lunch at their desk",
+   "offer": "Busy in Indiranagar and ending up with a samosa at 3 pm? Our home-style lunch box reaches your desk by 12:45, cooked that morning with less oil than a canteen meal. Weekday plans start with a small trial of five lunches. Tap the link to see this week’s menu and pick your first day.",
+   "verify": "Delivery by 12:45 on every weekday across Indiranagar offices"
+  },
+  "reasoning": "I picked office-goers because their problem is clear: they have no time and settle for snacks. The delivery time is the claim I would check first, because if the kitchen cannot keep it, the offer breaks its own promise and people lose trust.",
+  "link": "https://docs.google.com/document/d/example-offer-draft"
+ },
+ "m2": {
+  "fields": {
+   "goal": "Menu enquiries on WhatsApp",
+   "tone": "Warm and homely",
+   "prompt": "Write three ad hooks for a home-meal service in Bengaluru. Audience: office-goers in Indiranagar who skip proper lunch. Goal: menu enquiries on WhatsApp. Evidence you may use: weekday menu, delivery area is Indiranagar only, delivery by 12:45. Do not invent reviews, ratings, health claims or customer names. Use one call to action only. Tone: warm and homely. Output: three hooks, each in under 20 words, with one line on why it could work.",
+   "review": "1. Every fact matches the evidence I gave.\n2. No invented review, number or health claim.\n3. Exactly one action for the reader.\n4. Hook is under 20 words and sounds warm.\n5. The three hooks differ in angle, not just wording."
+  },
+  "reasoning": "I gave the AI only real facts so it has nothing to make up, and I banned reviews and health claims because those need proof. The checklist lets me judge the hooks calmly instead of liking whichever sounds smoothest.",
+  "link": "https://docs.google.com/document/d/example-ai-prompt"
+ },
+ "m3": {
+  "fields": {
+   "reply": "Hi Anita, thanks for asking about the menu. This week we have a vegetarian and a mixed option, both with delivery to your office park in Indiranagar. Which one would you like to see first?",
+   "followup": "Hi Anita, just checking if the vegetarian menu works for you. If you tell me your office floor and timing, I can confirm if we deliver there. No rush at all.",
+   "optout": "Reply STOP any time and we will not message you again.",
+   "measure": "Share of prospects who ask for a trial"
+  },
+  "reasoning": "I answered the practical question first so the message helps before it asks. A trial request is a better measure than replies alone, because someone can reply politely and still not want the lunch. The opt-out line keeps it respectful.",
+  "link": "https://docs.google.com/document/d/example-followup"
+ },
+ "m4": {
+  "fields": {
+   "group": "People who tried a tiffin service and stopped",
+   "rewrite": "How do you usually decide what to eat for lunch on a workday?",
+   "questions": "1. Tell me about your last weekday lunch from start to finish.\n2. How did you decide where that lunch came from?\n3. What happened the last time you tried a tiffin service?\n4. What made you stop, or switch to something else?\n5. What do you do on days when lunch goes wrong?"
+  },
+  "reasoning": "I picked people who stopped a tiffin service because they can explain real reasons, not guesses. My rewrite is fairer than the yes/no version because it does not push home food as the right answer, so the person tells me how they really decide."
+ },
+ "m5": {
+  "fields": {
+   "variable": "Headline wording",
+   "version_a": "Free design workshop this Saturday",
+   "version_b": "Learn Canva in one afternoon, free",
+   "metric": "Registrations per 100 views",
+   "rule": "Pick B only if it beats A by at least 5 registrations after 3 days."
+  },
+  "reasoning": "I changed only the headline so any difference in sign-ups can be linked to the words. The image, posting time and button stay the same, because if two things changed I could not say which one mattered. I set the rule early so I do not bend the numbers later."
+ },
+ "m6": {
+  "fields": {
+   "channel": "WhatsApp messages to past customers",
+   "rejected": "Local search ads",
+   "tracking": "Ask buyers to say the code word “PARTY” when ordering",
+   "action": "Send a short message with two cake photos and a ₹100 off code to the 220 opted-in customers on Monday. The owner replies to all questions the same day. Spend nothing on ads in week one, and keep ₹500 for printing a small poster if replies are low."
+  },
+  "reasoning": "These customers already trust the bakery and said yes to messages, so the cost is only time. A code word lets me count exactly how many orders came from it. I rejected search ads because ₹3,000 would go quickly and one person could not tune them."
+ },
+ "m7": {
+  "fields": {
+   "cost": "₹250",
+   "working": "Spend ₹6,000 ÷ 24 qualified enquiries = ₹250 each.\nClicks to chats: 200 out of 4,000 is 5 in 100.\nChats to qualified enquiries: 24 out of 200 is 12 in 100.",
+   "step": "Clicks to WhatsApp chats"
+  },
+  "reasoning": "Only 5 of every 100 clicks turn into a chat, which is the biggest drop, so the landing message or button likely loses people. The 4,000 clicks look big but cost ₹250 per useful enquiry, so I would fix this step before buying more clicks."
+ },
+ "m8": {
+  "fields": {
+   "theme": "Gifts made by hand in our home",
+   "format": "Short reels",
+   "reuse": "Painting one diya from plain clay to finished, filmed once",
+   "calendar": "D1 Mon: reel of diya painting\nD2 Tue: rest\nD3 Wed: 3 photo stories from the clip\nD4 Thu: rest\nD5 Fri: hamper photo post\nD6 Sat: WhatsApp status with clip\nD7 Sun: rest\nD8 Mon: reel, packing a hamper\nD9 Tue: rest\nD10 Wed: story poll on colours\nD11 Thu: rest\nD12 Fri: customer photo reshare with permission\nD13 Sat: status with last order date\nD14 Sun: rest"
+  },
+  "reasoning": "Three posting days a week and four rest days fits my four hours, even in exam weeks. I film the painting once and reuse it as a reel, stories and a status, so I am not inventing new content every day. A smaller plan I keep beats a big one I drop.",
+  "link": "https://docs.google.com/spreadsheets/d/example-diya-calendar"
+ },
+ "m9": {
+  "fields": {
+   "risk": "A job guarantee the team cannot control",
+   "problems": "1. “Guaranteed job in 30 days” cannot be promised because employers decide.\n2. “Only 3 seats left” looks like fake urgency if seats are not limited.\n3. Adding PDF downloaders to a promotions list without asking them.",
+   "rewrite": "Build a stronger resume in four weeks with feedback on every draft. The fee is ₹1,499 and we cannot promise a job.",
+   "consent": "On the PDF download page I would add an unticked box: “Send me course offers on WhatsApp.” The first message says what I will send and each message ends with “Reply STOP to leave.”"
+  },
+  "reasoning": "The job guarantee is the biggest risk because someone might pay money expecting a result nobody controls. My rewrite only says what the course gives, feedback and a resume, so I can prove it. Asking before adding people respects their choice."
+ },
+ "m10": {
+  "fields": {
+   "segment": "Working women in PGs near the owner’s kitchen",
+   "channel": "PG notice boards and a WhatsApp group",
+   "metric": "Trial orders using a code word",
+   "offer": "Home-style dinner box at your PG by 8:30 pm, try three dinners for ₹300. Message the code word PG3.",
+   "plan": "Problem: women working late have no time to cook and eat takeaway. Test: week 1-2 poster says “₹300 for three dinners”, week 3-4 poster says “Try 3 dinners, pay after the first”; everything else stays the same. Risk: late delivery could lose trust, so I will promise 8:45 and add a buffer of 15 minutes."
+  },
+  "reasoning": "The PG notice board reaches exactly the women I named, and the code word lets me count trial orders from it. The test changes only the poster line, so the result is clear. The metric matches the offer, so the parts point the same way.",
+  "link": "https://docs.google.com/document/d/example-tiffin-plan"
+ }
+}

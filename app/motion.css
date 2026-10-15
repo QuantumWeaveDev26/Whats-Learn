@@ -1,0 +1,23 @@
+/* v46: restrained card hover/focus/press states and gentle scroll reveals. Transform and shadow only, so nothing reflows. */
+:is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop:not(:disabled),.pulse-card){transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+/* The earlier 8px hover lift on the home path cards was too jumpy; keep it to 3px. */
+.public-path:hover{transform:translateY(-3px)}
+@media (hover:hover) and (pointer:fine){
+ :is(.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop:not(:disabled)):hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(23,59,44,.12)}
+ .public-path:hover{box-shadow:0 10px 24px rgba(23,59,44,.14)}
+}
+/* Keyboard focus: a clear ring on the card when anything inside it has focus (and on the card itself when it is the control). */
+:is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop,.pulse-card):focus-within{box-shadow:0 0 0 3px #fff,0 0 0 6px #177349}
+:is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop,.pulse-card):has(:focus:not(:focus-visible)){box-shadow:none}
+/* Touch and mouse press: a small, clear pressed state that does not depend on hover. */
+:is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop:not(:disabled)):active{transform:scale(.985);box-shadow:inset 0 0 0 2px rgba(23,115,73,.45)}
+/* Scroll reveal. The classes are added by script only to blocks that are still below the screen, so with no script, or before it runs, everything is visible. */
+@media (prefers-reduced-motion:no-preference){
+ .wl-reveal{opacity:0;transform:translateY(14px)}
+ .wl-reveal.wl-in{opacity:1;transform:none;transition:opacity .45s ease,transform .45s ease}
+}
+@media (prefers-reduced-motion:reduce){
+ :is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop,.pulse-card){transition:none}
+ :is(.public-path,.path-card,.price-card,.membership-card,.rhythm-card,.strategy-card,.portfolio-card,.mission-card,.sprint-stop,.checkpoint-stop):hover{transform:none}
+ .wl-reveal{opacity:1;transform:none}
+}

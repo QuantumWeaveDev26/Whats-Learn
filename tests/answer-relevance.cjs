@@ -1,0 +1,19 @@
+// Regression: pasted Wrangler server logs were saved as a starter piece. Relevance checks for the home starter and missions. Run: node --test tests/answer-relevance.cjs
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript');
+require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
+const original=Module._load;Module._load=function(name,parent,isMain){if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
+const {checkStarter}=require('../lib/starter-check.ts'),{checkWriting}=require('../lib/writing-check.ts'),{looksLikeMachineText}=require('../lib/text-signals.ts'),{missions}=require('../lib/missions.ts');
+const log=fs.readFileSync(path.resolve(__dirname,'fixtures/wrangler-log.txt'),'utf8');const lines=log.split('\n').filter(Boolean);
+// The whole log, every run of 1–4 consecutive lines, and the log with a friendly sentence in front are all rejected.
+const samples=[log,`Here is my answer:\n${lines.slice(7,12).join('\n')}`];for(let n=1;n<=4;n++)for(let i=6;i+n<=lines.length;i++)samples.push(lines.slice(i,i+n).join('\n'));
+for(const track of ['marketing','development','filmmaking','storytelling'])for(const s of samples){const r=checkStarter(track,s);assert.equal(r.ok,false,`${track}: ${s.slice(0,60)}`);if(s.includes('[wrangler'))assert.equal(r.reason,'machine')}
+assert.match(checkStarter('marketing',log).message,/server log, code or terminal text/);
+for(const id of ['m1','d1','f1','v1']){const m=missions.find(x=>x.id===id);for(const s of samples.slice(0,4)){const r=checkWriting(m,s);assert.equal(r.blocked,true,id);assert.equal(r.stars,1)}}
+assert.match(checkWriting('m1',lines.slice(7,12).join('\n')).tip,/server log, code or terminal text/);
+for(const s of ['asdf qwer zxcv hjkl','hello hello hello hello','I like cricket and my dog is cute','ok','const x = fetch("/api/work"); return x;'])assert.equal(checkStarter('marketing',s).ok,false,s);
+const good=[['marketing','College students in Jayanagar: show your ID this Friday and get 20% off. Book a table now.'],['marketing','Busy office workers, get a healthy lunch delivered. Order before 11 today.'],['development','Send the draft to the client, collect their feedback in one comment thread, then they approve the final version.'],['filmmaking','A girl wants to join the cricket team. She hesitates at the gate, then walks in.'],['storytelling','Frame 1: a crowded bus stop in rain. Frame 2: an app shows the next bus. Frame 3: try it today.'],
+ ['marketing','ಕಾಲೇಜು ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ: ಈ ಶುಕ್ರವಾರ ನಮ್ಮ ಅಂಗಡಿಗೆ ಬನ್ನಿ, 20% ರಿಯಾಯಿತಿ ಪಡೆಯಿರಿ.'],['marketing','ऑफिस जाने वाले लोगों के लिए: आज ही दोपहर का खाना ऑर्डर करें।'],['marketing','நகரத்தில் வேலை செய்யும் இளைஞர்களுக்கு: இன்றே எங்கள் கடைக்கு வாருங்கள்.'],['development','ಡ್ರಾಫ್ಟ್ ಕಳುಹಿಸಿ, ಗ್ರಾಹಕರ ಪ್ರತಿಕ್ರಿಯೆ ಪಡೆಯಿರಿ, ನಂತರ ಅಂತಿಮ ಆವೃತ್ತಿ ದೃಢಪಡಿಸಿ.']];
+for(const [t,s] of good){const r=checkStarter(t,s);assert.equal(r.ok,true,s);assert.match(r.message,/not an AI review/)}
+for(const s of ['For office-goers in Indiranagar who skip lunch: home food at your desk. Order on WhatsApp by 11 and it arrives at 1. Today only, try the first meal at half price.','Visit our site at https://example.com to order.'])assert.equal(looksLikeMachineText(s),false,'Normal writing, even with one link, is not treated as a log');
+assert.equal(checkWriting('m1','For office-goers in Indiranagar who skip lunch: home food at your desk. Order on WhatsApp by 11 and it arrives at 1. Try the first meal at half price this week.').blocked,false);
+console.log(`PASS: ${samples.length} Wrangler log samples rejected on 4 starter tracks and 4 missions; ${good.length} real answers in 4 languages accepted.`);

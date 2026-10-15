@@ -1,0 +1,603 @@
+{
+ "v1": {
+  "task": "Plan the library story. Write the Audience, then Frame 1, Frame 2 and Frame 3, each with what we see, the feeling and a short caption, and name the Visual detail that stays the same. In your reasoning box, explain why you ordered the frames this way.",
+  "question": "The library’s draft has Frame 1 as an exam hall, Frame 2 as a cricket match, and Frame 3 as a bookshelf with the address. Reviewers say the three pictures feel unrelated. What is the best fix?",
+  "options": [
+   "Add a fourth frame listing all of the library’s events and timings for the month",
+   "Write a longer, more detailed AI prompt for each frame so the pictures look richer",
+   "Show problem, change and invitation in order, linked by one repeated detail"
+  ],
+  "answer": 2,
+  "explanation": "Frames feel like a story when each has one job and something visible repeats across them. A longer prompt or an extra frame of events adds detail but does not connect the pictures.",
+  "practical": {
+   "fields": [
+    {
+     "id": "audience",
+     "label": "Audience",
+     "type": "short",
+     "hint": "Name one specific group, such as college students near the library, not everyone."
+    },
+    {
+     "id": "frame_1",
+     "label": "Frame 1",
+     "type": "short",
+     "hint": "What we see, the feeling, and a short caption. Show the relatable problem."
+    },
+    {
+     "id": "frame_2",
+     "label": "Frame 2",
+     "type": "short",
+     "hint": "What we see, the feeling, and a short caption. Show the change happening."
+    },
+    {
+     "id": "frame_3",
+     "label": "Frame 3",
+     "type": "short",
+     "hint": "What we see, the feeling, and a caption that ends with one clear invitation."
+    },
+    {
+     "id": "thread",
+     "label": "Visual detail that stays the same",
+     "type": "short",
+     "hint": "One object, colour or place that appears in all three frames."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v2": {
+  "task": "Write the AI brief for the three library images. Fill Subject and setting, choose Composition and Mood, name one Consistent detail, and list Two things to avoid. In your reasoning box, explain how you would check that viewers get the story.",
+  "question": "A team asks an AI tool for three library images from a loose prompt. The results show a different person each time, and one image has a signboard with garbled letters. Which brief change helps most?",
+  "options": [
+   "Ask for the highest resolution and add extra descriptive words to every prompt",
+   "Generate fifty versions and pick the three prettiest images from the batch",
+   "Put the full caption text in the prompt so the tool prints it inside each image",
+   "Describe the person and one repeated item once, and ban text in the image"
+  ],
+  "answer": 3,
+  "explanation": "A fixed description and a recurring detail keep the set consistent, and banning text avoids garbled letters that you can replace with proper captions in the layout. Resolution, volume and asking for text in the image do not solve either problem.",
+  "practical": {
+   "fields": [
+    {
+     "id": "subject",
+     "label": "Subject and setting",
+     "type": "short",
+     "hint": "Who is in the image and where, in plain words. Be specific about the person and place."
+    },
+    {
+     "id": "composition",
+     "label": "Composition",
+     "type": "choice",
+     "hint": "Pick the framing you would ask the AI for in all three images.",
+     "options": [
+      "Eye-level medium shot, person in the middle third",
+      "Over-the-shoulder shot looking at the shelves",
+      "Wide shot with the person small in the room",
+      "Close-up on hands and the book"
+     ]
+    },
+    {
+     "id": "mood",
+     "label": "Mood and light",
+     "type": "choice",
+     "hint": "Pick the mood a first-time visitor should feel.",
+     "options": [
+      "Warm natural afternoon light, calm and welcoming",
+      "Soft morning light, fresh and hopeful",
+      "Cosy evening lamplight, quiet and safe",
+      "Bright airy daylight, open and friendly"
+     ]
+    },
+    {
+     "id": "continuity",
+     "label": "Consistent detail",
+     "type": "short",
+     "hint": "One item or colour repeated across all three images so they look like a set."
+    },
+    {
+     "id": "avoid",
+     "label": "Two things to avoid",
+     "type": "long",
+     "hint": "Name two exclusions, such as text inside the image or invented endorsements, and say why each matters."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v3": {
+  "task": "For the Pune photography club, write the Audience, choose one Feeling and one Action, then write the One-line message that joins all three. In your reasoning box, explain why you chose that feeling instead of another.",
+  "checks": [
+   "Name one audience",
+   "Choose one feeling",
+   "Choose one action",
+   "Join them in one line",
+   "Explain the feeling you chose"
+  ],
+  "question": "The Pune club drafts a poster line: “Photography club: cameras, walks, friends, contests and workshops, all in one place!” The club wants first-year students to join Saturday walks. Which rewrite is best?",
+  "options": [
+   "Join a lively club with many events, walks, contests and chances to grow throughout the year",
+   "First year? Come on Saturday’s walk, no camera skills needed",
+   "Our members love photography and we would be happy to see more people soon"
+  ],
+  "answer": 1,
+  "explanation": "The second line names one audience, lowers the fear of not being good enough, and gives one action. The others still list or describe the club without telling a particular person what to do next.",
+  "practical": {
+   "fields": [
+    {
+     "id": "audience",
+     "label": "Audience",
+     "type": "short",
+     "hint": "One specific group of students, not everyone in the college."
+    },
+    {
+     "id": "feeling",
+     "label": "Feeling you want",
+     "type": "choice",
+     "hint": "The main feeling the poster should create in that audience.",
+     "options": [
+      "Curiosity",
+      "Belonging",
+      "Confidence",
+      "Excitement",
+      "Relief"
+     ]
+    },
+    {
+     "id": "action",
+     "label": "Action you want",
+     "type": "choice",
+     "hint": "The single next step you would ask for on the poster.",
+     "options": [
+      "Turn up at the gate for the Saturday walk",
+      "Message the club on Instagram to reserve a spot",
+      "Fill a short sign-up form this week",
+      "Bring one friend along this Saturday"
+     ]
+    },
+    {
+     "id": "line",
+     "label": "One-line message",
+     "type": "short",
+     "hint": "One line a stranger could repeat. It should carry the audience, the feeling and the action."
+    }
+   ]
+  }
+ },
+ "v4": {
+  "task": "Plan the open-mic poster. Choose a Focal point and a Main contrast, write the exact Poster headline, describe the Eye path in three steps, and name one Left out item. In your reasoning box, explain why that item was cut.",
+  "checks": [
+   "Pick one focal point",
+   "Choose one contrast",
+   "Write the poster headline",
+   "Describe three reading steps",
+   "Name what you left out"
+  ],
+  "question": "A first draft of the open-mic poster has the library logo, five performer photos, the date, a sponsor strip and a quote, all about the same size. People walking by cannot say what it is for. What is the best fix?",
+  "options": [
+   "Add brighter colours to every element so each one pops out of the board",
+   "Reduce the font and photo sizes so everything fits comfortably",
+   "Let one element dominate through size and space, and shrink or cut the rest"
+  ],
+  "answer": 2,
+  "explanation": "When everything competes, nothing leads, so the eye has no starting point. Making one thing clearly larger and giving it room lets the rest be read in order. Brighter colours on everything only adds more competition.",
+  "practical": {
+   "fields": [
+    {
+     "id": "focal",
+     "label": "Focal point",
+     "type": "choice",
+     "hint": "What should the eye land on first?",
+     "options": [
+      "A large microphone image in the upper third",
+      "The bold words “Open Mic Friday” as the headline",
+      "A single performer silhouette on a dark background",
+      "The date and time set in very large numbers"
+     ]
+    },
+    {
+     "id": "contrast",
+     "label": "Main contrast",
+     "type": "choice",
+     "hint": "The one contrast that makes your focal point stand out.",
+     "options": [
+      "Size: much bigger than everything else",
+      "Light against dark",
+      "One bright colour on a calm background",
+      "Empty space around it"
+     ]
+    },
+    {
+     "id": "headline",
+     "label": "Poster headline",
+     "type": "short",
+     "hint": "The exact words on the poster, short enough to read while walking."
+    },
+    {
+     "id": "path",
+     "label": "Eye path",
+     "type": "long",
+     "hint": "Three steps, for example from the main image to the headline to the details, with what sits at each step."
+    },
+    {
+     "id": "left_out",
+     "label": "Left out",
+     "type": "short",
+     "hint": "One thing you removed from the poster."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v5": {
+  "task": "Plan the book-donation flyer for readers with weak eyesight. Choose Text and background, Headline size and Colour roles, then write how a Date cue works without colour. In your reasoning box, explain how you would test it in greyscale.",
+  "checks": [
+   "Pick a text and background pair",
+   "Choose a headline size",
+   "Assign colour roles",
+   "Add a cue that does not rely on colour",
+   "Explain a greyscale test"
+  ],
+  "question": "The NGO’s draft flyer has an orange headline on a pink background. It looks lively on a phone, but printed in black and white at the shop the headline almost disappears. What is the best fix?",
+  "options": [
+   "Use a very dark headline on a clearly lighter background, so the difference is in brightness",
+   "Make the orange a little more vivid and saturated so that it prints much stronger in the shop",
+   "Put a thin outline around each letter in a lighter shade of pink"
+  ],
+  "answer": 0,
+  "explanation": "Black-and-white printing keeps only how light or dark a colour is, so two colours of similar brightness merge. Changing the brightness gap fixes it for everyone. A more vivid orange or a faint outline still leaves the two colours close in brightness.",
+  "practical": {
+   "fields": [
+    {
+     "id": "contrast",
+     "label": "Text and background",
+     "type": "choice",
+     "hint": "The pair you would use for the main text.",
+     "options": [
+      "Black text on white paper",
+      "Deep brown text on cream paper",
+      "White text on dark navy",
+      "Dark green text on pale yellow"
+     ]
+    },
+    {
+     "id": "size",
+     "label": "Headline size on A4 print",
+     "type": "choice",
+     "hint": "Pick a size for the main headline.",
+     "options": [
+      "36 pt",
+      "48 pt",
+      "60 pt",
+      "72 pt, only a short headline"
+     ]
+    },
+    {
+     "id": "palette",
+     "label": "Colour roles",
+     "type": "choice",
+     "hint": "Pick how many colours you use and what each one does.",
+     "options": [
+      "Two: one for text, one for background",
+      "Three: text, background and one accent for the date",
+      "Three: dark text, light background and a warm band for the title",
+      "Four: text, background, accent and a soft highlight"
+     ]
+    },
+    {
+     "id": "cue",
+     "label": "Date cue without colour",
+     "type": "short",
+     "hint": "How the donation date stands out even in greyscale, such as a box, bold type or an icon."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v6": {
+  "task": "Turn the library’s 420, 510 and 640 into one honest chart story. Choose the Chart type, write a Headline finding, a Caption of under 25 words, and one thing the numbers do not prove. In your reasoning box, explain why that chart fits.",
+  "checks": [
+   "Pick a chart type",
+   "State the finding in a headline",
+   "Keep the caption short and accurate",
+   "Name something the data does not prove",
+   "Explain why the chart fits"
+  ],
+  "question": "A library plots visits of 420, 510 and 640 as bars, but starts the vertical axis at 400. The May bar looks about twelve times taller than March. Why is this a problem?",
+  "options": [
+   "Bars cannot show only three numbers, so a table would be needed",
+   "The numbers should be rounded to the nearest hundred first",
+   "Nothing is wrong, since a taller bar always shows a bigger number and readers understand that",
+   "The cut-off axis exaggerates the rise, so the bars should start at zero"
+  ],
+  "answer": 3,
+  "explanation": "Bar length is read as size, so cutting the axis makes a rise of about half look like a huge jump. Starting at zero keeps the bar lengths in true proportion. A short series of three values is fine for bars.",
+  "practical": {
+   "fields": [
+    {
+     "id": "chart",
+     "label": "Chart type",
+     "type": "choice",
+     "hint": "The simplest chart that shows the change across three months.",
+     "options": [
+      "Bar chart starting at zero",
+      "Line chart with three labelled points",
+      "Big-number callout with a small arrow",
+      "Column chart with value labels on each column"
+     ]
+    },
+    {
+     "id": "headline",
+     "label": "Headline finding",
+     "type": "short",
+     "hint": "One plain sentence that states what changed, not a topic label."
+    },
+    {
+     "id": "caption",
+     "label": "Caption",
+     "type": "short",
+     "hint": "Under 25 words. State only what the numbers show."
+    },
+    {
+     "id": "unproven",
+     "label": "What the numbers do not prove",
+     "type": "short",
+     "hint": "One thing a reader might wrongly assume from this chart."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v7": {
+  "task": "Plan the bakery’s five-slide carousel with one idea per slide. Write one short line and a picture note for Slide 1 hook, Slides 2 and 3 build, Slide 4 proof and Slide 5 invitation. In your reasoning box, name one claim to check before posting.",
+  "checks": [
+   "Slide 1 is a hook",
+   "Each slide has one idea",
+   "Proof supports the claim",
+   "Slide 5 invites one action",
+   "Name one claim to check"
+  ],
+  "question": "The bakery’s slide 3 reads: “Made with millet, less sugar, free delivery nearby and 10% off for students.” It is too crowded to read in a second. What is the best fix?",
+  "options": [
+   "Reduce the font size a lot so that all four points still fit on the same slide",
+   "Make the slide longer by adding more detail about each point",
+   "Keep one idea on this slide and move the others to their own slides"
+  ],
+  "answer": 2,
+  "explanation": "A carousel is read quickly, one slide at a time, so each slide should carry a single idea. Splitting the points gives each one room and a reason to swipe. Shrinking the text only makes the slide harder to read.",
+  "practical": {
+   "fields": [
+    {
+     "id": "s1",
+     "label": "Slide 1: hook",
+     "type": "short",
+     "hint": "One line and a picture note that stops the scroll. A question or surprise works better than a logo."
+    },
+    {
+     "id": "s2",
+     "label": "Slide 2: build",
+     "type": "short",
+     "hint": "One line and a picture note: the first idea that adds interest."
+    },
+    {
+     "id": "s3",
+     "label": "Slide 3: build",
+     "type": "short",
+     "hint": "One line and a picture note: a second, different idea."
+    },
+    {
+     "id": "s4",
+     "label": "Slide 4: proof",
+     "type": "short",
+     "hint": "One line and a picture note that makes the claim believable."
+    },
+    {
+     "id": "s5",
+     "label": "Slide 5: invitation",
+     "type": "short",
+     "hint": "One line and a picture note with a single action, such as ordering the six-cookie box for ₹240."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v8": {
+  "task": "Review the imagined lunch-box image. Write one finding each for Hands and text, Bias or gaps and Consent or rights, choose a Verdict, then write the Revision request. In your reasoning box, explain why you chose that verdict.",
+  "checks": [
+   "Note a hands or text defect",
+   "Name a stereotype or gap",
+   "Address consent or rights",
+   "Choose a verdict",
+   "Make the revision request specific"
+  ],
+  "question": "A Kochi tea-stall owner’s AI-made banner shows a smiling shop owner who looks very much like a well-known film actor. The owner likes it and wants to print it. What should happen first?",
+  "options": [
+   "Print it, since an AI picture does not belong to anyone and carries no risk at all",
+   "Change or replace the face so no real person is imitated, then review again",
+   "Print it small in a corner so that fewer people will notice",
+   "Add an “AI generated” label and print it as it is"
+  ],
+  "answer": 1,
+  "explanation": "A face that resembles a real person can suggest that person endorses the shop, and AI images are not automatically free of such risks. The image should be changed first. A label does not remove the problem.",
+  "practical": {
+   "fields": [
+    {
+     "id": "defects",
+     "label": "Hands and text finding",
+     "type": "short",
+     "hint": "What is wrong with the hands or the lettering on the box, and where."
+    },
+    {
+     "id": "bias",
+     "label": "Bias or gaps finding",
+     "type": "short",
+     "hint": "Who is missing or shown as a stereotype in the picture."
+    },
+    {
+     "id": "rights",
+     "label": "Consent or rights finding",
+     "type": "short",
+     "hint": "Any risk with real people, artists or brands being copied."
+    },
+    {
+     "id": "verdict",
+     "label": "Verdict",
+     "type": "choice",
+     "hint": "Your overall decision on the image.",
+     "options": [
+      "Use as it is",
+      "Use after fixing small details in the layout",
+      "Regenerate with a new prompt",
+      "Reject it and use a real photo"
+     ]
+    },
+    {
+     "id": "revision",
+     "label": "Revision request",
+     "type": "long",
+     "hint": "The exact change you would ask the AI tool or designer for, in plain words."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v9": {
+  "task": "Plan the three-slide pitch for the bicycle repair stall. Write the Problem slide, the Insight slide and the Ask slide, with a headline and picture for each, and choose the Proof for the insight. In your reasoning box, explain how this order helps persuade the council.",
+  "checks": [
+   "Write a headline for each slide",
+   "Make the problem easy to feel",
+   "Give a fresh insight",
+   "Make the ask specific",
+   "Explain why the order works"
+  ],
+  "question": "A student team opens its pitch to the council with “Please give us ₹12,000 for a repair stall.” Members interrupt to ask why it is needed. What is the best change?",
+  "options": [
+   "Start with the problem and insight so the need is clear when the ask comes",
+   "Say a much smaller amount at the start so the council is less likely to object to it",
+   "Add ten more slides of figures before the ask so nobody questions it"
+  ],
+  "answer": 0,
+  "explanation": "People agree faster when they already understand the need and the idea, so the ask should arrive last. Hiding or shrinking the amount does not answer their question, and a long wall of figures loses the room.",
+  "practical": {
+   "fields": [
+    {
+     "id": "problem",
+     "label": "Problem slide",
+     "type": "short",
+     "hint": "A headline and a picture that make the council feel the need."
+    },
+    {
+     "id": "insight",
+     "label": "Insight slide",
+     "type": "short",
+     "hint": "A headline and picture for what you noticed that others missed."
+    },
+    {
+     "id": "proof",
+     "label": "Proof for the insight",
+     "type": "choice",
+     "hint": "The evidence you would show on the insight slide.",
+     "options": [
+      "A quick survey of 30 hostel students",
+      "A photo count of bicycles with small faults",
+      "A comparison of repair shop prices",
+      "A short quote from a hostel warden"
+     ]
+    },
+    {
+     "id": "ask",
+     "label": "Ask slide",
+     "type": "short",
+     "hint": "Headline and picture, with a specific amount, place and start date."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ },
+ "v10": {
+  "task": "Storyboard the Jaipur tutoring-volunteer campaign. Name the Audience and repeating detail, write Frames 1 to 3 and Frames 4 and 5 with a caption each, choose the Risk and fix, and write an AI disclosure line. In your reasoning box, explain why the order of frames works.",
+  "checks": [
+   "Name one audience",
+   "Put five frames in order",
+   "Repeat one visual detail",
+   "Choose a risk and fix",
+   "Write an AI disclosure line"
+  ],
+  "question": "The NGO’s five frames use a different art style, colours and character each time. Viewers do not realise they belong to one campaign. What is the most effective fix?",
+  "options": [
+   "Add the NGO’s name in big letters on every frame to link them",
+   "Post each frame on a different day so people notice each one",
+   "Add more frames showing every kind of volunteer task",
+   "Choose one repeated detail and one colour scheme, and use them in all five"
+  ],
+  "answer": 3,
+  "explanation": "A repeated visual detail and shared palette make separate frames read as one set, and viewers can follow the story. A name alone does not unify the look, and extra frames add more variety, not less.",
+  "practical": {
+   "fields": [
+    {
+     "id": "setup",
+     "label": "Audience and repeating detail",
+     "type": "short",
+     "hint": "Who the campaign speaks to, and the one object or colour that repeats in every frame."
+    },
+    {
+     "id": "frames_a",
+     "label": "Frames 1 to 3",
+     "type": "long",
+     "hint": "One line each: what we see, plus a short caption. Start with the problem and build to the change."
+    },
+    {
+     "id": "frames_b",
+     "label": "Frames 4 and 5",
+     "type": "long",
+     "hint": "One line each: what we see and a caption. Frame 5 ends with the invitation to volunteer."
+    },
+    {
+     "id": "risk",
+     "label": "Risk and fix",
+     "type": "choice",
+     "hint": "Pick the pair you would act on for this campaign.",
+     "options": [
+      "Real children may appear, so use drawn illustrations instead of photos",
+      "AI faces may look odd, so edit them by hand before posting",
+      "Captions may be misread, so test them with three college students",
+      "Images may copy an artist’s style, so avoid naming artists in prompts"
+     ]
+    },
+    {
+     "id": "disclosure",
+     "label": "AI disclosure line",
+     "type": "short",
+     "hint": "A short plain line telling viewers that some images were made with AI."
+    }
+   ],
+   "link": {
+    "label": "Image, board or slide link (optional)",
+    "hint": "Paste a link to a board or slide you made yourself."
+   }
+  }
+ }
+}

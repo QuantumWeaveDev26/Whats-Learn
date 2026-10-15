@@ -1,0 +1,107 @@
+{
+ "v1": {
+  "fields": {
+   "audience": "College students aged 18 to 24 who live near the library (the target audience)",
+   "frame_1": "A student on a bus, face lit by a phone full of alerts. Feeling: tired and scattered. Caption: Too much noise today?",
+   "frame_2": "Same student at a window desk, phone face down, reading a book. Feeling: calm and curious. Caption: Ten quiet minutes can change your evening.",
+   "frame_3": "The student holds the library door open for a friend. Feeling: welcome. Caption: Bring a friend and pick a book this Saturday.",
+   "thread": "A mustard yellow scarf worn by the student in every frame, the visual detail that links the sequence"
+  },
+  "reasoning": "This three-frame story is for the library's social page, so I used still images and picked young adults as the audience. I planned a clear sequence of three frames, each with one main idea and one job and the message is clear: the problem, the change, then the invitation. I decided the audience and the feeling (calm, then welcome) before any image or AI tool. The yellow scarf links them so people see one story, not three random pictures. I picked students because the library wants younger visitors.",
+  "link": "https://www.canva.com/design/example-library-story/view"
+ },
+ "v2": {
+  "fields": {
+   "subject": "A young woman in her twenties in a bright neighbourhood library in Bengaluru, moving from her phone to a book",
+   "composition": "Eye-level medium shot, person in the middle third",
+   "mood": "Warm natural afternoon light, calm and welcoming",
+   "continuity": "A blue cloth tote bag on her shoulder or beside her in every image",
+   "avoid": "1. No words or signboards inside the image, because AI usually spells them wrongly. I will add captions later in the layout. 2. No famous faces or fake testimonials, so nobody thinks a real person recommends the library."
+  },
+  "reasoning": "I kept eye-level framing and the same warm light so the three images feel like one calm story. Before using them I would show the set to five people who have never seen the plan and ask what story they see. If they cannot say it goes from distraction to curiosity to belonging, I would simplify the sequence.",
+  "link": "https://www.figma.com/board/example-library-brief"
+ },
+ "v3": {
+  "fields": {
+   "audience": "First-year students who are new to the city and have not joined any club yet",
+   "feeling": "Belonging",
+   "action": "Turn up at the gate for the Saturday walk",
+   "line": "New in town? Walk with us on Saturday and find your people"
+  },
+  "reasoning": "I chose belonging because first-years are often lonely in the first month, and a photo walk is easy to join without any skill. Curiosity would also work, but it would speak to people who already like photos. Asking them to just turn up keeps the step small."
+ },
+ "v4": {
+  "fields": {
+   "focal": "A large microphone image in the upper third",
+   "contrast": "Light against dark",
+   "headline": "Your voice, Friday 6 pm. Open mic at the library",
+   "path": "Step 1: a glowing yellow microphone on a deep blue background at the top. Step 2: the headline just beneath it in big white letters. Step 3: a small line at the bottom with the date, time and the library gate number.",
+   "left_out": "The list of sponsors and the performer photos"
+  },
+  "reasoning": "I removed the sponsors and photos because people at a notice board give a poster two seconds, and extra items would compete with the microphone. The dark background makes the light microphone and headline stand out. The details come last because only interested people will stop to read them.",
+  "link": "https://www.canva.com/design/example-open-mic-poster/view"
+ },
+ "v5": {
+  "fields": {
+   "contrast": "Deep brown text on cream paper",
+   "size": "60 pt",
+   "palette": "Three: text, background and one accent for the date",
+   "cue": "The date sits inside a thick black box with a small calendar icon beside it"
+  },
+  "reasoning": "I chose brown on cream because it feels warm and hopeful but is still very dark against light. A large headline helps older readers on small screens. To test it, I would print the flyer in black and white and look from two metres away, and also squint at it on a cheap phone. If the date still stands out, the contrast is working.",
+  "link": "https://www.figma.com/board/example-book-drive"
+ },
+ "v6": {
+  "fields": {
+   "chart": "Bar chart starting at zero",
+   "headline": "More young adults visited the library each month from March to May",
+   "caption": "Young adult visits were 420 in March, 510 in April and 640 in May.",
+   "unproven": "It does not prove the weekend reading circles caused the rise; other things may have changed too."
+  },
+  "reasoning": "I used bars from zero because the library only has three months to compare and bars are easy to read at a glance. The headline says what changed without adding a reason. I avoided exaggeration by showing the real values on the bars and not saying the circles caused the growth.",
+  "link": "https://docs.google.com/presentation/d/example-library-chart"
+ },
+ "v7": {
+  "fields": {
+   "s1": "Text: Sweet craving at 4 pm again? Picture: a hand reaching into an empty biscuit tin.",
+   "s2": "Text: Meet our millet cookies. Picture: a warm tray of cookies on a wooden table.",
+   "s3": "Text: Made with less sugar, not less taste. Picture: a cookie broken in half showing the crumb.",
+   "s4": "Text: Our regular customers say the box finished in a day. Picture: a photo of a customer holding the box, with permission.",
+   "s5": "Text: Try the box of six for ₹240. Order on WhatsApp today. Picture: the box with the order number in big digits."
+  },
+  "reasoning": "Slide 1 starts with a familiar feeling instead of our name, so people want to swipe. Each slide has just one idea so that it can be read in a second. Before posting I would check the less-sugar claim against our recipe, and ask the customer before using their photo.",
+  "link": "https://www.canva.com/design/example-cookie-carousel/view"
+ },
+ "v8": {
+  "fields": {
+   "defects": "One person’s fingers look too long and the box shows garbled letters instead of a real name.",
+   "bias": "All three workers are young and light-skinned, so older people and many Indian skin tones are missing.",
+   "rights": "I cannot tell whether a face copies a real person, so I would check it and avoid anything that looks like a known individual.",
+   "verdict": "Regenerate with a new prompt",
+   "revision": "Please make a new image with four coworkers of different ages and skin tones sharing lunch. Keep their hands natural and visible, leave the lunch box plain with no text, and avoid any real person’s likeness. I will add the brand name later in the layout."
+  },
+  "reasoning": "I chose to regenerate because there are several problems, not one, and fixing the letters alone would still leave the gaps in who is shown. A new prompt can ask for variety and plain products. I would then check the new image against the same list before using it.",
+  "link": "https://www.figma.com/board/example-lunchbox-review"
+ },
+ "v9": {
+  "fields": {
+   "problem": "Headline: A flat tyre can cost a hostel student a whole afternoon. Picture: a student pushing a bicycle along the road in the sun.",
+   "insight": "Headline: Most repairs take ten minutes and a pump. Picture: a close-up of a hand fixing a chain.",
+   "proof": "A photo count of bicycles with small faults",
+   "ask": "Headline: Approve a weekly stall for ₹6,000 a term. Picture: a table under the hostel tree, starting the first Saturday of next month."
+  },
+  "reasoning": "The problem comes first so the council feels the delay a student faces. The insight then shows that the fix is small, so the ask feels reasonable instead of big. I put the money and date last, so by then they already agree it is needed and can say yes to something clear.",
+  "link": "https://docs.google.com/presentation/d/example-bicycle-pitch"
+ },
+ "v10": {
+  "fields": {
+   "setup": "College students in Jaipur; a yellow notebook appears in every frame",
+   "frames_a": "Frame 1: a child staring at a blank page, a yellow notebook closed beside her. Caption: Homework without help is hard. Frame 2: a college student sits beside her, notebook open. Caption: One hour can unlock a topic. Frame 3: the child writes, smiling. Caption: Confidence grows.",
+   "frames_b": "Frame 4: a group of students walking to the centre, notebooks in hand. Caption: Your Saturday morning matters. Frame 5: a yellow notebook with a sign-up QR code. Caption: Volunteer with us this weekend.",
+   "risk": "Real children may appear, so use drawn illustrations instead of photos",
+   "disclosure": "Images in this campaign were made with AI tools and checked by our team."
+  },
+  "reasoning": "The frames go from a child’s problem to a volunteer helping to a clear invitation, so a college student can picture themselves in the story. The yellow notebook makes the five pictures look like one set. I chose drawn illustrations because real children’s faces should not be risked, and the line tells people honestly that AI was used.",
+  "link": "https://www.canva.com/design/example-tutor-campaign/view"
+ }
+}

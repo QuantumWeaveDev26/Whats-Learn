@@ -1,0 +1,100 @@
+{
+ "d1": {
+  "fields": {
+   "story": "As a parent, I want to request a trial class in a free evening slot so that my child can try the tutor before I pay for a full month.",
+   "inputs": "Parent name (to greet them), phone number (so the tutor can confirm on WhatsApp), child's class (to prepare the right level), preferred slot (the main request). No email or address because the tutor does not need them.",
+   "accept": "1. Given a free slot, when the parent submits name, phone and slot, then the server saves it and only then shows Booking saved.\n2. Given a slot already taken, when submitted, then the server refuses it and shows the free slots.\n3. Given an empty name or a 6-digit phone, then nothing is saved and the form says which field to fix.",
+   "failure": "Sorry, that slot was just taken. Please choose another time from the list below.",
+   "private": "Parent's phone number"
+  },
+  "reasoning": "The phone number is the most private because anyone who sees it can call or message the family, so only the tutor should see it. I kept the fields short because every extra field is more data to protect and more checks to write. The saved message comes after storage so a parent is never told a lie."
+ },
+ "d2": {
+  "fields": {
+   "flaws": "First, userId comes from req.body, so a parent can send someone else's id and book or pay as them. Second, price comes from the browser, so anyone can send price 0 and get a free class. The SQL is also built by joining strings, which allows injection.",
+   "fixed": "app.post('/api/bookings', requireLogin, async (req, res) => {\n  const userId = req.session.userId;\n  const { slotId } = req.body;\n  const slot = await db.query('SELECT id, price FROM slots WHERE id = $1 AND seats_left > 0', [slotId]);\n  if (!slot.rows.length) return res.status(409).json({ error: 'slot_unavailable' });\n  const saved = await db.query(\n    'INSERT INTO bookings (user_id, slot_id, amount) VALUES ($1, $2, $3) RETURNING id',\n    [userId, slotId, slot.rows[0].price]\n  );\n  res.status(201).json({ id: saved.rows[0].id });\n});",
+   "negtests": "test('ignores a userId sent in the body', async () => {\n  const res = await api.as('priya').post('/api/bookings', { slotId: 4, userId: 99 });\n  expect(await bookingOwner(res.body.id)).toBe('priya');\n});\ntest('ignores a tampered price', async () => {\n  const res = await api.as('priya').post('/api/bookings', { slotId: 4, price: 0 });\n  expect(await bookingAmount(res.body.id)).toBe(500);\n});\ntest('rejects a duplicate request', async () => {\n  await api.as('priya').post('/api/bookings', { slotId: 4, key: 'k1' });\n  const again = await api.as('priya').post('/api/bookings', { slotId: 4, key: 'k1' });\n  expect(again.status).toBe(409);\n});",
+   "price_src": "A slots table on the server, looked up by slot id"
+  },
+  "reasoning": "I took userId from the session because the browser can send any number, and I looked up the price in the slots table because the form field can be edited in dev tools. The negative tests prove the server ignores those fields, which matters more than a nice-looking page."
+ },
+ "d3": {
+  "fields": {
+   "schema": "CREATE TABLE batches (\n  id SERIAL PRIMARY KEY,\n  subject TEXT NOT NULL,\n  starts_at TIMESTAMP NOT NULL,\n  capacity INT NOT NULL CHECK (capacity > 0)\n);\nCREATE TABLE bookings (\n  id SERIAL PRIMARY KEY,\n  batch_id INT NOT NULL REFERENCES batches(id),\n  seat_no INT NOT NULL,\n  parent_name TEXT NOT NULL,\n  parent_phone TEXT NOT NULL,\n  UNIQUE (batch_id, seat_no)\n);",
+   "unique_rule": "One row per seat number in one batch",
+   "private_cols": "parent_phone and parent_name in bookings. Only the tutor can read them, and a parent can see only their own row. Other parents should see only how many seats are left."
+  },
+  "link": "https://github.com/example-user/tutor-booking-schema",
+  "reasoning": "I made batch_id and seat_no unique together because the problem is two people getting the same seat, and the database checks this at save time even when two clicks arrive together. A phone number is private because anyone holding it can contact a family, so the tutor alone reads it."
+ },
+ "d4": {
+  "fields": {
+   "endpoint": "POST /api/workshop/registrations",
+   "req_json": "const body = {\n  name: \"Rohan Kulkarni\",\n  email: \"rohan@example.com\",\n  college: \"COEP Pune\",\n  year: 2\n};",
+   "ok_json": "res.status(201).json({\n  id: 318,\n  status: \"registered\",\n  message: \"You are registered for Saturday's workshop\"\n});",
+   "dup_status": "409 Conflict",
+   "errors": "1) 409, {\"error\":\"already_registered\",\"message\":\"This email is already on the list\"} when the email exists. 2) 422, {\"error\":\"invalid_input\",\"field\":\"email\",\"message\":\"Enter a valid email\"} when email or year is wrong."
+  },
+  "link": "https://gist.github.com/example-user/register-contract",
+  "reasoning": "I used 409 for a repeat email because the request is fine but clashes with saved data, and the page can read the error code to show a kind message. I wrote the contract first so the browser and server people agree on the JSON, and the AI has less room to invent field names."
+ },
+ "d5": {
+  "fields": {
+   "where_stock": "In both, browser for feedback and server as the real guard",
+   "validator": "function validateOrder(body, stockByItem) {\n  if (!body.name || body.name.trim().length < 2) return 'name_invalid';\n  if (!/^[6-9][0-9]{9}$/.test(String(body.phone))) return 'phone_invalid';\n  const stock = stockByItem[body.itemId];\n  if (stock === undefined) return 'item_unknown';\n  const qty = Number(body.quantity);\n  if (!Number.isInteger(qty) || qty < 1) return 'quantity_invalid';\n  if (qty > stock) return 'quantity_above_stock';\n  return null;\n}",
+   "msg_phone": "Please enter a 10-digit mobile number, like 9876543210, so we can call you when your order is ready.",
+   "msg_qty": "Only 12 are left in stock. Please choose 12 or fewer, or pick another item."
+  },
+  "link": "https://github.com/example-user/jaipur-order-form",
+  "reasoning": "The browser should still check empty fields and phone length because it gives instant, friendly feedback. The server repeats the phone, item and stock checks since someone can send a request without the page, and stock is the shop's money. I kept messages polite and told the customer what number to type."
+ },
+ "d6": {
+  "fields": {
+   "first_step": "Reproduce it myself with one test booking and note exact steps",
+   "evidence": "I will paste: steps (open page, pick Saturday 5pm, press Book), expected (row in bookings), actual (message shows, no row), and the server error line. I will replace the DB password, API keys and any parent phone numbers with placeholders like <DB_PASSWORD> and <PHONE> first.",
+   "fix": "app.post('/api/bookings', async (req, res) => {\n  try {\n    await db.query(\n      'INSERT INTO bookings (slot_id, parent_id) VALUES ($1, $2)',\n      [req.body.slotId, req.session.userId]\n    );\n    res.status(201).json({ ok: true, message: 'Booking confirmed' });\n  } catch (err) {\n    console.error('booking save failed', err.message);\n    res.status(500).json({ ok: false, message: 'We could not save your booking. Please try again.' });\n  }\n});"
+  },
+  "link": "https://github.com/example-user/tutor-booking/pull/12",
+  "reasoning": "The bug was that the handler sent the confirmation without waiting for the insert, and swallowed the error, so I reproduced it first and then fixed the order. I remove secrets and phone numbers because a pasted key can be stored or leaked, and I test the assistant's theory with a real booking instead of trusting it."
+ },
+ "d7": {
+  "fields": {
+   "roles": "parent and tutor",
+   "deny_status": "404 Not Found, hiding that it exists",
+   "can_access": "function canViewBooking(user, booking) {\n  if (!user || !booking) return false;\n  if (user.role === 'tutor') return true;\n  return user.role === 'parent' && booking.parentId === user.id;\n}",
+   "where": "In the server route for every read, change and cancel, because buttons can be skipped by editing the address or sending a request."
+  },
+  "link": "https://github.com/example-user/tutor-booking/blob/main/lib/access.js",
+  "reasoning": "Login only proves Meera is Meera, but permission is a separate question: is this booking hers. I chose 404 so a stranger cannot learn which booking numbers exist, and the tutor role is the one exception. The function runs on the server so changing the address or hiding buttons makes no difference."
+ },
+ "d8": {
+  "fields": {
+   "first_test": "The last-seat boundary (nine of ten taken)",
+   "tests": "test('books a seat when 3 of 10 are taken', () => {\n  expect(canBook(3, 10)).toBe(true);\n});\ntest('allows the last seat when 9 of 10 are taken', () => {\n  expect(canBook(9, 10)).toBe(true);\n});\ntest('refuses when all 10 seats are taken', () => {\n  expect(canBook(10, 10)).toBe(false);\n});",
+   "boundary_name": "Last seat: nine of ten taken still lets the tenth parent book",
+   "fix_seat": "function canBook(taken, capacity) {\n  // taken = seats already booked in this batch\n  return taken < capacity;\n}"
+  },
+  "link": "https://github.com/example-user/tutor-booking/actions/runs/1234",
+  "reasoning": "I would automate the nine-of-ten case first because the last seat is where off-by-one mistakes hide and it protects the main promise of the app. The old code used capacity - 1, so the tenth parent was always refused. The normal and failure tests alone would have passed anyway."
+ },
+ "d9": {
+  "fields": {
+   "branch": "feature/preferred-language",
+   "commits": "git switch -c feature/preferred-language\ngit add db/migrations/004_add_language.sql\ngit commit -m \"Add nullable preferred_language column to bookings\"\ngit add src/components/BookingForm.jsx\ngit commit -m \"Show preferred language select on booking form\"\ngit add src/routes/bookings.js\ngit commit -m \"Save preferred_language after validating allowed values\"",
+   "rollback": "git log --oneline -5\ngit revert -m 1 <merge-commit-hash>\ngit push origin main\n# redeploy main, then run the booking smoke test",
+   "merge_way": "Squash merge after review, one commit on main"
+  },
+  "link": "https://github.com/example-user/tutor-booking/pull/15",
+  "reasoning": "A friend reviews the pull request and checks that the new column is nullable and the form still saves when no language is chosen. I use three small commits so a problem can be traced to one step, and git revert on the merge gives a quick undo while the live app stays untouched until then."
+ },
+ "d10": {
+  "fields": {
+   "checklist": "launch_checklist:\n  - [ ] security: does a request for another family's booking return 404 or 403?\n  - [ ] tests: do the seat boundary and negative tests all pass in CI?\n  - [ ] privacy: is parent_phone hidden from every page except the tutor's?\n  - [ ] errors: does a failed save show \"please try again\" and not \"confirmed\"?\n  - [ ] monitoring: does the tutor get a WhatsApp alert after 3 failed saves?",
+   "first_risk": "Any family can open another family's booking",
+   "alert": "The tutor gets a WhatsApp message from the server if three saves fail within ten minutes.",
+   "why": "Changing the booking number is easy to try and likely once fifty families are using the app, and the harm is real: phone numbers of other parents are exposed. The typo and slow loading hurt less. After the fix I will retest with a second parent login to confirm the 404."
+  },
+  "link": "https://github.com/example-user/tutor-booking/issues/20",
+  "reasoning": "I ranked the gaps by harm and likelihood: the booking-number gap is both easy to try and harmful because it leaks private phone numbers, so it goes before alerts, speed or spelling. Each check is a yes or no question so I can answer it honestly instead of feeling vaguely worried."
+ }
+}

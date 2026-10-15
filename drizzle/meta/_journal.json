@@ -1,0 +1,90 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789804343756,
+      "tag": "0000_mighty_korvac",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789804461153,
+      "tag": "0001_dapper_james_howlett",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789805286585,
+      "tag": "0002_brief_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789807020479,
+      "tag": "0003_acoustic_cardiac",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790661182659,
+      "tag": "0004_curious_human_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791268849720,
+      "tag": "0005_chubby_mole_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791609038312,
+      "tag": "0006_paid_access_ai_whatsapp",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791783894064,
+      "tag": "0007_mission_points",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791792538904,
+      "tag": "0008_points_ledger",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791800146540,
+      "tag": "0009_accounts_rewards_uploads",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791886546000,
+      "tag": "0010_checkpoint_clears",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791890000000,
+      "tag": "0011_whatsapp_bridge",
+      "breakpoints": true
+    }
+  ]
+}

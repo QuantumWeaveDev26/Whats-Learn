@@ -1,0 +1,3 @@
+import {processWebhook} from '@/lib/billing/service';
+import {BillingError} from '@/lib/billing/razorpay';
+export async function POST(request:Request){const raw=await request.text();if(raw.length>250000)return new Response('Payload too large',{status:413});const eventId=request.headers.get('x-razorpay-event-id');if(!eventId||eventId.length>200)return new Response('Event ID required',{status:400});try{return Response.json(await processWebhook(raw,request.headers.get('x-razorpay-signature')||'',eventId))}catch(e){return Response.json({error:e instanceof BillingError?e.message:'Webhook processing could not finish. Retry delivery.'},{status:e instanceof BillingError?e.status:503})}}

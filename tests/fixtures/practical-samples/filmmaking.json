@@ -1,0 +1,105 @@
+{
+ "f1": {
+  "fields": {
+   "logline": "A Bengaluru delivery rider, racing a deadline, finds a child’s handmade birthday card in a parcel bag and must decide whether to lose time returning it.",
+   "feeling": "Warmth: a small kindness lands",
+   "setup": "The rider stops at an apartment gate, checks the clock, and a handmade card slips out of the bag.",
+   "choice_beat": "He sees the name on the card, looks at his phone timer, and chooses to walk it to the watchman.",
+   "payoff": "The lonely watchman reads the card, then smiles, and the rider rides off with a lighter face."
+  },
+  "reasoning": "The choice shows the rider cares more about a stranger’s feeling than his own time, which tells us his character without any speech. I picked warmth because he pays a small cost and gets only a smile back.",
+  "link": "https://example.com/rider-board"
+ },
+ "f2": {
+  "fields": {
+   "shots": "1 | wide | rider arrives at the apartment gate | 5s | hurry\n2 | close-up | card slips out of the bag | 4s | surprise\n3 | reaction | rider checks the time on his phone | 5s | pressure\n4 | detail | name on the card is read | 5s | curiosity\n5 | medium | rider hands the card to the watchman | 6s | kindness\n6 | close-up | the watchman’s worry becomes a smile | 5s | warmth",
+   "last_size": "Close-up on the watchman’s face",
+   "cut_into": "Cutaway to the card, then back to the rider",
+   "continuity": "The rider keeps the same red jacket, bag on the left shoulder, and the gate stays on the right of frame.",
+   "sound_cue": "A phone timer ticks in shots 3 and 4, then stops the moment the card is handed over."
+  },
+  "reasoning": "The order goes from arrival to discovery, to checking the time, to the choice, to the handover and the smile, so each shot adds new information. I chose the watchman’s close-up last because the smile is the payoff of the whole story.",
+  "link": "https://example.com/six-shot-board"
+ },
+ "f3": {
+  "fields": {
+   "live_ai": "Live: rider, watchman, card close-ups, ambient sound, because performance and small details are easy to capture well.\nAI-assisted: storyboard ideas and a colour look test, because they help planning without touching the performers.",
+   "budget": "Phone gimbal hire: ₹800\nTwo performer meals and chai: ₹600\nHandmade card props: ₹300\nTransport: ₹900\nRoom tone recorder rental: ₹700\nContingency: ₹500\nTotal: ₹3,800",
+   "checks": "Same jacket, bag and time of day in each shot. Eyelines match across the cut. Colour looks the same between live and test frames. Voices and ambience are clean and level. Credits and licences checked before sharing.",
+   "rights": "Written note plus a licence check for every generated asset",
+   "no_generate": "The watchman’s smile, because it must be a real performance."
+  },
+  "reasoning": "Reshooting the smile live is free and keeps a real performance, which matters more to the story than a polished generated face. I use AI only for planning, so the continuity of light and clothes stays under my control.",
+  "link": "https://example.com/hybrid-plan"
+ },
+ "f4": {
+  "fields": {
+   "surface": "Packing the bag and an umbrella for the monsoon in the new city.",
+   "hidden": "Meera wants Isha to stay but cannot say that she will miss her.",
+   "carrier": "A held object handed over at the end",
+   "dialogue": "A: Did you pack the good umbrella?\nB: It is June. I will manage.\nA: It rains a lot there.\nB: You can have the charger, I have two.\nA: Keep it. Take the umbrella too.\nB: Fine. I will take both."
+  },
+  "reasoning": "The two roommates only talk about the umbrella and the charger, but the real thing is that Meera cares and does not want her to go. The umbrella handed over at the end carries the feeling, so nobody has to say they will miss each other.",
+  "link": "https://example.com/hostel-scene"
+ },
+ "f5": {
+  "fields": {
+   "intention": "To hide the result from anyone who asks",
+   "directions": "Try to look calm when the bus conductor asks how it went.\nKeep the result slip from your friend’s view.\nStall for time before you answer the phone call from home.",
+   "prop": "She folds the result slip smaller and smaller, then slides it into her bag.",
+   "retake": "Ask what they tried, then change the obstacle"
+  },
+  "reasoning": "If I say act sad, the actor has to produce a result, so she will probably pretend. A verb like hide gives her a real thing to try at the bus stop, and the worry will show up as she works against the obstacle of people asking questions."
+ },
+ "f6": {
+  "fields": {
+   "time_window": "Start 45 minutes before sunset and finish in blue hour",
+   "light": "Warm low sun on the lane first, then the stall’s bulbs and shop lights as the sky goes blue. The clip-on light only lifts the cook’s face a little, kept close and dim.",
+   "permission": "The stall owner gives written permission, and I will ask the ward office for the lane. The risk is traffic on the busy lane, so two crew members stand as spotters and the camera stays on the stall side.",
+   "backup": "A nearby tea stall on the college road, same time next evening."
+  },
+  "reasoning": "I picked this window because the sun gives a warm start and the blue sky lets the stall lights look bright. I will visit at that hour first to check where shadows fall, so I do not trust a daytime photo.",
+  "link": "https://example.com/stall-location"
+ },
+ "f7": {
+  "fields": {
+   "ambience": "Soft ceiling fan hum and far-off traffic",
+   "key_effect": "A heavy switch clicking off, one row of lights at a time",
+   "music": "Silence the moment the final light goes off",
+   "cues": "0:00 | fan hum and traffic | soft\n0:10 | switch click, first row | medium\n0:18 | her footsteps on tile | soft\n0:25 | second switch click | medium\n0:32 | last switch click, then silence | loud then none"
+  },
+  "reasoning": "The fan and traffic tell us the library is quiet but not empty, and every switch click shows the lights are going without a cut away. The silence at the end makes the viewer feel she is truly alone, which the picture cannot show by itself.",
+  "link": "https://example.com/library-sound"
+ },
+ "f8": {
+  "fields": {
+   "edl": "1 | wide road | 4s\n2 | rider’s hands on the handle | 4s\n3 | clock | 3s\n4 | speedometer | 3s\n5 | gate guard | 4s\n6 | rider’s face | 4s\n7 | gate closing | 8s",
+   "pace": "Long to short, then one beat of stillness at the gate",
+   "action_cut": "Cut on the rider’s hand twisting the throttle, from the hands shot into the speedometer.",
+   "dropped": "The tea shop shot goes first because it adds nothing to the pressure."
+  },
+  "reasoning": "I removed the tea shop and trimmed the wide road so the sequence is about 30 seconds. The shots get closer as the gate nears, so the viewer feels the rush, and the gate closing stays longest so the result can land.",
+  "link": "https://example.com/rough-cut"
+ },
+ "f9": {
+  "fields": {
+   "call": "7:30 am at the college gate",
+   "schedule": "7:30 | call and chai at the gate\n8:30 | bus stop scene, morning light\n10:30 | hostel room scene, crew nearby\n1:00 | lunch break\n2:00 | rest and travel to the stall\n4:00 | set up at the stall\n5:30 | stall scene at dusk\n7:30 | wrap",
+   "top_spend": "A clip-on mic and recorder rental for clean sound",
+   "budget": "Mic and recorder rental: ₹1,200\nFood and chai for eight people: ₹1,600\nAuto and bus fares: ₹900\nProps and costume: ₹800\nStall owner thank-you: ₹500\nPrinting and batteries: ₹400\nContingency: ₹600\nTotal: ₹6,000"
+  },
+  "reasoning": "I grouped the bus stop and hostel in the day and kept the stall for dusk so the crew travels only once. My trade-off was spending more on sound than on props, because bad audio is hard to fix, and I kept a ₹600 contingency for surprises.",
+  "link": "https://example.com/call-sheet"
+ },
+ "f10": {
+  "fields": {
+   "logline": "A Bengaluru delivery rider who is racing a deadline must choose between his time and returning a child’s birthday card to a lonely watchman.",
+   "audience": "College students in our city who watch short films on their phones.",
+   "mix": "Fully live action; AI only for planning and colour tests",
+   "disclosure": "All performances are live; AI was used only to plan frames and test colour, and all cast and location owners agreed in writing.",
+   "risk": "Light may change at dusk. We will shoot the key close-ups first, keep a backup afternoon, and use a clip-on light for the actors’ faces."
+  },
+  "reasoning": "The committee can trust this plan because the AI role is small and stated plainly, and the cast consent is in writing. The risk fix is realistic since it only needs a second afternoon and a cheap light we already own.",
+  "link": "https://example.com/pitch-board"
+ }
+}

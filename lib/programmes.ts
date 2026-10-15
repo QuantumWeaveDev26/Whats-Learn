@@ -1,0 +1,7 @@
+export const programmes = [
+ {id:'marketing',name:'AI Digital Marketing',short:'Market',number:'01',headline:'Make the right people care.',outcome:'A clear offer. A useful campaign. A reason to respond.',first:'m1',color:'mint',steps:['Understand a customer','Build an offer','Create a campaign'],creation:'Your first campaign brief'},
+ {id:'development',name:'AI Full-Stack Development',short:'Build',number:'02',headline:'Turn “what if” into “it works”.',outcome:'Go from a real problem to a testable digital product.',first:'d1',color:'ice',steps:['Define a real problem','Plan a useful feature','Review your AI-assisted build'],creation:'Your first product brief'},
+ {id:'filmmaking',name:'AI Filmmaking',short:'Film',number:'03',headline:'Real performances. New possibilities.',outcome:'A hybrid filmmaking programme. Combine live action, AI and deliberate production choices.',first:'f1',color:'peach',steps:['Find the story','Design the shots','Plan a hybrid production'],creation:'Your first hybrid-film plan'},
+ {id:'storytelling',name:'AI-powered Visual Storytelling',short:'Tell a story',number:'04',headline:'Make a message impossible to miss.',outcome:'Shape ideas into visual stories for brands, presentations and social content.',first:'v1',color:'lilac',steps:['Choose one audience and feeling','Build a visual sequence','Direct AI with a clear brief'],creation:'Your first visual story'}
+] as const;
+export const programmeNames:Record<string,string>=Object.fromEntries(programmes.map(p=>[p.id,p.name]));

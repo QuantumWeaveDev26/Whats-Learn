@@ -1,0 +1,638 @@
+{
+ "d1": {
+  "task": "Write the feature brief for the trial-class request. Fill User story, Fields to collect, Three acceptance checks, One failure state and Most private detail. In your reasoning explain when your success message appears and why a parent should never see it too early.",
+  "question": "Anita's page runs showMessage('Booking saved') on the Book click and only then calls fetch('/api/bookings'). On a weak mobile network the request fails. Which acceptance check should her feature brief state?",
+  "options": [
+   "Show Booking saved when the parent presses Book, since pressing is the action they asked for",
+   "Show Booking saved once the page has finished sending the request, even if no reply arrives",
+   "Show Booking saved only after the server replies that the row is stored, else a retry message",
+   "Show Booking saved after the spinner ends, then quietly retry in the background if needed"
+  ],
+  "answer": 2,
+  "explanation": "A success message is a promise that the booking exists. Only the server's reply proves the row was stored, so the brief must tie the message to that reply. Showing it on click or after sending tells the parent a lie whenever the network fails.",
+  "practical": {
+   "fields": [
+    {
+     "id": "story",
+     "label": "User story",
+     "type": "short",
+     "hint": "One line: As a parent, I want ..., so that ... Keep it about one action."
+    },
+    {
+     "id": "inputs",
+     "label": "Fields to collect",
+     "type": "long",
+     "hint": "List only the fields the tutor truly needs, each with a short reason. Leave out anything nice-to-have."
+    },
+    {
+     "id": "accept",
+     "label": "Three acceptance checks",
+     "type": "long",
+     "hint": "Three testable lines, each a situation and an exact result, for example slot taken, empty name, success."
+    },
+    {
+     "id": "failure",
+     "label": "One failure state",
+     "type": "short",
+     "hint": "What the parent sees when it goes wrong, in plain words, with the next step."
+    },
+    {
+     "id": "private",
+     "label": "Most private detail",
+     "type": "choice",
+     "options": [
+      "Parent's phone number",
+      "Child's school and class",
+      "Preferred slot and time",
+      "Parent's full name"
+     ],
+     "hint": "Pick the detail you would hide from other parents; explain in your reasoning."
+    }
+   ]
+  }
+ },
+ "d2": {
+  "task": "Review the AI-written booking handler. Name Two trust failures, rewrite it in Corrected handler, write Three negative tests, and pick Where the price comes from. In your reasoning explain why the browser cannot be trusted for these values.",
+  "question": "A reviewer reads this AI-written line: const { userId, price } = req.body; await db.query('INSERT INTO bookings(user_id, amount) VALUES ($1, $2)', [userId, price]). A parent sends userId 7 and price 0. What is the best review comment?",
+  "options": [
+   "Add a browser check that price is above zero before the form can be sent",
+   "The $1 and $2 placeholders already make this safe, so approve it",
+   "Validate that userId is a number and price is not negative",
+   "Take userId from the session and look up the price from the server's slots table"
+  ],
+  "answer": 3,
+  "explanation": "Placeholders stop SQL injection but not lying: the browser can send any userId or price. The server must take identity from the session and the price from its own table. Range checks still accept price 1 for a 500 rupee class.",
+  "practical": {
+   "fields": [
+    {
+     "id": "flaws",
+     "label": "Two trust failures",
+     "type": "long",
+     "hint": "Name both failures in this snippet and what an attacker could do with each, in your own words."
+    },
+    {
+     "id": "fixed",
+     "label": "Corrected handler",
+     "type": "code",
+     "starter": "app.post('/api/bookings', async (req, res) => {\n  const { userId, slotId, price } = req.body;\n  await db.query(\n    'INSERT INTO bookings (user_id, slot_id, amount) VALUES (' + userId + ', ' + slotId + ', ' + price + ')'\n  );\n  res.json({ ok: true, message: 'Booking saved' });\n});",
+     "anyOf": [
+      "session",
+      "req.user",
+      "$1",
+      "select"
+     ],
+     "hint": "Edit the handler: derive the user from the session, price from the database, and save with a safe query."
+    },
+    {
+     "id": "negtests",
+     "label": "Three negative tests",
+     "type": "code",
+     "anyOf": [
+      "expect",
+      "test(",
+      "it(",
+      "assert"
+     ],
+     "hint": "Three tests that must fail safely: another user, a tampered price, a duplicate request. Use expect lines."
+    },
+    {
+     "id": "price_src",
+     "label": "Where the price comes from",
+     "type": "choice",
+     "options": [
+      "A slots table on the server, looked up by slot id",
+      "A hidden field in the booking form",
+      "A value stored in the browser's local storage",
+      "The price in the page URL query string"
+     ],
+     "hint": "Pick the one source you would trust for the amount charged."
+    }
+   ]
+  }
+ },
+ "d3": {
+  "task": "Plan the tutor's booking data. In Tables and columns write the SQL for two or more records. Choose What must never repeat. In Private columns and who sees them, name two fields and who may read them. Explain in your reasoning why your uniqueness rule fits.",
+  "checks": [
+   "Write at least two tables",
+   "Give every table a primary key",
+   "Pick one uniqueness rule",
+   "Mark two private columns",
+   "Say who may see them"
+  ],
+  "question": "Anita's app stores each booking as a batch id and a seat number. Two parents press Book for seat 10 of the Saturday batch in the same second, and the app only checks the list in its own code first. What most reliably stops both from getting the seat?",
+  "options": [
+   "A note saying seats are limited, shown beside the Book button",
+   "Tell parents to refresh the page before booking a seat",
+   "A database rule allowing each batch and seat pair only once",
+   "A two-second wait after the Book button so replies can catch up"
+  ],
+  "answer": 2,
+  "explanation": "Two requests can both pass a check in code before either one saves. A unique rule in the database is checked at the moment of saving, so the second booking is refused. Notes, refreshing and waiting only reduce the chance, they do not remove it.",
+  "practical": {
+   "fields": [
+    {
+     "id": "schema",
+     "label": "Tables and columns",
+     "type": "code",
+     "anyOf": [
+      "create table",
+      "primary key",
+      "references"
+     ],
+     "hint": "SQL CREATE TABLE statements for the records, with primary keys and the foreign key from booking to batch."
+    },
+    {
+     "id": "unique_rule",
+     "label": "What must never repeat",
+     "type": "choice",
+     "options": [
+      "One row per student per batch",
+      "One row per seat number in one batch",
+      "One row per phone number overall",
+      "One row per booking date and time"
+     ],
+     "hint": "Pick the rule you would enforce in the database for last-seat bookings."
+    },
+    {
+     "id": "private_cols",
+     "label": "Private columns and who sees them",
+     "type": "long",
+     "hint": "Name two private columns and say who may read them: the parent, the tutor, or nobody else."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a diagram or schema file you own (dbdiagram, GitHub). Never share real families' data."
+   }
+  }
+ },
+ "d4": {
+  "task": "Write the Register contract. Give Method and path, a Request body with the inputs, and a Success reply. Choose a Status for already registered and describe Two error replies with when each happens. Explain in your reasoning why you wrote this before asking AI for code.",
+  "checks": [
+   "Name method and path",
+   "List every required input",
+   "Show the success JSON",
+   "Give two distinct errors",
+   "Pick a status for duplicates"
+  ],
+  "question": "The Pune workshop page sends a student's email to the Register endpoint, and the same email is already on the list. The browser team needs to show a helpful message. Which reply should the contract promise?",
+  "options": [
+   "A 409 reply with an already_registered code",
+   "A 200 reply with an empty body, so the page never breaks or shows anything odd",
+   "A 500 reply carrying the raw database error text so the team can debug quickly",
+   "A 400 reply with no message, because the browser should work out why itself"
+  ],
+  "answer": 0,
+  "explanation": "The contract should give a clear status and a code the page can turn into a friendly message. An empty 200 hides the problem, raw database text leaks internals, and a bare 400 leaves the browser guessing what went wrong.",
+  "practical": {
+   "fields": [
+    {
+     "id": "endpoint",
+     "label": "Method and path",
+     "type": "short",
+     "hint": "One line such as VERB /api/... naming the action, not the page."
+    },
+    {
+     "id": "req_json",
+     "label": "Request body",
+     "type": "code",
+     "anyOf": [
+      "name",
+      "email",
+      "{"
+     ],
+     "hint": "The JSON body as a JavaScript object literal, with every required input and realistic sample values."
+    },
+    {
+     "id": "ok_json",
+     "label": "Success reply",
+     "type": "code",
+     "anyOf": [
+      "201",
+      "200",
+      "id"
+     ],
+     "hint": "The server line that sends the success status and JSON body when the registration is saved."
+    },
+    {
+     "id": "dup_status",
+     "label": "Status for already registered",
+     "type": "choice",
+     "options": [
+      "409 Conflict",
+      "400 Bad Request",
+      "422 Unprocessable Entity",
+      "200 OK with an error message inside"
+     ],
+     "hint": "Pick the status you would return when the same email registers twice."
+    },
+    {
+     "id": "errors",
+     "label": "Two error replies",
+     "type": "long",
+     "hint": "Two different errors, each with status, JSON body and when it happens."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: your API notes in a gist, Postman or OpenAPI file you own."
+   }
+  }
+ },
+ "d5": {
+  "task": "Protect the Jaipur pickup form. Choose Where to check stock, then improve the Server validation function from its starter. Add an Error message for a bad phone and an Error message for too many items. In your reasoning explain what the browser should still do.",
+  "checks": [
+   "Choose where stock is checked",
+   "Validate phone length and digits",
+   "Reject quantity above stock",
+   "Keep both messages polite",
+   "Say how to fix each mistake"
+  ],
+  "question": "The Jaipur form stops quantity above 20 using a browser setting. A cousin sends a direct request for item 7, quantity 5000, while only 12 are in stock. Which check actually stops this order?",
+  "options": [
+   "The maximum value set on the quantity box in the page",
+   "A script that disables the Order button after the first click",
+   "Hiding the quantity box on small phone screens",
+   "The server comparing quantity with stock before saving"
+  ],
+  "answer": 3,
+  "explanation": "A direct request never touches the page, so the box limit, button script and hiding all get skipped. Only a check on the server, run before saving, sees every request and can refuse this one.",
+  "practical": {
+   "fields": [
+    {
+     "id": "where_stock",
+     "label": "Where to check stock",
+     "type": "choice",
+     "options": [
+      "In the browser only, for speed",
+      "On the server only, at save time",
+      "In both, browser for feedback and server as the real guard",
+      "Skip it and let the owner fix orders by phone"
+     ],
+     "hint": "Pick where the check \"quantity is not above stock\" must run for the order form."
+    },
+    {
+     "id": "validator",
+     "label": "Server validation function",
+     "type": "code",
+     "starter": "function validateOrder(body) {\n  if (!body.name) return 'name missing';\n  if (!body.phone) return 'phone missing';\n  return null;\n}",
+     "anyOf": [
+      "quantity",
+      "stock",
+      "test(",
+      "length",
+      "number.isinteger"
+     ],
+     "hint": "Improve the weak validator: check name, a 10-digit Indian phone, a known item, and a whole quantity from 1 to stock."
+    },
+    {
+     "id": "msg_phone",
+     "label": "Error message for a bad phone",
+     "type": "short",
+     "hint": "Polite, names the problem and the fix, without blaming the customer."
+    },
+    {
+     "id": "msg_qty",
+     "label": "Error message for too many items",
+     "type": "short",
+     "hint": "Say how many are available and what to do next."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a repository or gist with your validation code."
+   }
+  }
+ },
+ "d6": {
+  "task": "Debug the missing bookings. Choose your First move, list the Evidence for the assistant, then repair the starter in Fixed handler. In your reasoning say what you would remove before pasting anything and why you test the assistant's theory before trusting it.",
+  "checks": [
+   "Pick a first move",
+   "List steps, expected and actual",
+   "Remove private details",
+   "Fix the success timing",
+   "Handle a failed save"
+  ],
+  "question": "You will ask an AI assistant about the bug where parents see Booking confirmed but the tutor's list is empty. Which message to the assistant is both safest and most useful?",
+  "options": [
+   "Repeat steps, expected and actual result, error line, with secrets and phone numbers replaced by placeholders",
+   "Paste the whole .env file and a full export of the bookings table, so the assistant can see the entire setup and every parent's details",
+   "Only the words: booking broken, please fix it fast",
+   "A screenshot of the live admin page showing every parent's name and number"
+  ],
+  "answer": 0,
+  "explanation": "Steps plus expected and actual results give the assistant something to reason about, and placeholders keep secrets and families' data out. Pasting the .env or customer data leaks private details, and a vague message makes it guess.",
+  "practical": {
+   "fields": [
+    {
+     "id": "first_step",
+     "label": "First move",
+     "type": "choice",
+     "options": [
+      "Reproduce it myself with one test booking and note exact steps",
+      "Ask the AI to rewrite the whole booking page",
+      "Restart the server and hope it clears",
+      "Check the database tables for old rows only"
+     ],
+     "hint": "Pick the first thing you would do about the missing bookings."
+    },
+    {
+     "id": "evidence",
+     "label": "Evidence for the assistant",
+     "type": "long",
+     "hint": "List what you will paste (steps, expected, actual, error line) and what you will remove or replace first."
+    },
+    {
+     "id": "fix",
+     "label": "Fixed handler",
+     "type": "code",
+     "starter": "app.post('/api/bookings', (req, res) => {\n  db.query(\n    'INSERT INTO bookings (slot_id, parent_id) VALUES ($1, $2)',\n    [req.body.slotId, req.session.userId]\n  ).catch(err => console.log(err));\n  res.json({ ok: true, message: 'Booking confirmed' });\n});",
+     "anyOf": [
+      "await",
+      "then(",
+      "catch",
+      "status(500)",
+      "try"
+     ],
+     "hint": "Edit the handler so success is sent only after the save works, and a failed save returns an error."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a link to the issue, commit or pull request where you fixed it."
+   }
+  }
+ },
+ "d7": {
+  "task": "Close the booking-number gap. Choose Role names and the Reply for someone else's booking, then rewrite the Access-check function from its starter. Say Where the check runs. In your reasoning explain the difference between knowing who a parent is and what they may do.",
+  "checks": [
+   "Choose role names",
+   "Choose a refusal reply",
+   "Check owner or tutor role",
+   "Keep the check on the server",
+   "Separate login from permission"
+  ],
+  "question": "Meera is logged in as a parent. She changes the number in the page address from 412 to 413 and sees another family's booking and phone number. Which fix actually closes this gap?",
+  "options": [
+   "Remove the booking number from the page address so it cannot be edited by hand, and hide other families' links",
+   "Check on the server that the booking's parent matches the session user, or the user is the tutor",
+   "Only return a booking when the visitor is logged in",
+   "Use longer random booking numbers and keep the same code"
+  ],
+  "answer": 1,
+  "explanation": "The server must compare the booking's owner with the person asking, on every request. Hiding the number or lengthening it only makes guessing harder, and a login-only check lets any logged-in family read any booking.",
+  "practical": {
+   "fields": [
+    {
+     "id": "roles",
+     "label": "Role names",
+     "type": "choice",
+     "options": [
+      "parent and tutor",
+      "user and admin",
+      "parent, tutor and admin",
+      "guest, member and owner"
+     ],
+     "hint": "Pick the role set you would store in the users table."
+    },
+    {
+     "id": "deny_status",
+     "label": "Reply for someone else's booking",
+     "type": "choice",
+     "options": [
+      "403 Forbidden, plainly refusing",
+      "404 Not Found, hiding that it exists",
+      "200 with an empty booking object",
+      "302 redirect to the login page"
+     ],
+     "hint": "Pick what the server returns when a parent asks for a booking that is not theirs."
+    },
+    {
+     "id": "can_access",
+     "label": "Access-check function",
+     "type": "code",
+     "starter": "function canViewBooking(user, booking) {\n  if (user) {\n    return true;\n  }\n  return false;\n}",
+     "anyOf": [
+      "parentid",
+      "user.id",
+      "role",
+      "owner",
+      "==="
+     ],
+     "hint": "Fix canViewBooking: it must check the owner or the tutor role, not just that someone is logged in."
+    },
+    {
+     "id": "where",
+     "label": "Where the check runs",
+     "type": "short",
+     "hint": "One line naming where every protected action is checked, and why a hidden button is not enough."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a link to the file or pull request containing the function."
+   }
+  }
+ },
+ "d8": {
+  "task": "Test the ten-seat rule. Write Three test cases covering a normal, a boundary and a failure situation, then repair the Fixed seat function so the boundary test passes. Pick the Test to automate first and explain why in your reasoning.",
+  "checks": [
+   "Write a normal case",
+   "Write a boundary case",
+   "Write a failure case",
+   "Use exact expected results",
+   "Fix the off-by-one"
+  ],
+  "question": "A batch has ten seats and the code is canBook(taken, capacity) { return taken <= capacity }. Which single test would catch the mistake in this code?",
+  "options": [
+   "taken is 3 and capacity is 10, a normal booking day, expecting true",
+   "taken is 0 and capacity is 10, expecting true",
+   "taken is 12 and capacity is 10, expecting false",
+   "taken is 10 and capacity is 10, expecting false"
+  ],
+  "answer": 3,
+  "explanation": "With ten of ten seats taken the batch is full, but less-than-or-equal still says yes. Only the test at the exact limit shows it. Tests far from the limit pass with both the right and the wrong code.",
+  "practical": {
+   "fields": [
+    {
+     "id": "first_test",
+     "label": "Test to automate first",
+     "type": "choice",
+     "options": [
+      "The last-seat boundary (nine of ten taken)",
+      "A normal booking with seats free",
+      "A booking when the batch is full",
+      "An empty-name form submission"
+     ],
+     "hint": "Pick the test you would automate first and defend it in your reasoning."
+    },
+    {
+     "id": "tests",
+     "label": "Three test cases",
+     "type": "code",
+     "anyOf": [
+      "expect",
+      "test(",
+      "it(",
+      "assert"
+     ],
+     "hint": "Normal, boundary and failure tests for seats, as Jest-style code with exact expected results."
+    },
+    {
+     "id": "boundary_name",
+     "label": "Boundary test name",
+     "type": "short",
+     "hint": "One line naming the boundary test, such as when the last seat is taken, in plain words."
+    },
+    {
+     "id": "fix_seat",
+     "label": "Fixed seat function",
+     "type": "code",
+     "starter": "function canBook(taken, capacity) {\n  // taken = seats already booked in this batch\n  return taken < capacity - 1;\n}",
+     "anyOf": [
+      "<",
+      "capacity",
+      "taken"
+     ],
+     "hint": "The boundary test fails on this function. Fix the off-by-one so the tenth seat can be booked and the eleventh cannot."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a link to your test file or a passing CI run."
+   }
+  }
+ },
+ "d9": {
+  "task": "Plan adding a preferred-language field. Give a Branch name, write Three small commits as git commands, and add a Rollback plan with exact commands. Choose How to merge. Explain in your reasoning who reviews what and why small steps are safer.",
+  "checks": [
+   "Work on a separate branch",
+   "Commit in three small steps",
+   "Write clear commit messages",
+   "Write the rollback command",
+   "Choose how to merge"
+  ],
+  "question": "The preferred-language change was merged and deployed. Within minutes, bookings fail because the new column is required but the form does not send it. What is the safest first recovery move?",
+  "options": [
+   "Revert the merge commit and redeploy, then fix it on a new branch",
+   "Edit the live server files by hand until bookings work",
+   "Force-push an older copy from your laptop over main",
+   "Delete the repository and start again from last month's zip file"
+  ],
+  "answer": 0,
+  "explanation": "Reverting the merge commit returns the live app to the last working state quickly and keeps the history. Hand edits and force-pushes can lose other work, and deleting everything throws away the record that helps you find the cause.",
+  "practical": {
+   "fields": [
+    {
+     "id": "branch",
+     "label": "Branch name",
+     "type": "short",
+     "hint": "A short name that says what the change is, such as feature/ then a few words."
+    },
+    {
+     "id": "commits",
+     "label": "Three small commits",
+     "type": "code",
+     "anyOf": [
+      "git commit",
+      "git checkout",
+      "git switch",
+      "git add"
+     ],
+     "hint": "Git commands: create the branch, then three add and commit steps with clear messages, one per small change."
+    },
+    {
+     "id": "rollback",
+     "label": "Rollback plan",
+     "type": "code",
+     "anyOf": [
+      "git revert",
+      "git reset",
+      "git checkout",
+      "redeploy"
+     ],
+     "hint": "Exact commands to undo the change on the live app if bookings break after the merge."
+    },
+    {
+     "id": "merge_way",
+     "label": "How to merge",
+     "type": "choice",
+     "options": [
+      "Squash merge after review, one commit on main",
+      "Merge commit, keeping every small commit",
+      "Rebase then fast-forward for a straight history",
+      "Push straight to main to save time"
+     ],
+     "hint": "Pick how the branch joins main, and defend it in your reasoning."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: a link to the branch or pull request."
+   }
+  }
+ },
+ "d10": {
+  "task": "Decide if the booking app is safe for fifty families. Write the Launch checklist covering the five areas, choose the Risk to fix first, name Who is alerted, and say Why that risk comes first. In your reasoning explain how harm and likelihood ranked the gaps.",
+  "checks": [
+   "One check in each of five areas",
+   "Write checks as yes/no",
+   "Pick one risk first",
+   "Tie the reason to harm",
+   "Name who gets the alert"
+  ],
+  "question": "Four gaps remain a week before launch: any logged-in family can open another family's booking by changing the number; a typo in the confirmation text; no alert when saving fails; slow loading on mobile data. Which should be fixed first?",
+  "options": [
+   "The typo, because it is a ten-second fix and makes the list of gaps look much shorter",
+   "The booking-number gap, since it is easy to try and exposes families' phone numbers",
+   "The missing alert, since failures could pass unseen for a whole day and hit several parents",
+   "The slow loading, because every family sees it on the first visit and may give up before booking"
+  ],
+  "answer": 1,
+  "explanation": "Ranking by harm and likelihood puts the booking-number gap first: anyone can try it and it exposes private phone numbers. The alert and the loading time matter, but their harm is smaller, and a quick typo fix does not reduce real risk.",
+  "practical": {
+   "fields": [
+    {
+     "id": "checklist",
+     "label": "Launch checklist",
+     "type": "code",
+     "anyOf": [
+      "security",
+      "privacy",
+      "monitoring",
+      "tests"
+     ],
+     "hint": "Five yes/no checks, one each for security, tests, privacy, errors and monitoring, as a checklist block."
+    },
+    {
+     "id": "first_risk",
+     "label": "Risk to fix first",
+     "type": "choice",
+     "options": [
+      "Any family can open another family's booking",
+      "Confirmation text has a spelling mistake",
+      "No alert if bookings stop saving",
+      "The page takes three seconds to load on mobile data"
+     ],
+     "hint": "Pick the gap you would fix before launch day."
+    },
+    {
+     "id": "alert",
+     "label": "Who is alerted, and how",
+     "type": "short",
+     "hint": "Name the person and channel for the monitoring check, for example the tutor by WhatsApp."
+    },
+    {
+     "id": "why",
+     "label": "Why that risk comes first",
+     "type": "long",
+     "hint": "Link it to harm and likelihood for fifty real families, and say what you will check again after the fix."
+    }
+   ],
+   "link": {
+    "label": "GitHub or demo link (optional)",
+    "hint": "Optional: your checklist file or a launch issue on GitHub."
+   }
+  }
+ }
+}

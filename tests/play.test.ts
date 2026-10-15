@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {miniChallenge,practiceDay,practiceRewards,validPlayEvent,type PlayEvent,type SavedPractice} from '../lib/play';
+import {missions} from '../lib/missions';
+const strong='For busy office-goers in Indiranagar who skip lunch because meetings run late: get a fresh home-style lunch delivered to your desk by 1 pm. Claim to verify: delivery by 1 pm in every area. Reply MENU on WhatsApp to see this week’s menu.';
+const creation=(id:string,checks=5,body=strong):SavedPractice=>({mission_id:id,body,checks:JSON.stringify(Array.from({length:5},(_,i)=>i<checks)),quiz:missions.find(m=>m.id===id)!.answer,updated_at:'2026-10-06T03:00:00Z'});
+const event=(id:string,kind:'discover'|'revision',day=6):PlayEvent=>({event_id:`${kind}:${id}`,mission_id:id,kind,created_at:`2026-10-${String(day).padStart(2,'0')}T03:00:00Z`});
+const w=creation('m1'),d=event('m1','discover'),r=event('m1','revision',7);
+let reward=practiceRewards([w,w],[d,d,r,r],'marketing');
+assert.equal(reward.coins,16);assert.equal(reward.xp,50);assert.equal(reward.stars('m1'),3);assert.equal(reward.days,2);assert.equal(reward.level,'Maker');
+assert.equal(practiceRewards([],[r],'marketing').coins,0,'A revision without saved work earns nothing');
+assert.equal(practiceRewards([{...w,quiz:w.quiz===0?1:0}],[r],'marketing').creations,0,'Original assessment remains required');
+assert.equal(practiceRewards([creation('m1',3,'A real practice response to the mission brief.')],[],'marketing').stars('m1'),1);
+assert.equal(practiceRewards([creation('m1',5,'A real practice response to the mission brief.')],[],'marketing').stars('m1'),1,'Ticking every self-review box does not raise stars for writing that does not answer the mission');
+assert.equal(practiceRewards([creation('m1',0)],[],'marketing').stars('m1'),3,'Strong writing earns its stars from the writing itself');
+assert.equal(validPlayEvent({...d,event_id:'discover:d1'}),false);
+assert.equal(validPlayEvent({...d,created_at:'invalid'}),false);
+assert.equal(practiceDay('2026-10-06T18:29:59Z'),'2026-10-06');assert.equal(practiceDay('2026-10-06T18:30:00Z'),'2026-10-07');
+const daily:PlayEvent={event_id:'practice:2026-10-05',mission_id:'m1',kind:'practice',created_at:'2026-10-05T03:00:00Z'};
+reward=practiceRewards([w],[daily,d,r],'marketing');assert.equal(reward.days,3);assert.equal(reward.badges.find(b=>b.id==='return')!.earned,true);assert.equal(reward.coins,16,'Practice-day records carry no coins');
+reward=practiceRewards(['m1','m2','m3','d1'].map(id=>creation(id)),[],'marketing');assert.equal(reward.level,'Builder');assert.equal(reward.badges.find(b=>b.id==='sprint')!.earned,false,'sprint needs all ten marketing missions');assert.equal(practiceRewards(missions.filter(m=>m.track==='marketing').map(m=>creation(m.id)),[],'marketing').badges.find(b=>b.id==='sprint')!.earned,true);assert.equal(reward.badges.find(b=>b.id==='explorer')!.earned,true);
+for(const m of missions)for(const lang of ['en','kn','hi']){const q=miniChallenge(m.id,lang);assert.equal(q.options.length,2);assert.ok(q.options[q.answer]);assert.ok(q.why);}
+console.log('Practice rewards: eligibility, deduplication, return dates and four-programme challenges passed.');

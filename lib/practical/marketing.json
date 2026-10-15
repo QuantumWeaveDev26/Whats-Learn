@@ -1,0 +1,553 @@
+{
+ "m1": {
+  "task": "Write an offer for the Bengaluru home-meal service. Choose the Target customer, write your Offer in 40-80 words, and name one Claim to verify before publishing. In your reasoning, explain why this customer feels the problem most and why the claim needs checking.",
+  "question": "The home-meal service tests two messages for a week. “Fresh. Tasty. Affordable.” gets 9,000 views and 4 enquiries. “Home-style lunch at your Indiranagar desk by 12:45” gets 1,100 views and 31 enquiries, 22 of them about the delivery area. Which message should it keep?",
+  "options": [
+   "The first one, because 9,000 views show many more people liked it",
+   "The second, because it draws enquiries from the customers it aims at",
+   "The first one, because short general words suit every customer",
+   "Neither, until each message has been seen by at least 10,000 people"
+  ],
+  "answer": 1,
+  "explanation": "The second message names a customer, a place and a time, and most of its enquiries are about delivery, which shows the right people are replying. Views alone tell you attention, not whether the offer fits anyone, so the first message looks bigger but does less.",
+  "practical": {
+   "fields": [
+    {
+     "id": "customer",
+     "label": "Target customer",
+     "type": "choice",
+     "options": [
+      "Office-goers in Indiranagar who skip lunch at their desk",
+      "Paying-guest students near a Koramangala college",
+      "Work-from-home couples who cook only on weekends",
+      "Parents packing lunch for children in Jayanagar"
+     ],
+     "hint": "Pick the one customer your offer speaks to. Your reasoning should say why this group feels the problem most."
+    },
+    {
+     "id": "offer",
+     "label": "Offer in 40-80 words",
+     "type": "long",
+     "hint": "Name the customer, the problem, a believable outcome and end with one action to take next."
+    },
+    {
+     "id": "verify",
+     "label": "Claim to verify before publishing",
+     "type": "short",
+     "hint": "One claim from your offer that you must confirm first, such as a delivery time or a menu detail."
+    }
+   ],
+   "link": {
+    "label": "Offer draft or ad link (optional)",
+    "hint": "Optional https link to a draft, post or doc that you own."
+   }
+  }
+ },
+ "m2": {
+  "task": "Draft the campaign brief for an AI tool for three ad concepts. Choose the Campaign goal and Tone to ask for, write the Reusable AI prompt, and add a Quality checklist for the AI output. In your reasoning, explain how your prompt keeps the AI from inventing facts.",
+  "question": "A founder types “Write a great ad for our lunch service” and the AI replies with a hook saying “Rated 4.9 by 500 Bengaluru customers”. The service has 40 customers and no ratings yet. What should the founder do before using the tool again?",
+  "options": [
+   "Give it audience, goal, real evidence and a no-invented-claims rule",
+   "Ask it to make the ad more detailed and more convincing",
+   "Ask it to add a believable rating so the ad feels trusted",
+   "Lower the number to 4.5 and 50 customers, and publish it"
+  ],
+  "answer": 0,
+  "explanation": "The AI filled a gap with a made-up rating because the prompt gave it no facts and no limits. Supplying verified evidence and banning invented claims fixes the cause. Lowering the number still publishes something untrue.",
+  "practical": {
+   "fields": [
+    {
+     "id": "goal",
+     "label": "Campaign goal",
+     "type": "choice",
+     "options": [
+      "Menu enquiries on WhatsApp",
+      "Free trial lunch sign-ups",
+      "Repeat orders from past customers"
+     ],
+     "hint": "Choose the single result the three ad concepts should aim for. Your reasoning should say why it suits the offer."
+    },
+    {
+     "id": "tone",
+     "label": "Tone to ask for",
+     "type": "choice",
+     "options": [
+      "Warm and homely",
+      "Quick and practical",
+      "Light and playful"
+     ],
+     "hint": "Pick the voice the AI should write in so the ads feel right for the audience."
+    },
+    {
+     "id": "prompt",
+     "label": "Reusable AI prompt",
+     "type": "long",
+     "hint": "Cover audience, goal, verified evidence, constraints and the output format you want back."
+    },
+    {
+     "id": "review",
+     "label": "Quality checklist for the AI output",
+     "type": "long",
+     "hint": "List 3-5 checks you will run on the answer, such as invented facts, one clear action and tone fit."
+    }
+   ],
+   "link": {
+    "label": "Prompt or doc link (optional)",
+    "hint": "Optional https link to your prompt draft or ad ideas, in a doc that you own."
+   }
+  }
+ },
+ "m3": {
+  "task": "Write the follow-up messages for a prospect who asked for the menu yesterday and has not replied. Write the First reply to the prospect and One follow-up message, add an Opt-out line, and choose the Conversion measure. In your reasoning, explain why your follow-up is easy to reply to.",
+  "question": "A prospect asked a home-meal service for the menu yesterday and has not replied. She gave permission to be contacted. Which follow-up is most likely to earn a reply while respecting her?",
+  "options": [
+   "“Last chance! Only 2 lunch slots left today. Reply YES now.”",
+   "“Why have you not replied? Do you want lunch or not?”",
+   "“Vegetarian or mixed menu this week? Reply STOP to opt out.”",
+   "“Menu again”, resent every two hours until she answers"
+  ],
+  "answer": 2,
+  "explanation": "It asks one easy question, is short and lets her opt out. False scarcity and guilt push people away, and repeated messages ignore her choice and can break messaging rules.",
+  "practical": {
+   "fields": [
+    {
+     "id": "reply",
+     "label": "First reply to the prospect",
+     "type": "long",
+     "hint": "Answer the likely question, add one helpful detail and keep the tone friendly, with no pressure."
+    },
+    {
+     "id": "followup",
+     "label": "One follow-up message",
+     "type": "long",
+     "hint": "Ask one easy next-step question. No false scarcity and no guilt. It should be short enough to read in a glance."
+    },
+    {
+     "id": "optout",
+     "label": "Opt-out line",
+     "type": "short",
+     "hint": "One plain line telling the person how to stop messages, such as replying STOP."
+    },
+    {
+     "id": "measure",
+     "label": "Conversion measure",
+     "type": "choice",
+     "options": [
+      "Share of prospects who reply",
+      "Share of prospects who ask for a trial",
+      "Share of prospects who place a first order",
+      "Share of prospects who opt out"
+     ],
+     "hint": "Choose the one number that shows the follow-up worked. Your reasoning should explain why."
+    }
+   ],
+   "link": {
+    "label": "Message draft link (optional)",
+    "hint": "Optional https link to your drafted messages in a doc that you own."
+   }
+  }
+ },
+ "m4": {
+  "task": "Prepare to interview five office-goers near the Whitefield tech park. Choose your Interview group, rewrite the original leading question in Fair rewrite, and write Five questions that are open and about past behaviour. In your reasoning, explain why one of your questions is fairer than a yes/no version.",
+  "checks": [
+   "Pick one interview group",
+   "Rewrite the leading question neutrally",
+   "Write five open-ended questions",
+   "Ask about what people already did",
+   "Explain why one question is fairer"
+  ],
+  "question": "Ravi asks five colleagues at a Whitefield tech park, “Would you buy a ₹120 healthy home lunch subscription?” All five say yes, yet only one signs up after launch. What would give him more honest information next time?",
+  "options": [
+   "Ask about their last weekday lunches and what they did",
+   "Ask many more people the same question so the yes answers average out",
+   "Add more benefits to the question so they picture the product clearly"
+  ],
+  "answer": 0,
+  "explanation": "People are polite about future promises, so “yes, I would” costs them nothing. Asking what they really ate and why shows true behaviour. Asking more people the same leading question only gives more polite yeses.",
+  "practical": {
+   "fields": [
+    {
+     "id": "group",
+     "label": "Interview group",
+     "type": "choice",
+     "options": [
+      "Office-goers who bring lunch from home",
+      "Office-goers who order from delivery apps",
+      "People who tried a tiffin service and stopped",
+      "People who eat at the office canteen daily"
+     ],
+     "hint": "Pick who you will speak to first. Your reasoning should say why they can describe real lunch habits."
+    },
+    {
+     "id": "rewrite",
+     "label": "Fair rewrite of the leading question",
+     "type": "short",
+     "hint": "Rewrite “Don’t you think home food is healthier?” so it is open and does not hint at an answer."
+    },
+    {
+     "id": "questions",
+     "label": "Five questions",
+     "type": "long",
+     "hint": "Write five numbered questions. Each must be open, neutral and ask about something that already happened."
+    }
+   ]
+  }
+ },
+ "m5": {
+  "task": "Plan an A/B test for the college club’s Canva workshop post. Choose the Test variable, write Version A and Version B headlines, pick the Success metric and set a Switch rule before starting. In your reasoning, explain why everything else stays identical in both versions.",
+  "checks": [
+   "Choose exactly one variable",
+   "Write both versions in full",
+   "Pick a single success metric",
+   "Set a switch rule in advance",
+   "Explain why other things stay equal"
+  ],
+  "question": "A club posts version A on Monday with a blue poster and the headline “Free Canva workshop”. It posts version B on Friday with a red poster and a new headline. B gets 14 registrations, A gets 9. What can the club fairly say?",
+  "options": [
+   "The new headline wins because B got five more registrations than A did",
+   "The red colour worked better, since colour changes attention most",
+   "They cannot tell: headline, poster and day all changed at once",
+   "Both versions are equal because the follower group was small"
+  ],
+  "answer": 2,
+  "explanation": "When poster, day and headline all change, any of them could explain the gap. A fair test changes one thing and keeps the rest equal. Small numbers make results noisy, but the real problem here is the mixed changes.",
+  "practical": {
+   "fields": [
+    {
+     "id": "variable",
+     "label": "Test variable",
+     "type": "choice",
+     "options": [
+      "Headline wording",
+      "Poster image",
+      "Call-to-action button text",
+      "Time of posting"
+     ],
+     "hint": "Choose the one thing that differs between A and B. All other parts stay the same."
+    },
+    {
+     "id": "version_a",
+     "label": "Version A",
+     "type": "short",
+     "hint": "Write the full text of version A, the current or baseline version."
+    },
+    {
+     "id": "version_b",
+     "label": "Version B",
+     "type": "short",
+     "hint": "Write the full text of version B. It should differ from A only in the variable you chose."
+    },
+    {
+     "id": "metric",
+     "label": "Success metric",
+     "type": "choice",
+     "options": [
+      "Registrations per 100 views",
+      "Likes per post",
+      "Link clicks per 100 views",
+      "Saves and shares"
+     ],
+     "hint": "Pick the one number you will compare, decided before you start."
+    },
+    {
+     "id": "rule",
+     "label": "Switch rule",
+     "type": "short",
+     "hint": "State in advance what result makes you choose version B, for example a minimum gap."
+    }
+   ]
+  }
+ },
+ "m6": {
+  "task": "Choose one channel for the Mysuru bakery’s birthday cake campaign and one Rejected channel. Add a Tracking method for orders and a First week action within the ₹3,000 budget. In your reasoning, justify the choice using audience behaviour, cost and how you will measure results.",
+  "checks": [
+   "Choose exactly one channel",
+   "Name one rejected channel",
+   "Say how orders will be tracked",
+   "Keep the action within the budget",
+   "Justify with audience, cost, measurement"
+  ],
+  "question": "A Mysuru bakery has 220 past customers who agreed to receive order updates on WhatsApp, a ₹3,000 monthly budget and one person for marketing. Which first channel fits best for cake orders from nearby families?",
+  "options": [
+   "Search ads for “birthday cake Mysuru”, since many people search on Google",
+   "A weekly email newsletter, because sending email costs almost nothing",
+   "Instagram reels every day, because cake photos attract plenty of views",
+   "WhatsApp to opted-in past customers, with an order code word"
+  ],
+  "answer": 3,
+  "explanation": "Past customers already know the bakery and agreed to messages, so reaching them costs little and a code word makes orders countable. Search ads can work but use up a small budget fast and are harder for one person to manage well.",
+  "practical": {
+   "fields": [
+    {
+     "id": "channel",
+     "label": "Chosen channel",
+     "type": "choice",
+     "options": [
+      "WhatsApp messages to past customers",
+      "Instagram posts and stories",
+      "Local search ads",
+      "Notice boards in nearby apartments",
+      "Email newsletter"
+     ],
+     "hint": "Pick one channel to start with. Explain in your reasoning how it reaches the families and why it fits the budget."
+    },
+    {
+     "id": "rejected",
+     "label": "Rejected channel",
+     "type": "choice",
+     "options": [
+      "Local search ads",
+      "Instagram posts and stories",
+      "Email newsletter",
+      "Notice boards in nearby apartments",
+      "WhatsApp messages to past customers"
+     ],
+     "hint": "Pick one channel you will not use first. Say in your reasoning what is wrong for now."
+    },
+    {
+     "id": "tracking",
+     "label": "Tracking method",
+     "type": "short",
+     "hint": "How will you count orders from this channel, for example a code word or a separate number?"
+    },
+    {
+     "id": "action",
+     "label": "First week action",
+     "type": "long",
+     "hint": "Describe what you will do in week one, with a rupee amount and who does it."
+    }
+   ]
+  }
+ },
+ "m7": {
+  "task": "Work out the Chennai spoken-English campaign’s cost per qualified enquiry from ₹6,000 spend and 24 qualified enquiries. Enter the Cost per enquiry, show Your working, and choose the Step to improve first. In your reasoning, give a reason based on the figures.",
+  "checks": [
+   "Divide spend by qualified enquiries",
+   "Show the answer in rupees",
+   "Compare click, chat and enquiry steps",
+   "Choose one step to improve first",
+   "Use the given figures as your reason"
+  ],
+  "question": "A yoga studio runs two ads, each costing ₹3,000. Ad X brings 1,500 clicks and 6 qualified enquiries. Ad Y brings 300 clicks and 10 qualified enquiries. Which ad should get next month’s extra budget?",
+  "options": [
+   "Ad Y, as each qualified enquiry costs ₹300 against ₹500 for Ad X",
+   "Ad X, since five times more people clicked and clicks show interest",
+   "Neither, until both ads show the same number of clicks",
+   "Ad X, because 1,500 clicks is a larger total result for the same money"
+  ],
+  "answer": 0,
+  "explanation": "The goal is people likely to join, so compare spend per qualified enquiry: ₹3,000 ÷ 10 is ₹300 for Y and ₹3,000 ÷ 6 is ₹500 for X. Clicks are further from the outcome, so a high count of them can mislead.",
+  "practical": {
+   "fields": [
+    {
+     "id": "cost",
+     "label": "Cost per qualified enquiry",
+     "type": "short",
+     "hint": "Write the amount in rupees, for example “₹100”."
+    },
+    {
+     "id": "working",
+     "label": "Your working",
+     "type": "long",
+     "hint": "Show the division and then the drop from each step to the next, for example clicks to chats."
+    },
+    {
+     "id": "step",
+     "label": "Step to improve first",
+     "type": "choice",
+     "options": [
+      "Clicks to WhatsApp chats",
+      "WhatsApp chats to qualified enquiries",
+      "Lower the ad spend",
+      "Get more clicks from a wider audience"
+     ],
+     "hint": "Pick the step where fixing something would help most. Back it with the numbers in your reasoning."
+    }
+   ]
+  }
+ },
+ "m8": {
+  "task": "Plan two weeks of Instagram content for the diya and gift hamper page, within four hours a week. Fill Theme, Main format, Reused idea and Calendar rows for 14 days, marking rest days. In your reasoning, explain why this load is realistic during exams.",
+  "checks": [
+   "State one theme",
+   "Choose a main format",
+   "Name one idea reused three times",
+   "Mark rest days in the calendar",
+   "Explain why it is realistic"
+  ],
+  "question": "Kavya sells handmade diyas on Instagram and has four hours a week before Diwali, with exams coming up. Which two-week plan is she most likely to finish?",
+  "options": [
+   "Post a new idea in a new style every day, so the page always looks busy and active",
+   "Wait until each post looks perfect, then post whenever it is ready",
+   "One diya video cut into a reel, stories and status, posted 3 days a week",
+   "Film six reels on one Sunday and post them all in two days"
+  ],
+  "answer": 2,
+  "explanation": "One idea reused across formats saves time, and three posts a week with rest days matches four hours. Posting daily in new styles needs far more hours, and waiting for perfect usually means nothing gets posted.",
+  "practical": {
+   "fields": [
+    {
+     "id": "theme",
+     "label": "Theme",
+     "type": "short",
+     "hint": "One theme that every post supports, such as “made by hand in our home”."
+    },
+    {
+     "id": "format",
+     "label": "Main format",
+     "type": "choice",
+     "options": [
+      "Short reels",
+      "Photo carousels",
+      "Story sequences",
+      "WhatsApp status and broadcast"
+     ],
+     "hint": "Pick the format you will make most of. Your reasoning should say why it fits the time you have."
+    },
+    {
+     "id": "reuse",
+     "label": "Reused idea",
+     "type": "short",
+     "hint": "The one core idea you will make once and reuse in at least three places."
+    },
+    {
+     "id": "calendar",
+     "label": "Calendar rows (14 days)",
+     "type": "long",
+     "hint": "One row per day: day, format and what goes out. Mark rest days clearly."
+    }
+   ],
+   "link": {
+    "label": "Calendar or board link (optional)",
+    "hint": "Optional https link to a sheet or board with your calendar, owned by you."
+   }
+  }
+ },
+ "m9": {
+  "task": "Review the Hyderabad resume course ad and the WhatsApp list plan. Choose the Biggest risk, list three issues in Problems found, write an honest Ad rewrite in one or two sentences, and a Consent step. In your reasoning, explain why your rewrite is something you could prove.",
+  "checks": [
+   "Find three separate problems",
+   "Name the claim that cannot be proved",
+   "Rewrite the ad honestly",
+   "Describe a clear consent step",
+   "Include an easy opt-out"
+  ],
+  "question": "A ₹1,499 online resume course wants to advertise. Which draft line is honest and can be backed up?",
+  "options": [
+   "“Join 1,200 happy learners. Most of them get jobs within a few weeks.”",
+   "“Only 2 seats left. Priya got a ₹12 lakh offer, and you can too, guaranteed.”",
+   "“Results vary, but Priya earned ₹12 lakh after taking this course with us.”",
+   "“Build a better resume in four weeks with feedback. ₹1,499. No job promise.”"
+  ],
+  "answer": 3,
+  "explanation": "This line promises only what the course controls, shows the price and does not invent proof. The other lines use made-up numbers, false urgency or a single success story that implies a result, and a small “results vary” does not fix that.",
+  "practical": {
+   "fields": [
+    {
+     "id": "risk",
+     "label": "Biggest risk",
+     "type": "choice",
+     "options": [
+      "A job guarantee the team cannot control",
+      "Fake urgency with “only 3 seats left”",
+      "A testimonial that may be invented or unapproved",
+      "Adding people to WhatsApp without asking"
+     ],
+     "hint": "Pick the problem that could hurt people most. Say why in your reasoning."
+    },
+    {
+     "id": "problems",
+     "label": "Problems found",
+     "type": "long",
+     "hint": "List three separate problems across the ad and the list plan, each in a short line."
+    },
+    {
+     "id": "rewrite",
+     "label": "Ad rewrite",
+     "type": "short",
+     "hint": "One or two honest sentences for the ad that promise only what the course can deliver."
+    },
+    {
+     "id": "consent",
+     "label": "Consent step",
+     "type": "long",
+     "hint": "Say how you would ask permission, what you would send and how a person can stop messages."
+    }
+   ]
+  }
+ },
+ "m10": {
+  "task": "Build a one-page plan for the Pune tiffin service’s ₹5,000, four-week push. Choose the Customer segment, Channel and Success metric, write the One-line offer, and the Plan page with your test and one risk with its fix. In your reasoning, explain how each part supports the next.",
+  "checks": [
+   "Pick a customer, channel and metric",
+   "Write a short offer line",
+   "Test changes only one thing",
+   "Metric can be counted on the channel",
+   "Risk has a clear fix"
+  ],
+  "question": "Four students propose plans for the Pune tiffin service. Which plan hangs together best from customer to metric?",
+  "options": [
+   "Customer: women who like cooking. Channel: Instagram for all of India. Metric: likes.",
+   "Customer: working women in two nearby PGs. Channel: PG notice boards. Metric: trial orders using a code word.",
+   "Customer: everyone in Pune. Channel: five platforms at once. Metric: total reach across all platforms.",
+   "Customer: working women in PGs. Channel: TV ads. Metric: how loved the brand feels."
+  ],
+  "answer": 1,
+  "explanation": "Here the channel reaches the named women where they live, and the code word makes the metric countable on that channel. The other plans pick audiences the channel does not reach or a metric that cannot be counted.",
+  "practical": {
+   "fields": [
+    {
+     "id": "segment",
+     "label": "Customer segment",
+     "type": "choice",
+     "options": [
+      "Working women in PGs near the owner’s kitchen",
+      "Women in night shifts at a nearby hospital",
+      "Students of a nearby women’s college hostel"
+     ],
+     "hint": "Pick the group you will serve first. Your reasoning should link them to the channel."
+    },
+    {
+     "id": "channel",
+     "label": "Channel",
+     "type": "choice",
+     "options": [
+      "PG notice boards and a WhatsApp group",
+      "Instagram posts and stories",
+      "Local search ads",
+      "Handing flyers at the PG gates"
+     ],
+     "hint": "Pick one channel that reaches that group and fits ₹5,000 and one owner."
+    },
+    {
+     "id": "metric",
+     "label": "Success metric",
+     "type": "choice",
+     "options": [
+      "Trial orders using a code word",
+      "WhatsApp enquiries received",
+      "Repeat orders in week four",
+      "Instagram followers gained"
+     ],
+     "hint": "Pick one number that you can count on your chosen channel in four weeks."
+    },
+    {
+     "id": "offer",
+     "label": "One-line offer",
+     "type": "short",
+     "hint": "One line with the customer, the benefit and one action."
+    },
+    {
+     "id": "plan",
+     "label": "Plan page",
+     "type": "long",
+     "hint": "Write the customer problem, your one test (changing one thing) and one risk with how you will reduce it."
+    }
+   ],
+   "link": {
+    "label": "Plan or board link (optional)",
+    "hint": "Optional https link to a doc, slide or board with your plan, owned by you."
+   }
+  }
+ }
+}

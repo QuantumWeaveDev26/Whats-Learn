@@ -1,0 +1,23 @@
+import type {LanguagePack} from './types';
+import pack_as from './as';
+import pack_bn from './bn';
+import pack_brx from './brx';
+import pack_doi from './doi';
+import pack_gu from './gu';
+import pack_ks from './ks';
+import pack_kok from './kok';
+import pack_mai from './mai';
+import pack_ml from './ml';
+import pack_mni from './mni';
+import pack_mr from './mr';
+import pack_ne from './ne';
+import pack_or from './or';
+import pack_pa from './pa';
+import pack_sa from './sa';
+import pack_sat from './sat';
+import pack_sd from './sd';
+import pack_ta from './ta';
+import pack_te from './te';
+import pack_ur from './ur';
+/** Machine-drafted lesson packs, keyed by language code. See docs/go-live-setup.md section 7. */
+export const languagePacks:Record<string,LanguagePack>={as:pack_as,bn:pack_bn,brx:pack_brx,doi:pack_doi,gu:pack_gu,ks:pack_ks,kok:pack_kok,mai:pack_mai,ml:pack_ml,mni:pack_mni,mr:pack_mr,ne:pack_ne,or:pack_or,pa:pack_pa,sa:pack_sa,sat:pack_sat,sd:pack_sd,ta:pack_ta,te:pack_te,ur:pack_ur};

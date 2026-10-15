@@ -1,0 +1,1 @@
+export default function Brand(){return <a className="wl-brand" href="/" aria-label="WhatsLearn home"><span className="wl-symbol"><img src="/images/whatslearn-logo-green.png" width="500" height="500" alt=""/></span><span>WhatsLearn<small>From Chat to Change</small></span></a>}
