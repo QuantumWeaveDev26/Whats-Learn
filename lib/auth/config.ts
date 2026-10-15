@@ -9,6 +9,7 @@ import {env} from 'cloudflare:workers';
  * When they are not set, the site is in "host" mode: the only sign-in is the host's own (Sign in with ChatGPT on OpenAI Sites).
  */
 const raw=()=>env as unknown as Record<string,string|undefined>;
+export const hostIdentityTrusted=()=>raw().WHATSLEARN_RUNTIME!=='node';
 const clean=(v:string|undefined)=>(v??'').trim();
 const LOOPBACK=new Set(['127.0.0.1','localhost','[::1]']);
 export function providerUrl():string|null{
@@ -19,8 +20,8 @@ export function providerUrl():string|null{
 export const providerKey=()=>clean(raw().SUPABASE_PUBLISHABLE_KEY)||null;
 export const serviceKey=()=>clean(raw().SUPABASE_SERVICE_ROLE_KEY)||null;
 export const emailAuthConfigured=()=>!!providerUrl()&&!!providerKey();
-export type AuthMode='email'|'host';
-export const authMode=():AuthMode=>emailAuthConfigured()?'email':'host';
+export type AuthMode='email'|'host'|'unavailable';
+export const authMode=():AuthMode=>emailAuthConfigured()?'email':hostIdentityTrusted()?'host':'unavailable';
 /** The address used inside emailed links. SITE_URL when set; otherwise the request's own address, but only on this computer. */
 export function siteOrigin(request:Request):string|null{
  const v=clean(raw().SITE_URL);

@@ -10,5 +10,5 @@ test('companion link is exact, https, and is the only configured ChatGPT link',(
  assert.doesNotMatch(page,/chatgpt\.com\/g\//,'the page reads the link from lib/companion.ts, it has no second copy');
  // No other source file hard-codes a different ChatGPT GPT link.
  const hits=[];(function walk(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory()){if(!['node_modules','dist','.next','.vinext','.wrangler','.sites-runtime','tests'].includes(e.name))walk(p)}else if(/\.(ts|tsx|mjs|js)$/.test(e.name)&&/chatgpt\.com\/g\//.test(fs.readFileSync(p,'utf8')))hits.push(path.relative(path.resolve(__dirname,'..'),p))}})(path.resolve(__dirname,'..'));
- assert.deepEqual(hits,['lib/companion.ts']);
+ assert.deepEqual(hits.map(p=>p.split(path.sep).join('/')),['lib/companion.ts']);
 });

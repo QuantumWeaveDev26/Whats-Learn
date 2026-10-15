@@ -13,6 +13,15 @@ async function register(fake,o={}){const r=await H.call(signup,'/api/auth/signup
 async function confirmLast(fake){const m=fake.outbox.at(-1);const u=new URL(m.link);const r=await H.call(confirm,'/api/auth/confirm',{body:{tokenHash:u.searchParams.get('token_hash'),type:u.searchParams.get('type'),next:u.searchParams.get('next')}});return {r,m}}
 const signedIn=async()=>!!(await A.getChatGPTUser());
 
+test('Node hosting refuses forged OpenAI account headers and reports unconfigured email sign-in',async()=>{
+ H.reset({noProvider:true,env:{WHATSLEARN_RUNTIME:'node'}});
+ H.setHeaders(new Headers({'oai-authenticated-user-id':'forged','oai-authenticated-user-email':'forged@example.test'}));
+ assert.equal(await A.getChatGPTUser(),null);
+ assert.equal(AC.authMode(),'unavailable');
+ const response=await config.GET();const body=await response.json();
+ assert.equal(body.chatgpt,false);assert.equal(body.signedIn,false);
+});
+
 test('configuration: email mode needs a valid provider address and key; otherwise the host sign-in is used',()=>{
  H.reset({noProvider:true});assert.equal(AC.authMode(),'host');assert.equal(AC.emailAuthConfigured(),false);
  for(const bad of ['http://auth.example.test','ftp://x.test','not a url','javascript:alert(1)']){H.reset({env:{SUPABASE_URL:bad}});assert.equal(AC.emailAuthConfigured(),false,bad)}

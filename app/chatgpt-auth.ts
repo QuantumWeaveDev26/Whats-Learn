@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { emailAuthConfigured } from "@/lib/auth/config";
+import { emailAuthConfigured, hostIdentityTrusted } from "@/lib/auth/config";
 
 export type ChatGPTUser = {
   userId: string;
@@ -33,6 +33,7 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
     const { currentEmailUser } = await import("@/lib/auth/session");
     return currentEmailUser();
   }
+  if (!hostIdentityTrusted()) return null;
   const requestHeaders = await headers();
   const userId = requestHeaders.get(USER_ID_HEADER);
   const email = requestHeaders.get(USER_EMAIL_HEADER);

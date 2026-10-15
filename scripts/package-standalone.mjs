@@ -6,6 +6,9 @@ import path from 'node:path';
 
 const root = process.cwd();
 const standalone = path.join(root, 'dist', 'standalone');
+if (existsSync(path.join(root, 'drizzle'))) {
+  cpSync(path.join(root, 'drizzle'), path.join(standalone, 'drizzle'), { recursive: true });
+}
 if (!existsSync(path.join(standalone, 'node_modules', 'vinext'))) {
   throw new Error('Standalone Vinext output is missing; run the production build first.');
 }
