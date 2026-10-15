@@ -25,7 +25,7 @@ let child;
 let logs = '';
 try {
   cpSync('dist/standalone', deployed, { recursive: true });
-  child = spawn(process.execPath, ['server.js'], {
+  child = spawn(process.execPath, ['--input-type=commonjs', '-e', "require('./server.js')"], {
     cwd: deployed,
     env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', WHATSLEARN_DATA_DIR: data, SUPABASE_URL: `http://127.0.0.1:${auth.address().port}`, SUPABASE_PUBLISHABLE_KEY: 'test-placeholder', SITE_URL: origin },
     stdio: ['ignore', 'pipe', 'pipe'],

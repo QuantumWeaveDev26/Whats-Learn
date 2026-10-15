@@ -6,9 +6,8 @@ const hosts = process.env.SITE_URL
   ? [new URL(process.env.SITE_URL).host]
   : ['whatslearn.in', 'www.whatslearn.in'];
 process.env.VINEXT_TRUSTED_HOSTS ??= hosts.join(',');
-const { startProdServer } = await import('vinext/server/prod-server');
-await startProdServer({
+import('vinext/server/prod-server').then(({ startProdServer }) => startProdServer({
   port: Number.parseInt(process.env.PORT ?? '3000', 10),
   host: process.env.HOST ?? '0.0.0.0',
   outDir: join(import.meta.dirname, 'dist'),
-}).catch(error => { console.error('[WhatsLearn] Server startup failed:', error); process.exit(1); });
+})).catch(error => { console.error('[WhatsLearn] Server startup failed:', error); process.exit(1); });
