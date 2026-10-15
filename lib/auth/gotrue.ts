@@ -40,7 +40,8 @@ async function call(c:Call):Promise<Result<Record<string,unknown>>>{
 }
 function mapError(status:number,d:Record<string,unknown>):Failure{
  const code=String(d.error_code||d.code||'');const text=String(d.msg||d.message||d.error_description||'').toLowerCase();
- if(status===429||code==='over_request_rate_limit'||code==='over_email_send_rate_limit')return fail('rate_limited',429);
+ if(code==='over_email_send_rate_limit')return fail('rate_limited',429,'The email sending limit has been reached. Please try again later, or contact the WhatsLearn team if it keeps happening.');
+ if(status===429||code==='over_request_rate_limit')return fail('rate_limited',429);
  if(code==='invalid_credentials'||text.includes('invalid login credentials'))return fail('invalid_credentials',401);
  if(code==='email_not_confirmed'||text.includes('email not confirmed'))return fail('email_not_confirmed',403);
  if(code==='weak_password'||text.includes('password should'))return fail('weak_password',422);

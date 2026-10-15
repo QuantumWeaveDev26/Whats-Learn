@@ -19,8 +19,11 @@ export async function readBody<T extends z.ZodTypeAny>(request:Request,schema:T)
 /** Returns a 429 response when this address or this email has used up its attempts, otherwise null. Fails closed if the database cannot be reached. */
 export async function limited(request:Request,kind:string,email:string|null,perAddress:number,perEmail:number,windowSeconds:number){
  try{
-  if(!(await allow(kind+'-ip',clientAddress(request),perAddress,windowSeconds)))return failure({code:'rate_limited'},429);
-  if(email&&!(await allow(kind+'-email',email,perEmail,windowSeconds)))return failure({code:'rate_limited'},429);
+  const now=Date.now(),retryAfterSeconds=windowSeconds-Math.floor(now/1000)%windowSeconds;
+  const minutes=Math.ceil(retryAfterSeconds/60);
+  const blocked=()=>reply({ok:false,code:'rate_limited',error:`Too many attempts. Try again in ${minutes} minute${minutes===1?'':'s'}.`,retryAfterSeconds},429,{'Retry-After':String(retryAfterSeconds)});
+  if(!(await allow(kind+'-ip',clientAddress(request),perAddress,windowSeconds,now)))return blocked();
+  if(email&&!(await allow(kind+'-email',email,perEmail,windowSeconds,now)))return blocked();
   return null;
  }catch{return failure({code:'unknown',message:'We could not check this request. Please try again in a moment.'},503)}
 }

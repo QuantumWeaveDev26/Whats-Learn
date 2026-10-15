@@ -190,3 +190,28 @@ test('provider calls never follow redirects, and use only options the Workers ru
  assert.doesNotMatch(src,/redirect:\s*['"]error['"]/,"the Workers runtime rejects redirect:'error' (found by the real-runtime browser test)");assert.match(src,/redirect:\s*['"]manual['"]/);
  const fake=H.reset();let seen;fake.handle=()=>({status:302,json:{}});const r=await H.call(signin,'/api/auth/signin',{body:{email:'a@example.test',password:PW}});assert.equal(r.status,502,'a redirect from the provider is a failure, never followed');assert.equal(H.jar.size,0);
 });
+
+
+test('resend limits report the remaining fixed-window wait without sending another email',async()=>{
+ const fake=H.reset(); await register(fake);
+ const opts={body:{email:'asha@example.test',returnTo:'/learn'}};
+ for(let i=0;i<3;i++) assert.equal((await H.call(resend,'/api/auth/resend',opts)).status,200);
+ const before=fake.outbox.length;
+ const response=await resend.POST(H.req('/api/auth/resend',opts));
+ const data=await response.json();
+ assert.equal(response.status,429);
+ assert.ok(Number(response.headers.get('Retry-After'))>=1 && Number(response.headers.get('Retry-After'))<=3600);
+ assert.match(data.error,/Try again in \d+ minute/);
+ assert.equal(fake.outbox.length,before);
+});
+
+test('Supabase email quota errors are distinguished from general attempt limits',async()=>{
+ H.reset(); const original=global.fetch;
+ try {
+ global.fetch=async()=>Response.json({code:'over_email_send_rate_limit',msg:'Email rate limit exceeded'},{status:429});
+ const result=await H.load('lib/auth/gotrue.ts').resend('asha@example.test','https://whatslearn.example.test/auth/confirm?next=/learn');
+ assert.equal(result.code,'rate_limited');
+ assert.match(result.message,/email sending limit/i);
+ assert.doesNotMatch(result.message,/few minutes/i);
+ } finally {global.fetch=original}
+});
