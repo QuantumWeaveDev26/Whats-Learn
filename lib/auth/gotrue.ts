@@ -4,7 +4,7 @@ import {providerKey,providerUrl,serviceKey} from './config';
  * Passwords are passed straight through over HTTPS in the request body and are never logged, stored, cached or returned.
  * Every call has a time limit; failures become a small set of codes with plain messages that are safe to show.
  */
-export type AuthErrorCode='invalid_credentials'|'email_not_confirmed'|'weak_password'|'link_expired'|'rate_limited'|'network'|'not_configured'|'invalid_input'|'forbidden'|'unknown';
+export type AuthErrorCode='invalid_credentials'|'email_not_confirmed'|'weak_password'|'link_expired'|'rate_limited'|'network'|'not_configured'|'invalid_input'|'forbidden'|'unknown'|'email_delivery_failed';
 export type Failure={ok:false;code:AuthErrorCode;message:string;status:number};
 export type Ok<T>={ok:true;data:T};
 export type Result<T>=Ok<T>|Failure;
@@ -20,6 +20,7 @@ export const messages:Record<AuthErrorCode,string>={
  not_configured:'Email sign-in is not set up on this site yet.',
  invalid_input:'Please check what you typed and try again.',
  forbidden:'You need to sign in again to do that.',
+ email_delivery_failed:'We could not send the email. Please contact the WhatsLearn team so we can check email delivery.',
  unknown:'Something went wrong. Please try again.'};
 const fail=(code:AuthErrorCode,status:number,message?:string):Failure=>({ok:false,code,status,message:message??messages[code]});
 const TIMEOUT_MS=8000;
@@ -40,6 +41,7 @@ async function call(c:Call):Promise<Result<Record<string,unknown>>>{
 }
 function mapError(status:number,d:Record<string,unknown>):Failure{
  const code=String(d.error_code||d.code||'');const text=String(d.msg||d.message||d.error_description||'').toLowerCase();
+ if(code==='email_address_not_authorized'||(status>=500&&(/send.*(?:email|mail)|smtp/.test(text))))return fail('email_delivery_failed',502);
  if(code==='over_email_send_rate_limit')return fail('rate_limited',429,'The email sending limit has been reached. Please try again later, or contact the WhatsLearn team if it keeps happening.');
  if(status===429||code==='over_request_rate_limit')return fail('rate_limited',429);
  if(code==='invalid_credentials'||text.includes('invalid login credentials'))return fail('invalid_credentials',401);

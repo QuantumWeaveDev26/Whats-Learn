@@ -10,6 +10,6 @@ export async function POST(request:Request){
  const stop=await limited(request,'forgot',b.data.email,5,3,3600);if(stop)return stop;
  const origin=siteOrigin(request);if(!origin)return failure({code:'not_configured',message:'The site address is not set up yet, so reset emails cannot be sent.'},503);
  const r=await recover(b.data.email,`${origin}/auth/confirm?next=${encodeURIComponent('/reset-password')}`);
- if(!r.ok&&(r.code==='network'||r.code==='rate_limited'||r.code==='not_configured'))return failure(r);
+ if(!r.ok&&(r.status>=500||r.code==='network'||r.code==='rate_limited'||r.code==='not_configured'))return failure(r);
  return reply({ok:true,message:SAME});
 }

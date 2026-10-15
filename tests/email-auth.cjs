@@ -215,3 +215,18 @@ test('Supabase email quota errors are distinguished from general attempt limits'
  assert.doesNotMatch(result.message,/few minutes/i);
  } finally {global.fetch=original}
 });
+
+
+test('resend reports provider mail delivery failures instead of claiming success',async()=>{
+ H.reset(); const previous=global.fetch;
+ try {
+ global.fetch=async()=>Response.json({code:'unexpected_failure',msg:'Error sending confirmation email'},{status:500});
+ for(const [route,url] of [[resend,'/api/auth/resend'],[forgot,'/api/auth/forgot']]){
+ const r=await H.call(route,url,{body:url.endsWith('/resend')?{email:'asha@example.test',returnTo:'/learn'}:{email:'asha@example.test'}});
+ assert.equal(r.status,502);
+ assert.equal(r.json.ok,false);
+ assert.match(r.json.error,/email.*send|send.*email/i);
+ assert.ok(!r.json.message);
+ }
+ }finally{global.fetch=previous}
+});
