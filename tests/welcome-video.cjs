@@ -11,6 +11,7 @@ test('home has no background video or mascot',()=>{
  const css=src('app/globals.css');
  assert.doesNotMatch(home,/<video|home-bg-video/);
  assert.match(hero,/visual-disclosure[\s\S]*<WelcomeVideo\s*\/>/);
+ assert.ok(!hero.includes('PLAYABLE STORY'),'front challenge card should not show the Playable Story badge');
  assert.doesNotMatch(css,/\.home-bg-video\{/);
  assert.doesNotMatch(layout,/Mascot/);
  assert.ok(fs.existsSync(path.join(process.cwd(),'public','videos','whatslearn-welcome.mp4')));
