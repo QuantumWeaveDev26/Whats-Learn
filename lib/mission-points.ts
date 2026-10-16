@@ -95,7 +95,7 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
  const invalid=precheck(mission,data);if(invalid)return {status:'rejected',message:invalid,saved:false,code:400};
  if(aiReady()){
   try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en')}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
-  if(!review.practicalTest?.reported)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),saved:false,code:422};
+  if(!review.practicalTest?.reported||!review.practicalTest.created||!review.practicalTest.performed)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),saved:false,code:422};
   if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,saved:false,code:422};
  }
  data={...data,evaluation:review?JSON.stringify(review):undefined};

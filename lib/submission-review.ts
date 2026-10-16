@@ -17,7 +17,7 @@ const pending=new Map<string,Promise<Review>>();
 export async function reviewedSubmission(userId:string,missionId:string,body:string,language='en'){
  if(!missions.some(m=>m.id===missionId))throw new FeedbackError('Unknown challenge.',404);
  if(!await canUseMission(userId,missionId))throw new FeedbackError(membershipRequired,403);
- const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('practical-v2|'+language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
+ const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('practical-v3|'+language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
  const key=JSON.stringify([userId,missionId,hash]);const existing=pending.get(key);if(existing)return existing;
  const task=performReview(userId,missionId,body,language,hash);pending.set(key,task);
  try{return await task}finally{pending.delete(key)}

@@ -1,6 +1,6 @@
 {
  "d1": {
-  "task": "Write the feature brief for the trial-class request. Fill User story, Fields to collect, Three acceptance checks, One failure state and Most private detail. In your reasoning explain when your success message appears and why a parent should never see it too early.",
+  "task": "Write the feature brief for the trial-class request. Fill User story, Fields to collect, Three acceptance checks, One failure state and Most private detail. In your reasoning explain when your success message appears and why a parent should never see it too early. Hands-on completion: Build a small runnable trial-booking prototype alongside your brief. Use a local mock server or in-memory store. Run one successful save and one forced failure; submit the relevant code, actual output and the fix. Success must appear only after the save response. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "Anita's page runs showMessage('Booking saved') on the Book click and only then calls fetch('/api/bookings'). On a weak mobile network the request fails. Which acceptance check should her feature brief state?",
   "options": [
    "Show Booking saved when the parent presses Book, since pressing is the action they asked for",
@@ -52,7 +52,7 @@
   }
  },
  "d2": {
-  "task": "Review the AI-written booking handler. Name Two trust failures, rewrite it in Corrected handler, write Three negative tests, and pick Where the price comes from. In your reasoning explain why the browser cannot be trusted for these values.",
+  "task": "Review the AI-written booking handler. Name Two trust failures, rewrite it in Corrected handler, write Three negative tests, and pick Where the price comes from. In your reasoning explain why the browser cannot be trusted for these values. Hands-on completion: Run your corrected handler locally with a spoofed user ID, changed price and repeated request. Submit the handler and actual output for all three cases, then fix a failing case. A paper trace or expected output alone does not count. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "A reviewer reads this AI-written line: const { userId, price } = req.body; await db.query('INSERT INTO bookings(user_id, amount) VALUES ($1, $2)', [userId, price]). A parent sends userId 7 and price 0. What is the best review comment?",
   "options": [
    "Add a browser check that price is above zero before the form can be sent",
@@ -111,7 +111,7 @@
   }
  },
  "d3": {
-  "task": "Plan the tutor's booking data. In Tables and columns write the SQL for two or more records. Choose What must never repeat. In Private columns and who sees them, name two fields and who may read them. Explain in your reasoning why your uniqueness rule fits.",
+  "task": "Plan the tutor's booking data. In Tables and columns write the SQL for two or more records. Choose What must never repeat. In Private columns and who sees them, name two fields and who may read them. Explain in your reasoning why your uniqueness rule fits. Hands-on completion: Create the schema in a disposable local SQLite or PostgreSQL database. Insert a valid booking, attempt a duplicate slot and run a privacy-safe query. Submit the SQL and actual results, including the constraint error, then correct a schema issue. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Write at least two tables",
    "Give every table a primary key",
@@ -167,7 +167,7 @@
   }
  },
  "d4": {
-  "task": "Write the Register contract. Give Method and path, a Request body with the inputs, and a Success reply. Choose a Status for already registered and describe Two error replies with when each happens. Explain in your reasoning why you wrote this before asking AI for code.",
+  "task": "Write the Register contract. Give Method and path, a Request body with the inputs, and a Success reply. Choose a Status for already registered and describe Two error replies with when each happens. Explain in your reasoning why you wrote this before asking AI for code. Hands-on completion: Implement a tiny local API matching your contract. Send one valid and two invalid requests using curl or a local client. Submit the handler and actual status/body for each; fix an inconsistent response. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Name method and path",
    "List every required input",
@@ -240,7 +240,7 @@
   }
  },
  "d5": {
-  "task": "Protect the Jaipur pickup form. Choose Where to check stock, then improve the Server validation function from its starter. Add an Error message for a bad phone and an Error message for too many items. In your reasoning explain what the browser should still do.",
+  "task": "Protect the Jaipur pickup form. Choose Where to check stock, then improve the Server validation function from its starter. Add an Error message for a bad phone and an Error message for too many items. In your reasoning explain what the browser should still do. Hands-on completion: Run your validation function locally with a valid order, a bad phone number and too many items. Submit the code and actual outputs, then fix and rerun one missed boundary. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Choose where stock is checked",
    "Validate phone length and digits",
@@ -305,7 +305,7 @@
   }
  },
  "d6": {
-  "task": "Debug the missing bookings. Choose your First move, list the Evidence for the assistant, then repair the starter in Fixed handler. In your reasoning say what you would remove before pasting anything and why you test the assistant's theory before trusting it.",
+  "task": "Debug the missing bookings. Choose your First move, list the Evidence for the assistant, then repair the starter in Fixed handler. In your reasoning say what you would remove before pasting anything and why you test the assistant's theory before trusting it. Hands-on completion: Reproduce the supplied bug locally, run the corrected handler and rerun the failing case. Submit the code, before/after output and evidence showing what changed. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick a first move",
    "List steps, expected and actual",
@@ -364,7 +364,7 @@
   }
  },
  "d7": {
-  "task": "Close the booking-number gap. Choose Role names and the Reply for someone else's booking, then rewrite the Access-check function from its starter. Say Where the check runs. In your reasoning explain the difference between knowing who a parent is and what they may do.",
+  "task": "Close the booking-number gap. Choose Role names and the Reply for someone else's booking, then rewrite the Access-check function from its starter. Say Where the check runs. In your reasoning explain the difference between knowing who a parent is and what they may do. Hands-on completion: Run owner, another learner and admin requests against your local access-check function. Submit code and actual allow/deny output for all three, then correct and rerun an unauthorised path. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Choose role names",
    "Choose a refusal reply",
@@ -435,7 +435,7 @@
   }
  },
  "d8": {
-  "task": "Test the ten-seat rule. Write Three test cases covering a normal, a boundary and a failure situation, then repair the Fixed seat function so the boundary test passes. Pick the Test to automate first and explain why in your reasoning.",
+  "task": "Test the ten-seat rule. Write Three test cases covering a normal, a boundary and a failure situation, then repair the Fixed seat function so the boundary test passes. Pick the Test to automate first and explain why in your reasoning. Hands-on completion: Write and run three booking tests including the boundary. Submit the test code and actual runner output. Demonstrate a test failing against the old bug and passing after your fix. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Write a normal case",
    "Write a boundary case",
@@ -504,7 +504,7 @@
   }
  },
  "d9": {
-  "task": "Plan adding a preferred-language field. Give a Branch name, write Three small commits as git commands, and add a Rollback plan with exact commands. Choose How to merge. Explain in your reasoning who reviews what and why small steps are safer.",
+  "task": "Plan adding a preferred-language field. Give a Branch name, write Three small commits as git commands, and add a Rollback plan with exact commands. Choose How to merge. Explain in your reasoning who reviews what and why small steps are safer. Hands-on completion: Use a disposable local Git repository: create a branch, make three commits, merge and perform a safe rollback. Submit the commands and actual git log/status output before and after. A proposed command list does not count. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Work on a separate branch",
    "Commit in three small steps",
@@ -573,7 +573,7 @@
   }
  },
  "d10": {
-  "task": "Decide if the booking app is safe for fifty families. Write the Launch checklist covering the five areas, choose the Risk to fix first, name Who is alerted, and say Why that risk comes first. In your reasoning explain how harm and likelihood ranked the gaps.",
+  "task": "Decide if the booking app is safe for fifty families. Write the Launch checklist covering the five areas, choose the Risk to fix first, name Who is alerted, and say Why that risk comes first. In your reasoning explain how harm and likelihood ranked the gaps. Hands-on completion: Integrate your booking prototype, validation, access checks and tests locally. Run a successful booking, a failed booking and a disposable rollback. Submit source, actual outputs and the repaired highest-risk issue; no production deployment is required. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "One check in each of five areas",
    "Write checks as yes/no",

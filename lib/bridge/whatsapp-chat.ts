@@ -93,7 +93,7 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
   const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
   return `${prefix}*${t.question}*\n${compact?.question||lm.question}\n\n${optionList(compact?.options||lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
- if(step==='reasoning')return `*Your reasoning:* What did you try, what happened, and what did you improve? Label a simulation or manual trace. At least ${LIMITS.minReasoning} characters.\n*Try it:* ${missionPractice(m).trial}`;
+ if(step==='reasoning')return `*Your reasoning:* What did you make? Send the work or an extract, your actual test result and what you improved. Plans or invented results do not count. At least ${LIMITS.minReasoning} characters.\n*Try it:* ${missionPractice(m).trial}`;
  if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP. Public GitHub source is shared with our AI reviewer on SUBMIT; code is not run.`;
  if(step==='checks')return `*Self-review.* Which of these did you do? Reply the numbers, like 1 3 4, or 0 for none.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
@@ -326,7 +326,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
    const {profile}=await loadLearning(c.user_id);await saveProfile(c.user_id,{...profile,style:picked});
    return reply(`Style set: *${learningStyles[picked]}* ✅\nSynced with the website. Send *TODAY* to continue or *LEARN* for the idea.`);
   }
-  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id),c.language);return reply(`${chatStyleLesson(lm,c.style,c.language)}\n\n*Make:* ${missionPractice(lm).outcome}\n*Try it:* ${missionPractice(lm).trial}\n\nSend *TODAY* to continue.`)}
+  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id),c.language);return reply(`${chatStyleLesson({...lm,task:missionPractice(lm).trial},c.style,c.language)}\n\n*Make:* ${missionPractice(lm).outcome}\n\nSend *TODAY* to continue.`)}
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}

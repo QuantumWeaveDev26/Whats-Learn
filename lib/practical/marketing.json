@@ -1,6 +1,6 @@
 {
  "m1": {
-  "task": "Write an offer for the Bengaluru home-meal service. Choose the Target customer, write your Offer in 40-80 words, and name one Claim to verify before publishing. In your reasoning, explain why this customer feels the problem most and why the claim needs checking.",
+  "task": "Write an offer for the Bengaluru home-meal service. Choose the Target customer, write your Offer in 40-80 words, and name one Claim to verify before publishing. In your reasoning, explain why this customer feels the problem most and why the claim needs checking. Hands-on completion: Create the finished customer offer. Time a five-second reading of it, record which benefit and next action you actually noticed, then submit the original and improved copy. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "The home-meal service tests two messages for a week. “Fresh. Tasty. Affordable.” gets 9,000 views and 4 enquiries. “Home-style lunch at your Indiranagar desk by 12:45” gets 1,100 views and 31 enquiries, 22 of them about the delivery area. Which message should it keep?",
   "options": [
    "The first one, because 9,000 views show many more people liked it",
@@ -44,7 +44,7 @@
   }
  },
  "m2": {
-  "task": "Draft the campaign brief for an AI tool for three ad concepts. Choose the Campaign goal and Tone to ask for, write the Reusable AI prompt, and add a Quality checklist for the AI output. In your reasoning, explain how your prompt keeps the AI from inventing facts.",
+  "task": "Draft the campaign brief for an AI tool for three ad concepts. Choose the Campaign goal and Tone to ask for, write the Reusable AI prompt, and add a Quality checklist for the AI output. In your reasoning, explain how your prompt keeps the AI from inventing facts. Hands-on completion: Run your reusable prompt in an AI tool you already have. Submit its actual draft, identify one unsupported claim and submit your corrected version. Invented model output does not count. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "A founder types “Write a great ad for our lunch service” and the AI replies with a hook saying “Rated 4.9 by 500 Bengaluru customers”. The service has 40 customers and no ratings yet. What should the founder do before using the tool again?",
   "options": [
    "Give it audience, goal, real evidence and a no-invented-claims rule",
@@ -98,7 +98,7 @@
   }
  },
  "m3": {
-  "task": "Write the follow-up messages for a prospect who asked for the menu yesterday and has not replied. Write the First reply to the prospect and One follow-up message, add an Opt-out line, and choose the Conversion measure. In your reasoning, explain why your follow-up is easy to reply to.",
+  "task": "Write the follow-up messages for a prospect who asked for the menu yesterday and has not replied. Write the First reply to the prospect and One follow-up message, add an Opt-out line, and choose the Conversion measure. In your reasoning, explain why your follow-up is easy to reply to. Hands-on completion: Create the actual reply sequence. Rehearse it with a willing partner playing an interested customer and then a STOP request. Record the replies used, one observed problem and your corrected response; do not contact real prospects. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "A prospect asked a home-meal service for the menu yesterday and has not replied. She gave permission to be contacted. Which follow-up is most likely to earn a reply while respecting her?",
   "options": [
    "“Last chance! Only 2 lunch slots left today. Reply YES now.”",
@@ -148,7 +148,7 @@
   }
  },
  "m4": {
-  "task": "Prepare to interview five office-goers near the Whitefield tech park. Choose your Interview group, rewrite the original leading question in Fair rewrite, and write Five questions that are open and about past behaviour. In your reasoning, explain why one of your questions is fairer than a yes/no version.",
+  "task": "Prepare to interview five office-goers near the Whitefield tech park. Choose your Interview group, rewrite the original leading question in Fair rewrite, and write Five questions that are open and about past behaviour. In your reasoning, explain why one of your questions is fairer than a yes/no version. Hands-on completion: Interview one willing person using your five questions. Submit anonymised answers, the leading question you caught and your revised question. A fictional interview does not count; do not collect private details. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick one interview group",
    "Rewrite the leading question neutrally",
@@ -194,7 +194,7 @@
   }
  },
  "m5": {
-  "task": "Plan an A/B test for the college club’s Canva workshop post. Choose the Test variable, write Version A and Version B headlines, pick the Success metric and set a Switch rule before starting. In your reasoning, explain why everything else stays identical in both versions.",
+  "task": "Plan an A/B test for the college club’s Canva workshop post. Choose the Test variable, write Version A and Version B headlines, pick the Success metric and set a Switch rule before starting. In your reasoning, explain why everything else stays identical in both versions. Hands-on completion: Create both A/B messages and show them to at least one willing reader under the same conditions. Record their actual choice and reason, then improve one version. This is a small usability check, not proof of campaign performance. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Choose exactly one variable",
    "Write both versions in full",
@@ -259,7 +259,7 @@
   }
  },
  "m6": {
-  "task": "Choose one channel for the Mysuru bakery’s birthday cake campaign and one Rejected channel. Add a Tracking method for orders and a First week action within the ₹3,000 budget. In your reasoning, justify the choice using audience behaviour, cost and how you will measure results.",
+  "task": "Choose one channel for the Mysuru bakery’s birthday cake campaign and one Rejected channel. Add a Tracking method for orders and a First week action within the ₹3,000 budget. In your reasoning, justify the choice using audience behaviour, cost and how you will measure results. Hands-on completion: Create the finished post and its destination draft. Open the next-action path yourself, record the actual handoff problem and repair it. Keep the work private unless you have permission to publish. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Choose exactly one channel",
    "Name one rejected channel",
@@ -320,7 +320,7 @@
   }
  },
  "m7": {
-  "task": "Work out the Chennai spoken-English campaign’s cost per qualified enquiry from ₹6,000 spend and 24 qualified enquiries. Enter the Cost per enquiry, show Your working, and choose the Step to improve first. In your reasoning, give a reason based on the figures.",
+  "task": "Work out the Chennai spoken-English campaign’s cost per qualified enquiry from ₹6,000 spend and 24 qualified enquiries. Enter the Cost per enquiry, show Your working, and choose the Step to improve first. In your reasoning, give a reason based on the figures. Hands-on completion: Build a working spreadsheet from the supplied campaign figures. Enter formulas, change one input and record the recalculated result. Submit formulas, original and changed results, and the decision they support. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Divide spend by qualified enquiries",
    "Show the answer in rupees",
@@ -367,7 +367,7 @@
   }
  },
  "m8": {
-  "task": "Plan two weeks of Instagram content for the diya and gift hamper page, within four hours a week. Fill Theme, Main format, Reused idea and Calendar rows for 14 days, marking rest days. In your reasoning, explain why this load is realistic during exams.",
+  "task": "Plan two weeks of Instagram content for the diya and gift hamper page, within four hours a week. Fill Theme, Main format, Reused idea and Calendar rows for 14 days, marking rest days. In your reasoning, explain why this load is realistic during exams. Hands-on completion: Create your calendar and two finished posts from it. Preview both at phone size, record a real readability or repetition problem and submit the improved versions. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "State one theme",
    "Choose a main format",
@@ -424,7 +424,7 @@
   }
  },
  "m9": {
-  "task": "Review the Hyderabad resume course ad and the WhatsApp list plan. Choose the Biggest risk, list three issues in Problems found, write an honest Ad rewrite in one or two sentences, and a Consent step. In your reasoning, explain why your rewrite is something you could prove.",
+  "task": "Review the Hyderabad resume course ad and the WhatsApp list plan. Choose the Biggest risk, list three issues in Problems found, write an honest Ad rewrite in one or two sentences, and a Consent step. In your reasoning, explain why your rewrite is something you could prove. Hands-on completion: Create the revised ad and a working consent/STOP message sequence. Rehearse both with a willing partner, record the problem found and show the corrected copy. Remove any unsupported claim. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Find three separate problems",
    "Name the claim that cannot be proved",
@@ -477,7 +477,7 @@
   }
  },
  "m10": {
-  "task": "Build a one-page plan for the Pune tiffin service’s ₹5,000, four-week push. Choose the Customer segment, Channel and Success metric, write the One-line offer, and the Plan page with your test and one risk with its fix. In your reasoning, explain how each part supports the next.",
+  "task": "Build a one-page plan for the Pune tiffin service’s ₹5,000, four-week push. Choose the Customer segment, Channel and Success metric, write the One-line offer, and the Plan page with your test and one risk with its fix. In your reasoning, explain how each part supports the next. Hands-on completion: Assemble a usable campaign pack with the finished offer, posts, destination and tracking spreadsheet. Follow its next-action path and enter a labelled test enquiry in your own draft tracker. Record the result and repair a broken handoff. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick a customer, channel and metric",
    "Write a short offer line",

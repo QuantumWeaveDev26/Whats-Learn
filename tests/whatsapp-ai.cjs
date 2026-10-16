@@ -9,7 +9,7 @@ const sent=[];let claudeCalls=0;
 global.fetch=async(url,options={})=>{const body=JSON.parse(options.body||'{}');
  if(String(url).startsWith('https://graph.facebook.com/')){sent.push(body);return Response.json({messages:[{id:'wamid.x'}]})}
  if(String(url)==='https://api.anthropic.com/v1/messages'){claudeCalls++;assert.equal(options.headers['x-api-key'],'fake-key');assert.match(body.system,/Checklist/);assert.match(body.messages[0].content,/<learner_work>/);
-  return Response.json({content:[{type:'text',text:JSON.stringify({summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},(_,i)=>({met:i===0,note:i===0?'Office-goers named.':'Say what goes wrong.'})),practicalTest:{reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Name the problem.'})}]})}
+  return Response.json({content:[{type:'text',text:JSON.stringify({summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},(_,i)=>({met:i===0,note:i===0?'Office-goers named.':'Say what goes wrong.'})),practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Name the problem.'})}]})}
  throw new Error('Unexpected fetch '+url)};
 const wa=require('../lib/whatsapp.ts'),ai=require('../lib/ai-feedback.ts');
 const sign=raw=>'sha256='+createHmac('sha256','app-secret').update(raw).digest('hex');

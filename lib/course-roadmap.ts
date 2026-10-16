@@ -1,15 +1,15 @@
 import {missions} from './missions';
 import {lockFor} from './progression';
 export const courseOutcomes:Record<string,string>={
- marketing:'A campaign portfolio: customer research, an offer, messages, a test plan and a one-page launch campaign.',
- development:'A product portfolio: feature brief, corrected code, data and API designs, tests, Git workflow and a launch checklist.',
- filmmaking:'A hybrid short-film production pack: story, shots, performance direction, sound, schedule, budget and pitch.',
+ marketing:'A campaign portfolio: customer research, an offer, messages, tested posts, a tracking spreadsheet and a usable campaign pack.',
+ development:'A product portfolio: a runnable local booking prototype, database, API, executed tests and Git history.',
+ filmmaking:'A short hybrid-film sample: recorded shots, performance takes, a sound edit, rough cuts and a recorded pitch.',
  storytelling:'A visual storytelling portfolio: creative briefs, layouts, accessible design, data story, pitch and campaign storyboard.'
 };
 export const deliverables:Record<string,string[]>={
- marketing:['Customer + offer brief','Reusable campaign prompt','Reply + follow-up sequence','Five customer interview questions','A/B experiment plan','Channel + tracking plan','Campaign cost analysis','14-day content calendar','Safer ad + consent flow','One-page campaign capstone'],
- development:['Feature + acceptance brief','Corrected booking handler','Booking data model','API contract','Server validation + error messages','Debugging evidence + corrected handler','Role-based access-check function','Tests + expected results','Git commits + rollback plan','Launch checklist capstone'],
- filmmaking:['Logline + three story beats','Six-shot sequence','Live action + AI production split','Dialogue + subtext','Actor direction + backup take','Location + lighting plan','Sound cue sheet','Edit + pacing plan','Shoot schedule + budget','Hybrid-film pitch capstone'],
+ marketing:['Customer + offer brief','Reusable campaign prompt','Reply + follow-up sequence','Customer interview + actual responses','Two messages + reader comparison','Finished post + tested action path','Campaign cost analysis','14-day content calendar','Safer ad + consent flow','One-page campaign capstone'],
+ development:['Booking prototype + acceptance brief','Corrected booking handler','Booking data model','Working local API + request results','Server validation + error messages','Debugging evidence + corrected handler','Role-based access-check function','Executed tests + actual results','Git history + performed rollback','Tested local booking capstone'],
+ filmmaking:['Recorded three-beat film','Six-shot sequence','Live footage + composited insert','Recorded dialogue + revised take','Actor direction + backup take','Recorded location + lighting test','Exported sound edit + cue sheet','Two exported cuts + pacing check','Shoot schedule + budget','Exported film sample + recorded pitch'],
  storytelling:['Three-frame story','Consistent AI image brief','Audience + message brief','Poster composition','Accessible type + colour system','Honest chart + caption','Five-slide carousel','AI image audit + revision','Three-slide pitch','Campaign storyboard capstone']
 };
 export function courseRoadmap(track:string,completed:ReadonlySet<string>,cleared:ReadonlySet<string>=new Set()){

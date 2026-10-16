@@ -33,7 +33,7 @@ test('every mission names a distinct practical outcome and a concrete trial',()=
 });
 test('AI completion requires reported practical evidence even when all five checks are met',async()=>{
  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;let reported=false;
- global.fetch=async()=>Response.json({choices:[{message:{content:JSON.stringify({summary:'Clear offer.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),practicalTest:{reported,note:reported?'Specific walkthrough result and revision.':'Add a specific test, result and improvement.'},nextStep:'Try it with a reader.'})}}]});
+ global.fetch=async()=>Response.json({choices:[{message:{content:JSON.stringify({summary:'Clear offer.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),practicalTest:{created:true,performed:reported,reported,note:reported?'Actual offer, timed reading result and revised copy.':'Add a specific test, result and improvement.'},nextStep:'Try it with a reader.'})}}]});
  try{const first=await saveMissionWork('test-evidence',input('m1'));assert.equal(first.code,422);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n,0);
   reported=true;const next=await saveMissionWork('test-evidence',{...input('m1'),body:samples.m1.replace('\n\n### Link','\nI timed a five-second reading. The next action was unclear, so I changed the last line to View the menu.\n\n### Link')});assert.equal(next.saved,true,next.message);assert.equal(next.score.practical,75);
  }finally{global.fetch=real}
@@ -47,3 +47,18 @@ test('WhatsApp stops after the same three free missions and honours paid access 
  grant(id);r=await say();assert.doesNotMatch(r.text,/Choose an active paid plan/);assert.match(r.text,/Question 1/);
  h.db.prepare("UPDATE entitlements SET ends_at='2000-01-01T00:00:00Z' WHERE user_id=?").run(id);r=await say();assert.match(r.text,/Choose an active paid plan/);assert.doesNotMatch(r.text,/Question 1/);
 });
+
+ test('theory cannot pass review without a created artifact and a performed test',async()=>{
+  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;
+  const {reviewWork}=h.load('lib/ai-feedback.ts');
+  try{for(const [created,performed] of [[false,false],[true,false],[false,true],[true,true]]){
+   global.fetch=async(url,options)=>{const prompt=JSON.parse(options.body).messages[0].content;
+    assert.match(prompt,/manual code trace/);assert.match(prompt,/actual artifact/);assert.match(prompt,/invented/);
+    return Response.json({choices:[{message:{content:JSON.stringify({summary:'Evidence checked.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),practicalTest:{created,performed,reported:true,note:'Evidence classification.'},nextStep:'Make and test the artifact.'})}}]});
+   };
+   const review=await reviewWork('m1',samples.m1,'en');assert.equal(review.practicalTest.reported,created&&performed);
+  }}finally{global.fetch=real}
+ });
+ test('every mission task includes actual hands-on completion and rejects theoretical substitutes',()=>{
+  for(const m of missions){assert.match(m.task,/Hands-on completion:/,m.id);assert.match(m.task,/actual test\/run results/,m.id);assert.match(m.task,/manual walkthroughs alone do not complete/,m.id)}
+ });

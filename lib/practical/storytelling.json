@@ -1,6 +1,6 @@
 {
  "v1": {
-  "task": "Plan the library story. Write the Audience, then Frame 1, Frame 2 and Frame 3, each with what we see, the feeling and a short caption, and name the Visual detail that stays the same. In your reasoning box, explain why you ordered the frames this way.",
+  "task": "Plan the library story. Write the Audience, then Frame 1, Frame 2 and Frame 3, each with what we see, the feeling and a short caption, and name the Visual detail that stays the same. In your reasoning box, explain why you ordered the frames this way. Hands-on completion: Create three finished rough frames on paper or in a free design tool. Hide the captions and check whether the visual change is readable; redraw or reorder one frame. Submit the actual frame content and the change observed. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "The library’s draft has Frame 1 as an exam hall, Frame 2 as a cricket match, and Frame 3 as a bookshelf with the address. Reviewers say the three pictures feel unrelated. What is the best fix?",
   "options": [
    "Add a fourth frame listing all of the library’s events and timings for the month",
@@ -49,7 +49,7 @@
   }
  },
  "v2": {
-  "task": "Write the AI brief for the three library images. Fill Subject and setting, choose Composition and Mood, name one Consistent detail, and list Two things to avoid. In your reasoning box, explain how you would check that viewers get the story.",
+  "task": "Write the AI brief for the three library images. Fill Subject and setting, choose Composition and Mood, name one Consistent detail, and list Two things to avoid. In your reasoning box, explain how you would check that viewers get the story. Hands-on completion: Create two consistent images from your brief using an available image tool or your own drawing. Compare the actual outputs, revise the brief and create a corrected image. Submit the work and the observed consistency fix. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "question": "A team asks an AI tool for three library images from a loose prompt. The results show a different person each time, and one image has a signboard with garbled letters. Which brief change helps most?",
   "options": [
    "Ask for the highest resolution and add extra descriptive words to every prompt",
@@ -111,7 +111,7 @@
   }
  },
  "v3": {
-  "task": "For the Pune photography club, write the Audience, choose one Feeling and one Action, then write the One-line message that joins all three. In your reasoning box, explain why you chose that feeling instead of another.",
+  "task": "For the Pune photography club, write the Audience, choose one Feeling and one Action, then write the One-line message that joins all three. In your reasoning box, explain why you chose that feeling instead of another. Hands-on completion: Create the headline and finished rough visual for your intended audience. Show it to one willing viewer, record their actual interpretation and next action, then revise a conflicting detail. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Name one audience",
    "Choose one feeling",
@@ -170,7 +170,7 @@
   }
  },
  "v4": {
-  "task": "Plan the open-mic poster. Choose a Focal point and a Main contrast, write the exact Poster headline, describe the Eye path in three steps, and name one Left out item. In your reasoning box, explain why that item was cut.",
+  "task": "Plan the open-mic poster. Choose a Focal point and a Main contrast, write the exact Poster headline, describe the Eye path in three steps, and name one Left out item. In your reasoning box, explain why that item was cut. Hands-on completion: Create and export a poster. Open it at phone size for five seconds, record what you noticed first and revise the hierarchy. Submit the finished copy, layout and before/after change. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick one focal point",
    "Choose one contrast",
@@ -238,7 +238,7 @@
   }
  },
  "v5": {
-  "task": "Plan the book-donation flyer for readers with weak eyesight. Choose Text and background, Headline size and Colour roles, then write how a Date cue works without colour. In your reasoning box, explain how you would test it in greyscale.",
+  "task": "Plan the book-donation flyer for readers with weak eyesight. Choose Text and background, Headline size and Colour roles, then write how a Date cue works without colour. In your reasoning box, explain how you would test it in greyscale. Hands-on completion: Create a real sample slide with your chosen type and colours. Export it, view it on a phone and in greyscale, and fix unreadable text or colour-only meaning. Submit the actual settings and observed correction. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick a text and background pair",
    "Choose a headline size",
@@ -306,7 +306,7 @@
   }
  },
  "v6": {
-  "task": "Turn the library’s 420, 510 and 640 into one honest chart story. Choose the Chart type, write a Headline finding, a Caption of under 25 words, and one thing the numbers do not prove. In your reasoning box, explain why that chart fits.",
+  "task": "Turn the library’s 420, 510 and 640 into one honest chart story. Choose the Chart type, write a Headline finding, a Caption of under 25 words, and one thing the numbers do not prove. In your reasoning box, explain why that chart fits. Hands-on completion: Create the chart from the supplied numbers in a spreadsheet or chart tool. Change one value and confirm that the chart updates. Submit the data, chart labels, caption and observed correction to a misleading choice. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Pick a chart type",
    "State the finding in a headline",
@@ -363,7 +363,7 @@
   }
  },
  "v7": {
-  "task": "Plan the bakery’s five-slide carousel with one idea per slide. Write one short line and a picture note for Slide 1 hook, Slides 2 and 3 build, Slide 4 proof and Slide 5 invitation. In your reasoning box, name one claim to check before posting.",
+  "task": "Plan the bakery’s five-slide carousel with one idea per slide. Write one short line and a picture note for Slide 1 hook, Slides 2 and 3 build, Slide 4 proof and Slide 5 invitation. In your reasoning box, name one claim to check before posting. Hands-on completion: Create and export five carousel slides. Read the export on a phone, remove a repeated idea and revise the final action. Submit the actual slide copy, sequence and the problem you corrected. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Slide 1 is a hook",
    "Each slide has one idea",
@@ -419,7 +419,7 @@
   }
  },
  "v8": {
-  "task": "Review the imagined lunch-box image. Write one finding each for Hands and text, Bias or gaps and Consent or rights, choose a Verdict, then write the Revision request. In your reasoning box, explain why you chose that verdict.",
+  "task": "Review the imagined lunch-box image. Write one finding each for Hands and text, Bias or gaps and Consent or rights, choose a Verdict, then write the Revision request. In your reasoning box, explain why you chose that verdict. Hands-on completion: Inspect an actual image you made or may use, not just its description. Create a corrected image or replace it with your own work. Submit the observed defects, rights check and actual before/after change. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Note a hands or text defect",
    "Name a stereotype or gap",
@@ -482,7 +482,7 @@
   }
  },
  "v9": {
-  "task": "Plan the three-slide pitch for the bicycle repair stall. Write the Problem slide, the Insight slide and the Ask slide, with a headline and picture for each, and choose the Proof for the insight. In your reasoning box, explain how this order helps persuade the council.",
+  "task": "Plan the three-slide pitch for the bicycle repair stall. Write the Problem slide, the Insight slide and the Ask slide, with a headline and picture for each, and choose the Proof for the insight. In your reasoning box, explain how this order helps persuade the council. Hands-on completion: Create and export three pitch slides, then record a one-minute presentation. Watch it back, correct an unsupported claim or unclear transition and update the slides. Submit actual slide copy and recording timecodes. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Write a headline for each slide",
    "Make the problem easy to feel",
@@ -538,7 +538,7 @@
   }
  },
  "v10": {
-  "task": "Storyboard the Jaipur tutoring-volunteer campaign. Name the Audience and repeating detail, write Frames 1 to 3 and Frames 4 and 5 with a caption each, choose the Risk and fix, and write an AI disclosure line. In your reasoning box, explain why the order of frames works.",
+  "task": "Storyboard the Jaipur tutoring-volunteer campaign. Name the Audience and repeating detail, write Frames 1 to 3 and Frames 4 and 5 with a caption each, choose the Risk and fix, and write an AI disclosure line. In your reasoning box, explain why the order of frames works. Hands-on completion: Create and export five campaign frames using your earlier work. View the full sequence on a phone, record where its message breaks and revise that frame. Submit the actual frame content and before/after correction. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
   "checks": [
    "Name one audience",
    "Put five frames in order",
