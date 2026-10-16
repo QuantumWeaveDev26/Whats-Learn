@@ -169,7 +169,7 @@ test('mission order and mini challenges: mission 2 opens next day; mission 3 nee
  const pts=balance('asha');
  out=await say(P1,'CHECK '+right.join(' '));assert.match(textOf(out),/Badge earned/);assert.equal(balance('asha'),pts,'a mini challenge earns no points');
  out=await say(P1,'CHECK '+right.join(' '));assert.match(textOf(out),/no mini challenge waiting/);
- out=await say(P1,'TODAY');assert.match(textOf(out),/\*[^*]+\*\s+·\s+3\/10/,'mission 3 is open now');
+ out=await say(P1,'TODAY');assert.match(textOf(out),/Challenge 3\/10:/,'mission 3 is open now');
  await say(P1,'CANCEL');
 });
 test('mission 3 stays locked on the website until the mini challenge is cleared (same server rule)',async()=>{
@@ -465,4 +465,14 @@ test('website first name overrides the linking account name and stays current',a
  assert.match(textOf(await say(phone,'PROFILE')),/Hi Pavan!/);
  const other=await chat.startLink('separate-name', '919000000010','en',undefined,'Another learner');
  assert.doesNotMatch(textOf(await say('919000000010','LINK '+other.code)),/Pavana|Pavan!/);
+});
+
+
+test('mentor gives one short challenge step and keeps lesson details on demand',async()=>{
+ const phone='919000000011';await newLearner('compact-chat',phone,{track:'development'});
+ let out=await say(phone,'TODAY');const text=textOf(out);
+ assert.ok(text.length<700,text.length);assert.doesNotMatch(text,/Plan:|Goal:|Your task:|The idea:|PROFILE:|Anita/);
+ assert.match(text,/Your pick/);assert.match(text,/C\) After the server confirms/);
+ out=await say(phone,'LEARN');assert.match(textOf(out),/The idea/);assert.match(textOf(out),/Your task/);
+ out=await say(phone,'TODAY');assert.match(textOf(out),/Question 1/);
 });

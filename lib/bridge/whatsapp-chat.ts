@@ -60,7 +60,7 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
  if(row.code_hash!==await codeHash(from,code)){await db.prepare('UPDATE whatsapp_link_codes SET attempts=attempts+1 WHERE user_id=?').bind(row.user_id).run();return bad}
  const stamp=at.toISOString();
  await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_in',verified_at=?,opted_out_at=NULL,last_inbound_at=?,updated_at=? WHERE user_id=? AND phone=?").bind(stamp,stamp,stamp,row.user_id,from),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(row.user_id)]);
- return reply(`Linked. This number now shares your WhatsLearn progress with the website.\n\nReply TODAY for your next mission, HELP for all commands, STOP any time.\n\n${await learnerOverview(row.user_id)}`);
+ return reply(`✅ Linked!\n\n${await learnerOverview(row.user_id)}\n\nReady? Send *TODAY* ⚡\n*HELP* for commands · *STOP* to pause`);
 }
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId)])}
 
@@ -83,7 +83,10 @@ const currentStep=(m:Mission,d:Draft)=>d.data.edit||stepsFor(m).find(s=>!filled(
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
 function promptFor(m:Mission,step:string,d:Draft,language:string):string{
  const lm=localizeMission(m,language);
- if(step==='quiz')return `*Question 1 (understanding):* ${lm.question}\n${optionList(lm.options)}\n\nReply with the letter.`;
+ if(step==='quiz'){
+  const compact=m.id==='d1'&&language==='en'?{question:'A booking request fails on weak Wi-Fi. When should the page say “Booking saved”?',options:['On the Book click','After sending, even without a reply','After the server confirms it saved','After the spinner, then retry quietly']}:null;
+  return `*Question 1*\n${compact?.question||lm.question}\n\n${optionList(compact?.options||lm.options)}\n\nYour pick? *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
+ }
  if(step==='reasoning')return `*Your reasoning:* explain your choices in your own words (at least ${LIMITS.minReasoning} characters).`;
  if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP.`;
  if(step==='checks')return `*Self-review.* Which of these did you do? Reply the numbers, like 1 3 4, or 0 for none.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
@@ -116,7 +119,7 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
 // ---------- messages ----------
 function missionIntro(m:Mission,language:string){
  const lm=localizeMission(m,language);
- return `*${lm.title}*  ·  ${positionInCourse(m)}/10  ·  ${lm.minutes} min\n\n${lm.brief}\n\n*The idea:* ${lm.lesson}\n\n*Your task:* ${lm.task}\n\nThis has 2 questions: understanding (25 points) and a practical task (75 points). A clue costs 5 points. A wrong answer costs nothing and you can retry.\n\nReply HINT for a clue, EDIT n to change a part, CANCEL to stop.`;
+ return `⚡ *Challenge ${positionInCourse(m)}/10: ${lm.title}*\n${lm.minutes} min · Up to 100 points\n\n${lm.brief}`;
 }
 function checkpointText(cp:Checkpoint){return `*Mini challenge: ${cp.title}*\n${cp.scenario}\n\n1. ${cp.parts[0].q}\n${optionList(cp.parts[0].options)}\n\n2. ${cp.parts[1].q}\n${optionList(cp.parts[1].options)}\n\nReply CHECK with a letter for each, like *CHECK B A*. It adds no points and does not use your daily mission.`}
 async function setCurrent(userId:string,missionId:string){await database().prepare('UPDATE whatsapp_contacts SET current_mission=?,updated_at=? WHERE user_id=?').bind(missionId,now().toISOString(),userId).run()}
@@ -140,7 +143,8 @@ async function today(c:Contact):Promise<Out>{
  void work;await setCurrent(userId,next.id);
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{}},pending_clue:null});
  const d=(await getDraft(userId))!;
- return reply(`${await learnerOverview(userId)}\n\n${missionIntro(next,c.language)}\n\n${promptFor(next,'quiz',d,c.language)}`);
+ const greeting=(await learnerOverview(userId)).split('\n')[0];
+ return reply(`${greeting} 👋\n\n${missionIntro(next,c.language)}\n\n${promptFor(next,'quiz',d,c.language)}\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -209,7 +213,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission\n*LEARN* the idea and task\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -268,7 +272,7 @@ export async function learnerOverview(userId:string){
  const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
  const candidate=saved?.display_name||row?.display_name;
  const name=candidate&&!candidate.includes('@')?candidate:'learner';
- return `Hi ${name}!\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nSame progress and mission points as the website.\nPROFILE: your choices · COURSE: change course · TODAY: continue · POINTS: balance · REMIND 7pm daily: opt-in reminders · STOP: pause`;
+ return `Hi ${name}!\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today`;
 }
 
 // ---------- entry point ----------
@@ -302,6 +306,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
   case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));
+  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');const lm=localizeMission(getMission(d.mission_id),c.language);return reply(`💡 *The idea*\n${lm.lesson}\n\n*Your task*\n${lm.task}\n\nSend *TODAY* to continue.`)}
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}
