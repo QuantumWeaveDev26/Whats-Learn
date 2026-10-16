@@ -369,7 +369,7 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 
 @media(max-width:800px){.site-header>nav,.account-nav nav,.workspace-tabbar{scrollbar-width:none}.site-header>nav::-webkit-scrollbar,.account-nav nav::-webkit-scrollbar,.workspace-tabbar::-webkit-scrollbar{display:none}.workspace-tabbar{height:50px!important;overflow-y:hidden;min-width:0}.workspace-tabs{min-width:0;max-width:100%}}
 
-@media(min-width:801px){.account-footer{padding-right:320px}.workspace>footer{padding-bottom:100px}}
+
 
 /* FAQ and project support share the same editorial grid, surfaces and spacing. */
 .public-app .faq-section{grid-template-columns:minmax(220px,.7fr) minmax(0,1.3fr);align-items:start;gap:clamp(32px,5vw,72px);padding-top:64px;padding-bottom:56px;background:#fff}
@@ -392,3 +392,25 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .dashboard-sidequest{border:1px solid #ceded0;border-radius:14px;padding:14px 18px;margin-bottom:20px;background:#f6f9f2}.dashboard-sidequest>.mini-quest{margin:16px 0 0}.dashboard-sidequest>summary,.path-reason>summary,.pricing-terms>summary,.signin-note summary,.settings-summary summary,.mission-practice summary{cursor:pointer;font-size:14px;font-weight:650;color:#245b3d;line-height:1.5}.pricing-terms>summary{padding:8px 0}.signin-note details{margin-top:8px}.path-reason>summary{margin-bottom:10px}.mission-practice details{margin-top:10px}.chat-card a.chat-reply{display:flex;align-items:center;justify-content:space-between;text-decoration:none}
 
 .level-question-preview{background:#fff;border:1px solid #ccdccd;border-left:4px solid #087d50;border-radius:14px;padding:18px 22px;margin:22px 0}.level-question-preview p{font-size:17px;line-height:1.6;margin:8px 0 0;max-width:72ch;color:#173d2a}.mission-level-badge{margin:14px 0;padding:7px 12px;border-radius:9px;background:#eef6e5;display:inline-block}@media(max-width:600px){.level-question-preview{padding:15px}.level-question-preview p{font-size:15px}}
+
+/* Footer belongs to the end of the page, including on short wizard/auth screens. */
+.public-app,.path-wizard{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.public-app>main{flex:1}
+.path-wizard>main{width:100%;flex:1;min-height:0;margin:0 auto}
+.path-wizard>.path-footer{margin-top:auto;justify-content:flex-end;padding:24px 5% 104px;gap:12px 24px;flex-wrap:wrap;text-align:right;color:#43594c;flex-shrink:0}
+.path-footer>.site-legal-links{display:flex;justify-content:flex-end}
+.account-footer{justify-content:flex-end;align-items:center;flex-direction:row;text-align:right;gap:12px 24px;padding:24px 5% 104px}
+.account-footer nav{justify-content:flex-end;gap:12px 24px}
+.workspace>footer{justify-content:flex-end;text-align:right;gap:16px 24px;padding:24px 0 104px}
+.brand-footer-bottom{justify-content:flex-end;text-align:right;gap:16px 24px;padding-bottom:80px}
+/* Authentication pages have no floating mentor, so no dock clearance is needed. */
+body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
+@media(max-width:700px){
+ body{padding-bottom:0}
+ .path-wizard>.path-footer,.account-footer{flex-direction:column;align-items:flex-end;padding:22px 20px 84px;gap:12px}
+ .account-footer>span,.path-footer>span:first-child{max-width:100%;font-size:12px;line-height:1.6}
+ .account-footer nav,.path-footer>.site-legal-links{justify-content:flex-end;gap:12px 18px}
+ .workspace>footer{justify-content:flex-end;padding-bottom:84px}
+ .workspace>footer>span:nth-child(2){display:block}
+ .brand-footer-bottom{justify-content:flex-end;padding-bottom:60px}
+}
