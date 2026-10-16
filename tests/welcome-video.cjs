@@ -10,7 +10,8 @@ test('home has no background video or mascot',()=>{
  const layout=src('app/layout.tsx');
  const css=src('app/globals.css');
  assert.doesNotMatch(home,/<video|home-bg-video/);
- assert.match(hero,/visual-disclosure[\s\S]*<WelcomeVideo\s*\/>/);
+ assert.match(hero,/Make your first useful piece, one decision at a time\.<\/p><WelcomeVideo\s*\/>/);
+ assert.ok(hero.indexOf('<WelcomeVideo/>')<hero.indexOf('hero-play-button'),'video appears before the first challenge button');
  assert.ok(!hero.includes('PLAYABLE STORY'),'front challenge card should not show the Playable Story badge');
  assert.doesNotMatch(css,/\.home-bg-video\{/);
  assert.doesNotMatch(layout,/Mascot/);
