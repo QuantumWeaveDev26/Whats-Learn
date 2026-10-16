@@ -4,7 +4,7 @@ import {database} from './storage';
  * Erases a learner's data from this site's database (and private files). Payment records are kept as the privacy policy says (tax and accounting law); they are not touched here.
  * One marker row stays in the points ledger (opaque id, zero points, no personal data) so a welcome balance can never be granted twice, even if the login is removed later than the data.
  */
-const TABLES=['practice_events','proofs','work','learner_profiles','ai_feedback_usage','whatsapp_contacts','mission_scores','mission_clues','reward_claims','uploads'] as const;
+const TABLES=['practice_events','proofs','work','learner_profiles','ai_feedback_usage','submission_reviews','whatsapp_contacts','mission_scores','mission_clues','reward_claims','uploads'] as const;
 export async function deleteAccountData(userId:string,now=new Date()){
  const db=database();const bucket=(env as unknown as {BUCKET?:R2Bucket}).BUCKET;
  // Stored files go first. If a file cannot be removed, nothing else is deleted and the request fails, so the learner can retry rather than lose track of a file.

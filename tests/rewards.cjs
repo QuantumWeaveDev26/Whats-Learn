@@ -26,7 +26,7 @@ test('only the highest title counts: clue use, an unfinished course or a broken 
  on();seed('clean','marketing');assert.ok(await R.earnedTopTitle('clean'));
  seed('clue','development',{clues:1});assert.equal(await R.earnedTopTitle('clue'),null,'a clue rules the title out (it earns the separate completion title)');
  seed('gap','filmmaking',{gap:true});assert.equal(await R.earnedTopTitle('gap'),null,'a missed day breaks the 10-day run');
- const ids=M.missions.filter(m=>m.track==='storytelling').map(m=>m.id).slice(0,9);ids.forEach((m,i)=>{H.db.prepare('INSERT INTO mission_scores VALUES (?,?,?,?,?,?,?,?,?)').run('part',m,day(i),25,75,0,0,100,'x');H.db.prepare("INSERT INTO work VALUES (?,?,?,?,?,?)").run('part',m,'w','[]','0','x')});
+ const ids=M.missions.filter(m=>m.track==='storytelling').map(m=>m.id).slice(0,9);ids.forEach((m,i)=>{H.db.prepare('INSERT INTO mission_scores VALUES (?,?,?,?,?,?,?,?,?)').run('part',m,day(i),25,75,0,0,100,'x');H.db.prepare("INSERT INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run('part',m,'w','[]','0','x')});
  assert.equal(await R.earnedTopTitle('part'),null,'9 of 10 missions is not enough');
  const r=await R.claimReward('gap','g@example.test');assert.equal(r.ok,false);assert.equal(r.status,403);
 });

@@ -6,7 +6,7 @@ const d1={prepare(sql){const stmt=db.prepare(sql);const api=(...args)=>({async f
 const env={DB:d1,OPENAI_API_KEY:'fake-openai'};const user={userId:'learner',email:'l@example.test',displayName:'L'};
 const original=Module._load;Module._load=function(name,parent,isMain){if(name==='@/app/chatgpt-auth')return {getChatGPTUser:async()=>user};if(name==='cloudflare:workers')return {env};if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
-let aiReply={status:200,content:JSON.stringify({summary:'Clear offer for a named customer.',strengths:['Specific time'],checks:[{met:true,note:'Named.'},{met:true,note:'Clear.'}],nextStep:'Add one reason to act today.'})};let aiCalls=0;
+let aiReply={status:200,content:JSON.stringify({summary:'Clear offer for a named customer.',strengths:['Specific time'],checks:Array.from({length:5},()=>({met:true,note:'Named and clear.'})),nextStep:'Add one reason to act today.'})};let aiCalls=0;
 global.fetch=async url=>{if(String(url)!=='https://api.openai.com/v1/chat/completions')throw new Error('Unexpected network call: '+url);aiCalls++;return aiReply.status===200?Response.json({choices:[{message:{content:aiReply.content}}]}):new Response('{}',{status:aiReply.status})};
 const {checkStarter}=require('../lib/starter-check.ts'),{checkWriting}=require('../lib/writing-check.ts'),{missions}=require('../lib/missions.ts');
 const work=require('../app/api/work/route.ts'),feedback=require('../app/api/feedback/route.ts');const m1=missions.find(m=>m.id==='m1');
@@ -32,11 +32,11 @@ const saved=()=>db.prepare('SELECT COUNT(*) n FROM work').get().n;
  assert.equal((await post(work,{missionId:'m1',body:relevant,checks:[true,true,true,true,true],quiz:m1.answer})).status,200);assert.equal(saved(),1);
  let res=await post(feedback,{action:'review',missionId:'m1',body:relevant,language:'en'});assert.equal(res.status,200);let d=await res.json();assert.equal(d.review.summary,'Clear offer for a named customer.');assert.equal(d.review.checks.length,5);assert.equal(aiCalls,1);assert.equal(used(),1);
  // 6. AI failures: provider error, empty reply and a reply that is not a review are reported as failures, never as a review, and don't use the allowance.
- for(const reply of [{status:500},{status:429},{status:200,content:''},{status:200,content:'Sorry, I cannot help with that.'},{status:200,content:'{"strengths":["x"]}'}]){aiReply=reply;res=await post(feedback,{action:'review',missionId:'m1',body:relevant,language:'en'});assert.equal(res.status,502,JSON.stringify(reply));d=await res.json();assert.equal(d.review,undefined);assert.match(d.error,/try again/)}
+ for(const reply of [{status:500},{status:429},{status:200,content:''},{status:200,content:'Sorry, I cannot help with that.'},{status:200,content:'{"strengths":["x"]}'}]){aiReply=reply;db.prepare("UPDATE submission_reviews SET created_at='2000-01-01T00:00:00Z'").run();res=await post(feedback,{action:'review',missionId:'m1',body:relevant,language:'en'});assert.equal(res.status,502,JSON.stringify(reply));d=await res.json();assert.equal(d.review,undefined);assert.match(d.error,/try again/)}
  assert.equal(used(),1,'Failed reviews are not counted');
  aiReply={status:200,content:''};res=await post(feedback,{action:'ask',missionId:'m1',question:'How do I start?',body:'',language:'en'});assert.equal(res.status,502,'An empty coach answer is a failure');
  // 7. Labels: the device check never claims to be an AI review.
- const coach=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/practice-coach.tsx'),'utf8');assert.match(coach,/QUICK WRITING CHECK/);assert.match(coach,/AI REVIEW · OF YOUR WRITING/);
+ const coach=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/practice-coach.tsx'),'utf8');assert.match(coach,/QUICK WRITING CHECK/);assert.match(coach,/AI REVIEW · PRACTICAL WORK/);
  assert.match(checkStarter('marketing','Office workers near MG Road: order a hot lunch before 11 today.').message,/quick check on your device, not an AI review/);
  console.log('PASS: "abcd", filler and the Wrangler log are refused before saving or AI review; a relevant answer saves and gets an AI review; AI failures show no review and use no allowance.');
 })().catch(e=>{console.error(e);process.exitCode=1});

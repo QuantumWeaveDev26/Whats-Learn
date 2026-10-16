@@ -1,3 +1,5 @@
+import {aiReady,FeedbackError,type Review} from './ai-feedback';
+import {reviewedSubmission} from './submission-review';
 import {database} from './storage';
 import {missions,type Mission} from './missions';
 import {checkWriting} from './writing-check';
@@ -14,7 +16,7 @@ import {clueDeduction,clueIds,dailyLimitMessage,decideAward,pointsGate,scoreMiss
  * (tables mission_scores and mission_clues). The database itself refuses a second score for the same mission, and a second score on the same day,
  * so a refresh, a double tap or two tabs at once cannot earn extra points.
  */
-export type Creation={missionId:string;body:string;checks:boolean[];quiz:number;reflection?:string};
+export type Creation={missionId:string;body:string;checks:boolean[];quiz:number;reflection?:string;evaluation?:string};
 export type ScoreRow={mission_id:string;day:string;understanding:number;practical:number;clues:number;deduction:number;points:number};
 type Result={status:Award['status']|'locked';score?:Score;message:string;saved:boolean;code:number};
 async function first<T>(sql:string,...args:unknown[]){return (await database().prepare(sql).bind(...args).first()) as T|null}
@@ -84,17 +86,25 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
  // Order inside the course is enforced here, on the server, not just in the screen.
  const prev=previousMission(mission);
  if(prev){const lock=lockFor(mission,await completedIds(userId),await clearedKeys(userId));if(lock.locked)return {status:'locked',message:lock.message,saved:false,code:403}}
+ let review:Review|undefined;
  let s=await state(userId,mission.id,day);let decision=decideAward(s);
  if(decision==='daily-limit')return {status:'daily-limit',message:dailyLimitMessage,saved:false,code:429};
+ const invalid=precheck(mission,data);if(invalid)return {status:'rejected',message:invalid,saved:false,code:400};
+ if(aiReady()){
+  try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en')}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
+  if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,saved:false,code:422};
+ }
+ data={...data,evaluation:review?JSON.stringify(review):undefined};
  if(decision==='award'){
   const text=answerText(mission,data.body);const writing=checkWriting(mission,text,data.checks);const gate=pointsGate(mission,text,writing);
   if(!gate.ok)return {status:'rejected',message:gate.message+' Your work has not been saved, so you can try again.',saved:false,code:400};
   const score=scoreMission({understandingCorrect:data.quiz===mission.answer,writing,clues:s.clues});
+  if(review){score.practical=Math.round(75*review.checks.filter(c=>c.met).length/review.checks.length);score.points=Math.max(0,score.understanding+score.practical-score.deduction)}
   try{
    const db=database();await db.batch([db.prepare('INSERT INTO mission_scores (user_id,mission_id,day,understanding,practical,clues,deduction,points,created_at) VALUES (?,?,?,?,?,?,?,?,?)').bind(userId,mission.id,day,score.understanding,score.practical,score.clues,score.deduction,score.points,now.toISOString()),
     // The mission's points go into the balance once. Clue costs already taken when the clues were revealed are added back here so the learner is charged for each clue exactly once.
     db.prepare("INSERT INTO point_ledger (user_id,kind,ref,delta,created_at) VALUES (?,'mission',?,?+COALESCE((SELECT -SUM(delta) FROM point_ledger WHERE user_id=? AND kind='clue' AND ref LIKE ?),0),?)").bind(userId,mission.id,score.points,userId,mission.id+':%',now.toISOString()),...creationStatements(userId,data,now.toISOString())]);
-   return done(mission,'awarded',score);
+   const result=done(mission,'awarded',score);if(review)result.message=scoreSummary(score)+'. AI reviewed: '+review.summary+' Next: '+review.nextStep+(review.source?' Source: '+review.source.commit.slice(0,7)+' · '+review.source.files.join(', ')+' (static review, not executed).':'');return result;
   }catch{
    // The database refused: another request scored this mission or this day first. Work out which, and save nothing more than practice.
    s=await state(userId,mission.id,day);decision=decideAward({...s,hasWork:s.hasWork});
@@ -102,5 +112,5 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
   }
  }
  await database().batch(creationStatements(userId,data,now.toISOString()));
- return done(mission,decision as 'practice'|'duplicate',undefined);
+ const result=done(mission,decision as 'practice'|'duplicate',undefined);if(review)result.message+=' AI reviewed: '+review.summary+' Next: '+review.nextStep;return result;
 }

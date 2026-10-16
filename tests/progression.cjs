@@ -159,7 +159,7 @@ test('guests: order, retries and limits are enforced on this device and explaine
 });
 test('the lock is visible: locked missions are disabled and say what to finish; deep links and the assistant tool open the locked panel, not the lesson',()=>{
  const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
- assert.equal((src.match(/Locked · finish “/g)||[]).length,2,'on the Today map and the Skill paths list');assert.match(src,/disabled=\{lk\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions always stay open to practise\./);
+ assert.equal((src.match(/<CourseRoadmap /g)||[]).length,2,'both course views share the same roadmap');const roadmap=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/course-roadmap.tsx'),'utf8');assert.match(roadmap,/disabled=\{r\.lock\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions always stay open to practise\./);
  assert.match(src,/active&&lockOf\(active\)\.locked\?/,'the lesson is replaced by the locked panel whatever opened it');
 });
 test('structured answers: parts round-trip, links are https only and never fetched, code is never run, the starter must change',()=>{
@@ -176,7 +176,7 @@ test('structured answers: parts round-trip, links are https only and never fetch
  assert.equal(PR.checkAnswerShape(byId('m4').practical,{...parts('m4'),link:'http://x.y'}).ok,true,'a link on a mission with no link field is simply ignored');
  // Nothing in the save path runs or opens learner code or links.
  const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');for(const f of ['lib/practical.ts','lib/submission.ts','lib/mission-points.ts','components/whatslearn/practice-fields.tsx'])assert.doesNotMatch(src(f),/\beval\(|new Function\(|child_process|vm\.run|fetch\(|window\.open|dangerouslySetInnerHTML/,f);
- assert.match(src('components/whatslearn/practice-fields.tsx'),/never open or fetch your link/);assert.match(src('components/whatslearn/practice-fields.tsx'),/never run/);
+ assert.match(src('components/whatslearn/practice-fields.tsx'),/Public GitHub repository roots are read/);assert.match(src('components/whatslearn/practice-fields.tsx'),/never run/);
 });
 test('attachments are not offered: no upload control exists, and nothing claims a file was reviewed',()=>{
  const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');

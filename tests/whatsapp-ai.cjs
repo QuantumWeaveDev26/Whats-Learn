@@ -9,7 +9,7 @@ const sent=[];let claudeCalls=0;
 global.fetch=async(url,options={})=>{const body=JSON.parse(options.body||'{}');
  if(String(url).startsWith('https://graph.facebook.com/')){sent.push(body);return Response.json({messages:[{id:'wamid.x'}]})}
  if(String(url)==='https://api.anthropic.com/v1/messages'){claudeCalls++;assert.equal(options.headers['x-api-key'],'fake-key');assert.match(body.system,/Checklist/);assert.match(body.messages[0].content,/<learner_work>/);
-  return Response.json({content:[{type:'text',text:JSON.stringify({summary:'Clear start.',strengths:['Specific customer'],checks:[{met:true,note:'Office-goers named.'},{met:false,note:'Say what goes wrong.'}],nextStep:'Name the problem.'})}]})}
+  return Response.json({content:[{type:'text',text:JSON.stringify({summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},(_,i)=>({met:i===0,note:i===0?'Office-goers named.':'Say what goes wrong.'})),nextStep:'Name the problem.'})}]})}
  throw new Error('Unexpected fetch '+url)};
 const wa=require('../lib/whatsapp.ts'),ai=require('../lib/ai-feedback.ts');
 const sign=raw=>'sha256='+createHmac('sha256','app-secret').update(raw).digest('hex');
@@ -38,7 +38,7 @@ const inbound=(id,from,text)=>JSON.stringify({entry:[{changes:[{value:{messages:
  assert.equal((await route.POST(req(body))).status,401);testUser={userId:'learner',email:'l@example.test'};
  const ok=await (await route.POST(req(body))).json();assert.equal(ok.review.checks.length,5);assert.equal(ok.review.checks[0].met,true);assert.equal(ok.review.checks[2].met,false);
  assert.equal((await route.POST(req({...body,missionId:'nope'}))).status,404);
- await route.POST(req(body));await route.POST(req(body));assert.equal((await route.POST(req(body))).status,429,'Free daily allowance is enforced');
+ await route.POST(req({...body,body:body.body+' Another detail.'}));await route.POST(req({...body,body:body.body+' A third detail.'}));assert.equal((await route.POST(req({...body,body:body.body+' A fourth detail.'}))).status,429,'Free daily allowance is enforced');
  delete env.ANTHROPIC_API_KEY;assert.equal((await (await route.GET()).json()).enabled,false);assert.equal((await route.POST(req(body))).status,503);
  assert.equal(ai.aiReady(),false);
  console.log('PASS: AI review sign-in, checklist mapping, daily allowance, unknown missions and the no-key fallback.');

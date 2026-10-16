@@ -5,7 +5,7 @@
  *   ### Field label
  *   value
  *
- * Code is only ever stored and shown as text. It is never run, compiled, opened or fetched, and links are stored as plain text and never fetched.
+ * Code is only ever stored and shown as text. It is never run, compiled, opened or fetched, and public GitHub roots can be read by the bounded AI source reviewer. Other links are references only.
  */
 export type FieldType='choice'|'short'|'long'|'code';
 export type PracticalField={id:string;label:string;type:FieldType;options?:string[];hint?:string;starter?:string;anyOf?:string[]};

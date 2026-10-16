@@ -184,7 +184,7 @@ test('website to WhatsApp: a mission finished on the website is announced once, 
  const res=await work.POST(new Request('https://x.test/api/work',{method:'POST',headers:{origin:'https://x.test','Content-Type':'application/json'},body:JSON.stringify({missionId:'m1',body,checks:[true,true,true,true,true],quiz:m.answer})}));
  assert.equal(res.status,200);assert.equal(count("SELECT COUNT(*) n FROM whatsapp_outbox WHERE user_id='bina'"),1);
  let c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});
- assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/completed "[^"]+" on the website/);assert.equal(c.json.items[0].to,P2);
+ assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/Mission done:.*\n.*points.*\nSynced from the website/);assert.equal(c.json.items[0].to,P2);
  c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});assert.equal(c.json.items.length,0,'claimed once');
  const id=db.prepare("SELECT id FROM whatsapp_outbox WHERE user_id='bina'").get().id;
  assert.equal((await call(outbox,'/api/bridge/whatsapp/outbox',{action:'report',results:[{id,ok:true}]})).json.updated,1);
@@ -227,7 +227,7 @@ test('reminders: explicit opt-in, chosen time and frequency in India time, quiet
  assert.equal((await jobs.claimReminders(50,T('2026-10-13T14:40:00Z'))).items.filter(i=>i.to===P1).length,0,'once sent, never again that day');
  // Next day: inside the window a free message is allowed; weekdays skip Saturday; weekly only Monday; already learned today: skipped.
  db.prepare("UPDATE whatsapp_contacts SET last_inbound_at='2026-10-14T10:00:00Z' WHERE user_id='asha'").run();
- const d=await jobs.claimReminders(50,T('2026-10-14T13:35:00Z'));const free=d.items.find(i=>i.to===P1);assert.equal(free.mode,'text');assert.match(free.text,/Reply TODAY/);
+ const d=await jobs.claimReminders(50,T('2026-10-14T13:35:00Z'));const free=d.items.find(i=>i.to===P1);assert.equal(free.mode,'text');assert.match(free.text,/\*TODAY\*/);
  await say(P1,'REMIND weekdays');assert.equal((await jobs.claimReminders(50,T('2026-10-17T13:35:00Z'))).items.filter(i=>i.to===P1).length,0,'Saturday: weekdays only');
  await say(P1,'REMIND weekly');assert.equal((await jobs.claimReminders(50,T('2026-10-15T13:35:00Z'))).items.filter(i=>i.to===P1).length,0,'Thursday: weekly means Monday');
  assert.equal((await jobs.claimReminders(50,T('2026-10-19T13:35:00Z'))).items.filter(i=>i.to===P1).length,1);

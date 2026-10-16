@@ -5,7 +5,7 @@ const d1={prepare(sql){const stmt=db.prepare(sql);const api=(...args)=>({async f
 const env={DB:d1};let testUser={userId:'learner',email:'l@example.test'};
 const original=Module._load;Module._load=function(name,parent,isMain){if(name==='@/app/chatgpt-auth')return {getChatGPTUser:async()=>testUser};if(name==='cloudflare:workers')return {env};if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
-const review={summary:'Clear start.',strengths:['Specific customer'],checks:[{met:true,note:'Named.'}],nextStep:'Name the problem.'};
+const review={summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},()=>({met:true,note:'Named.'})),nextStep:'Name the problem.'};
 const calls=[];
 global.fetch=async(url,options={})=>{const body=JSON.parse(options.body||'{}');const u=String(url);
  if(u==='https://api.anthropic.com/v1/messages'){calls.push({provider:'anthropic',model:body.model});assert.equal(options.headers['x-api-key'],'fake-anthropic');return Response.json({content:[{type:'text',text:JSON.stringify(review)}]})}
@@ -25,8 +25,8 @@ const body={action:'review',missionId:'m1',body:'For office-goers in Indiranagar
  env.AI_PROVIDER='openai';assert.equal(ai.aiProvider(),'openai');env.AI_PROVIDER='anthropic';assert.equal(ai.aiProvider(),'anthropic');env.AI_PROVIDER='claude';assert.equal(ai.aiProvider(),'anthropic','AI_PROVIDER=claude selects Claude');env.AI_PROVIDER='Claude ';assert.equal(ai.aiProvider(),'anthropic','Case and spaces are ignored');env.AI_PROVIDER='claude';
  testUser={userId:'learner-2',email:'2@example.test'};await route.POST(req(body));assert.equal(calls.at(-1).provider,'anthropic');
  delete env.ANTHROPIC_API_KEY;env.AI_PROVIDER='anthropic';assert.equal(ai.aiProvider(),'openai','A chosen provider without its key falls back to the key that exists');
- env.FAIL_OPENAI='1';const busy=await route.POST(req(body));assert.equal(busy.status,502);assert.match((await busy.json()).error,/busy/);delete env.FAIL_OPENAI;
- testUser={userId:'learner-3',email:'3@example.test'};for(let i=0;i<3;i++)assert.equal((await route.POST(req(body))).status,200);assert.equal((await route.POST(req(body))).status,429,'Daily allowance applies to OpenAI too');
+ env.FAIL_OPENAI='1';const busy=await route.POST(req({...body,body:body.body+' An added detail.'}));assert.equal(busy.status,502);assert.match((await busy.json()).error,/busy/);delete env.FAIL_OPENAI;
+ testUser={userId:'learner-3',email:'3@example.test'};for(let i=0;i<3;i++)assert.equal((await route.POST(req({...body,body:body.body+' Version '+i}))).status,200);assert.equal((await route.POST(req({...body,body:body.body+' Fourth version'}))).status,429,'Daily allowance applies to OpenAI too');
  assert.equal((await (await route.GET()).json()).enabled,true);
  console.log('PASS: provider auto-detection, AI_PROVIDER choice and fallback, OpenAI review and ask with default and custom model, Claude path, errors, daily allowance and the no-key fallback.');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -36,7 +36,7 @@ export async function claimReminders(limit=50,at=new Date()){
   const scores=await loadScores(c.user_id,at);
   if(scores.todayUsed){await mark('skipped_done');skipped++;continue}          // already learned today: no nudge
   const {path}=await loadLearning(c.user_id);const title=path.challenge.title;
-  if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:`Time for today's WhatsLearn mission: "${title}". Reply TODAY to start, or REMIND OFF to stop reminders.`});continue}
+  if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:`⚡ Small win time: *${title}*\n*TODAY* → start · *REMIND OFF* → pause reminders.`});continue}
   // Outside the 24-hour customer service window only an approved template may start a conversation. No template configured: no message.
   if(!cfg.template){await mark('skipped_no_template');skipped++;continue}
   items.push({ref,to:c.phone,mode:'template',template:{name:cfg.template,language:cfg.templateLanguage,params:[title]}});
@@ -73,9 +73,9 @@ export async function claimNotices(limit=20,at=new Date()){
   if(o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
   const p=JSON.parse(o.payload) as {title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);
   const title=p.title||missions.find(m=>m.id===(p as {missionId?:string}).missionId)?.title||'your mission';
-  const text=o.kind==='badge'?`You cleared the mini challenge "${title}" on the website. Reply TODAY for your next mission.`
-   :p.status==='awarded'?`You completed "${title}" on the website: ${p.points??0} points. Balance: ${balance}. Reply TODAY for what is next.`
-   :`You saved "${title}" on the website as practice. Balance: ${balance}. Reply TODAY for what is next.`;
+  const text=o.kind==='badge'?`🏅 Checkpoint cleared: *${title}*\nWebsite synced. *TODAY* → next move.`
+   :p.status==='awarded'?`✅ Mission done: *${title}*\n+${p.points??0} points · 💎 ${balance} total\nSynced from the website. *TODAY* → what’s next.`
+   :`🙌 Practice saved: *${title}*\n💎 ${balance} points · website synced\n*TODAY* → next step.`;
   items.push({id:o.id,to:o.phone,text});
  }
  return {items};

@@ -15,7 +15,7 @@ export default function PracticeFields({mission,body,onChange,language}:{mission
    <p className="small muted">{f.hint}{f.type==='code'?' Code is stored as text only. It is never run.':''}</p></div>})}
   <label htmlFor="response" className="form-label">{REASONING_LABEL}</label>
   <textarea id="response" dir="auto" lang={language} rows={5} maxLength={LIMITS.reasoning} value={a.reasoning} onChange={e=>onChange(composeAnswer(p,{...a,reasoning:e.target.value}))} placeholder="Explain your choices in your own words, with reasons."/>
-  {p.link&&<><label htmlFor={'pf-link-'+mission.id} className="form-label">{p.link.label}</label><input id={'pf-link-'+mission.id} type="url" inputMode="url" maxLength={LIMITS.link} value={a.link} onChange={e=>onChange(composeAnswer(p,{...a,link:e.target.value}))} placeholder="https://"/><p className="small muted">{p.link.hint} Only https links are kept. We never open or fetch your link{validLink(a.link)?'.':', and this one is not a valid https address.'}</p></>}
+  {p.link&&<><label htmlFor={'pf-link-'+mission.id} className="form-label">{p.link.label}</label><input id={'pf-link-'+mission.id} type="url" inputMode="url" maxLength={LIMITS.link} value={a.link} onChange={e=>onChange(composeAnswer(p,{...a,link:e.target.value}))} placeholder="https://"/><p className="small muted">{p.link.hint} Public GitHub repository roots are read and sent to the AI reviewer when you request review or save. Up to six small files are reviewed at a pinned commit; code is never run. Other links are references only.{!validLink(a.link)&&" This link is not valid."}</p></>}
   {!shape.ok&&body.trim().length>0&&<p className="small muted" role="status">Still to do: {shape.errors.slice(0,3).join(' ')}</p>}
  </div>;
 }

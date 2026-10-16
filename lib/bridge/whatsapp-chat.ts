@@ -1,3 +1,4 @@
+import {courseRoadmap} from '../course-roadmap';
 import {learningStyle,learningStyles,learningStyleCodes,chatStyleIntro,chatStyleLesson,styleLabels,type LearningStyle} from '../learning-styles';
 import {aiAllowance,reserveAiUse} from '../ai-usage';
 import {goals,languages} from '../personalization';
@@ -90,14 +91,14 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
   return `${prefix}*${t.question}*\n${compact?.question||lm.question}\n\n${optionList(compact?.options||lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
  if(step==='reasoning')return `*Your reasoning:* explain your choices in your own words (at least ${LIMITS.minReasoning} characters).`;
- if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP.`;
+ if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP. Public GitHub source is shared with our AI reviewer on SUBMIT; code is not run.`;
  if(step==='checks')return `*Self-review.* Which of these did you do? Reply the numbers, like 1 3 4, or 0 for none.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nReply with the letter.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Send your code in one message.`:`Reply with your text${f.type==='short'?` (up to ${LIMITS.short} characters)`:` (up to ${LIMITS.long} characters)`}.`;
  return `*Part ${n}: ${f.label}*\n${f.hint?f.hint+'\n':''}${body}`;
 }
 function readyText(m:Mission,d:Draft){
- return `All parts are in. Nothing is saved yet.\n\nReply *SUBMIT* to save and score it, *EDIT n* to change a part (${stepsFor(m).map((s,i)=>`${i+1}=${s==='quiz'?'question':s==='reasoning'?'reasoning':s==='checks'?'self-review':s==='link'?'link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join(', ')}), or *CANCEL* to discard.`;
+ return '✅ All parts in. Ready for review?\nReply *SUBMIT* → AI check + save (uses one AI help)\n*EDIT* → choose a part · *CANCEL* → discard';
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{
@@ -195,7 +196,7 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  if(!r.saved)return reply(`${r.message}\n\nNothing was saved. Your answer is kept for 24 hours${r.status==='daily-limit'?'; reply SUBMIT again tomorrow':'; reply EDIT n to change a part'}.`);
  await dropDraft(c.user_id);
  const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
- return reply(`${r.message}\n\nBalance: ${balance} points. Streak: ${scores.streak.current} day${scores.streak.current===1?'':'s'}. It also shows on the website.\n\nReply TODAY for what is next.`);
+ return reply(`${r.message}\n\n💎 ${balance} points · 🔥 ${scores.streak.current}-day streak · synced ✅\n\nReply TODAY for what is next.`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -215,7 +216,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -261,7 +262,7 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  const allowance=await aiAllowance(c.user_id);
  const day=ist().day,db=database();
  const used=await db.prepare('SELECT count FROM whatsapp_tutor_usage WHERE user_id=? AND day=?').bind(c.user_id,day).first<{count:number}>();
- if((used?.count||0)>=allowance.limit||!await reserveAiUse(c.user_id,allowance.limit))return reply('You have used today\'s tutor questions. Commands like TODAY, HINT and SUBMIT still work, and the tutor is back after midnight India time.');
+ if((used?.count||0)>=allowance.limit||!await reserveAiUse(c.user_id,allowance.limit))return reply('You have used today\'s tutor questions. TODAY and your draft still work. AI review and tutor help reset at midnight India time.');
  await db.prepare('INSERT INTO whatsapp_tutor_usage(user_id,day,count) VALUES (?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET count=count+1').bind(c.user_id,day).run();
  const lm=localizeMission(m,c.language);
  // Approved course material only. The answer key, the explanation and the worked example are never sent out of WhatsLearn.
@@ -308,6 +309,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  c.style=learningStyle((await loadLearning(c.user_id)).profile.style);
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
+  case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id));return reply(`🗺️ *${courseName(profile.track)}*\n10-day foundation · ${rows.filter(r=>r.status==='complete').length}/10 saved\n\n${rows.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} ${r.day}. ${r.deliverable}`).join('\n')}\n\n*TODAY* → next step. One new scored mission per day.`)}
   case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';
@@ -327,7 +329,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'edit':{
    const d=await getDraft(c.user_id);if(!d)return reply('Reply TODAY to start a mission first.');
    const m=getMission(d.mission_id),steps=stepsFor(m),n=Number(arg);
-   if(!Number.isInteger(n)||n<1||n>steps.length)return reply(`Reply EDIT with a number from 1 to ${steps.length}.`);
+   if(!Number.isInteger(n)||n<1||n>steps.length)return reply(steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your decision':s==='reasoning'?'Your reasoning':s==='checks'?'Self-review':s==='link'?'Link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nSend *EDIT 2*, for example.');
    d.data.edit=steps[n-1];await putDraft(c.user_id,d);return reply(promptFor(m,steps[n-1],d,c.language,c.style));
   }
   case 'check':return check(c,arg);

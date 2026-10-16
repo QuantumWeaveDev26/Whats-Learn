@@ -327,3 +327,23 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .lesson-understanding{padding:14px 16px;border:1px solid #bfd0c4;border-radius:12px;margin:14px 0 22px;background:#f6f9f3}.lesson-understanding>summary{cursor:pointer;min-height:30px;font-weight:650;color:#24563d}.lesson-dialog[data-learning-style=game] .focus-quest{background:#f3edfc;border-color:#d2c3e7}.lesson-dialog[data-learning-style=game] .task-label{color:#553278}.lesson-dialog[data-learning-style=story] .focus-quest{background:#fff7e9;border-color:#e1cda8}
 /* Keep quest text readable against the dark game surface. */
 .style-game .quest-brief>p,.style-game .style-next-move>p{color:#f3ecfc}.style-game .style-decision-result p{color:inherit}
+
+/* Course outcomes and progress, shared across course views. */
+.account-app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.account-main{width:100%;flex:1;margin:0 auto;min-width:0}
+.account-footer{margin-top:auto;align-items:center;flex-wrap:wrap;flex-shrink:0;color:#43594c}
+.account-footer nav{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.course-roadmap{margin:24px 0;border:1px solid #c8dcd0;border-radius:24px;padding:26px;background:#f7faf5;scroll-margin-top:90px}
+.roadmap-heading{display:flex;align-items:start;justify-content:space-between;gap:20px}
+.roadmap-heading h2{font-size:26px;line-height:1.25;margin:10px 0}.roadmap-heading p{font-size:16px;line-height:1.6;max-width:700px}
+.roadmap-heading>strong{font-size:32px;color:#116743;white-space:nowrap}.roadmap-heading small{display:block;font-size:12px;font-weight:500}
+.course-roadmap progress{display:block;width:100%;height:10px;accent-color:#087949;margin:20px 0}.course-roadmap>.small{line-height:1.65;color:#405b49}
+.course-roadmap ol{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:12px}
+.roadmap-day{display:flex;align-items:center;gap:16px;padding:18px;background:white;border:1px solid #d6e2d8;border-radius:16px}
+.roadmap-day>div{flex:1;min-width:0}.roadmap-day h3{font-size:17px;line-height:1.4;margin:5px 0}.roadmap-day p{font-size:14px;line-height:1.55;margin:4px 0;color:#445c4d}
+.roadmap-day.current{border:2px solid #14784c;box-shadow:0 4px 18px #1a623412}.roadmap-day.complete{background:#edf6e4}
+.roadmap-number{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;border-radius:50%;background:#e3efdf;color:#155d3c;font-weight:700}
+.roadmap-day .outline{flex-shrink:0;font-size:13px}.roadmap-finish{padding:22px;background:#dff0d3;border-radius:16px;margin-top:20px}.roadmap-finish p{line-height:1.6;margin:12px 0}
+@media(max-width:700px){.account-footer{align-items:flex-start}.account-footer nav{gap:16px 24px}.course-roadmap{padding:18px}.roadmap-heading{flex-wrap:wrap}.roadmap-heading h2{font-size:23px}.roadmap-heading>strong{font-size:24px}.roadmap-day{flex-wrap:wrap;align-items:flex-start;padding:16px;gap:12px}.roadmap-day>div{flex-basis:calc(100% - 50px)}.roadmap-day .outline{margin-left:48px}.course-roadmap .play-label{font-size:11px}}
+
+.course-roadmap progress{appearance:none;border:0;border-radius:10px;overflow:hidden;background:#dce7d8}.course-roadmap progress::-webkit-progress-bar{background:#dce7d8}.course-roadmap progress::-webkit-progress-value{background:#14784c}.course-roadmap progress::-moz-progress-bar{background:#14784c}

@@ -16,7 +16,7 @@ export const styleLabels=(language:string)=>labels[language as keyof typeof labe
 /** Same approved lesson and assessment; only the order and presentation change. */
 export function chatStyleIntro(m:Mission,style:unknown,position:number,language='en'){
  const kind=learningStyle(style),t=styleLabels(language);
- const heading=`*${t[kind]} · ${position}/10*`;
+ const heading=`*${t[kind]} · Day ${position}/10*`;
  if(kind==='facts')return `⚡ ${heading}\n${m.title}\n\n${lessonFacts(m.lesson)[0]||m.lesson}`;
  if(kind==='game')return `🎮 ${heading}\n${m.title}\n\n${m.brief}\n\n${t.steps}`;
  if(kind==='story')return `📖 ${heading}\n${m.brief}\n\n*${m.title}*`;
