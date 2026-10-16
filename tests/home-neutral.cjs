@@ -52,14 +52,14 @@ test('signed-out visitors do not get an account resume link from device work',()
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Hero));
  assert.doesNotMatch(html,/Continue my journey|Welcome back/);
- assert.match(html,/Sign in<\/a> to save your course progress/);
+ assert.match(html,/Sign in<\/a> to sync progress/);
  assert.match(html,/10-day foundation courses/);
- assert.match(html,/First 3 missions per course are free/);
+ assert.match(html,/first 3 per course free/);
 });
 
 test('every collapsed programme shows its duration and practical mission count',()=>{
  const Explorer=require('../components/whatslearn/programme-explorer.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Explorer));
  assert.equal((html.match(/10-DAY FOUNDATION COURSE · 10 PRACTICAL MISSIONS/g)||[]).length,4);
- assert.match(html,/10 practice days, or take longer/);
+ assert.match(html,/Take longer if you need/);
 });

@@ -387,3 +387,6 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .programme-row h3 small{font-size:12px;line-height:1.5;letter-spacing:.04em;color:#365a45;margin-top:8px}
 
 .mini-choices button:disabled{opacity:1;cursor:default}.mini-quest .quest-answer-locked{font-size:13px;color:#365a45;border-top:1px solid #d9e5d5;padding-top:12px}
+
+/* Put optional explanations behind clear, keyboard-accessible summaries. */
+.dashboard-sidequest{border:1px solid #ceded0;border-radius:14px;padding:14px 18px;margin-bottom:20px;background:#f6f9f2}.dashboard-sidequest>.mini-quest{margin:16px 0 0}.dashboard-sidequest>summary,.path-reason>summary,.pricing-terms>summary,.signin-note summary,.settings-summary summary,.mission-practice summary{cursor:pointer;font-size:14px;font-weight:650;color:#245b3d;line-height:1.5}.pricing-terms>summary{padding:8px 0}.signin-note details{margin-top:8px}.path-reason>summary{margin-bottom:10px}.mission-practice details{margin-top:10px}.chat-card a.chat-reply{display:flex;align-items:center;justify-content:space-between;text-decoration:none}
