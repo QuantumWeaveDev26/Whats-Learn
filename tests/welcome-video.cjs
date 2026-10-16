@@ -18,17 +18,13 @@ test('home has no background video or mascot',()=>{
  assert.ok(fs.existsSync(path.join(process.cwd(),'public','videos','whatslearn-welcome.mp4')));
 });
 
-test('welcome video is loaded only after a click and removed when closed',()=>{
+test('welcome video is an inline controlled player without a launcher or popup',()=>{
  const video=src('components/whatslearn/welcome-video.tsx');
- assert.match(video,/useState\(false\)/);
- assert.match(video,/onClick=\{\(\)=>setOpen\(true\)\}/);
- assert.match(video,/onOpenChange=\{setOpen\}/);
- assert.match(video,/open&&<video/);
- assert.match(video,/controls/);
- assert.match(video,/preload="none"/);
- assert.match(video,/<DialogTitle/);
- assert.match(video,/<DialogTrigger asChild>/,'closing restores keyboard focus to the video button');
- assert.match(src('components/ui/dialog.tsx'),/<XIcon\s*\/>/);
+ assert.match(video,/className="welcome-video-inline"/);
+ assert.match(video,/<video src="\/videos\/whatslearn-welcome.mp4"/);
+ assert.match(video,/controls playsInline preload="metadata"/);
+ assert.doesNotMatch(video,/Dialog|welcome-video-trigger|setOpen|autoPlay/);
+ assert.match(src('app/globals.css'),/\.welcome-video-inline video\{[^}]*aspect-ratio:16\/9/);
 });
 
 test('floating mentor uses the learning WhatsApp account and a safe external link',()=>{

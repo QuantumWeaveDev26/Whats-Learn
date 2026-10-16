@@ -230,7 +230,6 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 @media (max-width:820px){.checkpoint-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:420px){.checkpoint-list{grid-template-columns:1fr}}
 
-
 /* v57: UI grooming — clear hierarchy, practical previews and visual-only mascot scenes. */
 .ui-card-primary,.public-path.is-featured,.programme-row.is-selected{box-shadow:0 16px 38px rgba(20,72,48,.13)}
 .ui-card-secondary{background:linear-gradient(145deg,#fff,#f7fbf8);border-color:#dbe9df}
@@ -246,27 +245,22 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 
 .mission-progress-map{scroll-margin-top:92px}.daily-return-cue{position:relative;overflow:hidden}.daily-return-cue:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-75px;top:-80px;background:rgba(69,109,226,.12);pointer-events:none}.daily-return-cue>*{position:relative;z-index:1}.upload-control{padding:14px 0;border-top:1px dashed #cdded3}.upload-control .form-label{font-weight:700;color:#234b39}
 
-/* Click-to-play welcome video; no background video or initial media download. */
+/* Inline welcome player; reserve its space and load only metadata until playback. */
 .public-app{position:relative;isolation:isolate}
-.welcome-video-launcher{margin-top:24px}
-.welcome-video-trigger{display:flex;align-items:center;gap:14px;text-align:left;width:100%;max-width:440px;border:1px solid #b7d2c3;border-radius:18px;padding:16px 18px;background:#fff;color:#174e37;font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(18,62,40,.06);transition:transform .2s,box-shadow .2s,border-color .2s}
-.welcome-video-trigger small{display:block;margin-top:4px;color:#425d4f;font-size:12px;font-weight:400;line-height:1.5}
-.welcome-play-icon{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#e7f4d7;color:#087a4b}
-.welcome-video-trigger:hover{transform:translateY(-2px);border-color:#087a4b;box-shadow:0 10px 28px rgba(18,62,40,.12)}
-.welcome-video-trigger:focus-visible,.whatsapp-mentor-widget:focus-visible{outline:3px solid #2856ba;outline-offset:4px}
-.welcome-video-dialog[data-slot=dialog-content]{width:min(960px,calc(100vw - 32px));max-width:960px;max-height:calc(100dvh - 32px);overflow:auto;padding:24px;background:#fff;color:#172c26;border-radius:24px;gap:10px}
-.welcome-video-dialog [data-slot=dialog-title]{padding-right:36px;font-size:22px;line-height:1.3}
-.welcome-video-dialog [data-slot=dialog-description]{color:#425d4f;padding-right:16px}
-.welcome-video-dialog video{display:block;width:100%;max-height:calc(100dvh - 180px);aspect-ratio:16/9;object-fit:contain;background:#10291d;border-radius:14px;margin-top:8px}
-.welcome-video-dialog [data-slot=dialog-close]{width:32px;height:32px;display:grid;place-items:center;background:#edf3ef;color:#172c26;opacity:1;border-radius:50%}
+.welcome-video-inline{margin:16px 0 0;width:100%}
+.welcome-video-inline video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#10291d;border:1px solid #c4d8ca;border-radius:16px}
+.welcome-video-inline video:focus-visible{outline:3px solid #2856ba;outline-offset:4px}
+
+.whatsapp-mentor-widget:focus-visible{outline:3px solid #2856ba;outline-offset:4px}
+
 /* Learning mentor stays separate from the existing team contact links. */
 .whatsapp-mentor-widget{position:fixed;right:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:40;display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;max-width:calc(100vw - 32px);border:1px solid #146743;border-radius:999px;background:#087a4b;color:#fff;text-decoration:none;box-shadow:0 8px 28px rgba(18,62,40,.22);transition:transform .2s,box-shadow .2s}
 .whatsapp-mentor-widget strong{display:block;font-size:14px;line-height:1.35;color:#fff}
 .whatsapp-mentor-widget small{display:block;font-size:11px;line-height:1.5;color:#fff}
 .mentor-widget-icon{display:grid;place-items:center;flex-shrink:0;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.14)}
 .whatsapp-mentor-widget:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(18,62,40,.3);background:#076840}
-@media(max-width:700px){body{padding-bottom:88px}.whatsapp-mentor-widget{right:16px;bottom:max(16px,env(safe-area-inset-bottom));gap:9px;padding:9px 13px 9px 9px}.mentor-widget-icon{width:36px;height:36px}.welcome-video-trigger{padding:14px;gap:12px}.welcome-video-dialog[data-slot=dialog-content]{padding:18px;border-radius:18px}.welcome-video-dialog [data-slot=dialog-title]{font-size:19px}}
-@media(prefers-reduced-motion:reduce){.welcome-video-trigger,.whatsapp-mentor-widget{transition:none}.welcome-video-trigger:hover,.whatsapp-mentor-widget:hover{transform:none}}
+@media(max-width:700px){body{padding-bottom:88px}.whatsapp-mentor-widget{right:16px;bottom:max(16px,env(safe-area-inset-bottom));gap:9px;padding:9px 13px 9px 9px}.mentor-widget-icon{width:36px;height:36px}}
+@media(prefers-reduced-motion:reduce){.whatsapp-mentor-widget{transition:none}.whatsapp-mentor-widget:hover{transform:none}}
 
 /* Journey disclosures: the plus/minus is part of a full keyboard-accessible button. */
 .how-step{display:block}.how-step h3{margin:0}.how-step-toggle{display:flex;align-items:flex-start;gap:22px;width:100%;border:0;padding:0;background:none;color:#172c26;text-align:left;font:inherit;cursor:pointer}.how-step-number{font-size:13px;line-height:1.6;margin-top:4px;color:#4d6055}.how-step-title{flex:1}.how-step-toggle>svg{flex-shrink:0;margin-top:4px}.how-step-toggle:hover{color:#087a4b}.how-step-toggle:focus-visible{outline:3px solid #2856ba;outline-offset:6px;border-radius:4px}.how-step-detail{padding:12px 34px 0 38px}.how-step-detail[hidden]{display:none}.how-step p{color:#42574b}
@@ -283,7 +277,6 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .agency-start{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:clamp(28px,4vw,60px);max-width:1440px;margin-inline:auto;padding-block:24px}
 .agency-start .visual-intro{padding-top:0;max-width:540px}
 .agency-start .visual-intro h1{font-size:clamp(40px,4.5vw,64px);line-height:1.05;margin:12px 0 18px}
-.agency-start .welcome-video-launcher{margin:16px 0 0}
 .agency-start .visual-meta{margin:14px 0 16px}
 .agency-start .hero-play-button{margin:0 0 16px}
 .agency-start .hero-continue{margin-top:16px}
