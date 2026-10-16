@@ -1,0 +1,3 @@
+import type {Mission} from '@/lib/missions';
+import {missionPractice} from '@/lib/mission-practice';
+export default function MissionOutcome({mission,compact=false}:{mission:Mission;compact?:boolean}){const p=missionPractice(mission);return <section className="mission-practice" aria-label="Practical mission outcome"><span className="play-label">DAY {p.day} · MAKE SOMETHING USEFUL</span><h3>You’ll leave with: {p.outcome}</h3>{!compact&&<><strong>Try it, then improve it</strong><p>{p.trial}</p><p className="small">In Your reasoning, record what you tried, what happened and one improvement. Clearly label a simulation or manual walkthrough. AI reviews your submitted evidence; it does not witness your test or run your project.</p></>}</section>}

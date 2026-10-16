@@ -1,3 +1,6 @@
+import {missions} from '@/lib/missions';
+import {canUseMission} from '@/lib/mission-access-server';
+import {membershipRequired} from '@/lib/mission-access';
 import {z} from 'zod';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
 import {sameOrigin} from '@/lib/storage';
@@ -20,6 +23,8 @@ export async function POST(request:Request){
  try{
   const text=await request.text();if(text.length>12000)return response({error:'Request too large.'},413);
   const p=input.parse(JSON.parse(text));
+  if(!missions.some(m=>m.id===p.missionId))return response({error:'Unknown challenge.'},404);
+  if(!await canUseMission(user.userId,p.missionId))return response({error:membershipRequired},403);
   if(p.action==='review'){const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language);return response({review,...await allowance(user.userId)})}
   const a=await allowance(user.userId);if(a.used>=a.limit)return response({error:`You have used today’s ${a.limit} AI reviews. They reset at midnight (India time).`,...a},429);
   if(!await reserveAiUse(user.userId,a.limit))return response({error:'Today’s AI allowance is used. It resets at midnight India time.'},429);reserved=true;

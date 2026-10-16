@@ -1,3 +1,4 @@
+import {canUseMission} from '../mission-access-server';
 import {database} from '../storage';
 import {loadLearning} from '../learning-service';
 import {loadScores} from '../mission-points';
@@ -35,7 +36,7 @@ export async function claimReminders(limit=50,at=new Date()){
   const mark=(state:string)=>db.prepare('UPDATE whatsapp_reminder_log SET state=? WHERE user_id=? AND slot=?').bind(state,c.user_id,slot).run();
   const scores=await loadScores(c.user_id,at);
   if(scores.todayUsed){await mark('skipped_done');skipped++;continue}          // already learned today: no nudge
-  const {path}=await loadLearning(c.user_id);const title=path.challenge.title;
+  const {path}=await loadLearning(c.user_id);if(!await canUseMission(c.user_id,path.nextMissionId)){await mark('skipped_access');skipped++;continue}const title=path.challenge.title;
   if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:`⚡ Small win time: *${title}*\n*TODAY* → start · *REMIND OFF* → pause reminders.`});continue}
   // Outside the 24-hour customer service window only an approved template may start a conversation. No template configured: no message.
   if(!cfg.template){await mark('skipped_no_template');skipped++;continue}

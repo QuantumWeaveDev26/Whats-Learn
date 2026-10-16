@@ -1,3 +1,5 @@
+import {canUseMission} from './mission-access-server';
+import {membershipRequired} from './mission-access';
 import {env} from 'cloudflare:workers';
 import {missions} from '@/lib/missions';
 /**
@@ -36,6 +38,7 @@ export async function listUploads(userId:string,missionId?:string){
 export async function saveUpload(userId:string,missionId:string,file:{name:string;bytes:Uint8Array},now=new Date()){
  if(!uploadsEnabled())return {ok:false as const,status:503,message:'File uploads are not switched on yet.'};
  if(!missions.some(m=>m.id===missionId))return {ok:false as const,status:400,message:'Choose a valid mission.'};
+ if(!await canUseMission(userId,missionId))return {ok:false as const,status:403,message:membershipRequired};
  const mime=sniff(file.bytes.subarray(0,16));if(!mime)return {ok:false as const,status:415,message:'This file type is not allowed. '+uploadRules};
  if(file.bytes.byteLength===0||file.bytes.byteLength>kinds[mime].max)return {ok:false as const,status:413,message:`This ${kinds[mime].label} is too large or empty. ${uploadRules}`};
  const db=e().DB,id=crypto.randomUUID(),key=`u/${userId}/${id}`;

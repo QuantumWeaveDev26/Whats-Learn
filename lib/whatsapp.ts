@@ -1,3 +1,5 @@
+import {canUseMission} from './mission-access-server';
+import {membershipRequired} from './mission-access';
 import {env} from 'cloudflare:workers';
 import {aiAllowance,reserveAiUse,releaseAiUse} from './ai-usage';
 import {bridgeSecret} from './bridge/auth';
@@ -38,6 +40,7 @@ export async function optIn(userId:string,rawPhone:string,language:string){
 export async function optOut(userId:string){const now=new Date().toISOString();await database().prepare("UPDATE whatsapp_contacts SET state='opted_out',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now,now,userId).run();return getContact(userId)}
 async function lessonMessage(contact:Contact){
  const {path}=await loadLearning(contact.user_id);const c=path.challenge;const url=`${whatsappConfig().siteUrl}/learn?mission=${path.nextMissionId}`;
+ if(!await canUseMission(contact.user_id,path.nextMissionId))return {missionId:path.nextMissionId,title:c.title,text:membershipRequired+'\n'+whatsappConfig().siteUrl+'/membership'};
  await database().prepare('UPDATE whatsapp_contacts SET current_mission=?,updated_at=? WHERE user_id=?').bind(path.nextMissionId,new Date().toISOString(),contact.user_id).run();
  return {missionId:path.nextMissionId,title:c.title,text:`*${c.title}* · ${path.sessionMinutes} min\n\n${c.brief}\n\n${c.lesson}\n\n*Your task:* ${c.task}\n\n${c.guidance}\n\nReply here with your answer${aiReady()?' for quick AI feedback':''}, or open it on the site to save it to your portfolio:\n${url}\n\nReply LESSON for the next challenge · STOP to pause messages.`};
 }
@@ -59,6 +62,7 @@ export async function handleInbound(from:string,text:string):Promise<string|null
  if(text.trim().length<20)return 'Send a few sentences as your answer, or reply LESSON for the next challenge.';
  const url=`${site}/learn?mission=${contact.current_mission}`;
  if(!aiReady())return `Thanks! Your answer is saved in this chat. To add it to your portfolio and check it against the self-review list, open:\n${url}`;
+ if(!await canUseMission(contact.user_id,contact.current_mission))return membershipRequired+'\n'+site+'/membership';
  const allowance=await aiAllowance(contact.user_id);
  if(!await reserveAiUse(contact.user_id,allowance.limit))return `Today's ${allowance.limit} AI requests are used. Continue your lesson on the website; AI help resets at midnight India time.`;
  try{

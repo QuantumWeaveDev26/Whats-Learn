@@ -4,7 +4,7 @@ Each of the four foundation courses has ten actual missions. The roadmap derives
 
 ## Evaluation
 
-When the existing AI provider is connected, account submissions use server-side review before completion on both website and WhatsApp. At least three of five mission criteria must be met. Practical points are 15 per met criterion (up to 75), plus the existing understanding score (25), less existing clue deductions. Every plan uses the same scoring. Revisions never award the mission points twice. Guests and installations without an AI provider retain explicitly labelled basic checks.
+When the existing AI provider is connected, account submissions use server-side review before completion on both website and WhatsApp. The learner must report a concrete practical trial or labelled walkthrough, its result and an improvement, and at least three of five mission criteria must be met. The AI assesses the submitted report; it does not independently witness the test. Practical points are 15 per met criterion (up to 75), plus the existing understanding score (25), less existing clue deductions. Every plan uses the same scoring. Revisions never award the mission points twice. Guests and installations without an AI provider retain explicitly labelled basic checks.
 
 A new review uses the existing plan's AI allowance. Identical work in the same language reuses its review for five minutes, including a preview followed by Save. Concurrent identical requests in one server process share the request. Failed provider/repository reviews release the allowance and preserve the draft. There is no fabricated successful review when the provider fails. Feedback is stored with accepted work and can be viewed in My Creations. Older creations keep their existing completion without being labelled AI reviewed.
 
@@ -21,3 +21,11 @@ No new AI credentials are required; the owner's existing provider configuration 
 The mentor supports ROADMAP, showing the same saved completion state, and gives short submission, progress and reminder messages. Existing opt-in, STOP, deduplication, quiet hours and the approved-template requirement outside the 24-hour messaging window still apply.
 
 Account pages use a flex column with a growing main area and a wrapping footer. Responsive roadmap rows show the day's deliverable, status and accessible action. Phone and desktop layouts are checked through the browser.
+
+## Explore trial access (16 October 2026)
+
+Explore and guests may use missions 1–3 in each course. Missions 4–10 require an active server-verified entitlement, including an approved account reward. A client preference, local storage flag or a created but unpaid checkout grants no access. Expiry blocks further paid mission saves, AI help, clues, bonus rewards, uploads and later checkpoints, while previously saved creations remain readable.
+
+The website, linked n8n WhatsApp mentor, legacy WhatsApp handler and learning-path API use the same access rule. Reminder jobs skip unavailable missions. Saved-progress sync detects access expiry and refreshes the website. No checkout processing or price calculation changed.
+
+Each of the forty missions has a specific deliverable and a concrete trial in `lib/mission-practice.ts`. Practical trials may use paper sketches, role-play or clearly labelled manual traces so learners do not need paid production tools. The review prompt requires an attempt, result and improvement; an intention to test later is insufficient. Updated review cache keys prevent older reviews without this evidence field from completing a new submission.

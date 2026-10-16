@@ -1,5 +1,7 @@
 import {aiReady,FeedbackError,type Review} from './ai-feedback';
 import {reviewedSubmission} from './submission-review';
+import {canUseMission} from './mission-access-server';
+import {membershipRequired} from './mission-access';
 import {database} from './storage';
 import {missions,type Mission} from './missions';
 import {checkWriting} from './writing-check';
@@ -55,6 +57,7 @@ export type ClueResult={allowed:boolean;recorded:boolean;charged:number;balance:
 export async function recordClue(userId:string,missionId:string,clue:ClueId,now=new Date()):Promise<ClueResult>{
  const empty={allowed:false,recorded:false,charged:0,balance:0,used:[] as string[],clues:0,deduction:0};
  if(!missions.some(m=>m.id===missionId)||!clueIds.includes(clue))return {...empty,reason:'invalid',message:'Choose a valid mission and clue.'};
+ if(!await canUseMission(userId,missionId))return {...empty,reason:'invalid',message:membershipRequired};
  await ensureAccount(userId,now);
  const usedNow=async()=>(await database().prepare('SELECT clue FROM mission_clues WHERE user_id=? AND mission_id=?').bind(userId,missionId).all()).results.map(x=>String(x.clue));
  const view=async(over:Partial<ClueResult>):Promise<ClueResult>=>{const used=await usedNow();return {allowed:true,recorded:false,charged:0,balance:await pointsBalance(userId),used,clues:used.length,deduction:clueDeduction(used.length),...over}};
@@ -81,7 +84,7 @@ const done=(mission:Mission,status:Award['status'],score:Score|undefined):Result
  * New missions earn points only once per day across all courses; the daily-limit refusal saves nothing, so the mission can still be done tomorrow.
  */
 export async function saveMissionWork(userId:string,data:Creation,now=new Date()):Promise<Result>{
- const mission=missions.find(m=>m.id===data.missionId)!;const day=practiceDay(now.toISOString());
+ const mission=missions.find(m=>m.id===data.missionId)!;if(!await canUseMission(userId,mission.id))return {status:'locked',message:membershipRequired,saved:false,code:403};const day=practiceDay(now.toISOString());
  await ensureAccount(userId,now);
  // Order inside the course is enforced here, on the server, not just in the screen.
  const prev=previousMission(mission);
@@ -92,6 +95,7 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
  const invalid=precheck(mission,data);if(invalid)return {status:'rejected',message:invalid,saved:false,code:400};
  if(aiReady()){
   try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en')}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
+  if(!review.practicalTest?.reported)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),saved:false,code:422};
   if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,saved:false,code:422};
  }
  data={...data,evaluation:review?JSON.stringify(review):undefined};

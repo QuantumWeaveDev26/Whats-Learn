@@ -1,3 +1,6 @@
+import {missions} from './missions';
+import {canUseMission} from './mission-access-server';
+import {membershipRequired} from './mission-access';
 import {database} from './storage';
 import {reviewWork,FeedbackError,type Review} from './ai-feedback';
 import {aiAllowance,reserveAiUse,releaseAiUse} from './ai-usage';
@@ -12,7 +15,9 @@ async function performReview(userId:string,missionId:string,body:string,language
 
 const pending=new Map<string,Promise<Review>>();
 export async function reviewedSubmission(userId:string,missionId:string,body:string,language='en'){
- const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
+ if(!missions.some(m=>m.id===missionId))throw new FeedbackError('Unknown challenge.',404);
+ if(!await canUseMission(userId,missionId))throw new FeedbackError(membershipRequired,403);
+ const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('practical-v2|'+language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
  const key=JSON.stringify([userId,missionId,hash]);const existing=pending.get(key);if(existing)return existing;
  const task=performReview(userId,missionId,body,language,hash);pending.set(key,task);
  try{return await task}finally{pending.delete(key)}

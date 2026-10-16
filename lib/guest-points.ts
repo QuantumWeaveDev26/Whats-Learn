@@ -1,3 +1,4 @@
+import {needsMembership,membershipRequired} from './mission-access';
 import {missions} from './missions';
 import {checkWriting} from './writing-check';
 import {answerText,precheck} from './submission';
@@ -30,6 +31,7 @@ export type GuestResult={saved:boolean;status:'awarded'|'practice'|'duplicate'|'
 /** Decides what saving this mission earns on this device. Call before saving the guest work; save the work only when `saved` is true. */
 export function guestAward(data:{missionId:string;body:string;checks:boolean[];quiz:number},now=new Date()):GuestResult{
  const mission=missions.find(m=>m.id===data.missionId);if(!mission)return {saved:false,status:'rejected',message:'Unknown mission.'};
+ if(needsMembership(mission))return {saved:false,status:'rejected',message:membershipRequired};
  const bad=precheck(mission,data);if(bad)return {saved:false,status:'rejected',message:bad};
  const lock=lockFor(mission,new Set(readGuestWork().map(w=>w.mission_id)),readGuestCheckpoints());if(lock.locked)return {saved:false,status:'rejected',message:lock.message+' '+guestLimitNote};
  const s=read();const day=practiceDay(now.toISOString());

@@ -23,7 +23,7 @@ const asAnswer=(id,text)=>{const a=parts(id);const f={...a.fields};const slots=b
 // Missions open in order, so a test that wants mission N first completes the missions before it.
 const prevOf=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);return l.slice(0,l.findIndex(x=>x.id===id)).map(x=>x.id)};
 const primeCheckpoints=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);const p=l.findIndex(x=>x.id===id)+1;for(let a=2;a<p;a+=2)db.prepare('INSERT OR IGNORE INTO checkpoint_clears (user_id,track,after_mission,created_at) VALUES (?,?,?,?)').run(user.userId,m.track,a,new Date().toISOString())};
-const prime=id=>{primeCheckpoints(id);for(const q of prevOf(id))db.prepare("INSERT OR IGNORE INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run(user.userId,q,'seed','[]',byId(q).answer,new Date().toISOString())};
+const prime=id=>{db.prepare("INSERT OR REPLACE INTO entitlements(session_id,user_id,mode,sku,status,ends_at,updated_at) VALUES (?,?,'reward','plus_monthly','active','2999-01-01T00:00:00Z','2026-10-16T00:00:00Z')").run("course-fixture-"+user.userId,user.userId);primeCheckpoints(id);for(const q of prevOf(id))db.prepare("INSERT OR IGNORE INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run(user.userId,q,'seed','[]',byId(q).answer,new Date().toISOString())};
 const Save=(input,now)=>{prime(input.missionId);return P.saveMissionWork(user.userId,input,now)};
 const post=(route,body)=>route.POST(new Request('https://whatslearn.in/api/x',{method:'POST',headers:{origin:'https://whatslearn.in','Content-Type':'application/json'},body:JSON.stringify(body)}));
 const send=(id,body=samples[id],extra={})=>(prime(id),post(work,{missionId:id,body,checks:[true,true,true,true,true],quiz:byId(id).answer,...extra}));
@@ -152,11 +152,11 @@ test('India-time day: the limit uses the Asia/Kolkata calendar day for every lea
  const G=require('../lib/guest-points.ts'),GW=require('../lib/guest-work.ts');
  const gcp=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);const p=l.findIndex(x=>x.id===id)+1;const keys=[];for(let a=2;a<p;a+=2)keys.push(m.track+':'+a);const old=JSON.parse(localStorage.getItem('whatslearn-guest-checkpoints-v1')||'[]');localStorage.setItem('whatslearn-guest-checkpoints-v1',JSON.stringify([...new Set([...old,...keys])]))};
  const gi=id=>{gcp(id);for(const q of prevOf(id))if(!GW.readGuestWork().some(w=>w.mission_id===q))GW.saveGuestWork({mission_id:q,body:'seed '.repeat(12),checks:'[false,false,false,false,false]',quiz:byId(q).answer,updated_at:new Date().toISOString()});return {missionId:id,body:samples[id],checks:[true,true,true,true,true],quiz:byId(id).answer}};
- assert.equal(G.guestAward(gi('m4'),beforeMidnight).status,'awarded');assert.equal(G.readGuestPoints(beforeMidnight).scores[0].day,'2026-10-12');
+ assert.equal(G.guestAward(gi('m1'),beforeMidnight).status,'awarded');assert.equal(G.readGuestPoints(beforeMidnight).scores[0].day,'2026-10-12');
  assert.equal(G.guestAward(gi('d3'),new Date(beforeMidnight.getTime()+1000)).status,'daily-limit');
  assert.equal(G.readGuestPoints(new Date(beforeMidnight.getTime()+1000)).todayUsed,true);assert.equal(G.readGuestPoints(atMidnight).todayUsed,false,'a new India day has started');
  assert.equal(G.guestAward(gi('d3'),atMidnight).status,'awarded');
- assert.match(G.guestAward(gi('f4'),atMidnight).message,/midnight India time/);assert.match(G.guestAward(gi('f4'),atMidnight).message,/clear your browser data/);
+ assert.match(G.guestAward(gi('f1'),atMidnight).message,/midnight India time/);assert.match(G.guestAward(gi('f1'),atMidnight).message,/clear your browser data/);
  delete global.localStorage;
  // Points are worked out on the server; any score, points or day the browser adds to the request is ignored.
  reset();const honest=(await (await send('m4')).json()).award.score.points;reset();
@@ -286,11 +286,11 @@ test('guest: the same rules apply on this device only',()=>{
  const gcp=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);const p=l.findIndex(x=>x.id===id)+1;const keys=[];for(let a=2;a<p;a+=2)keys.push(m.track+':'+a);const old=JSON.parse(localStorage.getItem('whatslearn-guest-checkpoints-v1')||'[]');localStorage.setItem('whatslearn-guest-checkpoints-v1',JSON.stringify([...new Set([...old,...keys])]))};
  const input=id=>{gcp(id);for(const q of prevOf(id))if(!GW.readGuestWork().some(w=>w.mission_id===q))GW.saveGuestWork({mission_id:q,body:'seed '.repeat(12),checks:'[false,false,false,false,false]',quiz:byId(q).answer,updated_at:new Date().toISOString()});return {missionId:id,body:samples[id],checks:[true,true,true,true,true],quiz:byId(id).answer}};
  const saveWork=id=>GW.saveGuestWork({mission_id:id,body:samples[id],checks:JSON.stringify([true,true,true,true,true]),quiz:byId(id).answer,updated_at:new Date().toISOString()});
- G.recordGuestClue('m4','puzzle');G.recordGuestClue('m4','puzzle');G.recordGuestClue('m4','hint');
- let r=G.guestAward(input('m4'));assert.equal(r.status,'awarded');assert.equal(r.score.clues,2);assert.equal(r.score.deduction,10);assert.match(r.message,/this device|on this device/i);saveWork('m4');
+ G.recordGuestClue('m1','puzzle');G.recordGuestClue('m1','puzzle');G.recordGuestClue('m1','hint');
+ let r=G.guestAward(input('m1'));assert.equal(r.status,'awarded');assert.equal(r.score.clues,2);assert.equal(r.score.deduction,10);assert.match(r.message,/this device|on this device/i);saveWork('m1');
  r=G.guestAward(input('d3'));assert.equal(r.status,'daily-limit');assert.equal(r.saved,false);assert.match(r.message,/saved on this device only/);
- r=G.guestAward(input('m4'));assert.equal(r.status,'duplicate');assert.equal(G.readGuestPoints().scores.length,1);
- assert.equal(G.guestAward({...input('m4'),missionId:'zzz'}).status,'rejected');
+ r=G.guestAward(input('m1'));assert.equal(r.status,'duplicate');assert.equal(G.readGuestPoints().scores.length,1);
+ assert.equal(G.guestAward({...input('m1'),missionId:'zzz'}).status,'rejected');
  // Tomorrow another one opens.
  r=G.guestAward(input('d3'),new Date(Date.now()+26*3600*1000));assert.equal(r.status,'awarded');assert.equal(G.readGuestPoints().scores.length,2);
  // Irrelevant answers are refused for guests too.

@@ -350,3 +350,7 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 
 /* Keep a white break after the green journey section when weekly updates are hidden. */
 .public-app .faq-section{background:#fff}
+
+.mission-practice{padding:20px;border:1px solid #bcd9c3;border-radius:16px;background:#f0f7e9;margin:20px 0}.mission-practice h3{font-size:20px;line-height:1.4;margin:10px 0 16px}.mission-practice p{line-height:1.65;margin:10px 0}.roadmap-access{padding:14px 16px;background:#e7f3df;border-radius:12px;color:#194c32;line-height:1.6;margin-top:14px}.roadmap-day>a.outline{flex-shrink:0;font-size:13px}.mission-made{font-weight:700;color:#155f3e;margin:18px 0}@media(max-width:700px){.roadmap-day>a.outline{margin-left:48px}.mission-practice{padding:16px}.mission-practice h3{font-size:18px}}
+
+.trial-complete{padding:24px;background:#e4f3d7;border:1px solid #a8c991;border-radius:18px;margin:0 0 24px}.trial-complete h3{font-size:24px;line-height:1.3}.trial-complete p{line-height:1.6;margin:14px 0 18px}

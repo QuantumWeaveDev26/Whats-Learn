@@ -20,7 +20,7 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const {answer: _answer,explanation: _explanation,...challenge}=localized;
   return {version:'1.0.0',profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
     sessionHint:minutes<next.minutes?'Use this short session to choose your audience and draft the first part. Return to finish; the full mission takes longer.':'Create, check and improve one practical response.',
-    challenge:{...challenge,outcome:outcomePrompt(profile.goal,profile.language),guidance:challengeInstruction(level,profile.language)},
+    challenge:{...challenge,outcome:outcomePrompt(profile.goal,profile.language),guidance:challengeInstruction(level,profile.language,!!next.practical)},
     steps:pool.map(m=>({id:m.id,title:localizeMission(m,profile.language).title,completed:completed.has(m.id)})),
     progress:{creations:completed.size,xp:completed.size*50,milestone:completed.size>=5?'Five creations':completed.size>=3?'Three creations':completed.size>=1?'First creation':'Your first creation awaits'},
     assessment:'Suggestions use completed knowledge checks and learner self-review, not independent skill assessment.'};

@@ -6,7 +6,7 @@ export const courseOutcomes:Record<string,string>={
  filmmaking:'A hybrid short-film production pack: story, shots, performance direction, sound, schedule, budget and pitch.',
  storytelling:'A visual storytelling portfolio: creative briefs, layouts, accessible design, data story, pitch and campaign storyboard.'
 };
-const deliverables:Record<string,string[]>={
+export const deliverables:Record<string,string[]>={
  marketing:['Customer + offer brief','Reusable campaign prompt','Reply + follow-up sequence','Five customer interview questions','A/B experiment plan','Channel + tracking plan','Campaign cost analysis','14-day content calendar','Safer ad + consent flow','One-page campaign capstone'],
  development:['Feature + acceptance brief','Corrected booking handler','Booking data model','API contract','Server validation + error messages','Debugging evidence + corrected handler','Role-based access-check function','Tests + expected results','Git commits + rollback plan','Launch checklist capstone'],
  filmmaking:['Logline + three story beats','Six-shot sequence','Live action + AI production split','Dialogue + subtext','Actor direction + backup take','Location + lighting plan','Sound cue sheet','Edit + pacing plan','Shoot schedule + budget','Hybrid-film pitch capstone'],

@@ -23,7 +23,7 @@ const asAnswer=(id,text)=>{const a=parts(id);const f={...a.fields};const slots=b
 // Missions open in order, so a test that wants mission N first completes the missions before it.
 const prevOf=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);return l.slice(0,l.findIndex(x=>x.id===id)).map(x=>x.id)};
 const primeCheckpoints=id=>{const m=byId(id);const l=missions.filter(x=>x.track===m.track);const p=l.findIndex(x=>x.id===id)+1;for(let a=2;a<p;a+=2)db.prepare('INSERT OR IGNORE INTO checkpoint_clears (user_id,track,after_mission,created_at) VALUES (?,?,?,?)').run(user.userId,m.track,a,new Date().toISOString())};
-const prime=id=>{primeCheckpoints(id);for(const q of prevOf(id))db.prepare("INSERT OR IGNORE INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run(user.userId,q,'seed','[]',byId(q).answer,new Date().toISOString())};
+const prime=id=>{db.prepare("INSERT OR REPLACE INTO entitlements(session_id,user_id,mode,sku,status,ends_at,updated_at) VALUES (?,?,'reward','plus_monthly','active','2999-01-01T00:00:00Z','2026-10-16T00:00:00Z')").run("course-fixture-"+user.userId,user.userId);primeCheckpoints(id);for(const q of prevOf(id))db.prepare("INSERT OR IGNORE INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run(user.userId,q,'seed','[]',byId(q).answer,new Date().toISOString())};
 const Save=(input,now)=>{prime(input.missionId);return P.saveMissionWork(user.userId,input,now)};
 const post=(route,body)=>route.POST(new Request('https://whatslearn.in/api/x',{method:'POST',headers:{origin:'https://whatslearn.in','Content-Type':'application/json'},body:JSON.stringify(body)}));
 const send=(id,body=samples[id],extra={})=>(prime(id),post(work,{missionId:id,body,checks:[true,true,true,true,true],quiz:byId(id).answer,...extra}));
@@ -33,7 +33,7 @@ const PRG=require('../lib/progression.ts'),CT=require('../lib/course-titles.ts')
 const body=id=>samples[id];
 const full=(id,extra={})=>({missionId:id,body:body(id),checks:[true,true,true,true,true],quiz:byId(id).answer,...extra});
 const mem={};global.localStorage={getItem:k=>k in mem?mem[k]:null,setItem:(k,v)=>{mem[k]=String(v)},removeItem:k=>{delete mem[k]}};
-const resetAll=()=>{reset();for(const k of Object.keys(mem))delete mem[k]};
+const resetAll=()=>{reset();db.prepare("INSERT OR REPLACE INTO entitlements(session_id,user_id,mode,sku,status,ends_at,updated_at) VALUES (?,?,'reward','plus_monthly','active','2999-01-01T00:00:00Z','2026-10-16T00:00:00Z')").run("course-fixture-"+user.userId,user.userId);for(const k of Object.keys(mem))delete mem[k]};
 const day=n=>new Date(Date.parse('2026-10-01T06:00:00Z')+n*86400000); // 11:30 India time on 1 Oct + n days
 const sendRaw=(id,extra={})=>post(work,{...full(id),...extra});
 const OLD=new Set(['m1','m2','m3','d1','d2','f1','f2','f3','v1','v2']);
@@ -159,7 +159,7 @@ test('guests: order, retries and limits are enforced on this device and explaine
 });
 test('the lock is visible: locked missions are disabled and say what to finish; deep links and the assistant tool open the locked panel, not the lesson',()=>{
  const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
- assert.equal((src.match(/<CourseRoadmap /g)||[]).length,2,'both course views share the same roadmap');const roadmap=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/course-roadmap.tsx'),'utf8');assert.match(roadmap,/disabled=\{r\.lock\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions always stay open to practise\./);
+ assert.equal((src.match(/<CourseRoadmap /g)||[]).length,2,'both course views share the same roadmap');const roadmap=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/course-roadmap.tsx'),'utf8');assert.match(roadmap,/disabled=\{r\.lock\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions within your plan stay open to practise/);
  assert.match(src,/active&&lockOf\(active\)\.locked\?/,'the lesson is replaced by the locked panel whatever opened it');
 });
 test('structured answers: parts round-trip, links are https only and never fetched, code is never run, the starter must change',()=>{

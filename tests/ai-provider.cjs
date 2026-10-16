@@ -5,7 +5,7 @@ const d1={prepare(sql){const stmt=db.prepare(sql);const api=(...args)=>({async f
 const env={DB:d1};let testUser={userId:'learner',email:'l@example.test'};
 const original=Module._load;Module._load=function(name,parent,isMain){if(name==='@/app/chatgpt-auth')return {getChatGPTUser:async()=>testUser};if(name==='cloudflare:workers')return {env};if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
-const review={summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},()=>({met:true,note:'Named.'})),nextStep:'Name the problem.'};
+const review={summary:'Clear start.',strengths:['Specific customer'],checks:Array.from({length:5},()=>({met:true,note:'Named.'})),practicalTest:{reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Name the problem.'};
 const calls=[];
 global.fetch=async(url,options={})=>{const body=JSON.parse(options.body||'{}');const u=String(url);
  if(u==='https://api.anthropic.com/v1/messages'){calls.push({provider:'anthropic',model:body.model});assert.equal(options.headers['x-api-key'],'fake-anthropic');return Response.json({content:[{type:'text',text:JSON.stringify(review)}]})}

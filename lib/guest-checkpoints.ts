@@ -1,3 +1,4 @@
+import {needsMembership,membershipRequired} from './mission-access';
 import {checkpointFor,checkpointKey,judgeCheckpoint,positionInCourse,type Judged} from './checkpoints';
 import {missions} from './missions';
 import {readGuestWork} from './guest-work';
@@ -14,6 +15,7 @@ export function attemptGuestCheckpoint(track:string,after:number,answers:number[
  const cleared=readGuestCheckpoints();const cp=checkpointFor(track,after);const key=checkpointKey(track,after);
  if(!cp)return {ok:false,passed:false,alreadyCleared:false,message:'Choose a valid mini challenge.',results:[],cleared};
  const mission=missions.filter(m=>m.track===track).find(m=>positionInCourse(m)===after);const done=new Set(readGuestWork().map(w=>w.mission_id));
+ if(mission&&needsMembership(mission))return {ok:false,passed:false,alreadyCleared:false,message:membershipRequired,results:[],cleared};
  if(!mission||!done.has(mission.id))return {ok:false,passed:false,alreadyCleared:false,message:`Finish “${mission?.title||'the previous mission'}” first. Then this mini challenge opens.`,results:[],cleared};
  const judged=judgeCheckpoint(cp,answers);
  if(cleared.has(key))return {ok:true,passed:true,alreadyCleared:true,message:'You already cleared this mini challenge. Your badge is kept on this device.',results:judged.results,cleared};
