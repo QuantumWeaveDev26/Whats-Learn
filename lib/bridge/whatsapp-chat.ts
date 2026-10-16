@@ -1,3 +1,5 @@
+import {aiAllowance,reserveAiUse} from '../ai-usage';
+import {goals,languages} from '../personalization';
 import {database} from '../storage';
 import {missions,type Mission} from '../missions';
 import {localizeMission} from '../personalization';
@@ -21,7 +23,7 @@ export type Contact={user_id:string;phone:string;state:string;language:string;co
 export type Out={action:'reply';text:string}|{action:'none';reason:string}|{action:'tutor';question:string;language:string;material:Record<string,unknown>;maxWords:number;fallback:string};
 const reply=(text:string):Out=>({action:'reply',text:text.slice(0,3900)});
 const none=(reason:string):Out=>({action:'none',reason});
-export const TUTOR_DAILY_LIMIT=30;
+export const TUTOR_DAILY_LIMIT=3;
 export const LINK_MINUTES=30;
 const LINK_ATTEMPTS=5;
 const letters='ABCDEF';
@@ -35,13 +37,14 @@ const CODE_ALPHABET='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 function newCode(){const b=new Uint8Array(8);crypto.getRandomValues(b);return [...b].map(x=>CODE_ALPHABET[x%CODE_ALPHABET.length]).join('')}
 const codeHash=(phone:string,code:string)=>sha256Hex(`${phone}:${code.toUpperCase()}`);
 /** Called from the signed-in website. Stores the number as UNVERIFIED and returns a one-time code to send from that number on WhatsApp. */
-export async function startLink(userId:string,phone:string,language:string,at=now()){
+export async function startLink(userId:string,phone:string,language:string,at=now(),displayName=''){
  const db=database(),stamp=at.toISOString();
  const taken=await db.prepare('SELECT user_id FROM whatsapp_contacts WHERE phone=? AND user_id<>? AND verified_at IS NOT NULL').bind(phone,userId).first();
  if(taken)return {ok:false as const,status:409,message:'This number is already linked to another WhatsLearn account.'};
  // A number someone typed but never proved does not reserve it: the person who really holds the phone can still link it.
  await db.batch([db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id IN (SELECT user_id FROM whatsapp_contacts WHERE phone=? AND user_id<>? AND verified_at IS NULL)').bind(phone,userId),db.prepare('DELETE FROM whatsapp_contacts WHERE phone=? AND user_id<>? AND verified_at IS NULL').bind(phone,userId)]);
  await db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,updated_at) VALUES (?,?,'pending',?,?,?) ON CONFLICT(user_id) DO UPDATE SET phone=excluded.phone,state=CASE WHEN whatsapp_contacts.phone=excluded.phone AND whatsapp_contacts.verified_at IS NOT NULL THEN whatsapp_contacts.state ELSE 'pending' END,verified_at=CASE WHEN whatsapp_contacts.phone=excluded.phone THEN whatsapp_contacts.verified_at ELSE NULL END,language=excluded.language,consent_at=excluded.consent_at,opted_out_at=NULL,updated_at=excluded.updated_at").bind(userId,phone,language,stamp,stamp).run();
+ if(displayName)await db.prepare('UPDATE whatsapp_contacts SET display_name=? WHERE user_id=?').bind(displayName.replace(/[\r\n*_~`]/g,'').slice(0,60),userId).run();
  const row=await db.prepare('SELECT verified_at FROM whatsapp_contacts WHERE user_id=?').bind(userId).first<{verified_at:string|null}>();
  if(row?.verified_at){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',updated_at=? WHERE user_id=?").bind(stamp,userId).run();return {ok:true as const,verified:true,code:null,expiresAt:null}}
  const code=newCode(),expires=new Date(at.getTime()+LINK_MINUTES*60000).toISOString();
@@ -57,7 +60,7 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
  if(row.code_hash!==await codeHash(from,code)){await db.prepare('UPDATE whatsapp_link_codes SET attempts=attempts+1 WHERE user_id=?').bind(row.user_id).run();return bad}
  const stamp=at.toISOString();
  await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_in',verified_at=?,opted_out_at=NULL,last_inbound_at=?,updated_at=? WHERE user_id=? AND phone=?").bind(stamp,stamp,stamp,row.user_id,from),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(row.user_id)]);
- return reply(`Linked. This number now shares your WhatsLearn progress with the website.\n\nReply TODAY for your next mission, HELP for all commands, STOP any time.`);
+ return reply(`Linked. This number now shares your WhatsLearn progress with the website.\n\nReply TODAY for your next mission, HELP for all commands, STOP any time.\n\n${await learnerOverview(row.user_id)}`);
 }
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId)])}
 
@@ -137,7 +140,7 @@ async function today(c:Contact):Promise<Out>{
  void work;await setCurrent(userId,next.id);
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{}},pending_clue:null});
  const d=(await getDraft(userId))!;
- return reply(`${missionIntro(next,c.language)}\n\n${promptFor(next,'quiz',d,c.language)}`);
+ return reply(`${await learnerOverview(userId)}\n\n${missionIntro(next,c.language)}\n\n${promptFor(next,'quiz',d,c.language)}`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -206,7 +209,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -249,13 +252,21 @@ async function tutor(c:Contact,text:string):Promise<Out>{
   return reply(`That sounds like *${courseName(best)}*, but you are on *${courseName(track)}*. Reply COURSE to switch, or ask about "${localizeMission(m,c.language).title}".`);
  }
  if(rel==='unclear')return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
+ const allowance=await aiAllowance(c.user_id);
  const day=ist().day,db=database();
  const used=await db.prepare('SELECT count FROM whatsapp_tutor_usage WHERE user_id=? AND day=?').bind(c.user_id,day).first<{count:number}>();
- if((used?.count||0)>=TUTOR_DAILY_LIMIT)return reply('You have used today\'s tutor questions. Commands like TODAY, HINT and SUBMIT still work, and the tutor is back after midnight India time.');
+ if((used?.count||0)>=allowance.limit||!await reserveAiUse(c.user_id,allowance.limit))return reply('You have used today\'s tutor questions. Commands like TODAY, HINT and SUBMIT still work, and the tutor is back after midnight India time.');
  await db.prepare('INSERT INTO whatsapp_tutor_usage(user_id,day,count) VALUES (?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET count=count+1').bind(c.user_id,day).run();
  const lm=localizeMission(m,c.language);
  // Approved course material only. The answer key, the explanation and the worked example are never sent out of WhatsLearn.
  return {action:'tutor',question:q,language:c.language,maxWords:90,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
+}
+
+export async function learnerOverview(userId:string){
+ const {profile}=await loadLearning(userId);const a=await aiAllowance(userId);
+ const row=await database().prepare('SELECT display_name FROM whatsapp_contacts WHERE user_id=? AND verified_at IS NOT NULL').bind(userId).first<{display_name:string|null}>();
+ const name=row?.display_name&&!row.display_name.includes('@')?row.display_name:'learner';
+ return `Hi ${name}!\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nSame progress and mission points as the website.\nPROFILE: your choices · COURSE: change course · TODAY: continue · POINTS: balance · REMIND 7pm daily: opt-in reminders · STOP: pause`;
 }
 
 // ---------- entry point ----------
@@ -288,6 +299,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
+  case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}

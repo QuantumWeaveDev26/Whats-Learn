@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {verify}=require('../scripts/verify-migrations.cjs');const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
 test('all migrations apply in file order; 0010 runs after 0009; the journal lists them in the same order',()=>{
- const r=verify();assert.deepEqual(r.problems,[]);assert.equal(r.last,'0011_whatsapp_bridge.sql');assert.equal(r.files.indexOf('0010_checkpoint_clears.sql'),r.files.indexOf('0009_accounts_rewards_uploads.sql')+1);assert.equal(r.applied.length,r.files.length);
+ const r=verify();assert.deepEqual(r.problems,[]);assert.equal(r.last,'0012_whatsapp_learner_name.sql');assert.equal(r.files.indexOf('0010_checkpoint_clears.sql'),r.files.indexOf('0009_accounts_rewards_uploads.sql')+1);assert.equal(r.applied.length,r.files.length);
 });
 test('the SQL file creates only the checkpoint table with the one-badge key and touches no other table',()=>{
  const s=src('drizzle/0010_checkpoint_clears.sql');assert.match(s,/CREATE TABLE `checkpoint_clears`/);assert.match(s,/PRIMARY KEY\(`user_id`, `track`, `after_mission`\)/);assert.ok(!/DROP|ALTER|DELETE|UPDATE|INSERT/i.test(s),'additive only');

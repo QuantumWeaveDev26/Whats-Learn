@@ -1,4 +1,6 @@
 import {env} from 'cloudflare:workers';
+import {aiAllowance,reserveAiUse,releaseAiUse} from './ai-usage';
+import {bridgeSecret} from './bridge/auth';
 import {database} from './storage';
 import {loadLearning} from './learning-service';
 import {verifyHmac} from './billing/razorpay';
@@ -10,6 +12,7 @@ import {aiReady,reviewWork,FeedbackError} from './ai-feedback';
 export class WhatsAppError extends Error{constructor(message:string,public status=400){super(message)}}
 export function whatsappConfig(){const e=env as unknown as Record<string,string|undefined>;return {token:e.WHATSAPP_TOKEN||'',phoneNumberId:e.WHATSAPP_PHONE_NUMBER_ID||'',verifyToken:e.WHATSAPP_VERIFY_TOKEN||'',appSecret:e.WHATSAPP_APP_SECRET||'',template:e.WHATSAPP_REMINDER_TEMPLATE||'',templateLanguage:e.WHATSAPP_TEMPLATE_LANGUAGE||'en',businessNumber:(e.WHATSAPP_BUSINESS_NUMBER||'').replace(/\D/g,''),cronSecret:e.REMINDER_CRON_SECRET||'',graphVersion:e.WHATSAPP_GRAPH_VERSION||'v23.0',siteUrl:(e.SITE_URL||'https://whatslearn.in').replace(/\/$/,'')}}
 export function whatsappReady(){const c=whatsappConfig();return !!(c.token&&c.phoneNumberId&&c.verifyToken&&c.appSecret)}
+export function whatsappLinkReady(){const c=whatsappConfig();return whatsappReady()||(bridgeSecret().length>=32&&!!c.appSecret&&!!c.phoneNumberId&&!!c.businessNumber)}
 export type Contact={user_id:string;phone:string;state:string;language:string;consent_at:string;opted_out_at:string|null;last_inbound_at:string|null;last_reminder_at:string|null;current_mission:string|null;updated_at:string;verified_at?:string|null;remind_state?:string};
 /** Indian mobile numbers may be typed with or without +91; other countries need the country code. */
 export function normalisePhone(input:string){const d=input.replace(/[\s()+-]/g,'').replace(/^00/,'');if(!/^\d+$/.test(d))throw new WhatsAppError('Enter digits only, for example 98765 43210.');if(/^[6-9]\d{9}$/.test(d))return '91'+d;if(/^0[6-9]\d{9}$/.test(d))return '91'+d.slice(1);if(/^\d{11,15}$/.test(d))return d;throw new WhatsAppError('Enter a valid WhatsApp number with country code.')}
@@ -56,11 +59,13 @@ export async function handleInbound(from:string,text:string):Promise<string|null
  if(text.trim().length<20)return 'Send a few sentences as your answer, or reply LESSON for the next challenge.';
  const url=`${site}/learn?mission=${contact.current_mission}`;
  if(!aiReady())return `Thanks! Your answer is saved in this chat. To add it to your portfolio and check it against the self-review list, open:\n${url}`;
+ const allowance=await aiAllowance(contact.user_id);
+ if(!await reserveAiUse(contact.user_id,allowance.limit))return `Today's ${allowance.limit} AI requests are used. Continue your lesson on the website; AI help resets at midnight India time.`;
  try{
   const r=await reviewWork(contact.current_mission,text,contact.language);
   const checks=r.checks.map(c=>`${c.met?'✅':'▫️'} ${c.item}${c.note?' · '+c.note:''}`).join('\n');
   return `${r.summary}\n\n${checks}${r.nextStep?`\n\n*Next:* ${r.nextStep}`:''}\n\nSave your improved version here:\n${url}\n\nAI feedback can be wrong. Reply LESSON for the next challenge.`;
- }catch(e){if(e instanceof FeedbackError&&e.status===422)return e.message;return `I couldn't review that just now. Your answer is safe in this chat; you can also open the challenge here:\n${url}`}
+ }catch(e){await releaseAiUse(contact.user_id);if(e instanceof FeedbackError&&e.status===422)return e.message;return `I couldn't review that just now. Your answer is safe in this chat; you can also open the challenge here:\n${url}`}
 }
 export async function processWebhook(raw:string,signature:string){
  const c=whatsappConfig();if(!whatsappReady())throw new WhatsAppError('WhatsApp is not connected yet.',503);

@@ -70,7 +70,7 @@ async function applyEntitlement(row:BillingSession,state:string,currentEnd:numbe
 export async function activeEntitlement(userId:string){
  // Paid access follows the billing mode; an owner-approved reward (mode 'reward') is a separate, account-bound grant and works whatever the billing mode is.
  const mode=billingMode();
- const row=await database().prepare("SELECT sku,ends_at,mode FROM entitlements WHERE user_id=? AND (mode='reward' OR mode=?) AND status='active' AND ends_at>? ORDER BY ends_at DESC LIMIT 1").bind(userId,mode||'reward',new Date().toISOString()).first<{sku:SKU;ends_at:string;mode:string}>();
+ const row=await database().prepare("SELECT sku,ends_at,mode FROM entitlements WHERE user_id=? AND (mode='reward' OR mode=?) AND status='active' AND ends_at>? ORDER BY CASE WHEN sku LIKE 'pro_%' THEN 3 WHEN sku LIKE 'plus_%' OR sku='teams_monthly' THEN 2 ELSE 1 END DESC,ends_at DESC LIMIT 1").bind(userId,mode||'reward',new Date().toISOString()).first<{sku:SKU;ends_at:string;mode:string}>();
  return row?{sku:row.sku,plan:billingCatalogue[row.sku]?.name||row.sku,endsAt:row.ends_at,mode:row.mode}:null;
 }
 export async function hasPaidAccess(userId:string){return !!await activeEntitlement(userId)}

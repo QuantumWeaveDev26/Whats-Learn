@@ -1,6 +1,6 @@
 // v45: the mascot stands upright in the page flow, has one pose per page, and celebrates only after confirmed successes.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
+const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8').replace(/\r\n/g,'\n');
 const m=src('components/whatslearn/mascot.tsx'),css=src('app/globals.css'),page=src('app/learn/workspace.tsx');
 test('page poses: home, journey, skill paths, mission, mini challenge, membership, settings, companion, quiet for sign-in and legal',()=>{
  for(const [p,pose] of [['/','hello'],['/learn','come'],['/find-my-path','paths'],['/membership','point'],['/settings','tune'],['/companion','chat']])assert.ok(new RegExp(`['"]${p.replace('/','\\/')}['"]|startsWith\\('${p}'\\)`).test(m)&&m.includes(`'${pose}'`),p);

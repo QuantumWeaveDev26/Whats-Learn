@@ -20,6 +20,7 @@ export async function loadLearning(userId:string){
 export async function saveProfile(userId:string,raw:unknown){
   const p=profileSchema.parse(raw);
   await database().prepare('INSERT INTO learner_profiles (user_id,goal,track,level,language,minutes,updated_at) VALUES (?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET goal=excluded.goal,track=excluded.track,level=excluded.level,language=excluded.language,minutes=excluded.minutes,updated_at=excluded.updated_at').bind(userId,p.goal,p.track,p.level,p.language,p.minutes,new Date().toISOString()).run();
+  await database().prepare('UPDATE whatsapp_contacts SET language=? WHERE user_id=?').bind(p.language,userId).run();
   return p;
 }
 export async function submitWork(userId:string,raw:unknown){

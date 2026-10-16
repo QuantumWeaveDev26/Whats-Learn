@@ -278,3 +278,15 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .signin-password-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:0;border-radius:8px;background:transparent;color:#145c40;cursor:pointer}
 .signin-password-toggle:hover{background:#edf5ec}
 .signin-password-toggle:focus-visible{outline:3px solid #2856ba;outline-offset:1px}
+
+/* Balance the introductory copy and the interactive starter without hiding content. */
+.agency-start{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:clamp(28px,4vw,60px);max-width:1440px;margin-inline:auto;padding-block:48px}
+.agency-start .visual-intro{padding-top:0;max-width:540px}
+.agency-start .visual-intro h1{font-size:clamp(40px,4.5vw,64px);line-height:1.05}
+.agency-studio{width:100%;min-width:0}
+.agency-studio .visual-chat-body{padding:22px}
+.agency-studio .visual-option{min-height:104px}
+.hero-win-steps{gap:11px}
+@media(max-width:1000px) and (min-width:761px){.agency-start{gap:28px;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}}
+@media(max-width:760px){.agency-start{grid-template-columns:1fr;gap:28px;padding:30px 18px 40px}.agency-start .visual-intro{max-width:none}.agency-studio .visual-chat-body{padding:18px}.agency-start .visual-intro h1{font-size:42px}.agency-studio .visual-options{grid-template-columns:1fr}.agency-studio .visual-option{min-height:72px}}
+@media(max-width:700px){.whatsapp-mentor-widget{width:52px;height:52px;padding:7px;justify-content:center}.whatsapp-mentor-widget>span:not(.mentor-widget-icon),.whatsapp-mentor-widget>svg{display:none}.mentor-widget-icon{width:36px;height:36px}.whatsapp-mentor-widget{bottom:max(12px,env(safe-area-inset-bottom));right:12px}}

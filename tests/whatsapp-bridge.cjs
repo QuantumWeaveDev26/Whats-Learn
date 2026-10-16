@@ -433,3 +433,19 @@ test('v56: several messages in one Meta delivery each get their own signed reque
  const composed=await runNode('wa-compose-tutor-reply.js',{items:[{choices:[{message:{content:'Answer one'}}]},{error:{message:'boom'}}],named:{'Build Tutor Request':built.map(b=>b)}});
  assert.deepEqual(composed.map(x=>x.reply),['Answer one','FB']);
 });
+
+test('linked mentor uses the signed-in name, current website profile and paid plan allowance',async()=>{
+ const phone='919000000004',userId='profile-sync-check';
+ const link=await chat.startLink(userId,phone,'en',undefined,'Pavana');assert.ok(link.ok&&link.code);
+ let out=await say(phone,'LINK '+link.code);assert.match(textOf(out),/Hi Pavana!/);
+ const {saveProfile}=require('../lib/learning-service.ts');
+ await saveProfile(userId,{goal:'business',track:'development',level:'beginner',language:'en',minutes:'15'});
+ out=await say(phone,'PROFILE');assert.match(textOf(out),/Pavana/);assert.match(textOf(out),/Full-Stack/);assert.match(textOf(out),/3\/3 left today/);
+ db.prepare("INSERT INTO entitlements(session_id,user_id,mode,sku,status,ends_at,updated_at) VALUES (?,?,'reward','pro_monthly','active',?,?)").run('reward-profile-sync',userId,'2099-01-01T00:00:00Z',new Date().toISOString());
+ out=await say(phone,'PLAN');assert.match(textOf(out),/Pro monthly/);assert.match(textOf(out),/25\/25 left today/);
+});
+
+test('n8n bridge can link accounts without putting the Meta send token on the website',async()=>{
+ const token=env.WHATSAPP_TOKEN;env.WHATSAPP_TOKEN='';env.WHATSAPP_BUSINESS_NUMBER='919187951536';
+ try{const r=await siteWa.GET();assert.equal((await r.json()).configured,true)}finally{env.WHATSAPP_TOKEN=token;delete env.WHATSAPP_BUSINESS_NUMBER}
+});
