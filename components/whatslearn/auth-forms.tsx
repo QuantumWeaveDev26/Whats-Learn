@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {Check,Mail,ShieldCheck} from 'lucide-react';
+import {Check,Mail,ShieldCheck,Eye,EyeOff} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {safeReturnTo} from '@/lib/return-to';
 /**
@@ -24,6 +24,7 @@ function Frame({kicker,title,lead,children}:{kicker:string;title:string;lead:str
 }
 function Msg({text,kind}:{text:string;kind:'error'|'ok'}){return text?<p role={kind==='error'?'alert':'status'} className={kind==='error'?'form-error':'form-ok'}>{text}</p>:null}
 export function SignInForm(){
+ const [showPassword,setShowPassword]=useState(false);
  const back=useReturnTarget();const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[err,setErr]=useState(''),[code,setCode]=useState(''),[info,setInfo]=useState('');
  useEffect(()=>{let on=true;fetch('/api/session',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json() as Promise<{signedIn:boolean}>).then(d=>{if(on&&d.signedIn)window.location.replace(back)}).catch(()=>{});return()=>{on=false}},[back]);
  async function submit(e:React.FormEvent){e.preventDefault();setErr('');setInfo('');setBusy(true);const r=await send('/api/auth/signin',{email,password,returnTo:back});setBusy(false);
@@ -31,7 +32,7 @@ export function SignInForm(){
  async function again(){setBusy(true);const r=await send('/api/auth/resend',{email,returnTo:back});setBusy(false);if(r.ok)setInfo(r.message||'');else setErr(r.error||'')}
  return <Frame kicker="WELCOME BACK" title="Sign in" lead="Pick up where you left off. Your work and points are saved to your account."><form onSubmit={submit} noValidate>
   <span className="label">SIGN IN WITH EMAIL</span><label htmlFor="si-email">Email</label><Input id="si-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required maxLength={254}/>
-  <label htmlFor="si-password">Password</label><Input id="si-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required maxLength={200}/>
+  <label htmlFor="si-password">Password</label><div className="signin-password-field"><Input id="si-password" type={showPassword?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required maxLength={200}/><button className="signin-password-toggle" type="button" onClick={()=>setShowPassword(value=>!value)} aria-label={showPassword?'Hide password':'Show password'} aria-controls="si-password" aria-pressed={showPassword} title={showPassword?'Hide password':'Show password'}>{showPassword?<EyeOff size={20} aria-hidden="true"/>:<Eye size={20} aria-hidden="true"/>}</button></div>
   <button className="primary" type="submit" disabled={busy||!email||!password}>{busy?'Signing in…':'Sign in'}</button>
   <Msg text={err} kind="error"/>{code==='email_not_confirmed'&&email&&<p><button type="button" className="text-button" onClick={again} disabled={busy}>Send me a new confirmation link</button></p>}<Msg text={info} kind="ok"/>
   <p className="small"><a href={`/forgot-password?return_to=${encodeURIComponent(back)}`}>Forgot your password?</a></p></form>

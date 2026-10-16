@@ -272,3 +272,9 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .how-step{display:block}.how-step h3{margin:0}.how-step-toggle{display:flex;align-items:flex-start;gap:22px;width:100%;border:0;padding:0;background:none;color:#172c26;text-align:left;font:inherit;cursor:pointer}.how-step-number{font-size:13px;line-height:1.6;margin-top:4px;color:#4d6055}.how-step-title{flex:1}.how-step-toggle>svg{flex-shrink:0;margin-top:4px}.how-step-toggle:hover{color:#087a4b}.how-step-toggle:focus-visible{outline:3px solid #2856ba;outline-offset:6px;border-radius:4px}.how-step-detail{padding:12px 34px 0 38px}.how-step-detail[hidden]{display:none}.how-step p{color:#42574b}
 .whatsapp-note-actions{display:flex;flex-wrap:wrap;gap:12px 24px;margin-top:14px}.whatsapp-note .whatsapp-note-actions a{display:inline-flex;align-items:center;min-height:40px;margin:0;padding:4px 0}.whatsapp-note .whatsapp-note-actions .text-button{font-weight:700}
 @media(max-width:700px){.how-step-toggle{gap:14px}.how-step-detail{padding-left:30px;padding-right:0}.whatsapp-note-actions{gap:8px 20px}}
+
+.signin-password-field{position:relative}
+.signin-password-field input{padding-right:56px}
+.signin-password-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:0;border-radius:8px;background:transparent;color:#145c40;cursor:pointer}
+.signin-password-toggle:hover{background:#edf5ec}
+.signin-password-toggle:focus-visible{outline:3px solid #2856ba;outline-offset:1px}
