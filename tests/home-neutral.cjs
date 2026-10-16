@@ -42,3 +42,24 @@ test('unanswered starter options share a neutral appearance',()=>{
  const css=fs.readFileSync(path.resolve(__dirname,'../app/globals.css'),'utf8');
  assert.match(css,/\.agency-studio \.visual-option\[aria-pressed=false\]\{background:#f2f4f2/);
 });
+
+
+test('signed-out visitors do not get an account resume link from device work',()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
+ assert.match(source,/account&&<a className="hero-continue"/);
+ assert.doesNotMatch(source,/returning|setReturning|readGuestWork/);
+ assert.match(source,/r.status===401.*setAccount\(null\);setProgress\(null\)/);
+ const Hero=require('../components/whatslearn/visual-start.tsx').default;
+ const html=renderToStaticMarkup(React.createElement(Hero));
+ assert.doesNotMatch(html,/Continue my journey|Welcome back/);
+ assert.match(html,/Sign in<\/a> to save your course progress/);
+ assert.match(html,/10-day foundation courses/);
+ assert.match(html,/First 3 missions per course are free/);
+});
+
+test('every collapsed programme shows its duration and practical mission count',()=>{
+ const Explorer=require('../components/whatslearn/programme-explorer.tsx').default;
+ const html=renderToStaticMarkup(React.createElement(Explorer));
+ assert.equal((html.match(/10-DAY FOUNDATION COURSE · 10 PRACTICAL MISSIONS/g)||[]).length,4);
+ assert.match(html,/10 practice days, or take longer/);
+});
