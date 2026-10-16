@@ -33,6 +33,7 @@ async function sprintCreditOffer(userId:string,sku:SKU,mode:BillingMode){
 export async function createCheckout(userId:string,sku:SKU,quantity:number){
  let p:ReturnType<typeof quote>;
  try{p=quote(sku,quantity)}catch{throw new BillingError(sku==='teams_monthly'?'Choose between 5 and 100 learners for Teams.':'Choose one learner for an individual plan.',400)}
+ if(sku==='teams_monthly')throw new BillingError('Teams enrolment is assisted by the WhatsLearn team until individual learner seats are available. No checkout was created.',409);
  const db=database();const mode=currentMode();
  const prior=await db.prepare(`SELECT * FROM billing_sessions WHERE user_id=? AND sku=? AND quantity=? AND state IN ${OPEN} ORDER BY created_at DESC LIMIT 1`).bind(userId,sku,String(quantity)).first<BillingSession>();
  if(prior&&(prior.mode||'test')!==mode){await db.prepare('UPDATE billing_sessions SET state=?,updated_at=? WHERE id=?').bind('superseded',new Date().toISOString(),prior.id).run()}

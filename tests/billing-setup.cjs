@@ -14,11 +14,11 @@ const customerSafe=(d,label)=>{const t=JSON.stringify(d);for(const k of ['setup'
 const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''))};
 (async()=>{
  // Nothing configured: guests and customers just see "not open".
- let d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false});
+ let d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false,sprintCreditAvailable:false});
  testUser=CUSTOMER;d=await get();customerSafe(d,'customer, nothing configured');assert.equal(d.enabled,false);
  // Owner configured with TEST keys, even with BILLING_PUBLIC_CHECKOUT=true: customers still cannot pay or see setup.
  Object.assign(env,{RAZORPAY_KEY_ID:'rzp_test_FAKEKEY123',RAZORPAY_KEY_SECRET:'FAKE-secret-value',RAZORPAY_WEBHOOK_SECRET:'FAKE-webhook-value',BILLING_ADMIN_EMAIL:'seedy@sites.test',BILLING_PUBLIC_CHECKOUT:'true'});migrate();
- testUser=null;d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false},'Guests get no mode or setup details');
+ testUser=null;d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false,sprintCreditAvailable:false},'Guests get no mode or setup details');
  testUser=CUSTOMER;d=await get();customerSafe(d,'customer, test mode');assert.equal(d.enabled,false,'Test mode is owner-only');
  let r=await post({action:'checkout',sku:'sprint',quantity:1});assert.equal(r.status,403);assert.match((await r.json()).error,/not open yet/);
  r=await post({action:'plans'});assert.equal(r.status,403,'Customers cannot create plans');customerSafe(await r.json(),'customer plans error');
@@ -32,6 +32,7 @@ const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../driz
  // Only live mode + BILLING_LIVE_ENABLED + BILLING_PUBLIC_CHECKOUT opens checkout to customers (still without setup details).
  env.BILLING_LIVE_ENABLED='true';d=await get();customerSafe(d,'customer, live open');assert.equal(d.enabled,true);assert.equal(d.mode,'live');
  testUser=null;d=await get();assert.equal(d.signInRequired,true);assert.equal(d.checkoutOpen,true);customerSafe(d,'guest, live open');
+ env.RAZORPAY_SPRINT_CREDIT_OFFER_ID='offer_private_credit';d=await get();assert.equal(d.sprintCreditAvailable,true);assert.ok(!JSON.stringify(d).includes('offer_private_credit'));delete env.RAZORPAY_SPRINT_CREDIT_OFFER_ID;
  delete env.BILLING_LIVE_ENABLED;env.RAZORPAY_KEY_ID='rzp_test_FAKEKEY123';
  // /billing/setup page: owner only; a short local note only on this computer before an owner exists; 404 for everyone else.
  assert.equal(ownerPageAccess('seedy@sites.test','whatslearn.in'),'owner');

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 const directory = mkdtempSync(path.join(tmpdir(), 'whatslearn-node-'));
@@ -13,7 +13,11 @@ try {
   const db = env.DB;
   database = db;
   const migrations = await db.prepare('SELECT COUNT(*) n FROM whatslearn_migrations').first();
-  assert.equal(migrations.n, 12);
+  const expectedMigrations=readdirSync(new URL('../drizzle/',import.meta.url)).filter(name=>/^\d+.*\.sql$/.test(name));
+  assert.equal(migrations.n, expectedMigrations.length);
+  const profileColumns=(await db.prepare('PRAGMA table_info(learner_profiles)').all()).results.map(row=>row.name);
+  assert.ok(profileColumns.includes('display_name'));
+  assert.ok(profileColumns.includes('style'));
   await db.prepare("INSERT INTO point_ledger(user_id,kind,ref,delta,created_at) VALUES (?,'starting','start',50,?)").bind('test-user',new Date().toISOString()).run();
   assert.equal((await db.prepare('SELECT SUM(delta) balance FROM point_ledger WHERE user_id=?').bind('test-user').first()).balance,50);
   await assert.rejects(db.batch([

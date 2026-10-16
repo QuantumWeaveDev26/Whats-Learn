@@ -34,6 +34,7 @@ testUser={userId:'other',email:'other@example.test'};assert.equal((await route.P
 testUser={userId:'owner',email:'owner@example.test'};assert.equal((await route.POST(req({action:'plans'},'https://evil.example'))).status,403);
 assert.equal((await route.POST(req({action:'checkout',sku:'plus_monthly',quantity:1,amount:1}))).status,400);
 const invalidTeam=await route.POST(req({action:'checkout',sku:'teams_monthly',quantity:4}));assert.equal(invalidTeam.status,400);assert.match((await invalidTeam.json()).error,/5 and 100/);
+const beforeTeamCalls=calls;const pausedTeam=await route.POST(req({action:'checkout',sku:'teams_monthly',quantity:5}));assert.equal(pausedTeam.status,409);assert.match((await pausedTeam.json()).error,/individual learner seats/);assert.equal(calls,beforeTeamCalls,'Teams must not contact Razorpay before seat assignment exists');assert.equal(db.prepare("SELECT COUNT(*) n FROM billing_sessions WHERE sku='teams_monthly'").get().n,0);
 assert.equal((await route.POST(req({action:'plans',junk:'a'.repeat(5100)}))).status,413);
 assert.equal((await hook.POST(new Request('https://whatslearn.in/api/billing/webhook',{method:'POST',body:'{}'}))).status,400);
 assert.equal((await hook.POST(new Request('https://whatslearn.in/api/billing/webhook',{method:'POST',headers:{'x-razorpay-event-id':'forged'},body:'{}'}))).status,400);

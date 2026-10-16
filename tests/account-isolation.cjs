@@ -21,7 +21,7 @@ const answer=require('./fixtures/course-samples.json').m1;
  assert.equal((await post(billing,{action:'checkout',sku:'sprint',quantity:1})).status,401);
  assert.equal((await post(feedback,{action:'review',missionId:'m1',body:answer,language:'en'})).status,401);
  assert.deepEqual(await (await session.GET()).json(),{signedIn:false});
- assert.deepEqual(await billing.GET().then(x=>x.json()),{enabled:false,checkoutOpen:false},'Guests get checkout state only');
+ assert.deepEqual(await billing.GET().then(x=>x.json()),{enabled:false,checkoutOpen:false,sprintCreditAvailable:false},'Guests get checkout state only');
  assert.equal(db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
  // A saves; B sees nothing of A's.
  user=A;assert.equal((await post(work,{missionId:'m1',body:answer,checks:[true,true,true,true,true],quiz:m1.answer})).status,200);
