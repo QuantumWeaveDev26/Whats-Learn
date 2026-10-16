@@ -16,7 +16,7 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const minutes=profile.minutes==='flexible'?next.minutes:Number(profile.minutes)||15;
   const sessionMinutes=Math.min(minutes,next.minutes);
   const reason=revisit?'Your self-review shows a skill to revisit before moving on.':completed.size===0?'Start with one useful creation that matches your chosen programme.':pool.every(m=>completed.has(m.id))?'You have tried every starter challenge here. Improve one with a new example.':'Continue from your saved work with the next challenge in this programme.';
-  const localized=localizeMission(next,profile.language);
+  const localized=localizeMission(next,profile.language,profile.level);
   const {answer: _answer,explanation: _explanation,...challenge}=localized;
   return {version:'1.0.0',profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
     sessionHint:minutes<next.minutes?'Use this short session to choose your audience and draft the first part. Return to finish; the full mission takes longer.':'Create, check and improve one practical response.',

@@ -66,7 +66,7 @@ export async function handleInbound(from:string,text:string):Promise<string|null
  const allowance=await aiAllowance(contact.user_id);
  if(!await reserveAiUse(contact.user_id,allowance.limit))return `Today's ${allowance.limit} AI requests are used. Continue your lesson on the website; AI help resets at midnight India time.`;
  try{
-  const r=await reviewWork(contact.current_mission,text,contact.language);
+  const r=await reviewWork(contact.current_mission,text,contact.language,(await loadLearning(contact.user_id)).profile.level);
   const checks=r.checks.map(c=>`${c.met?'✅':'▫️'} ${c.item}${c.note?' · '+c.note:''}`).join('\n');
   return `${r.summary}\n\n${checks}${r.nextStep?`\n\n*Next:* ${r.nextStep}`:''}\n\nSave your improved version here:\n${url}\n\nAI feedback can be wrong. Reply LESSON for the next challenge.`;
  }catch(e){await releaseAiUse(contact.user_id);if(e instanceof FeedbackError&&e.status===422)return e.message;return `I couldn't review that just now. Your answer is safe in this chat; you can also open the challenge here:\n${url}`}

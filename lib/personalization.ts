@@ -1,3 +1,4 @@
+import {missionForLevel} from './mission-levels';
 import type {LearningStyle} from './learning-styles';
 import {practicalContent} from './practical-content';
 import {visualTranslations} from './visual-storytelling';
@@ -28,7 +29,8 @@ d2:{title:'AI से बने कोड को रिलीज़ से पह
 export function isMissionTranslated(id:string,lang:string){return lang==='en'||!!(content[lang]?.[id]||filmTranslations[lang]?.[id]||visualTranslations[lang]?.[id]||languagePacks[lang]?.missions?.[id])}
 /** True when v36 rewrote this mission's understanding question and practical task in English; translations of the old question and task no longer match them. */
 export const questionIsEnglishOnly=(id:string)=>!!practicalContent[id]?.question;
-export function localizeMission(m:Mission,lang:string):Mission{
+export function localizeMission(m:Mission,lang:string,level?:string):Mission{
+ if(level!==undefined)m=missionForLevel(m,level);
  const t={...m,...content[lang]?.[m.id],...filmTranslations[lang]?.[m.id],...visualTranslations[lang]?.[m.id],...languagePacks[lang]?.missions[m.id]};
  // The understanding question, its options, its explanation and the practical task stay in English until they are translated, so the answer key and the task always match the practical parts.
  return questionIsEnglishOnly(m.id)?{...t,question:m.question,options:m.options,answer:m.answer,explanation:m.explanation,task:m.task,practical:m.practical}:t;

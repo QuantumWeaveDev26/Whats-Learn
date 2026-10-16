@@ -1,3 +1,4 @@
+import {database} from '@/lib/storage';
 import {missions} from '@/lib/missions';
 import {canUseMission} from '@/lib/mission-access-server';
 import {membershipRequired} from '@/lib/mission-access';
@@ -28,7 +29,7 @@ export async function POST(request:Request){
   if(p.action==='review'){const mission=missions.find(m=>m.id===p.missionId)!;if(p.quiz!==mission.answer)return response({error:'Answer the understanding question correctly before requesting review. Nothing was saved or reviewed.'},422);const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language);return response({review,...await allowance(user.userId)})}
   const a=await allowance(user.userId);if(a.used>=a.limit)return response({error:`You have used today’s ${a.limit} AI reviews. They reset at midnight (India time).`,...a},429);
   if(!await reserveAiUse(user.userId,a.limit))return response({error:'Today’s AI allowance is used. It resets at midnight India time.'},429);reserved=true;
-  const result=await askCoach(p.missionId,p.question,p.body,p.language);
+  const profile=await database().prepare('SELECT level FROM learner_profiles WHERE user_id=?').bind(user.userId).first<{level:string}>();const result=await askCoach(p.missionId,p.question,p.body,p.language,profile?.level||'beginner');
 
   return response({...result,limit:a.limit,used:a.used+1});
  }catch(e){if(reserved)await releaseAiUse(user.userId);if(e instanceof FeedbackError)return response({error:e.message},e.status);if(e instanceof z.ZodError||e instanceof SyntaxError)return response({error:'Invalid request.'},400);return response({error:'AI review could not finish. Your work is safe; please try again.'},503)}

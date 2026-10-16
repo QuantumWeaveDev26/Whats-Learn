@@ -51,4 +51,4 @@ const trials:Record<string,string[]>={
   "Create and export five campaign frames using your earlier work. View the full sequence on a phone, record where its message breaks and revise that frame. Submit the actual frame content and before/after correction."
  ]
 };
-export function missionPractice(m:Mission){const index=missions.filter(x=>x.track===m.track).findIndex(x=>x.id===m.id);return {outcome:deliverables[m.track]?.[index]||m.title,trial:trials[m.track]?.[index]||m.task,day:index+1}}
+export function missionPractice(m:Mission){const index=missions.filter(x=>x.track===m.track).findIndex(x=>x.id===m.id);return {outcome:deliverables[m.track]?.[index]||m.title,trial:(trials[m.track]?.[index]||m.task)+(m.levelTask?' ' +m.levelTask:''),day:index+1}}

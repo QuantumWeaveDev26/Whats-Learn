@@ -4,7 +4,7 @@ import {courseMissions} from './course-missions';
 export type Level='beginner'|'intermediate'|'advanced';
 import type {Practical} from './practical';
 import {practicalContent} from './practical-content';
-export type Mission = {level:Level;id:string;track:string;title:string;skill:string;minutes:number;brief:string;lesson:string;example:string;task:string;checks:string[];question:string;options:string[];answer:number;explanation:string;practical?:Practical};
+export type Mission = {practiceLevel?:'beginner'|'practising'|'experienced';levelTask?:string;levelBase?:{question:string;options:string[];explanation:string;task:string};level:Level;id:string;track:string;title:string;skill:string;minutes:number;brief:string;lesson:string;example:string;task:string;checks:string[];question:string;options:string[];answer:number;explanation:string;practical?:Practical};
 const catalogue:Omit<Mission,'level'>[] = [
 ...filmmakingMissions,
 ...visualMissions,
