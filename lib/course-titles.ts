@@ -15,7 +15,14 @@ export const courseTitles:CourseTitle[]=[
  {track:'filmmaking',course:'AI Filmmaking',streak:'Film Director',top:'Lead Filmmaker',mastery:'Filmmaking Practitioner'},
  {track:'storytelling',course:'AI-powered Visual Storytelling',streak:'Creative Director',top:'Lead Visual Storyteller',mastery:'Visual Storytelling Practitioner'}];
 export const titleFor=(track:string)=>courseTitles.find(t=>t.track===track);
-export type ScoreLite={mission_id:string;clues:number;day?:string};
+export type ScoreLite={mission_id:string;clues:number;day?:string;points?:number};
+/** Separate from the existing course titles and access rewards: only stored perfect scores count. */
+export function starLearnerProgress(track:string,completed:ReadonlySet<string>,scores:ScoreLite[]){
+ const ids=missions.filter(m=>m.track===track).map(m=>m.id);
+ const perfect=ids.flatMap(id=>{const score=scores.find(s=>s.mission_id===id);return completed.has(id)&&score?.points===100&&score.clues===0?[score]:[]});
+ const best=newMissionStreak(perfect.map(s=>s.day||'')).best;
+ return {earned:ids.length===10&&perfect.length===10&&best>=10,perfect:perfect.length,best,total:ids.length};
+}
 const dayNumber=(d:string)=>Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/86400000;
 /** Runs of consecutive India-time days with a new scored mission. `current` counts only if the run reaches today or yesterday. */
 export function newMissionStreak(days:string[],today?:string){

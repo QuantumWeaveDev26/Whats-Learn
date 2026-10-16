@@ -4,7 +4,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''));
 const d1={prepare(sql){const stmt=db.prepare(sql);const api=(...args)=>({async first(){return stmt.get(...args)||null},async all(){return {results:stmt.all(...args)}},async run(){const r=stmt.run(...args);return {meta:{changes:r.changes}}},_run:()=>stmt.run(...args)});return {bind:api,...api()}},async batch(list){db.exec('BEGIN');try{const out=[];for(const s of list){const r=s._run();out.push({meta:{changes:r.changes}})}db.exec('COMMIT');return out}catch(e){db.exec('ROLLBACK');throw e}}};
 const SECRET='bridge-secret-for-tests-0123456789abcdef',APP='meta-app-secret-0123456789';
-const env={DB:d1,N8N_BRIDGE_SECRET:SECRET,WHATSAPP_TOKEN:'fake',WHATSAPP_PHONE_NUMBER_ID:'1',WHATSAPP_VERIFY_TOKEN:'v',WHATSAPP_APP_SECRET:APP,WHATSAPP_REMINDER_TEMPLATE:'learning_reminder',WHATSAPP_TEMPLATE_LANGUAGE:'en',SITE_URL:'https://whatslearn.example.test'};
+const env={DB:d1,N8N_BRIDGE_SECRET:SECRET,WHATSAPP_TOKEN:'fake',WHATSAPP_PHONE_NUMBER_ID:'1',WHATSAPP_VERIFY_TOKEN:'v',WHATSAPP_APP_SECRET:APP,WHATSAPP_PERFORMANCE_TEMPLATE:'learning_performance',WHATSAPP_REMINDER_TEMPLATE:'learning_reminder',WHATSAPP_TEMPLATE_LANGUAGE:'en',SITE_URL:'https://whatslearn.example.test'};
 let web=null;const original=Module._load;Module._load=function(name,parent,isMain){if(name==='@/app/chatgpt-auth')return {getChatGPTUser:async()=>web};if(name==='cloudflare:workers')return {env};if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
 global.fetch=async u=>{throw new Error('No network in this test: '+u)};
@@ -143,7 +143,7 @@ test('an invalid answer is refused with a reason, saves nothing, and can be retr
 test('finishing a mission in chat uses the website rules: points, clue cost, one new mission a day, and the website shows the same state',async()=>{
  await say(P1,'TODAY');await say(P1,'CANCEL');   // the two clues from the clue test (10 points) are already paid
  const before=balance('asha');
- const out=await answerMission(P1,'m1');assert.match(textOf(out),/Both questions are complete/);
+ const out=await answerMission(P1,'m1');assert.match(textOf(out),/Mission cleared!/);
  const row=db.prepare("SELECT * FROM mission_scores WHERE user_id='asha' AND mission_id='m1'").get();
  assert.equal(row.clues,2);assert.equal(row.deduction,10,'two clues cost 5 + 5, the cap');assert.equal(row.points,row.understanding+row.practical-10);
  assert.equal(before,40);assert.equal(balance('asha'),50+row.points,'the 10 points of clues were paid once when revealed; the mission row only adds the net result');
@@ -160,7 +160,7 @@ test('finishing a mission in chat uses the website rules: points, clue cost, one
 });
 test('mission order and mini challenges: mission 2 opens next day; mission 3 needs the mini challenge, answered in chat',async()=>{
  nextDay();
- let out=await answerMission(P1,'m2');assert.match(textOf(out),/Both questions are complete/);
+ let out=await answerMission(P1,'m2');assert.match(textOf(out),/Mission cleared!/);
  nextDay();
  out=await say(P1,'TODAY');assert.match(textOf(out),/Mini challenge/);assert.match(textOf(out),/CHECK/);
  assert.equal(count("SELECT COUNT(*) n FROM checkpoint_clears WHERE user_id='asha'"),0);
@@ -184,7 +184,7 @@ test('website to WhatsApp: a mission finished on the website is announced once, 
  const res=await work.POST(new Request('https://x.test/api/work',{method:'POST',headers:{origin:'https://x.test','Content-Type':'application/json'},body:JSON.stringify({missionId:'m1',body,checks:[true,true,true,true,true],quiz:m.answer})}));
  assert.equal(res.status,200);assert.equal(count("SELECT COUNT(*) n FROM whatsapp_outbox WHERE user_id='bina'"),1);
  let c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});
- assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/Mission done:.*\n.*points.*\nSynced from the website/);assert.equal(c.json.items[0].to,P2);
+ assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/Built it\. Saved it\..*\n.*points.*\n.*website synced/);assert.equal(c.json.items[0].to,P2);
  c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});assert.equal(c.json.items.length,0,'claimed once');
  const id=db.prepare("SELECT id FROM whatsapp_outbox WHERE user_id='bina'").get().id;
  assert.equal((await call(outbox,'/api/bridge/whatsapp/outbox',{action:'report',results:[{id,ok:true}]})).json.updated,1);
@@ -219,7 +219,7 @@ test('reminders: explicit opt-in, chosen time and frequency in India time, quiet
  assert.equal(run1.status,200);assert.ok(Array.isArray(run1.json.items));
  const a=await jobs.claimReminders(50,T('2026-10-13T13:35:00Z'));
  const mine=a.items.filter(i=>i.to===P1);assert.equal(mine.length,1);assert.equal(mine[0].mode,'template','outside the window an approved template is the only option');
- assert.equal(mine[0].template.name,'learning_reminder');assert.equal(mine[0].template.params.length,1);assert.ok(!('text' in mine[0]));
+ assert.equal(mine[0].template.name,'learning_performance');assert.equal(mine[0].template.params.length,4);assert.ok(!('text' in mine[0]));
  const b=await jobs.claimReminders(50,T('2026-10-13T14:10:00Z'));assert.equal(b.items.filter(i=>i.to===P1).length,0,'a retried or repeated scheduled run sends nothing twice');
  await jobs.reportReminders([{ref:mine[0].ref,ok:false}]);
  const c=await jobs.claimReminders(50,T('2026-10-13T14:20:00Z'));assert.equal(c.items.filter(i=>i.to===P1).length,1,'a send that failed is tried again');
@@ -232,11 +232,11 @@ test('reminders: explicit opt-in, chosen time and frequency in India time, quiet
  await say(P1,'REMIND weekly');assert.equal((await jobs.claimReminders(50,T('2026-10-15T13:35:00Z'))).items.filter(i=>i.to===P1).length,0,'Thursday: weekly means Monday');
  assert.equal((await jobs.claimReminders(50,T('2026-10-19T13:35:00Z'))).items.filter(i=>i.to===P1).length,1);
  db.prepare("INSERT INTO mission_scores(user_id,mission_id,day,understanding,practical,clues,deduction,points,created_at) VALUES ('asha','m9','2026-10-26',25,75,0,0,100,'x')").run();
- assert.equal((await jobs.claimReminders(50,T('2026-10-26T13:35:00Z'))).items.filter(i=>i.to===P1).length,0,'no nudge after today\'s mission is done');
+ assert.equal((await jobs.claimReminders(50,T('2026-10-26T13:35:00Z'))).items.filter(i=>i.to===P1).length,1,'performance recap still arrives after today\'s mission is done');
  db.prepare("UPDATE whatsapp_contacts SET last_inbound_at='2026-10-01T00:00:00Z' WHERE user_id='asha'").run();
- const savedT=env.WHATSAPP_REMINDER_TEMPLATE;env.WHATSAPP_REMINDER_TEMPLATE='';db.prepare("DELETE FROM mission_scores WHERE mission_id='m9'").run();
+ const savedT=env.WHATSAPP_PERFORMANCE_TEMPLATE;env.WHATSAPP_PERFORMANCE_TEMPLATE='';db.prepare("DELETE FROM mission_scores WHERE mission_id='m9'").run();
  assert.equal((await jobs.claimReminders(50,T('2026-11-02T13:35:00Z'))).items.filter(i=>i.to===P1).length,0,'no approved template configured: nothing is sent outside the window');
- env.WHATSAPP_REMINDER_TEMPLATE=savedT;
+ env.WHATSAPP_PERFORMANCE_TEMPLATE=savedT;
  await say(P1,'REMIND OFF');assert.equal((await jobs.claimReminders(50,T('2026-11-09T13:35:00Z'))).items.filter(i=>i.to===P1).length,0);
 });
 test('website settings: the old unverified opt-in is gone; the form returns a one-time code and shows only a masked number',async()=>{
@@ -437,7 +437,7 @@ test('v56: several messages in one Meta delivery each get their own signed reque
 test('linked mentor uses the signed-in name, current website profile and paid plan allowance',async()=>{
  const phone='919000000004',userId='profile-sync-check';
  const link=await chat.startLink(userId,phone,'en',undefined,'Pavana');assert.ok(link.ok&&link.code);
- let out=await say(phone,'LINK '+link.code);assert.match(textOf(out),/Hi Pavana!/);
+ let out=await say(phone,'LINK '+link.code);assert.match(textOf(out),/Hey Pavana!/);
  const {saveProfile}=require('../lib/learning-service.ts');
  await saveProfile(userId,{goal:'business',track:'development',level:'beginner',language:'en',minutes:'15'});
  out=await say(phone,'PROFILE');assert.match(textOf(out),/Pavana/);assert.match(textOf(out),/Full-Stack/);assert.match(textOf(out),/3\/3 left today/);
@@ -458,11 +458,11 @@ test('website first name overrides the linking account name and stays current',a
  const save=name=>route.POST(new Request('https://whatslearn.example.test/api/profile',{method:'POST',headers:{'content-type':'application/json',origin:'https://whatslearn.example.test'},body:JSON.stringify({...profile,name})}));
  assert.equal((await save('Pavana')).status,200);
  const link=await chat.startLink(userId,phone,'en',undefined,'teambrandmint');
- assert.match(textOf(await say(phone,'LINK '+link.code)),/Hi Pavana!/);
+ assert.match(textOf(await say(phone,'LINK '+link.code)),/Hey Pavana!/);
  assert.equal((await route.GET()).status,200);
  assert.equal((await (await route.GET()).json()).name,'Pavana');
  assert.equal((await save('Pavan')).status,200);
- assert.match(textOf(await say(phone,'PROFILE')),/Hi Pavan!/);
+ assert.match(textOf(await say(phone,'PROFILE')),/Hey Pavan!/);
  const other=await chat.startLink('separate-name', '919000000010','en',undefined,'Another learner');
  assert.doesNotMatch(textOf(await say('919000000010','LINK '+other.code)),/Pavana|Pavan!/);
 });

@@ -1,3 +1,4 @@
+import {learnerPerformance} from '../learner-performance';
 import {missionPractice} from '../mission-practice';
 import {canUseMission} from '../mission-access-server';
 import {membershipRequired} from '../mission-access';
@@ -202,7 +203,8 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  if(!r.saved)return reply(`${r.message}\n\nNothing was saved. Your answer is kept for 24 hours${r.status==='daily-limit'?'; reply SUBMIT again tomorrow':'; reply EDIT n to change a part'}.`);
  await dropDraft(c.user_id);
  const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
- return reply(`${r.message}\n\n💎 ${balance} points · 🔥 ${scores.streak.current}-day streak · synced ✅\n\nReply TODAY for what is next.`);
+ const performance=await learnerPerformance(c.user_id);
+ return reply(`✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${r.status==='awarded'?`+${r.score?.points||0} points · `:''}💎 ${balance} total · 🔥 ${scores.streak.current}-day streak\n${performance.star.earned?'🌟 *Star Learner* — 10 perfect missions. 10 days. Earned!\n':''}Website synced ✅\n\n*TODAY* → next move · *PERFORMANCE* → your recap`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -222,7 +224,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance and streak\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -230,7 +232,7 @@ export const inQuiet=(hour:number,start:number,end:number)=>start===end?false:st
 const hourText=(h:number)=>`${h%12||12}${h<12?'am':'pm'}`;
 async function remind(c:Contact,arg:string):Promise<Out>{
  const db=database(),words=arg.toLowerCase().split(/\s+/).filter(Boolean);
- const show=()=>reply(c.remind_state==='on'?`Reminders are *on*: ${c.remind_freq} at ${hourText(c.remind_hour)} India time. Quiet hours ${hourText(c.quiet_start)} to ${hourText(c.quiet_end)}.\nChange: REMIND 7pm weekdays · REMIND QUIET 10pm 7am · REMIND OFF`:`Reminders are *off*. Turn them on with, for example, *REMIND 7pm daily* (daily, weekdays or weekly; India time). One message at most per reminder day, never during quiet hours (${hourText(c.quiet_start)} to ${hourText(c.quiet_end)}).`);
+ const show=()=>reply(c.remind_state==='on'?`Reminders are *on*: ${c.remind_freq} at ${hourText(c.remind_hour)} India time. Each reminder includes your performance recap. Quiet hours ${hourText(c.quiet_start)} to ${hourText(c.quiet_end)}.\nChange: REMIND 7pm weekdays · REMIND QUIET 10pm 7am · REMIND OFF`:`Reminders are *off*. Turn them on with, for example, *REMIND 7pm daily* (daily, weekdays or weekly; India time). Your reminder includes a performance recap. One message at most per reminder day, never during quiet hours (${hourText(c.quiet_start)} to ${hourText(c.quiet_end)}).`);
  if(!words.length)return show();
  let hour=c.remind_hour,freq=c.remind_freq,qs=c.quiet_start,qe=c.quiet_end,state=c.remind_state;
  if(words[0]==='off'){await db.prepare("UPDATE whatsapp_contacts SET remind_state='off',updated_at=? WHERE user_id=?").bind(now().toISOString(),c.user_id).run();return reply('Reminders are off. Lessons still work when you send TODAY. STOP ends all messages.')}
@@ -282,7 +284,7 @@ export async function learnerOverview(userId:string){
  const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
  const candidate=saved?.display_name||row?.display_name;
  const name=candidate&&!candidate.includes('@')?candidate:'learner';
- return `Hi ${name}!\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today`;
+ return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today`;
 }
 
 // ---------- entry point ----------
@@ -316,7 +318,8 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  c.style=learningStyle((await loadLearning(c.user_id)).profile.style);
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
-  case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id));return reply(`🗺️ *${courseName(profile.track)}*\n10-day foundation · ${rows.filter(r=>r.status==='complete').length}/10 saved\n\n${rows.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} ${r.day}. ${r.deliverable}`).join('\n')}\n\n*TODAY* → next step. One new scored mission per day.`)}
+  case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
+  case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;const next=rows.findIndex(r=>r.status==='current'),visible=arg.toLowerCase()==='all'?rows:rows.slice(Math.max(0,next),Math.max(0,next)+3);return reply(`🗺️ *${courseName(profile.track)}*\n${count}/10 saved · 10-day foundation\n\n${visible.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} Day ${r.day}: ${r.deliverable}`).join('\n')}\n\n${count===10?'🎉 Foundation done. Review your creations.':'*TODAY* → make your next piece'}\n*ROADMAP ALL* → all 10 days`)}
   case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';

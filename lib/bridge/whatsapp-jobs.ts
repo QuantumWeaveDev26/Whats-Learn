@@ -1,11 +1,9 @@
-import {canUseMission} from '../mission-access-server';
 import {database} from '../storage';
-import {loadLearning} from '../learning-service';
-import {loadScores} from '../mission-points';
 import {pointsBalance} from '../points';
 import {whatsappConfig} from '../whatsapp';
 import {missions} from '../missions';
 import {inQuiet} from './whatsapp-chat';
+import {learnerPerformance} from '../learner-performance';
 /**
  * Scheduled and background jobs for the n8n workflows. WhatsLearn decides who is due, whether a free message or an approved template is allowed, and what the text says.
  * n8n only sends what it is given and reports back. At-most-once: a reminder slot or a notice is claimed before it is sent, so a retried workflow run cannot send it twice.
@@ -34,13 +32,13 @@ export async function claimReminders(limit=50,at=new Date()){
    if(!re.meta.changes)continue;
   }
   const mark=(state:string)=>db.prepare('UPDATE whatsapp_reminder_log SET state=? WHERE user_id=? AND slot=?').bind(state,c.user_id,slot).run();
-  const scores=await loadScores(c.user_id,at);
-  if(scores.todayUsed){await mark('skipped_done');skipped++;continue}          // already learned today: no nudge
-  const {path}=await loadLearning(c.user_id);if(!await canUseMission(c.user_id,path.nextMissionId)){await mark('skipped_access');skipped++;continue}const title=path.challenge.title;
-  if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:`⚡ Small win time: *${title}*\n*TODAY* → start · *REMIND OFF* → pause reminders.`});continue}
-  // Outside the 24-hour customer service window only an approved template may start a conversation. No template configured: no message.
-  if(!cfg.template){await mark('skipped_no_template');skipped++;continue}
-  items.push({ref,to:c.phone,mode:'template',template:{name:cfg.template,language:cfg.templateLanguage,params:[title]}});
+  // The performance recap replaces the nudge: one message at the chosen frequency/time.
+  const performance=await learnerPerformance(c.user_id,at);
+  if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:performance.text+'\n*REMIND OFF* → pause'});continue}
+  // Outside the service window the exact recap template must be approved; never reuse a lesson template.
+  if(!cfg.performanceTemplate){await mark('skipped_no_performance_template');skipped++;continue}
+  items.push({ref,to:c.phone,mode:'template',template:{name:cfg.performanceTemplate,language:cfg.templateLanguage,params:[String(performance.todayPoints),String(performance.streak),String(performance.count),String(performance.weekMissions)]}});
+
  }
  return {items,skipped};
 }
@@ -74,8 +72,10 @@ export async function claimNotices(limit=20,at=new Date()){
   if(o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
   const p=JSON.parse(o.payload) as {title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);
   const title=p.title||missions.find(m=>m.id===(p as {missionId?:string}).missionId)?.title||'your mission';
+  const performance=o.kind==='mission'&&p.status==='awarded'?await learnerPerformance(o.user_id,at):null;
+  const star=performance?.star.earned?'\n🌟 *Star Learner unlocked!* 10 perfect missions. 10 days. Your title.':'';
   const text=o.kind==='badge'?`🏅 Checkpoint cleared: *${title}*\nWebsite synced. *TODAY* → next move.`
-   :p.status==='awarded'?`✅ Mission done: *${title}*\n+${p.points??0} points · 💎 ${balance} total\nSynced from the website. *TODAY* → what’s next.`
+   :p.status==='awarded'?`✅ Built it. Saved it. *${title}*\n+${p.points??0} points · 🔥 ${performance?.streak||0}-day streak\n💎 ${balance} total · website synced${star}\n*TODAY* → what’s next.`
    :`🙌 Practice saved: *${title}*\n💎 ${balance} points · website synced\n*TODAY* → next step.`;
   items.push({id:o.id,to:o.phone,text});
  }
