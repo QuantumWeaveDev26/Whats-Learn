@@ -325,3 +325,5 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 @media(prefers-reduced-motion:reduce){.style-decision-options button,.quest-meter>span{transition:none}.style-decision-options button:hover{transform:none}}
 
 .lesson-understanding{padding:14px 16px;border:1px solid #bfd0c4;border-radius:12px;margin:14px 0 22px;background:#f6f9f3}.lesson-understanding>summary{cursor:pointer;min-height:30px;font-weight:650;color:#24563d}.lesson-dialog[data-learning-style=game] .focus-quest{background:#f3edfc;border-color:#d2c3e7}.lesson-dialog[data-learning-style=game] .task-label{color:#553278}.lesson-dialog[data-learning-style=story] .focus-quest{background:#fff7e9;border-color:#e1cda8}
+/* Keep quest text readable against the dark game surface. */
+.style-game .quest-brief>p,.style-game .style-next-move>p{color:#f3ecfc}.style-game .style-decision-result p{color:inherit}

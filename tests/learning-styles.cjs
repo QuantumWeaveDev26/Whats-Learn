@@ -52,3 +52,7 @@ test('mode interactions include real navigation and no pretend earned points',()
  assert.match(source,/Mission points are awarded when your completed work is saved/);
  assert.match(source,/No points lost/);
 });
+test('game briefing and next task keep readable light text on the dark surface',()=>{
+ const css=fs.readFileSync(path.resolve(__dirname,'../app/globals.css'),'utf8');
+ assert.match(css,/\.style-game \.quest-brief>p,\.style-game \.style-next-move>p\{color:#f3ecfc/);
+});
