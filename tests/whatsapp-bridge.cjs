@@ -476,3 +476,15 @@ test('mentor gives one short challenge step and keeps lesson details on demand',
  out=await say(phone,'LEARN');assert.match(textOf(out),/The idea/);assert.match(textOf(out),/Your task/);
  out=await say(phone,'TODAY');assert.match(textOf(out),/Question 1/);
 });
+
+test('saved-progress revision requires sign-in and only changes for that learner',async()=>{
+ const route=R('sync');web=null;assert.equal((await route.GET()).status,401);
+ web={userId:'revision-owner'};
+ const read=async()=>{const r=await route.GET();assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);return (await r.json()).revision};
+ const before=await read();
+ const {saveProfile}=require('../lib/learning-service.ts');
+ const p={goal:'job',track:'development',level:'beginner',language:'en',minutes:'15'};
+ await saveProfile('revision-other',p);assert.equal(await read(),before);
+ await saveProfile('revision-owner',p);const after=await read();assert.notEqual(after,before);
+ assert.equal(await read(),after);assert.doesNotMatch(after,/revision-owner|revision-other|phone|body/);
+});
