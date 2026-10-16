@@ -60,6 +60,8 @@ export default defineConfig(async ({command}) => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    // Give this release fresh asset URLs after a partially cached deployment chunk.
+    build: { rolldownOptions: { output: { banner: '/* WhatsLearn starter scenarios 2026-10-16 */' } } },
     resolve: nodeRuntime ? { alias: { 'cloudflare:workers': fileURLToPath(new URL('./runtime/node-env.mjs', import.meta.url)) } } : undefined,
     server: {
       ...(managedLinux ? { host: "0.0.0.0", allowedHosts: ["terminal.local"] } : {}),
