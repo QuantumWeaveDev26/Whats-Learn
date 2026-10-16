@@ -5,7 +5,7 @@ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
 test('a fresh hero asks for a subject and does not open a story or completed progress',()=>{
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Hero));
- assert.match(html,/Choose a subject\./);assert.match(html,/What do you want to try/);
+ assert.match(html,/One spark\. Something real\./);assert.match(html,/Pick your spark/);
  assert.equal((html.match(/aria-pressed="false"/g)||[]).length,4);
  assert.doesNotMatch(html,/aria-pressed="true"|role="progressbar"|A draft\. An approval\.|THE APP STUDIO/);
  assert.match(html,/welcome-video-inline/);
@@ -16,11 +16,14 @@ test('all four programme rows start collapsed',()=>{
  assert.equal((html.match(/aria-expanded="false"/g)||[]).length,4);
  assert.doesNotMatch(html,/aria-expanded="true"|class="programme-detail"/);
 });
-test('saved work loads only after a subject is deliberately selected',()=>{
+test('guests choose a subject while accounts restore saved course',()=>{
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
  assert.match(source,/\[chosen,setChosen\]=useState\(false\)/);
  assert.match(source,/function selectTrack[\s\S]*setChosen\(true\)/);
  assert.match(source,/chosen\?'agency-first-choice':'agency-first-subject'/);
  assert.doesNotMatch(source,/const initial=agencyTracks|removeItem|localStorage\.clear/);
  assert.match(source,/const stored=readAgencyDrafts\(\)\[value\]/);
+ assert.match(source,/startSavedProgressSync\(loadAccount\)/);
+ assert.match(source,/accountTrack.current!==selected.id/);
+ assert.match(source,/setTrack\(selected.id\);setChosen\(true\)/);
 });
