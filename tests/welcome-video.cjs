@@ -18,12 +18,14 @@ test('home has no background video or mascot',()=>{
  assert.ok(fs.existsSync(path.join(process.cwd(),'public','videos','whatslearn-welcome.mp4')));
 });
 
-test('welcome video is an inline controlled player without a launcher or popup',()=>{
+test('welcome video stays inline and can be enlarged with a closable accessible dialog',()=>{
  const video=src('components/whatslearn/welcome-video.tsx');
  assert.match(video,/className="welcome-video-inline"/);
- assert.match(video,/<video src="\/videos\/whatslearn-welcome.mp4"/);
+ assert.match(video,/<video ref=\{inline\} src="\/videos\/whatslearn-welcome.mp4"/);
  assert.match(video,/controls playsInline preload="metadata"/);
- assert.doesNotMatch(video,/Dialog|welcome-video-trigger|setOpen|autoPlay/);
+ assert.doesNotMatch(video,/welcome-video-trigger|autoPlay/);
+ assert.match(video,/<DialogTrigger asChild>/);assert.match(video,/aria-label="Enlarge welcome video"/);assert.match(video,/onOpenChange=\{changeOpen\}/);assert.match(video,/open&&<video ref=\{expanded\}/);
+ assert.match(src('components/ui/dialog.tsx'),/<XIcon\s*\/>/);
  assert.match(src('app/globals.css'),/\.welcome-video-inline video\{[^}]*aspect-ratio:16\/9/);
 });
 
