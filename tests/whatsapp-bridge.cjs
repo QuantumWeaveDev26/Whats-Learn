@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // v50: WhatsApp learning bridge for the n8n workflows. Mock Meta payloads, no network, no real keys, no OpenAI call (the tutor reply is only checked as data handed to n8n).
 // Run: node --test tests/whatsapp-bridge.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite'),{createHmac,randomBytes}=require('node:crypto');

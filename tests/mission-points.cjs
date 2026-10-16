@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // Course missions and mission points: four courses of ten missions with two questions each, one new mission a day, clue deductions,
 // duplicate-point prevention, and relevance checks (copied, off-topic and relevant answers). No network, no AI, no real keys. Run: node --test tests/mission-points.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');
@@ -101,7 +102,7 @@ test('relevance: relevant answers pass in every mission; copied, empty, meaningl
 test('server: one new mission a day, refresh-safe, duplicate-safe',async()=>{
  reset();
  // First new mission today earns points.
- let res=await send('m4');assert.equal(res.status,200);let d=await res.json();assert.equal(d.award.status,'awarded');assert.ok(d.award.score.points>=45&&d.award.score.points<=100);assert.match(d.award.message,/not an AI review/);
+ let res=await send('m4');assert.equal(res.status,200);let d=await res.json();assert.equal(d.award.status,'awarded');assert.ok(d.award.score.points>=45&&d.award.score.points<=100);assert.match(d.award.message,/AI reviewed:/);
  const first=d.award.score.points;assert.equal(count('mission_scores'),1);assert.equal(count('work'),1);
  // A second NEW mission the same day, in any course, is refused and saves nothing, so it can still be done tomorrow.
  for(const id of ['d3','f4','v3','m5']){res=await send(id);assert.equal(res.status,429,id);d=await res.json();assert.match(d.error,/already completed today/)}

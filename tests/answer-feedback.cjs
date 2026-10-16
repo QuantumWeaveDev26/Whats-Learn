@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // Direct answer feedback on every multiple-choice question (home starter, agency starter, side quests, 40 missions), retry after a wrong answer, and no change to points or progress. Run: node --test tests/answer-feedback.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');
 const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''));

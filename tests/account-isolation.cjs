@@ -5,7 +5,7 @@ const d1={prepare(sql){const stmt=db.prepare(sql);const api=(...args)=>({async f
 const env={DB:d1,WHATSAPP_TOKEN:'fake',WHATSAPP_PHONE_NUMBER_ID:'1',WHATSAPP_VERIFY_TOKEN:'v',WHATSAPP_APP_SECRET:'s',RAZORPAY_KEY_ID:'rzp_test_FAKE',RAZORPAY_KEY_SECRET:'fake',RAZORPAY_WEBHOOK_SECRET:'fake',BILLING_ADMIN_EMAIL:'owner@example.test',OPENAI_API_KEY:'fake-not-used'};
 let user=null;const original=Module._load;Module._load=function(name,parent,isMain){if(name==='@/app/chatgpt-auth')return {getChatGPTUser:async()=>user};if(name==='cloudflare:workers')return {env};if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,isMain)};
 require.extensions['.ts']=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,f);
-global.fetch=async u=>{if(String(u)==='https://api.openai.com/v1/chat/completions')return Response.json({choices:[{message:{content:JSON.stringify({summary:'Reviewed sample.',strengths:[],checks:Array.from({length:5},()=>({met:true,note:'Present.'})),practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test the offer.'})}}]});throw new Error('No network in this test: '+u)};
+global.fetch=async u=>{if(String(u)==='https://api.openai.com/v1/chat/completions')return Response.json({choices:[{message:{content:JSON.stringify({summary:'Reviewed sample.',strengths:[],checks:Array.from({length:5},()=>({met:true,note:'Present.'})),answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test the offer.'})}}]});throw new Error('No network in this test: '+u)};
 const r=n=>require('../app/api/'+n+'/route.ts');const work=r('work'),profile=r('profile'),play=r('play'),progress=r('progress'),wa=r('whatsapp'),billing=r('billing'),session=r('session'),feedback=r('feedback'),path_=r('learning-path');
 const {missions}=require('../lib/missions.ts');const m1=missions.find(m=>m.id==='m1');
 const post=(route,body,origin='https://whatslearn.in')=>route.POST(new Request('https://whatslearn.in/api/x',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(body)}));
@@ -19,7 +19,7 @@ const answer=require('./fixtures/course-samples.json').m1;
  assert.equal((await post(play,{missionId:'m1',choice:1})).status,401);
  assert.equal((await post(wa,{action:'optin',phone:'9876543210',language:'en',consent:true})).status,401);
  assert.equal((await post(billing,{action:'checkout',sku:'sprint',quantity:1})).status,401);
- assert.equal((await post(feedback,{action:'review',missionId:'m1',body:answer,language:'en'})).status,401);
+ assert.equal((await post(feedback,{action:'review',quiz:missions.find(m=>m.id==='m1').answer,missionId:'m1',body:answer,language:'en'})).status,401);
  assert.deepEqual(await (await session.GET()).json(),{signedIn:false});
  assert.deepEqual(await billing.GET().then(x=>x.json()),{enabled:false,checkoutOpen:false,sprintCreditAvailable:false},'Guests get checkout state only');
  assert.equal(db.prepare('SELECT COUNT(*) n FROM work').get().n,0);

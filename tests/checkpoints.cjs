@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // v43: mini challenges (checkpoints) after missions 2, 4, 6, 8 and a finale after 10, in all four courses. No network, no AI, no real keys. Run: node --test tests/checkpoints.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');
 const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''));

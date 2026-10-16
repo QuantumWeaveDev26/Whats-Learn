@@ -93,8 +93,10 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
  let s=await state(userId,mission.id,day);let decision=decideAward(s);
  if(decision==='daily-limit')return {status:'daily-limit',message:dailyLimitMessage,saved:false,code:429};
  const invalid=precheck(mission,data);if(invalid)return {status:'rejected',message:invalid,saved:false,code:400};
+ if(!aiReady())return {status:'rejected',message:'Automatic evaluation is unavailable. Your answer stays a draft; nothing was completed or scored.',saved:false,code:503};
  if(aiReady()){
   try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en')}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
+  if(!review.answerAssessment?.onTopic||!review.answerAssessment.correct)return {status:'rejected',message:'Correctness could not be confirmed. Revise your answer; nothing was saved.',saved:false,code:422};
   if(!review.practicalTest?.reported||!review.practicalTest.created||!review.practicalTest.performed)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),saved:false,code:422};
   if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,saved:false,code:422};
  }

@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // Points balance, one-time starting points, clue charges, 10-day streak title, direct answer feedback and the migration backfill. No network, no real keys. Run: node --test tests/points-balance.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');
 const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''));

@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // New-account points experience: the welcome balance is granted once, the welcome message is shown once, mission points and clue costs come back with the new balance,
 // guests are told plainly they get no welcome balance, and the message respects reduced motion and makes no sound. Run: node --test tests/welcome-points.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
@@ -62,7 +63,7 @@ test('a clue shows its cost before it is revealed and its deduction after; repea
 test('guest mode says plainly: no account welcome balance, progress local to this browser',()=>{
  const r=fs.readFileSync(path.join(H.ROOT,'components/whatslearn/practice-rewards.tsx'),'utf8');
  assert.match(r,/guests get no welcome balance/);assert.match(r,/Guests get no welcome balance\. Guest progress is local to this browser/);
- const page=fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/Guest points are kept in this browser only/);
+ const page=fs.readFileSync(path.join(H.ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/no mission points or completion were saved/);
  assert.doesNotMatch(page.match(/if\(r\.status===401\)\{[^}]*\}/)?.[0]||'',/welcome/,'a guest never sees the welcome message');
 });
 test('the message is polite, quiet and motion-safe: no sound, reduced motion removes all movement, shown once per grant',()=>{

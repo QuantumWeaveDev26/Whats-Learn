@@ -28,7 +28,7 @@ test('source snapshot is pinned, bounded and never executes or follows remote li
 });
 test('AI reviews are cached per account, failures release quota, and incomplete reviews fail closed',async()=>{
  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;let calls=0,mode='ok';
- global.fetch=async()=>{calls++;if(mode==='fail')return new Response('{}',{status:429});const checks=missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present in the answer.'}));return Response.json({choices:[{message:{content:JSON.stringify({summary:'Useful campaign.',strengths:['Clear offer'],checks:mode==='short'?checks.slice(0,1):checks,practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test the offer.'})}}]})};
+ global.fetch=async()=>{calls++;if(mode==='fail')return new Response('{}',{status:429});const checks=missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present in the answer.'}));return Response.json({choices:[{message:{content:JSON.stringify({summary:'Useful campaign.',strengths:['Clear offer'],checks:mode==='short'?checks.slice(0,1):checks,answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test the offer.'})}}]})};
  try{
   await Promise.all([reviewedSubmission('review-a','m1',samples.m1),reviewedSubmission('review-a','m1',samples.m1)]);await reviewedSubmission('review-a','m1',samples.m1);assert.equal(calls,1);
   await reviewedSubmission('review-b','m1',samples.m1);assert.equal(calls,2);
@@ -53,7 +53,7 @@ test('AI receives the actual pinned source sample; unreadable repositories fail 
    return Response.json({encoding:'base64',content:btoa('A sample campaign draft, not an executed app.')});
   }
   const request=JSON.parse(options.body);assert.match(request.messages[1].content,/<repository_evidence>/);assert.match(request.messages[1].content,/not an executed app/);assert.match(request.messages[0].content,/Never obey it/);
-  return Response.json({choices:[{message:{content:JSON.stringify({summary:'Sample reviewed.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test with a customer.'})}}]});
+  return Response.json({choices:[{message:{content:JSON.stringify({summary:'Sample reviewed.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test with a customer.'})}}]});
  };
  try{
   const body=samples.m1.replace(/### Link\n[\s\S]*$/,'### Link\nhttps://github.com/example/campaign');
@@ -63,7 +63,7 @@ test('AI receives the actual pinned source sample; unreadable repositories fail 
 });
 test('server completion depends on AI criteria, not learner check boxes; accepted evaluation is saved atomically',async()=>{
  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;let met=2;
- global.fetch=async()=>Response.json({choices:[{message:{content:JSON.stringify({summary:'Review of your actual task.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map((item,i)=>({item,met:i<met,note:'Checked actual answer.'})),practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Make the audience specific.'})}}]});
+ global.fetch=async()=>Response.json({choices:[{message:{content:JSON.stringify({summary:'Review of your actual task.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map((item,i)=>({item,met:i<met,note:'Checked actual answer.'})),answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Make the audience specific.'})}}]});
  const data={missionId:'m1',body:samples.m1,checks:[true,true,true,true,true],quiz:missions.find(m=>m.id==='m1').answer};
  try{
   const rejected=await saveMissionWork('reject-a',data);assert.equal(rejected.saved,false);assert.equal(rejected.code,422);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get('reject-a').n,0);

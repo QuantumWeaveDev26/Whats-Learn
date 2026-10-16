@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // v36: course order (locks), retries after a wrong answer, clue costs, course titles, streaks, duplicates, guest limits, structured practical answers and an audit of all 40 missions.
 // No network, no AI, no real keys. Run: node --test tests/progression.cjs
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');

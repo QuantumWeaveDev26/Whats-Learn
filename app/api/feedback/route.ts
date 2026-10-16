@@ -9,7 +9,7 @@ import {aiAllowance,reserveAiUse,releaseAiUse} from '@/lib/ai-usage';
 import {reviewedSubmission} from '@/lib/submission-review';
 import {languageCodes} from '@/lib/languages';
 const input=z.discriminatedUnion('action',[
- z.object({action:z.literal('review'),missionId:z.string().max(20),body:z.string().max(9000),language:z.enum(languageCodes)}).strict(),
+ z.object({action:z.literal('review'),quiz:z.number().int().min(0).max(20),missionId:z.string().max(20),body:z.string().max(9000),language:z.enum(languageCodes)}).strict(),
  z.object({action:z.literal('ask'),missionId:z.string().max(20),question:z.string().max(500),body:z.string().max(9000).default(''),language:z.enum(languageCodes)}).strict()
 ]);
 const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
@@ -25,7 +25,7 @@ export async function POST(request:Request){
   const p=input.parse(JSON.parse(text));
   if(!missions.some(m=>m.id===p.missionId))return response({error:'Unknown challenge.'},404);
   if(!await canUseMission(user.userId,p.missionId))return response({error:membershipRequired},403);
-  if(p.action==='review'){const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language);return response({review,...await allowance(user.userId)})}
+  if(p.action==='review'){const mission=missions.find(m=>m.id===p.missionId)!;if(p.quiz!==mission.answer)return response({error:'Answer the understanding question correctly before requesting review. Nothing was saved or reviewed.'},422);const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language);return response({review,...await allowance(user.userId)})}
   const a=await allowance(user.userId);if(a.used>=a.limit)return response({error:`You have used today’s ${a.limit} AI reviews. They reset at midnight (India time).`,...a},429);
   if(!await reserveAiUse(user.userId,a.limit))return response({error:'Today’s AI allowance is used. It resets at midnight India time.'},429);reserved=true;
   const result=await askCoach(p.missionId,p.question,p.body,p.language);

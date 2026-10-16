@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // Integration checks: deterministic adaptation, private ownership, protocol and idempotent saves.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');

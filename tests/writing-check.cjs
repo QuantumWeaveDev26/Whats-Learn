@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 // Stars and the basic writing check read the learner's text. Run: node --test tests/writing-check.cjs
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript'),{DatabaseSync}=require('node:sqlite');
 const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''));
@@ -37,7 +38,7 @@ const answers={
  // AI ratings come from the AI review; failures return a message, never a score.
  assert.equal(aiStars({checks:[{met:true},{met:true},{met:true},{met:true},{met:false}]}),3);assert.equal(aiStars({checks:[{met:true},{met:true},{met:false}]}),2);assert.equal(aiStars({checks:[{met:false}]}),1);
  env.OPENAI_API_KEY='fake-openai';global.fetch=async()=>new Response('{}',{status:500});
- const route=require('../app/api/feedback/route.ts');const res=await route.POST(new Request('https://whatslearn.in/api/feedback',{method:'POST',headers:{origin:'https://whatslearn.in'},body:JSON.stringify({action:'review',missionId:'m1',body:answers.good,language:'en'})}));
+ const route=require('../app/api/feedback/route.ts');const res=await route.POST(new Request('https://whatslearn.in/api/feedback',{method:'POST',headers:{origin:'https://whatslearn.in'},body:JSON.stringify({action:'review',quiz:missions.find(m=>m.id==='m1').answer,missionId:'m1',body:require('./fixtures/course-samples.json').m1,language:'en'})}));
  assert.equal(res.status,502);const j=await res.json();assert.ok(j.error);assert.equal(j.review,undefined,'No default low score on failure');
  console.log('PASS: good, weak, empty, filler, copied, off-topic and Hindi answers; varied ratings; writing-based stars; server-side blocking; AI rating and failure message.');
 })().catch(e=>{console.error(e);process.exitCode=1});
