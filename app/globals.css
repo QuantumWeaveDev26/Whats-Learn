@@ -246,25 +246,24 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 
 .mission-progress-map{scroll-margin-top:92px}.daily-return-cue{position:relative;overflow:hidden}.daily-return-cue:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-75px;top:-80px;background:rgba(69,109,226,.12);pointer-events:none}.daily-return-cue>*{position:relative;z-index:1}.upload-control{padding:14px 0;border-top:1px dashed #cdded3}.upload-control .form-label{font-weight:700;color:#234b39}
 
-/* Welcome video: the first visual learners see. */
-.welcome-video{width:min(1180px,calc(100% - 40px));margin:24px auto 8px;border-radius:28px;overflow:hidden;background:#123e28;box-shadow:0 22px 52px rgba(18,62,40,.18);line-height:0}
-.welcome-video video{display:block;width:100%;max-height:min(68vh,680px);object-fit:cover;background:#123e28}
-@media (max-width:700px){.welcome-video{width:calc(100% - 28px);margin:14px auto 4px;border-radius:18px}.welcome-video video{max-height:58vh}}
-/* Full-screen welcome video. Learners enter the site with the × button. */
-.welcome-modal{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:clamp(12px,3vw,40px);background:rgba(9,28,18,.92);backdrop-filter:blur(12px)}
-.welcome-video{display:block;width:min(1100px,100%);max-height:calc(100vh - 48px);border-radius:24px;background:#123e28;box-shadow:0 28px 80px rgba(0,0,0,.42)}
-.welcome-video-close{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:1001;width:46px;height:46px;border:0;border-radius:50%;background:#fff;color:#123e28;font-size:32px;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.welcome-video-close:hover{transform:scale(1.06);background:#dff3e7}
-.welcome-video-close:focus-visible{outline:3px solid #b7f37d;outline-offset:3px}
-@media (max-width:700px){.welcome-modal{padding:12px}.welcome-video{width:100%;border-radius:16px;max-height:calc(100vh - 28px)}.welcome-video-close{width:42px;height:42px;font-size:29px}}
-
-/* Always available home-hero video. */
-.hero-video-inline{grid-column:1/-1;margin-top:-16px;border-radius:24px;overflow:hidden;background:#123e28;box-shadow:0 18px 50px rgba(18,62,40,.16);line-height:0}
-.hero-video-inline video{display:block;width:100%;max-height:min(70vh,720px);object-fit:cover;background:#123e28}
-@media(max-width:760px){.hero-video-inline{margin-top:0;border-radius:18px}.hero-video-inline video{max-height:58vh}}
-
-/* Home-only video background: muted and deliberately subtle behind existing content. */
+/* Click-to-play welcome video; no background video or initial media download. */
 .public-app{position:relative;isolation:isolate}
-.home-bg-video{position:fixed;inset:0;z-index:0;width:100vw;height:100vh;object-fit:cover;pointer-events:none;opacity:.42;filter:sepia(.22) saturate(.78) hue-rotate(28deg) brightness(.94) contrast(1.06)}
-.public-app>*:not(.home-bg-video){position:relative;z-index:1}
-@media(prefers-reduced-motion:reduce){.home-bg-video{display:none}}
+.welcome-video-launcher{margin-top:24px}
+.welcome-video-trigger{display:flex;align-items:center;gap:14px;text-align:left;width:100%;max-width:440px;border:1px solid #b7d2c3;border-radius:18px;padding:16px 18px;background:#fff;color:#174e37;font-size:15px;font-weight:700;box-shadow:0 6px 20px rgba(18,62,40,.06);transition:transform .2s,box-shadow .2s,border-color .2s}
+.welcome-video-trigger small{display:block;margin-top:4px;color:#425d4f;font-size:12px;font-weight:400;line-height:1.5}
+.welcome-play-icon{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#e7f4d7;color:#087a4b}
+.welcome-video-trigger:hover{transform:translateY(-2px);border-color:#087a4b;box-shadow:0 10px 28px rgba(18,62,40,.12)}
+.welcome-video-trigger:focus-visible,.whatsapp-mentor-widget:focus-visible{outline:3px solid #2856ba;outline-offset:4px}
+.welcome-video-dialog[data-slot=dialog-content]{width:min(960px,calc(100vw - 32px));max-width:960px;max-height:calc(100dvh - 32px);overflow:auto;padding:24px;background:#fff;color:#172c26;border-radius:24px;gap:10px}
+.welcome-video-dialog [data-slot=dialog-title]{padding-right:36px;font-size:22px;line-height:1.3}
+.welcome-video-dialog [data-slot=dialog-description]{color:#425d4f;padding-right:16px}
+.welcome-video-dialog video{display:block;width:100%;max-height:calc(100dvh - 180px);aspect-ratio:16/9;object-fit:contain;background:#10291d;border-radius:14px;margin-top:8px}
+.welcome-video-dialog [data-slot=dialog-close]{width:32px;height:32px;display:grid;place-items:center;background:#edf3ef;color:#172c26;opacity:1;border-radius:50%}
+/* Learning mentor stays separate from the existing team contact links. */
+.whatsapp-mentor-widget{position:fixed;right:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:40;display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;max-width:calc(100vw - 32px);border:1px solid #146743;border-radius:999px;background:#087a4b;color:#fff;text-decoration:none;box-shadow:0 8px 28px rgba(18,62,40,.22);transition:transform .2s,box-shadow .2s}
+.whatsapp-mentor-widget strong{display:block;font-size:14px;line-height:1.35;color:#fff}
+.whatsapp-mentor-widget small{display:block;font-size:11px;line-height:1.5;color:#fff}
+.mentor-widget-icon{display:grid;place-items:center;flex-shrink:0;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.14)}
+.whatsapp-mentor-widget:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(18,62,40,.3);background:#076840}
+@media(max-width:700px){body{padding-bottom:88px}.whatsapp-mentor-widget{right:16px;bottom:max(16px,env(safe-area-inset-bottom));gap:9px;padding:9px 13px 9px 9px}.mentor-widget-icon{width:36px;height:36px}.welcome-video-trigger{padding:14px;gap:12px}.welcome-video-dialog[data-slot=dialog-content]{padding:18px;border-radius:18px}.welcome-video-dialog [data-slot=dialog-title]{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.welcome-video-trigger,.whatsapp-mentor-widget{transition:none}.welcome-video-trigger:hover,.whatsapp-mentor-widget:hover{transform:none}}

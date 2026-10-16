@@ -1,6 +1,6 @@
-/** English plus the 22 Eighth Schedule languages. Names shown in native script. */
+/** English plus all 22 Eighth Schedule languages. Shared menu priority: English, Hindi, Kannada, other southern languages, northern languages, then remaining regions. */
 export const languages:Record<string,string>={
- en:'English',as:'অসমীয়া · Assamese',bn:'বাংলা · Bengali',brx:'बड़ो · Bodo',doi:'डोगरी · Dogri',gu:'ગુજરાતી · Gujarati',hi:'हिन्दी · Hindi',kn:'ಕನ್ನಡ · Kannada',ks:'کٲشُر · Kashmiri',kok:'कोंकणी · Konkani',mai:'मैथिली · Maithili',ml:'മലയാളം · Malayalam',mni:'ꯃꯤꯇꯩꯂꯣꯟ · Manipuri',mr:'मराठी · Marathi',ne:'नेपाली · Nepali',or:'ଓଡ଼ିଆ · Odia',pa:'ਪੰਜਾਬੀ · Punjabi',sa:'संस्कृतम् · Sanskrit',sat:'ᱥᱟᱱᱛᱟᱲᱤ · Santali',sd:'سنڌي · Sindhi',ta:'தமிழ் · Tamil',te:'తెలుగు · Telugu',ur:'اردو · Urdu'
+ en:'English',hi:'हिन्दी · Hindi',kn:'ಕನ್ನಡ · Kannada',ta:'தமிழ் · Tamil',te:'తెలుగు · Telugu',ml:'മലയാളം · Malayalam',pa:'ਪੰਜਾਬੀ · Punjabi',ur:'اردو · Urdu',ks:'کٲشُر · Kashmiri',doi:'डोगरी · Dogri',sd:'سنڌي · Sindhi',sa:'संस्कृतम् · Sanskrit',ne:'नेपाली · Nepali',mai:'मैथिली · Maithili',mr:'मराठी · Marathi',kok:'कोंकणी · Konkani',gu:'ગુજરાતી · Gujarati',bn:'বাংলা · Bengali',or:'ଓଡ଼ିଆ · Odia',as:'অসমীয়া · Assamese',brx:'बड़ो · Bodo',mni:'ꯃꯤꯇꯩꯂꯣꯟ · Manipuri',sat:'ᱥᱟᱱᱛᱟᱲᱤ · Santali'
 };
 export const languageCodes=Object.keys(languages) as [string,...string[]];
 /** Lessons reviewed by people. */
