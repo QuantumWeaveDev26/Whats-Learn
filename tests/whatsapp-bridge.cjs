@@ -169,7 +169,7 @@ test('mission order and mini challenges: mission 2 opens next day; mission 3 nee
  const pts=balance('asha');
  out=await say(P1,'CHECK '+right.join(' '));assert.match(textOf(out),/Badge earned/);assert.equal(balance('asha'),pts,'a mini challenge earns no points');
  out=await say(P1,'CHECK '+right.join(' '));assert.match(textOf(out),/no mini challenge waiting/);
- out=await say(P1,'TODAY');assert.match(textOf(out),/Challenge 3\/10:/,'mission 3 is open now');
+ out=await say(P1,'TODAY');assert.match(textOf(out),/3\/10/,'mission 3 is open now');
  await say(P1,'CANCEL');
 });
 test('mission 3 stays locked on the website until the mini challenge is cleared (same server rule)',async()=>{
@@ -473,7 +473,7 @@ test('mentor gives one short challenge step and keeps lesson details on demand',
  let out=await say(phone,'TODAY');const text=textOf(out);
  assert.ok(text.length<700,text.length);assert.doesNotMatch(text,/Plan:|Goal:|Your task:|The idea:|PROFILE:|Anita/);
  assert.match(text,/Your pick/);assert.match(text,/C\) After the server confirms/);
- out=await say(phone,'LEARN');assert.match(textOf(out),/The idea/);assert.match(textOf(out),/Your task/);
+ out=await say(phone,'LEARN');assert.match(textOf(out),/The idea/);assert.match(textOf(out),/Your turn|Your task/);
  out=await say(phone,'TODAY');assert.match(textOf(out),/Question 1/);
 });
 
@@ -487,4 +487,30 @@ test('saved-progress revision requires sign-in and only changes for that learner
  await saveProfile('revision-other',p);assert.equal(await read(),before);
  await saveProfile('revision-owner',p);const after=await read();assert.notEqual(after,before);
  assert.equal(await read(),after);assert.doesNotMatch(after,/revision-owner|revision-other|phone|body/);
+});
+
+
+test('learning styles sync both ways without changing drafts, course or points',async()=>{
+ const userId='style-switch',phone='919000000012';await newLearner(userId,phone,{track:'development'});
+ const {loadLearning,saveProfile}=require('../lib/learning-service.ts');
+ assert.equal((await loadLearning(userId)).profile.style,'casual');
+ let out=await say(phone,'STYLE');assert.match(textOf(out),/Casual/);assert.match(textOf(out),/STYLE GAME/);
+ await say(phone,'TODAY');await say(phone,'C');
+ const draft=db.prepare('SELECT body,quiz,mission_id FROM whatsapp_drafts WHERE user_id=?').get(userId),points=balance(userId);
+ for(const style of ['game','story','facts','casual']){
+  out=await say(phone,'STYLE '+style.toUpperCase());assert.match(textOf(out),/Style set/);
+  assert.equal((await loadLearning(userId)).profile.style,style);
+  assert.deepEqual(db.prepare('SELECT body,quiz,mission_id FROM whatsapp_drafts WHERE user_id=?').get(userId),draft);
+  assert.equal(balance(userId),points);
+  assert.equal((await loadLearning(userId)).profile.track,'development');
+  out=await say(phone,'LEARN');assert.ok(textOf(out).length<1100);assert.ok(textOf(out).includes(style==='game'?'Your quest':style==='story'?'The scene':style==='facts'?'Key idea':'The idea'));
+ }
+ out=await say(phone,'STYLE 2');assert.match(textOf(out),/Game/);
+ out=await say(phone,'STYLE dinosaur');assert.match(textOf(out),/Choose one/);assert.equal((await loadLearning(userId)).profile.style,'game');
+ // Older profile clients do not know the style field. Saving another choice must preserve it.
+ const p={goal:'job',track:'development',level:'beginner',language:'en',minutes:'15'};
+ await saveProfile(userId,p);assert.equal((await loadLearning(userId)).profile.style,'game');
+ await saveProfile(userId,{...p,style:'facts'});out=await say(phone,'LEARN');assert.match(textOf(out),/Key idea/);
+ await assert.rejects(()=>saveProfile(userId,{...p,style:'invalid'}));
+ assert.equal((await loadLearning(userId)).profile.style,'facts');
 });

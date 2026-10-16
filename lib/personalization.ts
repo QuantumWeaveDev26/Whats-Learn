@@ -1,9 +1,10 @@
+import type {LearningStyle} from './learning-styles';
 import {practicalContent} from './practical-content';
 import {visualTranslations} from './visual-storytelling';
 import {filmTranslations} from './filmmaking';
 import type {Mission} from './missions';
-export type Profile={goal:string;track:string;level:string;language:string;minutes:string};
-export const defaultProfile:Profile={goal:'job',track:'marketing',level:'beginner',language:'en',minutes:'15'};
+export type Profile={goal:string;track:string;level:string;language:string;minutes:string;style?:LearningStyle};
+export const defaultProfile:Profile={goal:'job',track:'marketing',level:'beginner',language:'en',minutes:'15',style:'casual'};
 export const goals:Record<string,string>={job:'Find my first role',switch:'Switch careers',upskill:'Get better at my work',team:'Build my team’s skills',freelance:'Start freelancing',business:'Grow my business',build:'Make a project',explore:'Explore something new'};
 export {languages} from './languages';
 import {languagePacks} from './translations';
