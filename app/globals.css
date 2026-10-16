@@ -385,3 +385,5 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 /* Keep the full course duration distinct from the free homepage starter. */
 .agency-start .visual-intro .hero-course-duration{font-size:16px;line-height:1.55;margin:0 0 18px;color:#244c39}.hero-course-duration strong{color:#116c45}.hero-course-duration small{font-size:13px}.visual-disclosure a{text-decoration:underline;text-underline-offset:3px}
 .programme-row h3 small{font-size:12px;line-height:1.5;letter-spacing:.04em;color:#365a45;margin-top:8px}
+
+.mini-choices button:disabled{opacity:1;cursor:default}.mini-quest .quest-answer-locked{font-size:13px;color:#365a45;border-top:1px solid #d9e5d5;padding-top:12px}

@@ -32,7 +32,7 @@ export const feedbackLines=(language:string):FeedbackLines=>Object.prototype.has
 export const feedbackLanguages=Object.keys(lines);
 export type QuizFeedback={correct:boolean;title:string;text:string};
 /** `skill` names the concept the question tests (leave empty for short starter questions that have no named skill); `reason` is the mission's explanation. */
-export function quizFeedback(language:string,correct:boolean,skill:string,reason:string):QuizFeedback{
+export function quizFeedback(language:string,correct:boolean,skill:string,reason:string,allowRetry=true):QuizFeedback{
  const l=feedbackLines(language);
- return correct?{correct,title:l.right,text:`${l.right} ${reason}`}:{correct,title:l.wrong,text:`${l.wrong} ${skill?`${l.concept} ${skill}. `:''}${reason} ${l.again}`};
+ return correct?{correct,title:l.right,text:`${l.right} ${reason}`}:{correct,title:l.wrong,text:`${l.wrong} ${skill?`${l.concept} ${skill}. `:''}${reason}${allowRetry?` ${l.again}`:''}`};
 }

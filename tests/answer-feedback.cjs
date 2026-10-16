@@ -47,15 +47,15 @@ test('agency starter (14 languages): wrong says not correct and invites a retry;
  }
  const t=fs.readFileSync(path.join(ROOT,'components/whatslearn/visual-start.tsx'),'utf8');assert.match(t,/feedbackLines\(contentLanguage\)\.again/);assert.match(t,/choice===0\?t\.correct:t\.retry/);
 });
-test('side quests: every question in every language says Correct or That answer is not correct, with the reason and a retry invitation',()=>{
+test('side quests: locked attempts give direct feedback without inviting an answer switch',()=>{
  const ids=missions.map(m=>m.id);let n=0;
  for(const id of ids){for(const l of ['en','kn','hi','ta','bn','ur']){let mini;try{mini=miniChallenge(id,l)}catch{continue}
-  for(let i=0;i<mini.options.length;i++){const f=QF.quizFeedback(l,i===mini.answer,'',mini.why);n++;
+  for(let i=0;i<mini.options.length;i++){const f=QF.quizFeedback(l,i===mini.answer,'',mini.why,false);n++;
    if(i===mini.answer){assert.ok(f.text.startsWith(QF.feedbackLines(l).right),id+l);assert.ok(f.text.includes(mini.why))}
-   else{assert.ok(f.text.startsWith(QF.feedbackLines(l).wrong),id+l);assert.ok(f.text.includes(mini.why));assert.ok(f.text.endsWith(QF.feedbackLines(l).again),id+l+' invites a retry')}
+   else{assert.ok(f.text.startsWith(QF.feedbackLines(l).wrong),id+l);assert.ok(f.text.includes(mini.why));assert.ok(!f.text.includes(QF.feedbackLines(l).again),id+l+' has no retry invitation')}
    assert.ok(!WRONG_VAGUE.test(f.text))}}}
  assert.ok(n>=40,'checked '+n+' answers');
- const t=fs.readFileSync(path.join(ROOT,'components/whatslearn/mini-challenge.tsx'),'utf8');assert.match(t,/quizFeedback\(language,choice===m\.answer/);assert.ok(!/t\.retry\+/.test(t));
+ const t=fs.readFileSync(path.join(ROOT,'components/whatslearn/mini-challenge.tsx'),'utf8');assert.match(t,/quizFeedback\(language,choice===m\.answer/);assert.match(t,/disabled=\{choice>=0\|\|earned\}/);assert.match(t,/if\(answerLocked.current\|\|earned\)return/);assert.match(t,/Answer locked for this attempt/);assert.match(t,/m.why,false/);
 });
 test('all 40 mission questions: every wrong option and the right option give direct feedback in all 23 interface languages',()=>{
  assert.equal(missions.length,40);
