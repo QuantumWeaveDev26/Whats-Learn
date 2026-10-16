@@ -449,3 +449,20 @@ test('n8n bridge can link accounts without putting the Meta send token on the we
  const token=env.WHATSAPP_TOKEN;env.WHATSAPP_TOKEN='';env.WHATSAPP_BUSINESS_NUMBER='919187951536';
  try{const r=await siteWa.GET();assert.equal((await r.json()).configured,true)}finally{env.WHATSAPP_TOKEN=token;delete env.WHATSAPP_BUSINESS_NUMBER}
 });
+
+test('website first name overrides the linking account name and stays current',async()=>{
+ const userId='first-name-sync',phone='919000000009';
+ const profile={goal:'job',track:'marketing',level:'beginner',language:'en',minutes:'15'};
+ web={userId,email:'team@example.test',displayName:'teambrandmint',fullName:'teambrandmint'};
+ const route=R('profile');
+ const save=name=>route.POST(new Request('https://whatslearn.example.test/api/profile',{method:'POST',headers:{'content-type':'application/json',origin:'https://whatslearn.example.test'},body:JSON.stringify({...profile,name})}));
+ assert.equal((await save('Pavana')).status,200);
+ const link=await chat.startLink(userId,phone,'en',undefined,'teambrandmint');
+ assert.match(textOf(await say(phone,'LINK '+link.code)),/Hi Pavana!/);
+ assert.equal((await route.GET()).status,200);
+ assert.equal((await (await route.GET()).json()).name,'Pavana');
+ assert.equal((await save('Pavan')).status,200);
+ assert.match(textOf(await say(phone,'PROFILE')),/Hi Pavan!/);
+ const other=await chat.startLink('separate-name', '919000000010','en',undefined,'Another learner');
+ assert.doesNotMatch(textOf(await say('919000000010','LINK '+other.code)),/Pavana|Pavan!/);
+});

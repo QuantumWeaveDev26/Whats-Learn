@@ -265,7 +265,9 @@ async function tutor(c:Contact,text:string):Promise<Out>{
 export async function learnerOverview(userId:string){
  const {profile}=await loadLearning(userId);const a=await aiAllowance(userId);
  const row=await database().prepare('SELECT display_name FROM whatsapp_contacts WHERE user_id=? AND verified_at IS NOT NULL').bind(userId).first<{display_name:string|null}>();
- const name=row?.display_name&&!row.display_name.includes('@')?row.display_name:'learner';
+ const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
+ const candidate=saved?.display_name||row?.display_name;
+ const name=candidate&&!candidate.includes('@')?candidate:'learner';
  return `Hi ${name}!\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nSame progress and mission points as the website.\nPROFILE: your choices · COURSE: change course · TODAY: continue · POINTS: balance · REMIND 7pm daily: opt-in reminders · STOP: pause`;
 }
 
