@@ -1,4 +1,5 @@
 import {agencyDecisions} from './agency-decisions';
+import {agencyScenarios,subjectTaskLead} from './agency-scenarios';
 import {languages} from './languages';
 export type AgencyCopy={story:string;question:string;options:[string,string];clue:string;feedback:string;taskLead:string;tasks:[string,string,string,string];save:string;saved:string;hint:string;correct:string;retry:string};
 const en:AgencyCopy={
@@ -21,7 +22,7 @@ ur:{story:'پیر کی صبح ۹ بجے۔ بنگلورو کی ایک کانٹی�
 ne:{story:'सोमबार बिहान ९ बजे। बेङ्गलुरुको एउटा कन्टेन्ट एजेन्सीलाई सन्देश आउँछ: “शुक्रबार हाम्रो लन्च छ। सही मानिसको ध्यान खिच्न मद्दत गर्नुहोस्।” टोलीसँग धेरै विचार छन्। पहिलो कदम तपाईं तय गर्नुहोस्।',question:'एजेन्सीले पहिले के स्पष्ट गर्नुपर्छ?',options:['कससम्म पुग्ने र उनीहरूले के गर्ने','कुन AI साधनले सबैभन्दा आकर्षक सामग्री बनाउँछ'],clue:'पहिले दर्शक र उद्देश्य तय गर्नुहोस्। त्यसपछि साधन छान्नुहोस्।',feedback:'स्पष्ट दर्शक र अर्को कदमले सिर्जनात्मक निर्णयलाई उद्देश्य दिन्छ। अब टोलीका लागि सानो सिर्जना गर्नुहोस्।',taskLead:'अब तपाईंको पालो। लन्च योजनामा सानो अंश थप्नुहोस्।',tasks:['निश्चित ग्राहकका लागि विज्ञापनको सुरुवाती वाक्य र अर्को कदम लेख्नुहोस्।','मस्यौदा पठाउने, प्रतिक्रिया लिने र अन्तिम रूप स्वीकृत गर्ने चरण बताउनुहोस्।','दुई वाक्यमा चलचित्रको दृश्य लेख्नुहोस्: व्यक्ति केही चाहन्छ, छनोट गर्छ र काम गर्छ।','तीन स्थिर फ्रेम वर्णन गर्नुहोस्: समस्या, परिवर्तन र एउटा निमन्त्रणा।'],save:'मेरो पहिलो सिर्जना सुरक्षित गर्नुहोस्',saved:'तपाईंको पहिलो सिर्जना सुरक्षित भयो।',hint:'एउटा सङ्केत दिनुहोस्',correct:'सही।',retry:'त्यो उत्तर सही छैन।'}
 };
 export const agencyStoryLanguages=Object.keys(copy);
-export function agencyStory(language:string,track:AgencyTrack='marketing'){const contentLanguage=copy[language]?language:'en';const base=copy[contentLanguage];const decision=track==='marketing'?undefined:agencyDecisions[contentLanguage][track];return {copy:decision?{...base,...decision}:base,contentLanguage,translated:!!copy[language]};}
+export function agencyStory(language:string,track:AgencyTrack='marketing'){const contentLanguage=copy[language]?language:'en';const base=copy[contentLanguage];const decision=track==='marketing'?undefined:{...agencyDecisions[contentLanguage][track],story:agencyScenarios[contentLanguage][track],taskLead:subjectTaskLead[contentLanguage]};return {copy:decision?{...base,...decision}:base,contentLanguage,translated:!!copy[language]};}
 export const agencyTracks=[{id:'marketing',label:'Market',outcome:'A campaign hook',mission:'m1'},{id:'development',label:'Build',outcome:'A client-approval flow',mission:'d1'},{id:'filmmaking',label:'Film',outcome:'A launch-film moment',mission:'f1'},{id:'storytelling',label:'Tell a visual story',outcome:'A three-frame story',mission:'v1'}] as const;
 export type AgencyTrack=typeof agencyTracks[number]['id'];
 export type AgencyDraft={body:string;choice:number;language:string;updatedAt:string};

@@ -5,7 +5,7 @@ const {agencyStory,agencyTracks,agencyStoryLanguages,agencyTrackText}=require('.
 test('each subject has a different first question, choices, clue and feedback in every supported starter language',()=>{
  for(const language of agencyStoryLanguages){
   const starters=agencyTracks.map(track=>agencyStory(language,track.id));
-  for(const key of ['question','clue','feedback'])assert.equal(new Set(starters.map(s=>s.copy[key])).size,4,`${language}: ${key} must follow the selected subject`);
+  for(const key of ['story','question','clue','feedback'])assert.equal(new Set(starters.map(s=>s.copy[key])).size,4,`${language}: ${key} must follow the selected subject`);
   assert.equal(new Set(starters.map(s=>s.copy.options.join('|'))).size,4,`${language}: answer choices must differ`);
   for(const s of starters){assert.equal(s.contentLanguage,language);assert.equal(s.translated,true);assert.equal(s.copy.options.length,2);assert.equal(s.copy.tasks.length,4)}
  }
