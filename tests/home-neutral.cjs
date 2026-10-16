@@ -27,3 +27,13 @@ test('guests choose a subject while accounts restore saved course',()=>{
  assert.match(source,/accountTrack.current!==selected.id/);
  assert.match(source,/setTrack\(selected.id\);setChosen\(true\)/);
 });
+
+test('old saved starter cannot preselect an answer or mark a new attempt saved',()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
+ const select=source.slice(source.indexOf('function selectTrack'),source.indexOf('function selectLanguage'));
+ assert.match(select,/const draft=draftsInVisit.current\[value\];/);
+ assert.doesNotMatch(select,/stored.choice|saved:true|body:stored.body/);
+ assert.match(select,/setPreviousStarter\(stored\?\.body/);
+ assert.match(source,/View saved starter/);
+ assert.match(source,/This attempt starts unanswered/);
+});
