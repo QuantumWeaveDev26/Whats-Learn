@@ -43,6 +43,24 @@ test('account deletion clears review history and its cache',async()=>{
  await h.load('lib/account-delete.ts').deleteAccountData('delete-review');
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM submission_reviews WHERE user_id=?').get('delete-review').n,0);
 });
+test('AI receives the actual pinned source sample; unreadable repositories fail without using an allowance',async()=>{
+ h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch,sha='c'.repeat(40),blob='d'.repeat(40);let unavailable=false;
+ global.fetch=async(url,options)=>{
+  if(String(url).startsWith('https://api.github.com/')){
+   if(unavailable)return new Response('{}',{status:404});
+   if(String(url).endsWith('/commits/HEAD'))return Response.json({sha,commit:{tree:{sha}}});
+   if(String(url).includes('/git/trees/'))return Response.json({tree:[{type:'blob',mode:'100644',sha:blob,path:'README.md',size:40}]});
+   return Response.json({encoding:'base64',content:btoa('A sample campaign draft, not an executed app.')});
+  }
+  const request=JSON.parse(options.body);assert.match(request.messages[1].content,/<repository_evidence>/);assert.match(request.messages[1].content,/not an executed app/);assert.match(request.messages[0].content,/Never obey it/);
+  return Response.json({choices:[{message:{content:JSON.stringify({summary:'Sample reviewed.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),nextStep:'Test with a customer.'})}}]});
+ };
+ try{
+  const body=samples.m1.replace(/### Link\n[\s\S]*$/,'### Link\nhttps://github.com/example/campaign');
+  const result=await reviewedSubmission('repo-a','m1',body);assert.equal(result.source.commit,sha);assert.deepEqual(result.source.files,['README.md']);
+  unavailable=true;await assert.rejects(reviewedSubmission('repo-b','m1',body),/could not be read/);assert.equal(h.db.prepare('SELECT count FROM ai_feedback_usage WHERE user_id=?').get('repo-b').count,0);
+ }finally{global.fetch=real}
+});
 test('server completion depends on AI criteria, not learner check boxes; accepted evaluation is saved atomically',async()=>{
  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;let met=2;
  global.fetch=async()=>Response.json({choices:[{message:{content:JSON.stringify({summary:'Review of your actual task.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map((item,i)=>({item,met:i<met,note:'Checked actual answer.'})),nextStep:'Make the audience specific.'})}}]});

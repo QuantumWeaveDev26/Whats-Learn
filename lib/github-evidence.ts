@@ -4,7 +4,7 @@ export function githubRepo(value:string){
  let u:URL;try{u=new URL(value)}catch{return null}
  if(u.protocol!=='https:'||u.hostname!=='github.com'||u.port||u.username||u.password||u.search||u.hash)return null;
  const m=u.pathname.match(/^\/([A-Za-z0-9-]{1,39})\/([A-Za-z0-9_.-]{1,100})(?:\/)?$/);
- return m&&m[2]!=='.'&&m[2]!=='..'?{owner:m[1],repo:m[2].replace(/\.git$/,'')}:null;
+ const repo=m?.[2].replace(/\.git$/,'');return m&&repo&&repo!=='.'&&repo!=='..'?{owner:m[1],repo}:null;
 }
 async function api(path:string,limit=800000):Promise<any>{
  const r=await fetch('https://api.github.com'+path,{headers:{Accept:'application/vnd.github+json','User-Agent':'WhatsLearn-source-review'},redirect:'error',signal:AbortSignal.timeout(12000)});
