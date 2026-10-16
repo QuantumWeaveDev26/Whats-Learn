@@ -313,3 +313,5 @@ html{scroll-behavior:smooth;scroll-padding-top:95px}body{background:#fff;color:#
 .public-nav{background:#f6f9f2;border-bottom:1px solid #cbdacb;box-shadow:0 3px 15px #103e3106}.starter-account-resume small{display:block;font-size:13px;color:#254c37;margin-top:5px}
 
 .starter-previous{margin:12px 0;padding:12px 15px;background:#fff;border:1px solid #cbdacb;border-radius:12px}.starter-previous small{display:block;color:#48614f;line-height:1.6;margin-top:10px}.starter-previous blockquote{margin:12px 0 0;padding-left:14px;border-left:3px solid #19744b;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.7}
+
+.agency-studio .visual-option[aria-pressed=false]{background:#f2f4f2;border-color:#d7e1d7;box-shadow:none}.agency-studio .visual-option[aria-pressed=true]{background:#e1f7a5;border-color:#14744c}

@@ -37,3 +37,8 @@ test('old saved starter cannot preselect an answer or mark a new attempt saved',
  assert.match(source,/View saved starter/);
  assert.match(source,/This attempt starts unanswered/);
 });
+
+test('unanswered starter options share a neutral appearance',()=>{
+ const css=fs.readFileSync(path.resolve(__dirname,'../app/globals.css'),'utf8');
+ assert.match(css,/\.agency-studio \.visual-option\[aria-pressed=false\]\{background:#f2f4f2/);
+});
