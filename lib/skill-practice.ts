@@ -9,6 +9,6 @@ const drills:Record<string,{title:string;prompt:string;criterion:string}>={
  correctness:{title:'Fix the blocking issue',prompt:'Correct only the issue below. Share the changed part and one actual result showing the fix works.',criterion:'The specific blocking issue is fixed in the supplied work, supported by a concrete observed result; not merely identified or planned.'}
 };
 export function skillTask(missionId:string,item:string,note:string,version:string,blocking=false,scenario=''):SkillTask{
- const skill=blocking?'correctness':skillKey(item),drill=drills[skill]||{title:'One focused fix',prompt:'Revise only this part of your current creation: '+item+'. Share the corrected piece and explain the change in one line.',criterion:item};
+ const skill=blocking?'correctness':skillKey(item),drill=drills[skill]||{title:'One focused fix',prompt:'Fix this reviewed issue: '+note+' Share the corrected piece and one actual result.',criterion:note};
  return {key:JSON.stringify([missionId,skill,version]),missionId,skill,...drill,reason:note,scenario};
 }

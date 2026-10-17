@@ -40,3 +40,5 @@ test('revision rewards require a demonstrated criterion improvement, not a cosme
  for(let i=0;i<3;i++)await saveCreation('revision-quality',{...base,body:base.body+' Narrowed audience after testing.',reflection:'I narrowed the audience and checked the revised line.',evaluation:JSON.stringify(review(true))});
  assert.equal(h.db.prepare("SELECT count(*) n FROM practice_events WHERE user_id=? AND kind='revision'").get('revision-quality').n,1);
 });
+
+test('legacy generic checklist labels use the actual reviewer correction in the drill',()=>{const {skillTask}=h.load('lib/skill-practice.ts');const task=skillTask('d1','Write one user story','A forced 503 must show only failure, never success.','legacy');assert.match(task.prompt,/503/);assert.match(task.criterion,/never success/);assert.doesNotMatch(task.prompt,/Revise only.*user story/);});
