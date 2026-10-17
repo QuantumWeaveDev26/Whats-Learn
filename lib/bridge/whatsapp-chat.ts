@@ -297,7 +297,7 @@ async function remind(c:Contact,arg:string):Promise<Out>{
 }
 
 // ---------- tutor (OpenAI in n8n, grounded in approved material) ----------
-const questionLike=(t:string)=>/\?\s*$/.test(t)||(t.length<200&&/^(what|why|how|when|where|who|which|can|could|should|is|are|do|does|explain|help|tell|i don't|i do not|i'm stuck|im stuck|meaning)\b/i.test(t));
+const questionLike=(t:string)=>/\?\s*(?:(?:short|brief|please|in\s|Kanglish|Kannada|English|Hindi)\b[^?]{0,100})?$/i.test(t)||(t.length<200&&/^(what|why|how|when|where|who|which|can|could|should|is|are|do|does|explain|help|tell|i don't|i do not|i'm stuck|im stuck|meaning)\b/i.test(t));
 const generic=/\b(mission|task|lesson|hint|clue|question|option|checklist|stuck|confus|understand|mean|idea|part)\b/i;
 export function relevance(text:string,mission:Mission,track:string):'ok'|'wrong-course'|'unclear'{
  const hits=courseHits(text),mine=hits[track]||0,others=Object.entries(hits).filter(([t])=>t!==track).sort((a,b)=>b[1]-a[1])[0];
