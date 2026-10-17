@@ -1,3 +1,4 @@
+import {programmeNames} from './programmes';
 import {skillTask,type SkillPracticeRecord} from './skill-practice';
 import {skillKey} from './review-summary';
 import type {LearningEvidence} from './learning-memory';
@@ -41,12 +42,17 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const level=mode==='guided'||needsSupport?'guided':mode==='stretch'?'stretch':weak?'guided':strongEvidence?'stretch':revisit?'guided':profile.level==='experienced'||strong>=2?'stretch':'guided';
   const minutes=profile.minutes==='flexible'?next.minutes:Number(profile.minutes)||15;
   const sessionMinutes=Math.min(minutes,next.minutes);
-  const fit='Your goal: '+(goals[profile.goal]||profile.goal)+'. Starting point: '+profile.level+'. '+(profile.minutes==='flexible'?'Flexible sessions.':profile.minutes+' minutes per session.');
+  const goalPhrase:Record<string,string>={job:'find your first role',switch:'switch careers',upskill:'get better at your work',team:'build your team’s skills',freelance:'start freelancing',business:'grow your business',build:'make a project',explore:'explore something new'};
+  const experience:Record<string,string>={beginner:'are starting fresh',practising:'have some practice',experienced:'have some experience'};
+  const fit='You want to '+(goalPhrase[profile.goal]||goals[profile.goal]||'build a skill')+' in '+(programmeNames[profile.track]||profile.track)+', '+(experience[profile.level]||experience.beginner)+', and '+(profile.minutes==='flexible'?'chose a flexible pace.':'chose '+profile.minutes+' minutes.');
   const reason=passed?'Your focused practice passed. Apply the fix to your full creation before moving on.':focus?(weak?'Practise '+weak.item+' because '+(repeated>1?'it needed attention in '+repeated+' evaluated attempts.':weak.note):'Your evaluated work met every criterion; try a new constraint instead of repeating the same example.'):revisit?'Your self-review shows a skill to revisit before moving on.':completed.size===0?'Start with one useful creation that matches your chosen programme.':pool.every(m=>completed.has(m.id))?'You have tried every starter challenge here. Improve one with a new example.':'Continue from your saved work with the next challenge in this programme.';
   const practiceLevel=skillReview?.review.profileLevel&&skillReview.review.profileLevel!==profile.level?profile.level:skillReview?.mission_id===next.id?skillReview.review.learningLevel||profile.level:strongEvidence?'experienced':repeated>1?'beginner':profile.level;
   const localized=localizeMission(next,profile.language,practiceLevel);
   const {answer: _answer,explanation: _explanation,...challenge}=localized;
-  return {version:'1.1.0',remediation,practicePassed:passed||null,profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
+  const firstChallengeWhy='Start here: '+localized.title+'. '+(practiceLevel==='experienced'?'You will test a real constraint and explain the trade-off, rather than repeat the basics.':practiceLevel==='practising'?'You will apply what you know, compare a result and improve one decision.':'It starts with one guided decision, then a small practical trial.');
+  const firstField=localized.practical?.fields[0];
+  const firstAction=firstField?'First action: '+firstField.label+'. '+firstField.hint:'First action: '+localized.task.split(/[.!]\s/)[0]+'.';
+  return {version:'1.1.0',firstChallengeWhy,firstAction,remediation,practicePassed:passed||null,profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
     sessionHint:minutes<next.minutes?'Use this session for the first part of this task. Keep your draft and return to finish the full practical trial.':'Create, check and improve one practical response.',
     challenge:{...challenge,outcome:outcomePrompt(profile.goal,profile.language),guidance:challengeInstruction(level,profile.language,!!next.practical)},
     steps:pool.map(m=>({id:m.id,title:localizeMission(m,profile.language).title,completed:completed.has(m.id)})),
