@@ -1,5 +1,5 @@
 'use client';
-import {questionForStyle} from '@/lib/style-questions';
+import StyleInteraction from './style-interaction';
 import {useRef,useState} from 'react';
 import {ArrowRight,Check,ChevronLeft,Gamepad2,MessageCircle,BookOpen,Zap,Flag} from 'lucide-react';
 import type {Mission} from '@/lib/missions';
@@ -12,14 +12,7 @@ export default function StyledLesson({mission,style,language,choice=-1,onAnswer,
  const heading=useRef<HTMLHeadingElement>(null),facts=lessonFacts(mission.lesson),correct=choice===mission.answer;
  const Icon={game:Gamepad2,casual:MessageCircle,story:BookOpen,facts:Zap}[kind];
  function advance(value:number){setPhase(value);requestAnimationFrame(()=>heading.current?.focus({preventScroll:true}))}
- const decision=<div className="style-decision">
-  <span className="style-eyebrow">{kind==='game'?'CHECKPOINT · MAKE THE CALL':kind==='story'?'YOUR NEXT MOVE':kind==='casual'?'QUICK QUESTION FOR YOU':'CHECK YOUR UNDERSTANDING'}</span>
-  <h4>{questionForStyle(mission,style)}</h4>
-  <div className="style-decision-options" role="group" aria-label={t.question}>{mission.options.map((option,i)=><button type="button" key={i} aria-pressed={choice===i} onClick={()=>onAnswer?.(i)}><span className="style-option-letter">{String.fromCharCode(65+i)}</span><span>{option}</span>{choice===i&&<span aria-hidden="true">{correct?<Check size={19}/>: '↻'}</span>}</button>)}</div>
-  {choice>=0&&<div className={'style-decision-result '+(correct?'is-correct':'try-again')} role="status"><strong>{correct?(kind==='game'?'Checkpoint cleared.':kind==='story'?'Here’s how that plays out.':'You’ve got it.'):'Try another move.'}</strong><p>{correct?mission.explanation:'No points lost. Revisit the idea, then choose again.'}</p>{correct&&<small>Understanding checked. Mission points are awarded when your completed work is saved.</small>}</div>}
-  {!correct&&<details><summary>{t.idea}</summary><p>{mission.lesson}</p></details>}
-  {correct&&<div className="style-next-move"><span>{kind==='game'?'NEXT LEVEL · CREATE':t.part}</span><p>{mission.task}</p><button type="button" className="primary" onClick={onContinue}>{kind==='game'?'Build my solution':kind==='story'?'Write my ending':kind==='casual'?'Let’s make it':'Apply this'} <ArrowRight size={17}/></button></div>}
- </div>;
+ const decision=<StyleInteraction mission={mission} style={kind} language={language} choice={choice} onAnswer={onAnswer} onContinue={onContinue}/>;
  return <section className={'styled-lesson style-'+kind+' interactive-lesson'} aria-label={learningStyles[kind]} lang={language}>
   <div className="style-mode-heading"><span className="style-badge"><Icon size={15}/>{learningStyles[kind]}</span>{kind==='game'&&<span className="style-quest-status">{correct?'Decision cleared':'Quest in progress'}</span>}</div>
   <h3 ref={heading} tabIndex={-1}>{kind==='game'?'Your next small win':kind==='casual'?'Let’s talk it through':kind==='story'?'You’re in the scene':'The essentials. Then try it.'}</h3>

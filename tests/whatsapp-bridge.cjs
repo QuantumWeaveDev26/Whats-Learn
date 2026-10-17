@@ -474,7 +474,7 @@ test('mentor gives one short challenge step and keeps lesson details on demand',
  const phone='919000000011';await newLearner('compact-chat',phone,{track:'development'});
  let out=await say(phone,'TODAY');const text=textOf(out);
  assert.ok(text.length<700,text.length);assert.doesNotMatch(text,/Plan:|Goal:|Your task:|The idea:|PROFILE:|Anita/);
- assert.match(text,/Your pick/);assert.match(text,/C\) After the server confirms/);
+ assert.match(text,/Your take/);assert.doesNotMatch(text,/C\) After the server confirms/);
  out=await say(phone,'LEARN');assert.match(textOf(out),/The idea/);assert.match(textOf(out),/Your turn|Your task/);
  out=await say(phone,'TODAY');assert.match(textOf(out),/Question 1/);
 });

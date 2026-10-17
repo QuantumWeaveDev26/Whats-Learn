@@ -1,4 +1,5 @@
-import {questionForStyle} from '../style-questions';
+import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,type StyleState} from '../style-interactions';
+import {checkStyleExplanation} from '../style-coach';
 import {checkSkillPractice} from '../skill-practice-service';
 import {briefFocus} from '../chat-copy';
 import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
@@ -11,7 +12,7 @@ import {missionPractice} from '../mission-practice';
 import {canUseMission} from '../mission-access-server';
 import {membershipRequired} from '../mission-access';
 import {courseRoadmap} from '../course-roadmap';
-import {learningStyle,learningStyles,learningStyleCodes,chatStyleIntro,chatStyleLesson,styleLabels,type LearningStyle} from '../learning-styles';
+import {learningStyle,learningStyles,learningStyleCodes,chatStyleIntro,chatStyleLesson,type LearningStyle} from '../learning-styles';
 import {aiAllowance,reserveAiUse} from '../ai-usage';
 import {goals,languages} from '../personalization';
 import {database} from '../storage';
@@ -80,7 +81,7 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_saved_drafts WHERE user_id=?').bind(userId)])}
 
 // Drafts survive a break. Clear only on save, cancellation, unlink or account deletion.
-type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string;revisiting?:boolean};pending_clue:string|null};
+type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string;revisiting?:boolean;styleState?:StyleState};pending_clue:string|null};
 async function getDraft(userId:string):Promise<Draft|null>{
  const r=await database().prepare('SELECT mission_id,quiz,body,pending_clue,updated_at FROM whatsapp_drafts WHERE user_id=?').bind(userId).first<{mission_id:string;quiz:number|null;body:string|null;pending_clue:string|null;updated_at:string}>();
  if(!r)return null;
@@ -117,15 +118,13 @@ function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){c
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
 function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual',followUp=''):string{
  const lm=localizeMission(m,language);
- if(step==='quiz'){
-  const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
-  return `${prefix}*${t.question}*\n${questionForStyle(lm,style)}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
- }
+ if(step==='quiz')return interactionPrompt(lm,currentStyleState(style,d.data.styleState));
  if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
  if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SAVE; code is never run.';
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'';
- return `*${n}/${m.practical!.fields.length} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
+ const kind=learningStyle(style),heading=kind==='game'?`🎮 BUILD CHECKPOINT ${n}/${m.practical!.fields.length}`:kind==='story'?`📖 SCENE ${n+2}`:kind==='facts'?`⚡ APPLY ${n}/${m.practical!.fields.length}`:`💬 ${n}/${m.practical!.fields.length}`;
+ return `*${heading} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
 }
 function readyText(m:Mission,d:Draft){
  return `Draft ready ✨\nReply *SAVE* → final AI check + save\n*EDIT* → tweak`;
@@ -138,9 +137,18 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
  const letter=(n:number)=>{const x=t.toUpperCase().replace(/[).\s]/g,'');const i=/^[A-F]$/.test(x)?letters.indexOf(x):/^[1-6]$/.test(x)?Number(x)-1:-1;return i>=0&&i<n?i:-1};
  let reaction='',followUp='';
  if(step==='quiz'){
-  const i=letter(lm.options.length);if(i<0)return again('Pick one of the letters 👀');
-  if(i!==m.answer)return again('That answer is not correct 👀 '+m.lesson.split(/(?<=[.!?])\s/)[0].slice(0,140)+'\nTry again—you’re still on this question.');
-  d.quiz=i;reaction='Correct ✅';
+  const state=currentStyleState(c.style,d.data.styleState);
+  // Old letter replies remain valid in Casual; the normal route is an own-words check.
+  const legacyPick=state.style==='casual'?letter(lm.options.length):-1;
+  if(legacyPick>=0){if(legacyPick!==m.answer)return again('That answer is not correct. '+m.explanation);d.quiz=legacyPick;reaction='That decision fits. Now make it concrete.';}
+  else {
+   let turn=styleTurn(lm,state,t,c.language);
+   if(turn.needsCheck){try{turn=checkedStyleTurn(state,await checkStyleExplanation(userId,m,t,c.language,c.style));}catch(e){return again(e instanceof FeedbackError?e.message:'The coach could not check this. Your draft is kept. Retry.');}}
+   d.data.styleState=turn.state;
+   if(!turn.completed){await putDraft(userId,d);return reply(turn.reply+'\n\n'+interactionPrompt(lm,turn.state));}
+   d.quiz=m.answer;reaction=turn.reply;
+  }
+  delete d.data.styleState;
  }else if(step==='link'){
   if(/^skip$/i.test(t))d.data.link='';else if(validLink(t))d.data.link=t;else return again('Drop a valid https link, or SKIP.');reaction='Got it.';
  }else{
@@ -155,7 +163,7 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
   if(field)proposed.data.fields[field.id]=value;else proposed.data.reasoning=value;
   const nextStep=currentStep(m,proposed),nextField=nextStep.startsWith('f:')?m.practical!.fields.find(f=>'f:'+f.id===nextStep):null;
   try{
-   const review=await reviewChatPart(m.id,field||{label:'Work, actual test result and improvement',type:'reasoning'},value,{...d.data.fields,...(d.data.reasoning?{reasoning:d.data.reasoning}:{})},nextField|| (nextStep==='reasoning'?{label:'Work, actual test result and improvement'}:null),c.language,c.level);
+   const review=await reviewChatPart(m.id,field||{label:'Work, actual test result and improvement',type:'reasoning'},value,{...d.data.fields,...(d.data.reasoning?{reasoning:d.data.reasoning}:{})},nextField|| (nextStep==='reasoning'?{label:'Work, actual test result and improvement'}:null),c.language,c.level,c.style);
    if(!review.accepted)return reply(`${review.feedback}\n${review.followUp}`);
    reaction=review.feedback;followUp=review.followUp;
   }catch(e){return again(e instanceof FeedbackError?e.message:'Coach couldn’t check that reply. Try again—your draft is safe.')}
@@ -196,7 +204,7 @@ async function today(c:Contact):Promise<Out>{
  const scores=await loadScores(userId);
  if(scores.todayUsed)return reply(`${syncNote}${dailyLimitMessage}\n${path.progress.creations}/10 creations saved.\nNext: ${path.challenge.title}`);
  void work;await setCurrent(userId,next.id);
- await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel},pending_clue:null});
+ await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel,styleState:initialStyleState(c.style)},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
  return reply(`${syncNote}${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nOne reply. One useful check. Let’s build.\nLEARN for the idea · HELP for commands`);
@@ -373,7 +381,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(c.state!=='opted_in')return none('opted-out');
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
- const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
+ const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
   case 'practice':{const {path}=await loadLearning(c.user_id);if(!path.remediation)return reply('No focused practice is waiting. Send TODAY to continue.');if(!arg)return reply(path.remediation.prompt+'\nReply PRACTICE followed by your answer.');try{const checked=await checkSkillPractice(c.user_id,path.remediation.key,arg);return reply(checked.feedback+'\n'+(checked.accepted?'Skill check passed. Apply it to your creation. *TODAY* → continue.':checked.followUp));}catch(e){return reply(e instanceof FeedbackError?e.message:'Practice check unavailable. Your draft is safe; retry.')}}
@@ -401,7 +409,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
    const d=await getDraft(c.user_id);if(!d)return reply('Reply TODAY to start a mission first.');
    const m=getMission(d.mission_id,c.level),steps=stepsFor(m),n=Number(arg);
    if(!Number.isInteger(n)||n<1||n>steps.length)return reply(steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your decision':s==='reasoning'?'Your reasoning':s==='checks'?'Self-review':s==='link'?'Link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nSend *EDIT 2*, for example.');
-   d.data.edit=steps[n-1];await putDraft(c.user_id,d);return reply(promptFor(m,steps[n-1],d,c.language,c.style));
+   d.data.edit=steps[n-1];if(steps[n-1]==='quiz'){d.quiz=null;d.data.styleState=initialStyleState(c.style);}await putDraft(c.user_id,d);return reply(promptFor(m,steps[n-1],d,c.language,c.style));
   }
   case 'check':return check(c,arg);
   case 'points':case 'score':case 'balance':return points(c);

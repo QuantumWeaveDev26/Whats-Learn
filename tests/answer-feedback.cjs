@@ -68,7 +68,7 @@ test('all 40 mission questions: every wrong option and the right option give dir
     assert.ok(!WRONG_VAGUE.test(f.text))}}}
  for(const c of ENGLISH_ONLY)assert.equal(QF.feedbackLines(c).wrong,'That answer is not correct.',c+' shows English until reviewed');
  const drafted=codes.filter(c=>!ENGLISH_ONLY.includes(c));assert.equal(drafted.length,codes.length-4);for(const c of drafted.filter(c=>c!=='en'))assert.notEqual(QF.feedbackLines(c).wrong,'That answer is not correct.',c+' has its own line');
- const page=fs.readFileSync(path.join(ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/quizFeedback\(profile\.language,quiz===active\.answer,active\.skill,active\.explanation\)/);
+ const page=fs.readFileSync(path.join(ROOT,'app/learn/workspace.tsx'),'utf8');assert.match(page,/<StyleInteraction[^>]*language=\{profile.language\}/);
 });
 test('a wrong answer changes nothing: not saved, no points, no clue, next mission still locked; the retry then works',async()=>{
  user={userId:'z1',email:'z1@example.test',displayName:'Z'};delete env.STARTING_POINTS;

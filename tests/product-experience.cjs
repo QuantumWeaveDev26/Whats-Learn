@@ -61,7 +61,7 @@ test('WhatsApp matches the actual experienced question and current language',asy
  let state=await h.load('lib/learning-service.ts').loadLearning(user);
  let out=await handleBridgeMessage({wamid:'level-language-1',from:phone,text:'TODAY',type:'text'});
  assert.ok(out.text.includes(state.path.challenge.question));
- assert.ok(out.text.includes(state.path.challenge.options[0]));
+ assert.match(out.text,/Your take/);
  await saveProfile(user,{...state.profile,language:'kn'});
  out=await handleBridgeMessage({wamid:'level-language-2',from:phone,text:'PROFILE',type:'text'});
  assert.match(out.text,/Kannada/);

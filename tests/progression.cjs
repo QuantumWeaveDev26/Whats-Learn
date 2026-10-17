@@ -82,7 +82,7 @@ test('retry: a wrong understanding answer shows the explanation, can be retried,
  const LS=require('../lib/learning-service.ts');resetAll();const r=await LS.submitWork(user.userId,full('d1',{quiz:(byId('d1').answer+1)%byId('d1').options.length}));assert.equal(r.saved,false);assert.match(r.feedback,/never costs points/);
  const G=require('../lib/guest-points.ts');const gr=G.guestAward(full('m1',{quiz:wrong}));assert.equal(gr.saved,false);assert.match(gr.message,/never costs points/);
  // The page tells the learner before they answer.
- const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(page,/quizFeedback\(/);assert.match(SUB.retryNote,/never costs points/);
+ const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(page,/<StyleInteraction/);assert.match(SUB.retryNote,/never costs points/);
 });
 test('points and clues: stated before starting, exact deductions, no hidden cost, never below zero, tracked per mission and course',async()=>{
  resetAll();const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');

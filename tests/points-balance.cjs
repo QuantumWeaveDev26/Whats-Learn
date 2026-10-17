@@ -95,7 +95,7 @@ test('the wrong-answer and right-answer text is direct in every supported langua
  assert.equal(QF.feedbackLines('xx').wrong,'That answer is not correct.','unknown languages use English');
  for(const c of ['brx','mni','ks','sat'])assert.equal(QF.feedbackLines(c).wrong,'That answer is not correct.',c+' shows English until a native speaker supplies the line');
  assert.match(SUB.wrongAnswerMessage(m),/^That answer is not correct\. Concept to reconsider: /);
- const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(page,/quizFeedback\(profile\.language,quiz===active\.answer/);
+ const page=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');assert.match(page,/<StyleInteraction[^>]*language=\{profile.language\}/);
 });
 test('wrong answer over the website API: not saved, retry works, nothing unlocks or is charged',async()=>{
  fresh('h1');prime('m1');const m=byId('m1');const wrongQ=(m.answer+1)%m.options.length;

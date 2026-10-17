@@ -35,8 +35,8 @@ test('setup and settings save the account style and new missions open the chosen
 test('all modes hand the real decision back to the mission assessment',()=>{
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/styled-lesson.tsx'),'utf8');
  assert.match(source,/correct=choice===mission.answer/);
- assert.match(source,/onAnswer\?\.\(i\)/);
- assert.match(source,/correct&&<div className="style-next-move"/);
+ const interaction=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/style-interaction.tsx'),'utf8');assert.match(interaction,/onAnswer\?\.\(mission.answer\)/);
+ assert.match(interaction,/done&&<div className="style-next-move"/);
  assert.match(source,/onClick=\{onContinue\}/);
  assert.doesNotMatch(source,/style-quest-steps|setInterval|Math.random|fetch\(/);
  const workspace=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
@@ -49,8 +49,8 @@ test('mode interactions include real navigation and no pretend earned points',()
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/styled-lesson.tsx'),'utf8');
  for(const label of ['Start quest','Okay, walk me through it','Let me try','Step into the story','Make the next move','Previous fact','Next fact','Check my understanding'])assert.ok(source.includes(label),label);
  assert.match(source,/onClick=\{\(\)=>setFact\(i\)\}/);
- assert.match(source,/Mission points are awarded when your completed work is saved/);
- assert.match(source,/No points lost/);
+ const interaction=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/style-interaction.tsx'),'utf8');assert.match(interaction,/Mission points are awarded when your completed work is saved/);
+ assert.match(interaction,/uses a chat practice check/);
 });
 test('game briefing and next task keep readable light text on the dark surface',()=>{
  const css=fs.readFileSync(path.resolve(__dirname,'../app/globals.css'),'utf8');

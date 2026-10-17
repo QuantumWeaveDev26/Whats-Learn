@@ -27,7 +27,7 @@ test('onboarding previews use the selected style and match the lesson question',
  const outputs=modes.map(style=>renderToStaticMarkup(React.createElement(Preview,{track:'development',level:'beginner',language:'en',style})));
  assert.equal(new Set(outputs).size,4);assert.match(outputs[1],/saving is still running/);
  const source=fs.readFileSync('app/find-my-path/page.tsx','utf8');assert.equal((source.match(/<LevelQuestionPreview[^>]*style=\{profile.style\}/g)||[]).length,2);
- for(const f of ['app/learn/workspace.tsx','components/whatslearn/styled-lesson.tsx','lib/bridge/whatsapp-chat.ts'])assert.match(fs.readFileSync(f,'utf8'),/questionForStyle\(/,f);
+ for(const f of ['app/learn/workspace.tsx','components/whatslearn/styled-lesson.tsx'])assert.match(fs.readFileSync(f,'utf8'),/<StyleInteraction/,f);assert.match(fs.readFileSync('lib/bridge/whatsapp-chat.ts','utf8'),/interactionPrompt\(/);
 });
 test('WhatsApp uses the selected question while keeping canonical letter validation',async()=>{
  h.reset();const {saveProfile}=h.load('lib/learning-service.ts'),{handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
@@ -37,7 +37,7 @@ test('WhatsApp uses the selected question while keeping canonical letter validat
   await saveProfile(id,{track:'development',level:'beginner',language:'en',goal:'job',minutes:'15',style:modes[i]});
   h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','en',?,?,?)").run(id,phone,stamp,stamp,stamp);
   const out=await handleBridgeMessage({wamid:'different-style-'+i,from:phone,type:'text',text:'TODAY'});assert.equal(out.action,'reply');outputs.push(out.text);
-  const m=missionForLevel(missions.find(m=>m.id==='d1'),'beginner');assert.ok(out.text.includes(questionForStyle(m,modes[i])));
+  const m=missionForLevel(missions.find(m=>m.id==='d1'),'beginner');const interactions=h.load('lib/style-interactions.ts');assert.ok(out.text.includes(interactions.interactionPrompt(m,interactions.initialStyleState(modes[i]))));
  }
  assert.equal(new Set(outputs).size,4);
  assert.equal(h.db.prepare('SELECT count(*) n FROM mission_scores').get().n,0);
