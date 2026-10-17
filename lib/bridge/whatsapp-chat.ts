@@ -88,7 +88,7 @@ const getMission=(id:string,level?:string)=>level?missionForLevel(missions.find(
 /** The parts of an answer, in order. */
 export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[]),'checks']}
 const filled=(d:Draft,s:string)=>s==='quiz'?d.quiz!==null:s==='reasoning'?!!d.data.reasoning:s==='link'?d.data.link!==undefined:s==='checks'?!!d.data.checks:!!d.data.fields[s.slice(2)];
-const currentStep=(m:Mission,d:Draft)=>d.data.edit||stepsFor(m).find(s=>!filled(d,s))||'ready';
+const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':d.data.edit||stepsFor(m).find(s=>!filled(d,s))||'ready';
 function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){const value=d.data.fields[f.id];if(value&&f.type!=='choice'){const issue=chatPartIssue(m,value,f);if(issue)return {step:'f:'+f.id,message:issue}}}if(d.data.reasoning){const issue=chatPartIssue(m,d.data.reasoning);if(issue)return {step:'reasoning',message:issue}}return null;}
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
 function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual'):string{
