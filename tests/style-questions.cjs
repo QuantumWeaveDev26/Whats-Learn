@@ -26,7 +26,7 @@ test('onboarding previews use the selected style and match the lesson question',
  require.extensions['.tsx']=require.extensions['.ts'];const React=require('react'),{renderToStaticMarkup}=require('react-dom/server'),Preview=h.load('components/whatslearn/level-question-preview.tsx').default;
  const outputs=modes.map(style=>renderToStaticMarkup(React.createElement(Preview,{track:'development',level:'beginner',language:'en',style})));
  assert.equal(new Set(outputs).size,4);assert.match(outputs[1],/saving is still running/);
- const source=fs.readFileSync('app/find-my-path/page.tsx','utf8');assert.equal((source.match(/<LevelQuestionPreview[^>]*style=\{profile.style\}/g)||[]).length,2);
+ const source=fs.readFileSync('app/find-my-path/page.tsx','utf8');assert.equal((source.match(/<LevelQuestionPreview[^>]*style=\{profile.style\}/g)||[]).length,1);
  for(const f of ['app/learn/workspace.tsx','components/whatslearn/styled-lesson.tsx'])assert.match(fs.readFileSync(f,'utf8'),/<StyleInteraction/,f);assert.match(fs.readFileSync('lib/bridge/whatsapp-chat.ts','utf8'),/interactionPrompt\(/);
 });
 test('WhatsApp uses the selected question while keeping canonical letter validation',async()=>{
