@@ -414,3 +414,15 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
  .workspace>footer>span:nth-child(2){display:block}
  .brand-footer-bottom{justify-content:flex-end;padding-bottom:60px}
 }
+
+/* Consistent action spacing and compact footers on every page. */
+.companion-actions{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+.companion-actions>.primary{width:100%;justify-content:center}
+.companion-secondary-actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
+.companion-secondary-actions>a{margin:0;max-width:100%;white-space:normal}
+.account-footer{min-height:0;padding:24px 5%;margin-top:auto}
+.path-wizard>.path-footer{padding:24px 5%;min-height:0}
+.workspace>footer{padding:24px 0;min-height:0}
+.brand-footer-bottom{padding-bottom:0}
+@media(min-width:701px){body:has(.whatsapp-mentor-widget) .account-footer,body:has(.whatsapp-mentor-widget) .path-footer{padding-right:300px}body:has(.whatsapp-mentor-widget) .workspace>footer,body:has(.whatsapp-mentor-widget) .brand-footer-bottom{padding-right:270px}}
+@media(max-width:700px){.companion-secondary-actions{align-items:flex-start;gap:16px}.companion-secondary-actions>.outline{display:inline-flex}.account-footer,.path-wizard>.path-footer{padding:20px 76px 20px 20px}.workspace>footer{padding:20px 60px 20px 0}.brand-footer-bottom{padding-right:60px;padding-bottom:0}}
