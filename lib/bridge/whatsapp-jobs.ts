@@ -61,9 +61,10 @@ export async function queueNotice(userId:string,kind:'mission'|'badge'|'recap',r
  const r=await db.prepare('INSERT OR IGNORE INTO whatsapp_outbox(user_id,kind,ref,payload,created_at) VALUES (?,?,?,?,?)').bind(userId,kind,ref,JSON.stringify(payload),new Date().toISOString()).run();
  return !!r.meta.changes;
 }
-export async function claimNotices(limit=20,at=new Date()){
+export async function claimNotices(limit=20,at=new Date(),noticeId?:number){
  const db=database();
- const rows=(await db.prepare("SELECT o.id,o.user_id,o.kind,o.payload,c.phone,c.last_inbound_at,c.state FROM whatsapp_outbox o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE o.state='queued' AND o.created_at>? ORDER BY o.id LIMIT ?").bind(new Date(at.getTime()-3*864e5).toISOString(),limit).all<{id:number;user_id:string;kind:string;payload:string;phone:string;last_inbound_at:string|null;state:string}>()).results;
+ // A signed diagnostic can target one known notice without touching other learners.
+ const rows=(await db.prepare("SELECT o.id,o.user_id,o.kind,o.payload,c.phone,c.last_inbound_at,c.state FROM whatsapp_outbox o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE o.state='queued' AND o.created_at>? AND (? IS NULL OR o.id=?) ORDER BY o.id LIMIT ?").bind(new Date(at.getTime()-3*864e5).toISOString(),noticeId??null,noticeId??null,limit).all<{id:number;user_id:string;kind:string;payload:string;phone:string;last_inbound_at:string|null;state:string}>()).results;
  const items:{id:number;to:string;text:string}[]=[];
  for(const o of rows){
   const take=await db.prepare("UPDATE whatsapp_outbox SET state='claimed',claimed_at=? WHERE id=? AND state='queued'").bind(Math.floor(at.getTime()/1000),o.id).run();
