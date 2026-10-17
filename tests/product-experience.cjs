@@ -26,7 +26,7 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const cached=await reviewedSubmission('flow-learner','m1',body,'kn',true);assert.deepEqual(cached,weak);assert.equal(calls,1);
  let state=await loadLearning('flow-learner');assert.equal(state.work.length,0);assert.equal(state.path.focus.skill,weak.checks[0].item);
  const phone='919876543210',stamp=new Date().toISOString();h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','kn',?,?,?)").run('flow-learner',phone,stamp,stamp,stamp);
- const out=await handleBridgeMessage({wamid:'product-flow-1',from:phone,type:'text',text:'TODAY'});assert.equal(out.action,'reply');assert.match(out.text,/MG Road/);assert.match(out.text,/Focus:/);
+ const out=await handleBridgeMessage({wamid:'product-flow-1',from:phone,type:'text',text:'TODAY'});assert.equal(out.action,'reply');assert.match(out.text,/MG Road/);assert.match(out.text,/Next skill:/);
  strong=true;const revised=body.replace('### Your reasoning\n','### Your reasoning\nAudience revised after the reader test: ');
  const improved=await reviewedSubmission('flow-learner','m1',revised,'kn',true);assert.equal(reviewAccepted(improved),true);assert.match(userPrompt,/<prior_review_data>/);assert.match(userPrompt,/MG Road/);
  const saved=await saveMissionWork('flow-learner',{missionId:'m1',body:revised,quiz:m.answer,checks:m.checks.map(()=>true)});assert.equal(saved.saved,true);
@@ -62,13 +62,13 @@ test('WhatsApp submission shows specific formative feedback without completing w
  let strong=false,calls=0;
  global.fetch=async()=>{calls++;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
  let out=await handleBridgeMessage({wamid:'wa-formative-1',from:phone,text:'SUBMIT',type:'text'});
- assert.match(out.text,/What worked:/);assert.match(out.text,/hot lunch/);assert.match(out.text,/Improve:/);assert.match(out.text,/Next action:/);
+ assert.match(out.text,/Works:/);assert.match(out.text,/hot lunch/);assert.match(out.text,/Improve:/);assert.match(out.text,/Next action:/);
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,0);
  const original=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(user).body;
  const draft=JSON.parse(original);draft.reasoning+=' Audience revised to MG Road office workers after the test.';
  h.db.prepare('UPDATE whatsapp_drafts SET body=? WHERE user_id=?').run(JSON.stringify(draft),user);strong=true;
  out=await handleBridgeMessage({wamid:'wa-formative-2',from:phone,text:'SUBMIT',type:'text'});
- assert.match(out.text,/What worked:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
+ assert.match(out.text,/Works:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,1);
  assert.equal(calls,3,'save reuses the evaluated answer instead of charging twice');
 });

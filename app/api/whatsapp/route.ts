@@ -1,8 +1,9 @@
+import {queueNotice} from '@/lib/bridge/whatsapp-jobs';
 import {z} from 'zod';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
-import {sameOrigin} from '@/lib/storage';
+import {sameOrigin,database} from '@/lib/storage';
 import {languageCodes} from '@/lib/languages';
-import {getContact,maskPhone,normalisePhone,sendText,whatsappConfig,whatsappLinkReady,WhatsAppError,type Contact} from '@/lib/whatsapp';
+import {getContact,maskPhone,normalisePhone,sendText,whatsappConfig,whatsappReady,whatsappLinkReady,WhatsAppError,type Contact} from '@/lib/whatsapp';
 import {loadLearning} from '@/lib/learning-service';
 import {feedbackSummary} from '@/lib/review-summary';
 import {allow} from '@/lib/auth/limits';
@@ -14,7 +15,7 @@ const input=z.discriminatedUnion('action',[
 ]);
 const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const view=(c:Contact|null,link?:{code:string|null;expiresAt:string|null})=>c?{phone:maskPhone(c.phone),state:c.state,since:c.consent_at,verified:!!c.verified_at,...(link&&link.code?{linkCode:link.code,linkExpires:link.expiresAt}:{})}:null;
-export async function GET(){if(!whatsappLinkReady())return response({configured:false});const business=whatsappConfig().businessNumber;const user=await getChatGPTUser();if(!user)return response({configured:true,signInRequired:true,business});try{return response({configured:true,business,performanceRemindersReady:!!whatsappConfig().performanceTemplate,contact:view(await getContact(user.userId))})}catch{return response({configured:true,business,error:'Could not load your WhatsApp settings.'},503)}}
+export async function GET(){if(!whatsappLinkReady())return response({configured:false});const business=whatsappConfig().businessNumber;const user=await getChatGPTUser();if(!user)return response({configured:true,signInRequired:true,business});try{const recap=await database().prepare("SELECT state FROM whatsapp_outbox WHERE user_id=? AND kind='recap' ORDER BY id DESC LIMIT 1").bind(user.userId).first<{state:string}>();return response({configured:true,business,recapStatus:recap?.state,performanceRemindersReady:!!whatsappConfig().performanceTemplate,contact:view(await getContact(user.userId))})}catch{return response({configured:true,business,error:'Could not load your WhatsApp settings.'},503)}}
 export async function POST(request:Request){
  if(!sameOrigin(request))return response({error:'Invalid origin.'},403);
  if(!whatsappLinkReady())return response({error:'WhatsApp lessons are not connected yet.'},503);
@@ -27,6 +28,7 @@ export async function POST(request:Request){
  if(!await allow('whatsapp-recap',user.userId,1,60))return response({error:'A recap was requested recently. Wait a minute before retrying.'},429);
  const {path}=await loadLearning(user.userId);const feedback=path.lastFeedback?feedbackSummary(path.lastFeedback):null;
  const text=`*Your WhatsLearn continuation*\n${path.progress.creations}/10 course creations saved.\nNext task: ${path.challenge.title}\n${path.fit}\n${path.reason}\n${path.focus?'Focus: '+path.focus.instruction+'\n':''}${feedback?'Latest feedback: '+feedback.next+'\n':''}Continue: ${whatsappConfig().siteUrl}/learn?mission=${path.nextMissionId}\nSend TODAY here to continue with this course and progress. STOP pauses messages.`;
+ if(!whatsappReady()){const queued=await queueNotice(user.userId,'recap','manual-'+Math.floor(Date.now()/60000),{recap:text});if(!queued)return response({error:'This recap is already queued, or your WhatsApp link changed. Refresh and check your connection.'},409);return response({queued:true,recapStatus:'queued',message:'Your learning recap is queued for the WhatsLearn mentor connection. Delivery has not yet been confirmed.',contact:view(contact)});}
  await sendText(contact.phone,text);
  return response({accepted:true,message:'WhatsApp accepted your learning recap. Check your linked phone; delivery has not yet been confirmed.',contact:view(contact)});
  }if(p.action==='optout'){await unlink(user.userId);return response({performanceRemindersReady:!!whatsappConfig().performanceTemplate,contact:view(await getContact(user.userId)),business:whatsappConfig().businessNumber})}const r=await startLink(user.userId,normalisePhone(p.phone),p.language,undefined,user.fullName||user.displayName);if(!r.ok)return response({error:r.message},r.status);return response({contact:view(await getContact(user.userId),r),business:whatsappConfig().businessNumber})}

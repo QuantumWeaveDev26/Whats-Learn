@@ -1,3 +1,4 @@
+import {chatPartIssue,shortFieldHint} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
 import {missionForLevel,startingLevels} from '../mission-levels';
 import {learnerPerformance} from '../learner-performance';
@@ -88,6 +89,7 @@ const getMission=(id:string,level?:string)=>level?missionForLevel(missions.find(
 export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[]),'checks']}
 const filled=(d:Draft,s:string)=>s==='quiz'?d.quiz!==null:s==='reasoning'?!!d.data.reasoning:s==='link'?d.data.link!==undefined:s==='checks'?!!d.data.checks:!!d.data.fields[s.slice(2)];
 const currentStep=(m:Mission,d:Draft)=>d.data.edit||stepsFor(m).find(s=>!filled(d,s))||'ready';
+function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){const value=d.data.fields[f.id];if(value&&f.type!=='choice'){const issue=chatPartIssue(m,value,f);if(issue)return {step:'f:'+f.id,message:issue}}}if(d.data.reasoning){const issue=chatPartIssue(m,d.data.reasoning);if(issue)return {step:'reasoning',message:issue}}return null;}
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
 function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual'):string{
  const lm=localizeMission(m,language);
@@ -95,15 +97,15 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
   const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
   return `${prefix}*${t.question}*\n${lm.question}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
- if(step==='reasoning')return `*Your reasoning:* What did you make? Send the work or an extract, your actual test result and what you improved. Plans or invented results do not count. At least ${LIMITS.minReasoning} characters.\n*Try it:* ${missionPractice(m).trial}`;
- if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP. Public GitHub source is shared with our AI reviewer on SUBMIT; code is not run.`;
- if(step==='checks')return `*Self-review.* Which of these did you do? Reply the numbers, like 1 3 4, or 0 for none.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
+ if(step==='reasoning')return '*Show your work ⚡*\nMade → tested → result → fixed.\nSend the actual work + one real test result. A plan alone won’t pass AI review.';
+ if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SUBMIT; code is never run.';
+ if(step==='checks')return `*Quick self-check*\nWhich did you do? Send numbers (1 3 4), or 0.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
- const body=f.type==='choice'?`${optionList(f.options||[])}\n\nReply with the letter.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Send your code in one message.`:`Reply with your text${f.type==='short'?` (up to ${LIMITS.short} characters)`:` (up to ${LIMITS.long} characters)`}.`;
- return `*Part ${n}: ${f.label}*\n${f.hint?f.hint+'\n':''}${body}`;
+ const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'Send your take.';
+ return `*${n}/${m.practical!.fields.length} · ${f.label}*\n${shortFieldHint(m,f)}\n${body}`;
 }
 function readyText(m:Mission,d:Draft){
- return '✅ All parts in. Ready for review?\nReply *SUBMIT* → AI check + save (uses one AI help)\n*EDIT* → choose a part · *CANCEL* → discard';
+ return 'Draft built ✍️\nReply *SUBMIT* → AI review + save (1 AI help).\n*EDIT* to tweak · *CANCEL* to restart.\nDraft checks aren’t an AI pass.';
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{
@@ -111,18 +113,18 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
  const step=currentStep(m,d),t=text.trim(),lm=localizeMission(m,c.language);
  const again=(why:string)=>reply(`${why}\n\n${promptFor(m,step,d,c.language,c.style)}`);
  const letter=(n:number)=>{const x=t.toUpperCase().replace(/[).\s]/g,'');const i=/^[A-F]$/.test(x)?letters.indexOf(x):/^[1-6]$/.test(x)?Number(x)-1:-1;return i>=0&&i<n?i:-1};
- if(step==='quiz'){const i=letter(lm.options.length);if(i<0)return again('Reply with one of the letters shown.');d.quiz=i}
- else if(step==='reasoning'){if(t.length>LIMITS.reasoning)return again(`Keep it under ${LIMITS.reasoning} characters.`);d.data.reasoning=t}
+ if(step==='quiz'){const i=letter(lm.options.length);if(i<0)return again('Pick one of the letters 👀');if(i!==m.answer)return again('That answer is not correct 👀 '+m.lesson.split(/(?<=[.!?])\s/)[0].slice(0,140)+'\nTry again—you’re still on this question.');d.quiz=i}
+ else if(step==='reasoning'){const issue=chatPartIssue(m,t);if(issue)return again(issue);d.data.reasoning=t}
  else if(step==='link'){if(/^skip$/i.test(t))d.data.link='';else if(validLink(t))d.data.link=t;else return again('The link must start with https:// and be a normal web address.')}
  else if(step==='checks'){const nums=[...new Set((t.match(/\d+/g)||[]).map(Number))];if(!nums.length||nums.some(n=>n<0||n>m.checks.length))return again(`Reply numbers from 1 to ${m.checks.length}, or 0 for none.`);d.data.checks=nums.filter(n=>n>0)}
  else{
   const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;
-  if(f.type==='choice'){const i=letter(f.options?.length||0);if(i<0)return again('Reply with one of the letters shown.');d.data.fields[f.id]=f.options![i]}
-  else{const max=f.type==='short'?LIMITS.short:f.type==='long'?LIMITS.long:LIMITS.code;if(t.length>max)return again(`That is ${t.length} characters; the limit is ${max}.`);d.data.fields[f.id]=t}
+  if(f.type==='choice'){const i=letter(f.options?.length||0);if(i<0)return again('Pick one of the letters shown 👀');d.data.fields[f.id]=f.options![i]}
+  else{const issue=chatPartIssue(m,t,f);if(issue)return again(issue);if(Object.entries(d.data.fields).some(([id,value])=>id!==f.id&&value.trim().toLowerCase()===t.toLowerCase()))return again('Same line, different part? Give this one its own answer.');d.data.fields[f.id]=t}
  }
- delete d.data.edit;d.pending_clue=null;await putDraft(userId,d);
+ delete d.data.edit;d.pending_clue=null;const oldIssue=draftIssue(m,d);if(oldIssue)d.data.edit=oldIssue.step;await putDraft(userId,d);
  const next=currentStep(m,d);
- return reply(next==='ready'?readyText(m,d):promptFor(m,next,d,c.language,c.style));
+ return reply(next==='ready'?readyText(m,d):(step==='quiz'?'Correct ✅':'Draft noted ✍️')+'\n\n'+promptFor(m,next,d,c.language,c.style));
 }
 
 // ---------- messages ----------
@@ -137,7 +139,7 @@ async function today(c:Contact):Promise<Out>{
  const {path,work}=await loadLearning(userId);const done=await completedIds(userId),cleared=await clearedKeys(userId);
  const track=path.profile.track,list=missionsOfCourse(track);
  const open=await getDraft(userId);
- if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const step=currentStep(m,open);return reply(`You are partway through *${localizeMission(m,c.language).title}*.\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}\n\n(CANCEL discards this answer.)`)}
+ if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue?'Quick fix 👀 '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}\n\nCANCEL to restart.`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
   if(fin&&!cleared.has(checkpointKey(track,10)))return reply(`You finished every mission in ${courseName(track)}.\n\n${checkpointText(fin)}`);
@@ -154,7 +156,7 @@ async function today(c:Contact):Promise<Out>{
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
- return reply(`${greeting} 👋\n\n${path.reason}\n${path.focus?'Focus: '+path.focus.instruction+'\n':''}\n${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nLEARN for the idea · HELP for commands`);
+ return reply(`${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nDraft checks now · AI review on SUBMIT.\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -187,6 +189,7 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return reply('There is nothing to submit. Reply TODAY to start a mission.');
  const m=getMission(d.mission_id,c.level),step=currentStep(m,d);
  if(step!=='ready')return reply(`Your answer is not complete yet.\n\n${promptFor(m,step,d,c.language,c.style)}`);
+ const issue=draftIssue(m,d);if(issue){d.data.edit=issue.step;await putDraft(c.user_id,d);return reply(`${issue.message}\n\n${promptFor(m,issue.step,d,c.language,c.style)}\nNothing was saved.`)}
  // Eligibility first: the same order check and mini-challenge check the website runs.
  const lock=lockFor(m,await completedIds(c.user_id),await clearedKeys(c.user_id));
  if(lock.locked)return reply(`${lock.message} Your answer was not saved.`);
@@ -202,8 +205,9 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  }
  const r=await saveMissionWork(c.user_id,data);
  const feedback=r.review?feedbackSummary(r.review):null;
- const feedbackText=feedback?`What worked: ${feedback.worked}\nImprove: ${feedback.improve}\nNext action: ${feedback.next}\n\n`:'';
- if(!r.saved)return reply(`${feedbackText}${r.message}\n\nNothing was saved. Your answer is kept for 24 hours${r.status==='daily-limit'?'; reply SUBMIT again tomorrow':'; reply EDIT n to change a part'}.`);
+ const crisp=(text:string)=>text.length>150?text.slice(0,147).replace(/\s+\S*$/,'')+'…':text;
+ const feedbackText=feedback?`✅ Works: ${crisp(feedback.worked)}\n🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
+ if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Draft safe for 24h. ${r.status==='daily-limit'?'SUBMIT tomorrow.':'EDIT to pick a part, then SUBMIT.'}`);
  await dropDraft(c.user_id);
  const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
  const performance=await learnerPerformance(c.user_id);
@@ -279,7 +283,7 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  await db.prepare('INSERT INTO whatsapp_tutor_usage(user_id,day,count) VALUES (?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET count=count+1').bind(c.user_id,day).run();
  const lm=localizeMission(m,c.language);
  // Approved course material only. The answer key, the explanation and the worked example are never sent out of WhatsLearn.
- return {action:'tutor',question:q,language:c.language,maxWords:90,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
+ return {action:'tutor',question:q,language:c.language,maxWords:45,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
 }
 
 export async function learnerOverview(userId:string){
@@ -305,8 +309,8 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
  catch(e){await db.prepare('DELETE FROM whatsapp_events WHERE id=?').bind(m.wamid).run();throw e}
 }
 async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
- const db=database(),text=raw.trim().replace(/\s+/g,' ').slice(0,4000);
- const word=text.toLowerCase();const [cmdRaw,...rest]=text.split(' ');const cmd=cmdRaw.toLowerCase().replace(/[.!,:;]+$/,'');const arg=rest.join(' ');
+ const db=database(),text=raw.trim().slice(0,4000);
+ const word=text.toLowerCase().replace(/\s+/g,' ');const [cmdRaw,...rest]=text.split(/\s+/);const cmd=cmdRaw.toLowerCase().replace(/[.!,:;]+$/,'');const arg=rest.join(' ');
  const linkMatch=text.match(/^\s*link\s+([A-Za-z0-9-]{6,12})\s*$/i);
  if(linkMatch)return confirmLink(from,linkMatch[1].replace(/-/g,''),at);
  const c=await db.prepare('SELECT * FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<Contact>();

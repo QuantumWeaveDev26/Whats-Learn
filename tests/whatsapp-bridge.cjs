@@ -132,15 +132,16 @@ test('clues: the cost is asked first, taken once from the same balance, and repe
  assert.equal(count("SELECT COUNT(*) n FROM mission_clues WHERE user_id='asha'"),2);
  await say(P1,'CANCEL');
 });
-test('an invalid answer is refused with a reason, saves nothing, and can be retried',async()=>{
- const m=byId('m1');let out=await answerMission(P1,'m1',{quiz:(m.answer+1)%3});
- assert.match(textOf(out),/That answer is not correct/);assert.equal(count("SELECT COUNT(*) n FROM work WHERE user_id='asha'"),0);assert.equal(count("SELECT COUNT(*) n FROM mission_scores WHERE user_id='asha'"),0);
- out=await say(P1,'ABCDEF'[m.answer]);assert.match(textOf(out),/Reply \*SUBMIT\*/,'only the wrong question is asked again; the rest is kept');
- // A too-short practical part is refused by the same shape check the website uses.
- await say(P1,'EDIT 3');await say(P1,'ok');out=await say(P1,'SUBMIT');
- assert.match(textOf(out),/not been saved|Nothing was saved/);assert.equal(count("SELECT COUNT(*) n FROM work WHERE user_id='asha'"),0);
- await say(P1,'CANCEL');
+test('wrong quiz and junk chat parts are refused immediately without advancing',async()=>{
+ const m=byId('m1');await say(P1,'TODAY');
+ let out=await say(P1,'ABCDEF'[(m.answer+1)%m.options.length]);assert.match(textOf(out),/That answer is not correct/);
+ let d=db.prepare("SELECT quiz,body FROM whatsapp_drafts WHERE user_id='asha'").get();assert.equal(d.quiz,null);assert.deepEqual(JSON.parse(d.body).fields,{});
+ out=await say(P1,'ABCDEF'[m.answer]);assert.match(textOf(out),/1\//);
+ for(const junk of ['wers7se','eagha','asdf qwer zxcv']){out=await say(P1,junk);assert.match(textOf(out),/typo|placeholder|task|letters/);d=db.prepare("SELECT body FROM whatsapp_drafts WHERE user_id='asha'").get();assert.deepEqual(JSON.parse(d.body).fields,{});}
+ const first=m.practical.fields[0];out=await say(P1,first.type==='choice'?'ABCDEF'[first.options.indexOf(samples.m1.fields[first.id])]:samples.m1.fields[first.id]);assert.match(textOf(out),/Draft noted/);assert.match(textOf(out),/2\//);
+ assert.equal(count("SELECT COUNT(*) n FROM work WHERE user_id='asha'"),0);assert.equal(count("SELECT COUNT(*) n FROM mission_scores WHERE user_id='asha'"),0);await say(P1,'CANCEL');
 });
+
 test('finishing a mission in chat uses the website rules: points, clue cost, one new mission a day, and the website shows the same state',async()=>{
  await say(P1,'TODAY');await say(P1,'CANCEL');   // the two clues from the clue test (10 points) are already paid
  const before=balance('asha');

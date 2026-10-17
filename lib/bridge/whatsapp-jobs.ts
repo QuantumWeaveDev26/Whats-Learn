@@ -54,7 +54,7 @@ export async function reportReminders(results:{ref:string;ok:boolean}[]){
 
 // ---------- website to WhatsApp notices ----------
 /** Queue a short notice for a learner who finished something on the website. Does nothing unless the learner has a verified, opted-in WhatsApp link. Once per (learner, kind, ref). */
-export async function queueNotice(userId:string,kind:'mission'|'badge',ref:string,payload:Record<string,unknown>){
+export async function queueNotice(userId:string,kind:'mission'|'badge'|'recap',ref:string,payload:Record<string,unknown>){
  const db=database();
  const c=await db.prepare("SELECT 1 x FROM whatsapp_contacts WHERE user_id=? AND state='opted_in' AND verified_at IS NOT NULL").bind(userId).first();
  if(!c)return false;
@@ -70,11 +70,11 @@ export async function claimNotices(limit=20,at=new Date()){
   if(!take.meta.changes)continue;
   // Learner opted out since, or the 24-hour window is closed: no message (a notice is not worth an approved template).
   if(o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
-  const p=JSON.parse(o.payload) as {title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);
+  const p=JSON.parse(o.payload) as {recap?:string;title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);
   const title=p.title||missions.find(m=>m.id===(p as {missionId?:string}).missionId)?.title||'your mission';
   const performance=o.kind==='mission'&&p.status==='awarded'?await learnerPerformance(o.user_id,at):null;
-  const star=performance?.star.earned?'\n🌟 *Star Learner unlocked!* 10 perfect missions. 10 days. Your title.':'';
-  const text=o.kind==='badge'?`🏅 Checkpoint cleared: *${title}*\nWebsite synced. *TODAY* → next move.`
+  const star=performance?.star.earned?'\n🌟 *Star Learner unlocked!* 10 useful creations completed. Help and breaks are welcome.':'';
+  const text=o.kind==='recap'?String(p.recap||'Continue your learning on the website.').slice(0,3900):o.kind==='badge'?`🏅 Checkpoint cleared: *${title}*\nWebsite synced. *TODAY* → next move.`
    :p.status==='awarded'?`✅ Built it. Saved it. *${title}*\n+${p.points??0} points · 🔥 ${performance?.streak||0}-day streak\n💎 ${balance} total · website synced${star}\n*TODAY* → what’s next.`
    :`🙌 Practice saved: *${title}*\n💎 ${balance} points · website synced\n*TODAY* → next step.`;
   items.push({id:o.id,to:o.phone,text});
