@@ -4,15 +4,15 @@ import {storyOutcomes} from './story-outcomes';
 import type {Mission} from './missions';
 import {learningStyle,type LearningStyle} from './learning-styles';
 import {questionForStyle} from './style-questions';
-import {miniChallenge} from './play';
 import {quizFeedback} from './quiz-feedback';
 export type StyleState={style:LearningStyle;stage:'decision'|'branch'|'impact'|'checkpoint'|'explain'|'rule'|'apply'|'ready';pick?:number;branch?:number;impact?:number;setbacks?:number;variant?:number;feedback?:string};
 export function initialStyleState(style:unknown):StyleState{const kind=learningStyle(style);return {style:kind,stage:kind==='casual'?'explain':kind==='facts'?'rule':'decision'};}
 export function currentStyleState(style:unknown,state?:StyleState):StyleState{return state?.style===learningStyle(style)?state:initialStyleState(style);}
 const wrongIndex=(m:Mission)=>(m.answer+1)%m.options.length;
 export const ruleIsTrue=(m:Mission,variant=0)=>([...m.question].reduce((n,c)=>((n*31)^c.charCodeAt(0))>>>0,7)+variant)%2===0;
-export function factsStatement(m:Mission,variant=0){const scene=variant%2===0?m:missionForLevel(m,m.practiceLevel==='experienced'?'beginner':'experienced');const card=applicationCard(scene,variant);return {truth:ruleIsTrue(m,variant),text:variant>0?card.q+'\nClaim: '+card.options[ruleIsTrue(m,variant)?card.answer:(card.answer+1+(variant%2))%card.options.length]:scene.options[ruleIsTrue(m,variant)?scene.answer:wrongIndex(scene)]};}
-export function applicationForState(m:Mission,s:StyleState){return (s.variant||0)>0?applicationCard(m,s.variant):{q:m.question,options:m.options,answer:m.answer,why:m.explanation};}
+export function factsStatement(m:Mission,variant=0){const scene=variant%2===0?m:missionForLevel(m,m.practiceLevel==='experienced'?'beginner':'experienced');const card=applicationCard(scene,variant);return {truth:ruleIsTrue(m,variant),text:variant>0?'Claim: '+card.options[ruleIsTrue(m,variant)?card.answer:(card.answer+1+(variant%2))%card.options.length]:scene.options[ruleIsTrue(m,variant)?scene.answer:wrongIndex(scene)]};}
+export const factRuleIsChoice=(s:StyleState)=>(s.variant||0)%3===2;
+export function applicationForState(m:Mission,s:StyleState){if(factRuleIsChoice(s)){const scene=missionForLevel(m,m.practiceLevel==='experienced'?'beginner':'experienced');return {q:scene.question,options:scene.options,answer:scene.answer,why:scene.explanation};}return (s.variant||0)>0?applicationCard(m,s.variant):{q:m.question,options:m.options,answer:m.answer,why:m.explanation};}
 export const storyBranchAnswer=(m:Mission)=>Number(m.id.replace(/\D/g,''))%2;
 export function storyConsequence(m:Mission,correct:boolean,pick?:number){const outcome=storyOutcomes[m.id];if(!outcome)return 'Consider how this choice changes the user’s next action.';return correct?'Possible ending: '+outcome[0]:'Alternate ending: '+outcome[1]+(pick===undefined?'':' Your move: “'+m.options[pick]+'”.');}
 
@@ -31,6 +31,7 @@ export function interactionPrompt(m:Mission,s:StyleState,channel:'chat'|'web'='c
   if(s.stage==='checkpoint'){const mini=applicationCard(m,s.variant);return '🎮 CHECKPOINT 2/2 · Transfer it\n'+mini.q+'\n'+letters(mini.options)+'\nPick A / B / C. No points yet.';}
   return '🎮 CHECKPOINT 1/2 · Make the call\n'+questionForStyle(m,'game')+'\n'+letters(m.options)+'\nPick one move.';
  }
+ if(s.style==='facts'&&s.stage==='rule'&&factRuleIsChoice(s)){const card=applicationCard(m,s.variant);return '⚡ EVIDENCE CHECK\n'+card.q+'\n'+letters(card.options)+'\nPick the action you can defend.';}
  if(s.style==='facts')return s.stage==='rule'?'⚡ TRUE OR FALSE?\n'+factsStatement(m,s.variant).text+(channel==='chat'?'\nReply TRUE / FALSE. Then apply the rule.':'\nChoose TRUE or FALSE. Then apply the rule.'):'⚡ APPLY THE RULE\n'+applicationForState(m,s).q+'\n'+letters(applicationForState(m,s).options)+'\nPick one answer.';
  if(s.stage==='branch')return '📖 SCENE 2 · '+(s.pick===m.answer?'Your first move helped. Before the handoff, one risk remains.':'Your first move hit a snag. You can recover before the handoff.')+'\n'+storyConsequence(m,s.pick===m.answer,s.pick)+'\nWhat do you do now?\n'+letters(storyBranchOptions(m))+'\nChoose A / B.';
  if(s.stage==='impact'){const card=applicationCard(m,s.variant);return '📖 SCENE 3 · Pressure test\n'+(s.pick===m.answer?'Your plan held up. A new constraint lands.':'You recovered. Now prove the fix survives a new constraint.')+'\n'+card.q+'\n'+letters(card.options)+'\nChoose A / B / C.';}
@@ -47,6 +48,7 @@ export function styleTurn(m:Mission,state:StyleState,text:string,language='en'):
  if(s.style==='story'&&s.stage==='impact'){const card=applicationCard(m,s.variant),n=picked(text,card.options.length);if(n<0)return {state:s,reply:'Choose A, B or C.'};s.impact=n;if(n!==card.answer){s.setbacks=(s.setbacks||0)+1;return {state:s,reply:'That leaves the risk open. '+card.why+' Try another move.'};}s.stage='explain';return {state:s,reply:'Pressure test cleared. '+card.why+' Explain the link to your ending.'};}
  if(s.style==='story'&&s.stage==='branch'){const n=picked(text,2);if(n<0)return {state:s,reply:'Choose A or B for this scene.'};s.branch=n;if(n!==storyBranchAnswer(m))return {state:s,reply:storyConsequence(m,false)+' This risk is still open. Choose the move that checks the failure before handoff.'};s.stage='impact';return {state:s,reply:(s.pick===m.answer?'You protected the first decision.':'You recovered from the first decision.')+' One pressure test before your ending.'};}
  if(s.style==='facts'&&s.stage==='rule'){
+  if(factRuleIsChoice(s)){const c=applicationCard(m,s.variant),n=picked(text,c.options.length);if(n<0)return {state:s,reply:'Choose A, B or C.'};if(n!==c.answer)return {state:s,reply:'Check the evidence. '+c.why};s.stage='apply';return {state:s,reply:'Evidence checked. Transfer it to another situation.'};}
   if(!/^(true|false|t|f|ಸರಿ|ತಪ್ಪು|nij[a]?|tappu|sari)$/i.test(text.trim()))return {state:s,reply:'Reply TRUE or FALSE for this statement.'};
   const saysTrue=/^(true|t|ಸರಿ|nij[a]?|sari)$/i.test(text.trim());
   if(saysTrue!==ruleIsTrue(m,s.variant))return {state:s,reply:quizFeedback(language,false,m.skill,m.explanation).text+' TRUE / FALSE?'};
