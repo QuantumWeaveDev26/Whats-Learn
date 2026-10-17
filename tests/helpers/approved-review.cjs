@@ -5,6 +5,16 @@ const Module=require('node:module'),path=require('node:path');
 const original=Module._load;
 Module._load=function(name,parent,main){
  const transactional=parent?.filename.endsWith(path.join('lib','mission-points.ts'));
+ const chat=parent?.filename.endsWith(path.join('lib','bridge','whatsapp-chat.ts'));
+ if(chat&&name==='../ai-feedback'){
+  const actual=original.call(this,name,parent,main);
+  return {...actual,aiReady:()=>true,reviewChatPart:async(...args)=>actual.aiReady()?actual.reviewChatPart(...args):{accepted:true,feedback:'Draft noted — '+String(args[2]).slice(0,45),followUp:''}};
+ }
+ if(chat&&name==='../auth/limits'){
+  const actual=original.call(this,name,parent,main),ai=original.call(this,'../ai-feedback',parent,main);
+  return {...actual,allow:async(...args)=>ai.aiReady()?actual.allow(...args):true};
+ }
+
  if(transactional&&name==='./ai-feedback'){
   const actual=original.call(this,name,parent,main);return {...actual,aiReady:()=>true};
  }

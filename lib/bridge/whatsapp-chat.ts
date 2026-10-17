@@ -1,3 +1,5 @@
+import {aiReady,aiProvider,askCoach,reviewChatPart,FeedbackError} from '../ai-feedback';
+import {allow} from '../auth/limits';
 import {chatPartIssue,shortFieldHint} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
 import {missionForLevel,startingLevels} from '../mission-levels';
@@ -86,26 +88,26 @@ async function putDraft(userId:string,d:Draft){await database().prepare('INSERT 
 const dropDraft=(userId:string)=>database().prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId).run();
 const getMission=(id:string,level?:string)=>level?missionForLevel(missions.find(m=>m.id===id)!,level):missions.find(m=>m.id===id)!;
 /** The parts of an answer, in order. */
-export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[]),'checks']}
+export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[])]}
 const filled=(d:Draft,s:string)=>s==='quiz'?d.quiz!==null:s==='reasoning'?!!d.data.reasoning:s==='link'?d.data.link!==undefined:s==='checks'?!!d.data.checks:!!d.data.fields[s.slice(2)];
-const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':d.data.edit||stepsFor(m).find(s=>!filled(d,s))||'ready';
+const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':(d.data.edit&&stepsFor(m).includes(d.data.edit)?d.data.edit:stepsFor(m).find(s=>!filled(d,s))||'ready');
 function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){const value=d.data.fields[f.id];if(value&&f.type!=='choice'){const issue=chatPartIssue(m,value,f);if(issue)return {step:'f:'+f.id,message:issue}}}if(d.data.reasoning){const issue=chatPartIssue(m,d.data.reasoning);if(issue)return {step:'reasoning',message:issue}}return null;}
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
-function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual'):string{
+function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual',followUp=''):string{
  const lm=localizeMission(m,language);
  if(step==='quiz'){
   const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
   return `${prefix}*${t.question}*\n${lm.question}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
- if(step==='reasoning')return '*Show your work ⚡*\nMade → tested → result → fixed.\nSend the actual work + one real test result. A plan alone won’t pass AI review.';
+ if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
  if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SUBMIT; code is never run.';
  if(step==='checks')return `*Quick self-check*\nWhich did you do? Send numbers (1 3 4), or 0.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'Send your take.';
- return `*${n}/${m.practical!.fields.length} · ${f.label}*\n${shortFieldHint(m,f)}\n${body}`;
+ return `*${n}/${m.practical!.fields.length} · ${f.label}*\n${followUp||shortFieldHint(m,f)}\n${body}`;
 }
 function readyText(m:Mission,d:Draft){
- return 'Draft built ✍️\nReply *SUBMIT* → AI review + save (1 AI help).\n*EDIT* to tweak · *CANCEL* to restart.\nDraft checks aren’t an AI pass.';
+ return `*${missionPractice(m).outcome}* — draft ready ✨\nReply *SAVE* to keep it in your journey, or *EDIT* to tweak.\nSaving checks the whole creation before awarding points.`;
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{
@@ -113,18 +115,34 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
  const step=currentStep(m,d),t=text.trim(),lm=localizeMission(m,c.language);
  const again=(why:string)=>reply(`${why}\n\n${promptFor(m,step,d,c.language,c.style)}`);
  const letter=(n:number)=>{const x=t.toUpperCase().replace(/[).\s]/g,'');const i=/^[A-F]$/.test(x)?letters.indexOf(x):/^[1-6]$/.test(x)?Number(x)-1:-1;return i>=0&&i<n?i:-1};
- if(step==='quiz'){const i=letter(lm.options.length);if(i<0)return again('Pick one of the letters 👀');if(i!==m.answer)return again('That answer is not correct 👀 '+m.lesson.split(/(?<=[.!?])\s/)[0].slice(0,140)+'\nTry again—you’re still on this question.');d.quiz=i}
- else if(step==='reasoning'){const issue=chatPartIssue(m,t);if(issue)return again(issue);d.data.reasoning=t}
- else if(step==='link'){if(/^skip$/i.test(t))d.data.link='';else if(validLink(t))d.data.link=t;else return again('The link must start with https:// and be a normal web address.')}
- else if(step==='checks'){const nums=[...new Set((t.match(/\d+/g)||[]).map(Number))];if(!nums.length||nums.some(n=>n<0||n>m.checks.length))return again(`Reply numbers from 1 to ${m.checks.length}, or 0 for none.`);d.data.checks=nums.filter(n=>n>0)}
- else{
-  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;
-  if(f.type==='choice'){const i=letter(f.options?.length||0);if(i<0)return again('Pick one of the letters shown 👀');d.data.fields[f.id]=f.options![i]}
-  else{const issue=chatPartIssue(m,t,f);if(issue)return again(issue);if(Object.entries(d.data.fields).some(([id,value])=>id!==f.id&&value.trim().toLowerCase()===t.toLowerCase()))return again('Same line, different part? Give this one its own answer.');d.data.fields[f.id]=t}
+ let reaction='',followUp='';
+ if(step==='quiz'){
+  const i=letter(lm.options.length);if(i<0)return again('Pick one of the letters 👀');
+  if(i!==m.answer)return again('That answer is not correct 👀 '+m.lesson.split(/(?<=[.!?])\s/)[0].slice(0,140)+'\nTry again—you’re still on this question.');
+  d.quiz=i;reaction='Correct ✅';
+ }else if(step==='link'){
+  if(/^skip$/i.test(t))d.data.link='';else if(validLink(t))d.data.link=t;else return again('Drop a valid https link, or SKIP.');reaction='Got it.';
+ }else{
+  const field=step==='reasoning'?undefined:m.practical!.fields.find(x=>'f:'+x.id===step)!;
+  let value=t;
+  if(field?.type==='choice'){const i=letter(field.options?.length||0);if(i<0)return again('Pick one of the letters shown 👀');value=field.options![i]}
+  else{const issue=chatPartIssue(m,value,field);if(issue)return again(issue);if(field&&Object.entries(d.data.fields).some(([id,v])=>id!==field.id&&v.trim().toLowerCase()===value.toLowerCase()))return again('Same line, different part? Give this one its own answer.')}
+  if(!aiReady())return again('Coach’s offline for a moment. Your reply hasn’t been checked—try again soon.');
+  const allowance=await aiAllowance(userId),limit=allowance.limit>3?40:20;
+  if(!await allow('whatsapp-chat-check',userId,limit,86400,Date.now()+19800000))return again('You’ve used today’s chat checks. Your draft’s safe—come back after midnight India time.');
+  const proposed:Draft={...d,data:{...d.data,fields:{...d.data.fields}}};delete proposed.data.edit;
+  if(field)proposed.data.fields[field.id]=value;else proposed.data.reasoning=value;
+  const nextStep=currentStep(m,proposed),nextField=nextStep.startsWith('f:')?m.practical!.fields.find(f=>'f:'+f.id===nextStep):null;
+  try{
+   const review=await reviewChatPart(m.id,field||{label:'Work, actual test result and improvement',type:'reasoning'},value,{...d.data.fields,...(d.data.reasoning?{reasoning:d.data.reasoning}:{})},nextField|| (nextStep==='reasoning'?{label:'Work, actual test result and improvement'}:null),c.language,c.level);
+   if(!review.accepted)return reply(`${review.feedback}\n${review.followUp}`);
+   reaction=review.feedback;followUp=review.followUp;
+  }catch(e){return again(e instanceof FeedbackError?e.message:'Coach couldn’t check that reply. Try again—your draft is safe.')}
+  if(field)d.data.fields[field.id]=value;else d.data.reasoning=value;
  }
- delete d.data.edit;d.pending_clue=null;const oldIssue=draftIssue(m,d);if(oldIssue)d.data.edit=oldIssue.step;await putDraft(userId,d);
+ delete d.data.edit;d.pending_clue=null;const oldIssue=draftIssue(m,d);if(oldIssue){d.data.edit=oldIssue.step;followUp=''}await putDraft(userId,d);
  const next=currentStep(m,d);
- return reply(next==='ready'?readyText(m,d):(step==='quiz'?'Correct ✅':'Draft noted ✍️')+'\n\n'+promptFor(m,next,d,c.language,c.style));
+ return reply(reaction+'\n\n'+(next==='ready'?readyText(m,d):promptFor(m,next,d,c.language,c.style,followUp)));
 }
 
 // ---------- messages ----------
@@ -156,7 +174,7 @@ async function today(c:Contact):Promise<Out>{
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
- return reply(`${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nDraft checks now · AI review on SUBMIT.\nLEARN for the idea · HELP for commands`);
+ return reply(`${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nOne reply. One useful check. Let’s build.\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -193,7 +211,7 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  // Eligibility first: the same order check and mini-challenge check the website runs.
  const lock=lockFor(m,await completedIds(c.user_id),await clearedKeys(c.user_id));
  if(lock.locked)return reply(`${lock.message} Your answer was not saved.`);
- const checks=m.checks.map((_,i)=>d.data.checks!.includes(i+1));
+ const checks=m.checks.map((_,i)=>d.data.checks?.includes(i+1)||false);
  const answer:Answer={fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''};
  const data={missionId:m.id,body:composeAnswer(m.practical,answer),checks,quiz:d.quiz!};
  void arg;
@@ -232,7 +250,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SUBMIT* save your finished answer\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SAVE* keep your finished work\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -276,6 +294,10 @@ async function tutor(c:Contact,text:string):Promise<Out>{
   return reply(`That sounds like *${courseName(best)}*, but you are on *${courseName(track)}*. Reply COURSE to switch, or ask about "${localizeMission(m,c.language).title}".`);
  }
  if(rel==='unclear')return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
+ if(aiProvider()){
+  const a=await aiAllowance(c.user_id);if(!await allow('whatsapp-chat-check',c.user_id,a.limit>3?40:20,86400,Date.now()+19800000))return reply('You’ve used today’s chat checks. Your draft’s safe—back after midnight India time.');
+  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level)).answer)}catch{return reply(`Coach’s taking a breather. Try again—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
+ }
  const allowance=await aiAllowance(c.user_id);
  const day=ist().day,db=database();
  const used=await db.prepare('SELECT count FROM whatsapp_tutor_usage WHERE user_id=? AND day=?').bind(c.user_id,day).first<{count:number}>();
@@ -342,7 +364,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}
-  case 'submit':return submit(c,arg);
+  case 'save':case 'submit':return submit(c,arg);
   case 'help':return reply(helpText);
   case 'cancel':{const d=await getDraft(c.user_id);if(d){await dropDraft(c.user_id);return reply('Discarded. Nothing was saved. Reply TODAY to start again.')}return reply('There is nothing to cancel.')}
   case 'edit':{

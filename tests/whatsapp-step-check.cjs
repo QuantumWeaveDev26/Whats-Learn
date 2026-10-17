@@ -1,3 +1,4 @@
+require('./helpers/approved-review.cjs');
 const test=require('node:test'),assert=require('node:assert/strict');const h=require('./helpers/harness.cjs');
 const {chatPartIssue,shortFieldHint}=h.load('lib/whatsapp-step-check.ts'),{missions}=h.load('lib/missions.ts');const d1=missions.find(m=>m.id==='d1');
 test('junk, a single letter and unrelated text cannot pass a written chat part',()=>{for(const junk of ['wers7se','eagha','a','asdf qwer zxcv','parent parent parent parent parent parent']){assert.ok(chatPartIssue(d1,junk,d1.practical.fields[0]),junk)}assert.ok(chatPartIssue(d1,'I enjoy playing guitar at a concert.',d1.practical.fields[0]));assert.equal(chatPartIssue(d1,'As a parent, I want a trial booking so my child can try the tutor.',d1.practical.fields[0]),null);assert.ok(chatPartIssue(d1,'ok'));});

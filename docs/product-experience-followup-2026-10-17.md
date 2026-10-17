@@ -27,3 +27,8 @@ The live recap attempt found bridge-only hosting: account linking works through 
 
 ## WhatsApp interaction feedback
 The user supplied screenshots of junk text advancing the chat. Written parts now have immediate draft-format and relevance checks; wrong quiz choices stay on the question. Previously collected junk drafts are routed back to the first invalid part without deleting the other work. Prompt copy is shorter and conversational; task steps show 1/5-style progress, tutor answers are capped at 45 words, and the chat explicitly distinguishes draft checks from final AI review. These checks do not establish correctness for arbitrary written answers.
+
+## Conversation instead of end-only evaluation
+Each meaningful WhatsApp answer now receives a small AI check against the current part and earlier draft. Rejected answers stay on that part and get one specific follow-up; accepted answers get a reaction to their actual content and a contextual next question. Random text is stopped before an API call. The numeric self-review stage is removed; SAVE/SUBMIT still runs the whole-creation correctness gate before account progress or points change. Stored completion checks come from the server AI review. Normal chat questions use the actual draft as context.
+
+Conversational checks/questions have a separate bounded daily budget (20 Explore, 40 paid; India-time reset), so a five-part conversation does not consume five whole-creation reviews. Provider failures never silently advance the draft. These are product limits for the new per-turn coaching feature, not a reset or bypass of a learner’s whole-creation review usage.

@@ -100,7 +100,7 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
   if(!review.practicalTest?.reported||!review.practicalTest.created||!review.practicalTest.performed)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),review,saved:false,code:422};
   if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,review,saved:false,code:422};
  }
- data={...data,evaluation:review?JSON.stringify(review):undefined};
+ data={...data,checks:review?review.checks.map(c=>c.met):data.checks,evaluation:review?JSON.stringify(review):undefined};
  if(decision==='award'){
   const text=answerText(mission,data.body);const writing=checkWriting(mission,text,data.checks);const gate=pointsGate(mission,text,writing);
   if(!gate.ok)return {status:'rejected',message:gate.message+' Your work has not been saved, so you can try again.',saved:false,code:400};

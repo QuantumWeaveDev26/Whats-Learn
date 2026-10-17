@@ -49,7 +49,7 @@ async function answerMission(phone,id,{quiz,sub=true}={}){
  }
  out=await say(phone,s.reasoning);
  if(m.practical.link)out=await say(phone,s.link||'SKIP');
- out=await say(phone,'1 2 3 4 5');assert.match(textOf(out),/Reply \*SUBMIT\*/);
+ out=await say(phone,'1 2 3 4 5');assert.match(textOf(out),/Reply \*(SAVE|SUBMIT)\*/);
  return sub?say(phone,'SUBMIT'):out;
 }
 const nextDay=()=>db.prepare("UPDATE mission_scores SET day=date(day,'-1 day')").run();
@@ -99,7 +99,7 @@ test('the same WhatsApp message id is handled once; Meta retries create no secon
  assert.equal(count('SELECT COUNT(*) n FROM whatsapp_events WHERE id=?',id),1);
 });
 test('commands: HELP, COURSE (same course as the website), POINTS (same balance as the website)',async()=>{
- assert.match(textOf(await say(P1,'help')),/TODAY.*HINT.*SUBMIT/s);
+ assert.match(textOf(await say(P1,'help')),/TODAY.*HINT.*SAVE/s);
  assert.match(textOf(await say(P1,'COURSE')),/AI Digital Marketing/);
  assert.match(textOf(await say(P1,'COURSE 2')),/AI Full-Stack Development/);
  assert.equal(db.prepare("SELECT track FROM learner_profiles WHERE user_id='asha'").get().track,'development');
