@@ -1,0 +1,6 @@
+import {database} from './storage';
+export async function readSession<T>(userId:string,key:string):Promise<T|null>{const r=await database().prepare('SELECT payload FROM learning_sessions WHERE user_id=? AND session_key=?').bind(userId,key).first<{payload:string}>();if(!r)return null;try{return JSON.parse(r.payload) as T}catch{return null}}
+export async function writeSession(userId:string,key:string,payload:unknown){await database().prepare('INSERT INTO learning_sessions(user_id,session_key,payload,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id,session_key) DO UPDATE SET payload=excluded.payload,updated_at=excluded.updated_at').bind(userId,key,JSON.stringify(payload),new Date().toISOString()).run()}
+
+/** Answer autosaves cannot overwrite a newer checked checkpoint from a concurrent request. */
+export async function writeSessionAnswer(userId:string,key:string,answer:string,initial:unknown){await database().prepare("INSERT INTO learning_sessions(user_id,session_key,payload,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id,session_key) DO UPDATE SET payload=json_set(learning_sessions.payload,'$.answer',json_extract(excluded.payload,'$.answer')),updated_at=excluded.updated_at").bind(userId,key,JSON.stringify({...initial as object,answer}),new Date().toISOString()).run()}

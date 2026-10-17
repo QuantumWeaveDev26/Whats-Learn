@@ -9,3 +9,5 @@ const bridges:Record<string,string>={
 export type StarterPiece={track:string;mission:string;outcome:string;bridge:string;draft:AgencyDraft};
 export function starterPieces():StarterPiece[]{const drafts=readAgencyDrafts();return agencyTracks.filter(t=>drafts[t.id]).map(t=>({track:t.id,mission:t.mission,outcome:t.outcome,bridge:bridges[t.id],draft:drafts[t.id]!}))}
 export function starterFor(missionId:string){return starterPieces().find(s=>s.mission===missionId)}
+
+export function starterFromAccount(track:string,draft:AgencyDraft):StarterPiece|null{const t=agencyTracks.find(t=>t.id===track);return t?{track:t.id,mission:t.mission,outcome:t.outcome,bridge:bridges[t.id],draft}:null}

@@ -59,7 +59,7 @@ export function missionForLevel(m:Mission,value:unknown):Mission{
  const row=cases[m.id];if(!row)return {...m,practiceLevel:level};
  const experienced=level==='experienced';
  const q=experienced?row[3]:row[0],right=experienced?row[4]:row[1];
- const distractors=experienced?[row[5],row[6],'Ignore the evidence and mark the task complete']:[row[2],'Copy the worked example unchanged','Skip trying the work and claim it is complete'];
+ const distractors=experienced?[row[5],row[6],row[2]]:[row[2],row[5],row[6]];
  const options=[...distractors];options.splice(m.answer,0,right);
  const levelTask=level==='beginner'?'Complete the trial one step at a time. Record one actual result and one fix.':level==='practising'?'Repeat the trial after changing one input or design choice. Compare the actual results.':row[7];
  return {...m,levelBase:base,practiceLevel:level,levelTask,question:level==='practising'?base.question:q,options:level==='practising'?base.options:options,explanation:level==='practising'?base.explanation:right+'. Test the decision in your own work.',task:base.task+'\n'+levelTask};
