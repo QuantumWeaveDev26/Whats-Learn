@@ -185,7 +185,7 @@ async function today(c:Contact):Promise<Out>{
  const userId=c.user_id;await ensureAccount(userId);
  const {path,work}=await loadLearning(userId);const done=await completedIds(userId),cleared=await clearedKeys(userId);
  const track=path.profile.track,list=missionsOfCourse(track);
- if(path.remediation)return reply(`*${path.remediation.title}*\n${path.remediation.scenario}\n${path.remediation.prompt}\n*PRACTICE your answer* → check this skill. Your main draft is kept.`);
+ if(path.remediation)return reply(`*${path.remediation.title}*\nWhy: ${path.reason}\n${path.remediation.scenario}\n${path.remediation.prompt}\n*PRACTICE your answer* → check this skill. Your main draft is kept.`);
  let open=await getDraft(userId);
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
