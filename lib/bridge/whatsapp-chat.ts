@@ -100,7 +100,7 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
   return `${prefix}*${t.question}*\n${lm.question}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
  if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
- if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SUBMIT; code is never run.';
+ if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SAVE; code is never run.';
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'Send your take.';
  return `*${n}/${m.practical!.fields.length} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}\n${body}`;
@@ -218,13 +218,13 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  if(bad){
   // A wrong understanding answer sends the learner back to that question only; everything else stays.
   if(d.quiz!==m.answer){d.quiz=null;await putDraft(c.user_id,d);return reply(`${bad}\n\n${promptFor(m,'quiz',d,c.language,c.style)}`)}
-  return reply(`${bad}\n\nNothing was saved. Reply EDIT n to change a part, then SUBMIT again.`);
+  return reply(`${bad}\n\nNothing was saved. Reply EDIT n to change a part, then SAVE again.`);
  }
  const r=await saveMissionWork(c.user_id,data);
  const feedback=r.review?feedbackSummary(r.review):null;
  const crisp=(text:string)=>text.length>150?text.slice(0,147).replace(/\s+\S*$/,'')+'…':text;
  const feedbackText=feedback?`✅ Works: ${crisp(feedback.worked)}\n🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
- if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Draft safe for 24h. ${r.status==='daily-limit'?'SUBMIT tomorrow.':'EDIT to pick a part, then SUBMIT.'}`);
+ if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Your draft is kept. ${r.code===429?'SAVE after midnight India time.':'EDIT to pick a part, then SAVE.'}`);
  await dropDraft(c.user_id);
  const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
  const performance=await learnerPerformance(c.user_id);
