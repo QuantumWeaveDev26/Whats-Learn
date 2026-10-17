@@ -19,7 +19,7 @@
 ## Outstanding live demonstration
 - The trial account reached its 3-request daily AI allowance. Do not reset usage, bypass the gate or claim successful completion. Retry after midnight India time or use an independently authorized test account.
 - Demonstrate accepted revision, saved work across refresh, changed next task, and actual WhatsApp continuation/receipt.
-- Native Kannada/Kanglish quality review remains required; prompt/unit tests do not establish language quality.
+- Kannada/Kanglish sample replies were tested live (see final evidence below). This is not an exhaustive or native-speaker language audit.
 - No market-launch conclusion is made.
 
 ## WhatsApp transport check
@@ -45,3 +45,14 @@ With the owner’s permission, the developer sent test replies in the linked lea
 - WhatsApp progress recaps lead with completed creations and the same next task/focus; reward numbers are available through POINTS. No reward math changed.
 - Recap status refreshes while queued/claimed. The real website request was queued, but no actual receipt was observed: the external n8n website-sync sender needs inspection. Do not call queued or provider-accepted a delivered message.
 - 313 isolated regression tests pass; TypeScript and production build checked separately. Mock-provider tests do not establish real model accuracy or handset delivery.
+
+## Final live evidence and remaining boundary
+- The real n8n workflow was inspected with permission. The published notice path was claiming recaps but using a failing legacy Header Auth sender. `Send Notice` now reuses the existing WhatsLearn WhatsApp API credential used by chat replies. An isolated test claimed only the owner's known recap ID, delivered it, and reported `sent`. The temporary ID filter was removed and the normal queue restored before publishing.
+- A subsequent website recap was delivered by the normal two-minute schedule, and was visibly received in the owner's WhatsLearn chat. This establishes actual receipt, not merely provider acceptance. Its task, profile fit and practice focus matched the website. Repeated feedback text was removed from the recap.
+- Existing free-text reminder, approved-template and retry-notice senders were updated to reuse that same credential and published. They were not manually sent to other learners. Opt-in, quiet hours, schedules and template approval requirements remain enforced; no outside-window template send was demonstrated.
+- A valid three-case acceptance check and failure state received immediate specific feedback. The actual weak client code and observed 503 trace, explicitly stating no fix had been made, was rejected at the reasoning step. The implemented client fix and actual rerun results were then accepted as a draft ready for final review. This is conversational approval, not whole-creation completion.
+- SAVE hit the existing 0/3 daily review limit. No completion or points were granted. The draft remains available. The owner was offered separate-account testing but did not supply a separate signed-in session; no credentials were invented and no quota was reset. A final accepted save, refreshed saved creation, and resulting next task still require an available whole-creation review.
+- A live Kannada reply first contained a Telugu fragment and then an inaccurate slang translation. Coaching now drafts the technical answer before separately rendering Kannada/Kanglish, with a mixed-script repair/fail-closed check. The final live Kannada sample correctly said not to show success when the server did not save, and to wait for the response. A Kanglish sample also described the occupied-slot error and server-confirmed success. These samples do not certify every generated reply.
+- At 390px, live dashboard, Companion, Settings, Membership and onboarding entry had no horizontal overflow or server error. The practical mission dialog measured about 371px inside the 390px viewport and retained the full browser draft. The temporary viewport override was reset.
+- Partial skill memory now keeps a demonstrated message skill when a separate audience criterion needs work; independent correctness vetoes still block mastery. Tests cover repeated vetoes and weak-to-improved progression.
+- Regression coverage: 316 isolated tests, including concurrent duplicate-reward protection, account isolation, stored review memory, progression and transport limits. Production build and isolated Node deployment checks pass. The full provider-backed save flow remains the explicit outstanding live test; no launch-readiness claim is made.

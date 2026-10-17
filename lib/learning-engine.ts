@@ -24,7 +24,12 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const repeated=weak?latest.filter(e=>e.mission_id===skillReview?.mission_id&&(weak.item==='Correctness of the current work'?!!e.review.blockingIssue:e.review.checks.some(c=>skillKey(c.item)===skillKey(weak.item)&&!c.met))).length:0;
   const strongEvidence=skillReview?.review.answerAssessment?.onTopic===true&&skillReview.review.answerAssessment.correct===true&&skillReview.review.practicalTest?.reported===true&&skillReview.review.checks.every(c=>c.met);
   const skills:Record<string,{demonstrated:boolean;attempts:number;needsWork:number}>={};
-  for(const e of latest)for(const check of e.review.checks){const key=skillKey(check.item);const state=skills[key]??={demonstrated:check.met&&e.review.answerAssessment?.onTopic===true&&e.review.answerAssessment.correct===true&&e.review.practicalTest?.reported===true,attempts:0,needsWork:0};state.attempts++;if(!check.met)state.needsWork++;}
+  for(const e of latest){
+    // A specific unmet criterion must not erase other demonstrated skills. A
+    // correctness veto still blocks mastery when the review contradicts itself.
+    const supported=e.review.answerAssessment?.onTopic===true&&!e.review.blockingIssue&&e.review.practicalTest?.reported===true&&(e.review.answerAssessment.correct===true||e.review.checks.some(c=>!c.met));
+    for(const check of e.review.checks){const key=skillKey(check.item);const state=skills[key]??={demonstrated:check.met&&supported,attempts:0,needsWork:0};state.attempts++;if(!check.met)state.needsWork++;}
+  }
   const focus=weak?{skill:weak.item,instruction:weak.note,repeated,mastered:false}:strongEvidence?{skill:'Apply the skill to a new constraint',instruction:'Test a different audience, failure case or constraint and explain what changed.',repeated:0,mastered:true}:null;
   const level=mode==='guided'||needsSupport?'guided':mode==='stretch'?'stretch':weak?'guided':strongEvidence?'stretch':revisit?'guided':profile.level==='experienced'||strong>=2?'stretch':'guided';
   const minutes=profile.minutes==='flexible'?next.minutes:Number(profile.minutes)||15;
