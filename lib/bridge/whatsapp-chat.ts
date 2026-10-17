@@ -1,3 +1,4 @@
+import {briefFocus} from '../chat-copy';
 import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
 import {allow} from '../auth/limits';
 import {chatPartIssue,shortFieldHint,shortFieldLabel} from '../whatsapp-step-check';
@@ -74,10 +75,10 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
  const greeting=(await learnerOverview(row.user_id)).split('\n')[0];
  return reply(greeting+'\nLinked ✅ Small steps. Real skills.\nSend *TODAY* for your first move.\n*PROFILE* for your setup · *STOP* to pause.');
 }
-export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId)])}
+export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_saved_drafts WHERE user_id=?').bind(userId)])}
 
 // Drafts survive a break. Clear only on save, cancellation, unlink or account deletion.
-type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string};pending_clue:string|null};
+type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string;revisiting?:boolean};pending_clue:string|null};
 async function getDraft(userId:string):Promise<Draft|null>{
  const r=await database().prepare('SELECT mission_id,quiz,body,pending_clue,updated_at FROM whatsapp_drafts WHERE user_id=?').bind(userId).first<{mission_id:string;quiz:number|null;body:string|null;pending_clue:string|null;updated_at:string}>();
  if(!r)return null;
@@ -90,6 +91,25 @@ const getMission=(id:string,level?:string)=>level?missionForLevel(missions.find(
 /** The parts of an answer, in order. */
 export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[])]}
 const filled=(d:Draft,s:string)=>s==='quiz'?d.quiz!==null:s==='reasoning'?!!d.data.reasoning:s==='link'?d.data.link!==undefined:s==='checks'?!!d.data.checks:!!d.data.fields[s.slice(2)];
+async function archiveCompletedDraft(userId:string,missionId:string){
+ const db=database();
+ await db.batch([
+  db.prepare('INSERT INTO whatsapp_saved_drafts(user_id,mission_id,quiz,body,pending_clue,updated_at,archived_at) SELECT user_id,mission_id,quiz,body,pending_clue,updated_at,? FROM whatsapp_drafts WHERE user_id=? AND mission_id=? ON CONFLICT(user_id,mission_id) DO UPDATE SET quiz=excluded.quiz,body=excluded.body,pending_clue=excluded.pending_clue,updated_at=excluded.updated_at,archived_at=excluded.archived_at').bind(now().toISOString(),userId,missionId),
+  db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=? AND mission_id=?').bind(userId,missionId)
+ ]);
+}
+async function savedDrafts(c:Contact,missionId=''):Promise<Out>{
+ const db=database();
+ if(!missionId){const rows=await db.prepare('SELECT mission_id FROM whatsapp_saved_drafts WHERE user_id=? ORDER BY archived_at DESC LIMIT 40').bind(c.user_id).all<{mission_id:string}>();return reply(rows.results.length?'Kept chat revisions:\n'+rows.results.map(r=>`*RESUME ${r.mission_id}* · ${missions.find(m=>m.id===r.mission_id)?.title||r.mission_id}`).join('\n'):'No parked chat drafts. *TODAY* → continue.');}
+ if(!missions.some(m=>m.id===missionId))return reply('Send DRAFTS to see your kept revisions.');
+ if(!await canUseMission(c.user_id,missionId))return reply(membershipRequired+'\n'+site()+'/membership');
+ const active=await getDraft(c.user_id);
+ if(active)return reply('Your current draft is still open. Finish it first, or CANCEL to discard it.');
+ const take=await db.prepare('INSERT OR IGNORE INTO whatsapp_drafts(user_id,mission_id,quiz,body,pending_clue,updated_at) SELECT user_id,mission_id,quiz,body,pending_clue,? FROM whatsapp_saved_drafts WHERE user_id=? AND mission_id=?').bind(now().toISOString(),c.user_id,missionId).run();
+ if(!take.meta.changes)return reply('That saved draft was not opened. Send DRAFTS to see yours.');
+ const draft=(await getDraft(c.user_id))!;draft.data.revisiting=true;await putDraft(c.user_id,draft);const m=getMission(draft.mission_id,draft.data.level||c.level),step=currentStep(m,draft);
+ return reply('Revision opened. Your completed progress stays saved.\n'+(step==='ready'?readyText(m,draft):promptFor(m,step,draft,c.language,c.style)));
+}
 const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':(d.data.edit&&stepsFor(m).includes(d.data.edit)?d.data.edit:stepsFor(m).find(s=>!filled(d,s))||'ready');
 function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){const value=d.data.fields[f.id];if(value&&f.type!=='choice'){const issue=chatPartIssue(m,value,f);if(issue)return {step:'f:'+f.id,message:issue}}}if(d.data.reasoning){const issue=chatPartIssue(m,d.data.reasoning);if(issue)return {step:'reasoning',message:issue}}return null;}
 function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) ${o}`).join('\n')}
@@ -155,7 +175,10 @@ async function today(c:Contact):Promise<Out>{
  const userId=c.user_id;await ensureAccount(userId);
  const {path,work}=await loadLearning(userId);const done=await completedIds(userId),cleared=await clearedKeys(userId);
  const track=path.profile.track,list=missionsOfCourse(track);
- const open=await getDraft(userId);
+ let open=await getDraft(userId);
+ const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
+ if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
+ const syncNote=synced?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
  if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}\n\nCANCEL to restart.`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
@@ -168,12 +191,12 @@ async function today(c:Contact):Promise<Out>{
  if(lock.locked&&lock.checkpoint){const cp=checkpointFor(lock.checkpoint.track,lock.checkpoint.after)!;return reply(`${lock.message}\n\n${checkpointText(cp)}`)}
  if(lock.locked)return reply(lock.message);
  const scores=await loadScores(userId);
- if(scores.todayUsed)return reply(`${dailyLimitMessage}\n\nStreak: ${scores.streak.current} day${scores.streak.current===1?'':'s'}. Points: ${scores.balance}.`);
+ if(scores.todayUsed)return reply(`${syncNote}${dailyLimitMessage}\n${path.progress.creations}/10 creations saved.\nNext: ${path.challenge.title}`);
  void work;await setCurrent(userId,next.id);
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
- return reply(`${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nOne reply. One useful check. Let’s build.\nLEARN for the idea · HELP for commands`);
+ return reply(`${syncNote}${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nOne reply. One useful check. Let’s build.\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -222,14 +245,13 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  }
  const r=await saveMissionWork(c.user_id,data);
  const feedback=r.review?feedbackSummary(r.review):null;
- const crisp=(text:string)=>text.length>150?text.slice(0,147).replace(/\s+\S*$/,'')+'…':text;
+ const crisp=(text:string)=>briefFocus(text,12);
  const feedbackText=feedback?`✅ Works: ${crisp(feedback.worked)}\n🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
  if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Your draft is kept. ${r.code===429?'SAVE after midnight India time.':'EDIT to pick a part, then SAVE.'}`);
  await dropDraft(c.user_id);
- const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
  const performance=await learnerPerformance(c.user_id);
  const nextPath=(await loadLearning(c.user_id)).path;
- return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${r.status==='awarded'?`+${r.score?.points||0} points · `:''}💎 ${balance} total · 🔥 ${scores.streak.current}-day streak\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\nNext challenge: ${nextPath.challenge.title}\n${nextPath.reason}\n\n*TODAY* → next move · *PERFORMANCE* → your recap`);
+ return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${performance.count}/10 creations saved\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\nNext challenge: ${nextPath.challenge.title}\n${briefFocus(nextPath.reason,14)}\n\n*TODAY* → next move · *POINTS* → optional rewards`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -249,7 +271,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SAVE* keep your finished work\n*EDIT n* change a part · *CANCEL* discard\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SAVE* keep your finished work\n*EDIT n* change a part · *CANCEL* discard\n*DRAFTS* kept revisions · *RESUME d1* reopen one\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -348,9 +370,11 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(c.state!=='opted_in')return none('opted-out');
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
- const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}
+ const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
+  case 'drafts':return savedDrafts(c);
+  case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
   case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;const next=rows.findIndex(r=>r.status==='current'),visible=arg.toLowerCase()==='all'?rows:rows.slice(Math.max(0,next),Math.max(0,next)+3);return reply(`🗺️ *${courseName(profile.track)}*\n${count}/10 saved · 10-day foundation\n\n${visible.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} Day ${r.day}: ${r.deliverable}`).join('\n')}\n\n${count===10?'🎉 Foundation done. Review your creations.':'*TODAY* → make your next piece'}\n*ROADMAP ALL* → all 10 days`)}
   case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));

@@ -36,8 +36,8 @@ export async function claimReminders(limit=50,at=new Date()){
   const performance=await learnerPerformance(c.user_id,at);
   if(inWindow(c,at)){items.push({ref,to:c.phone,mode:'text',text:performance.text+'\n*REMIND OFF* → pause'});continue}
   // Outside the service window the exact recap template must be approved; never reuse a lesson template.
-  if(!cfg.performanceTemplate){await mark('skipped_no_performance_template');skipped++;continue}
-  items.push({ref,to:c.phone,mode:'template',template:{name:cfg.performanceTemplate,language:cfg.templateLanguage,params:[String(performance.todayPoints),String(performance.streak),String(performance.count),String(performance.weekMissions)]}});
+  if(!cfg.progressTemplate&&!cfg.performanceTemplate){await mark('skipped_no_performance_template');skipped++;continue}
+  items.push({ref,to:c.phone,mode:'template',template:{name:cfg.progressTemplate||cfg.performanceTemplate,language:cfg.templateLanguage,params:cfg.progressTemplate?[String(performance.count),performance.nextTitle]:[String(performance.todayPoints),String(performance.streak),String(performance.count),String(performance.weekMissions)]}});
 
  }
  return {items,skipped};

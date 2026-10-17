@@ -35,3 +35,11 @@ test('daily recaps honour opt-in, quiet hours, completed days and template bound
  assert.equal((await claimReminders(50,new Date('2026-10-13T17:00:00Z'))).items.length,0,'quiet hours');
  h.db.prepare("UPDATE whatsapp_contacts SET state='opted_out'").run();assert.equal((await claimReminders(50,new Date('2026-10-14T13:35:00Z'))).items.length,0,'STOP respected');
 });
+
+test('short approved progress template uses saved count and the actual next task, keeping legacy templates intact',async()=>{
+ h.reset({env:{WHATSAPP_PROGRESS_TEMPLATE:'whatslearn_progress_v2',WHATSAPP_PERFORMANCE_TEMPLATE:'legacy_four_metrics',WHATSAPP_TEMPLATE_LANGUAGE:'en'}});
+ const {saveProfile,loadLearning}=h.load('lib/learning-service.ts');await saveProfile('short-recap',{goal:'job',track:'development',level:'experienced',language:'en',minutes:'15',style:'casual'});
+ const stamp='2026-10-01T00:00:00Z';h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,updated_at,verified_at,last_inbound_at,remind_state,remind_hour,remind_freq,quiet_start,quiet_end) VALUES ('short-recap','919000000098','opted_in','en',?,?,?,?,'on',19,'daily',22,7)").run(stamp,stamp,stamp,stamp);
+ const path=(await loadLearning('short-recap')).path;const jobs=h.load('lib/bridge/whatsapp-jobs.ts');const out=await jobs.claimReminders(50,new Date('2026-10-12T13:35:00Z'));
+ assert.equal(out.items.length,1);assert.equal(out.items[0].template.name,'whatslearn_progress_v2');assert.deepEqual(out.items[0].template.params,['0',path.challenge.title]);assert.equal((await jobs.claimReminders(50,new Date('2026-10-12T13:35:00Z'))).items.length,0);
+});

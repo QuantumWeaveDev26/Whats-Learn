@@ -34,6 +34,22 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const repeat=await saveMissionWork('flow-learner',{missionId:'m1',body:revised,quiz:m.answer,checks:m.checks.map(()=>true)});assert.equal(repeat.saved,true);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n,countBefore);
  state=await loadLearning('flow-learner');assert.equal(state.path.nextMissionId,'m2');assert.equal(state.path.practiceLevel,'experienced');assert.equal(state.path.progress.creations,1);
  const reloaded=await loadLearning('flow-learner');assert.deepEqual(reloaded.path,state.path);assert.equal((await loadLearning('other-learner')).work.length,0);
+ // Website save must release an older chat draft without losing its contents.
+ const previousDay=h.load('lib/play.ts').practiceDay(new Date(Date.now()-86400000).toISOString());
+ h.db.prepare('UPDATE mission_scores SET day=? WHERE user_id=?').run(previousDay,'flow-learner');
+ const advanced=await handleBridgeMessage({wamid:'product-flow-next',from:phone,type:'text',text:'TODAY'});
+ assert.match(advanced.text,/Journey synced/);assert.match(advanced.text,/DRAFTS/);
+ assert.equal(h.db.prepare('SELECT mission_id FROM whatsapp_drafts WHERE user_id=?').get('flow-learner').mission_id,'m2');
+ assert.ok(h.db.prepare('SELECT body FROM whatsapp_saved_drafts WHERE user_id=? AND mission_id=?').get('flow-learner','m1'));
+ const count=h.db.prepare('SELECT COUNT(*) n FROM mission_scores WHERE user_id=?').get('flow-learner').n;
+ const list=await handleBridgeMessage({wamid:'product-flow-drafts',from:phone,type:'text',text:'DRAFTS'});assert.match(list.text,/RESUME m1/);
+ const held=await handleBridgeMessage({wamid:'product-flow-held',from:phone,type:'text',text:'RESUME m1'});assert.match(held.text,/current draft is still open/);
+ h.db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').run('flow-learner');
+ const restored=await handleBridgeMessage({wamid:'product-flow-resume',from:phone,type:'text',text:'RESUME m1'});assert.match(restored.text,/Revision opened/);
+ await handleBridgeMessage({wamid:'product-flow-revision-today',from:phone,type:'text',text:'TODAY'});
+ assert.equal(h.db.prepare('SELECT mission_id FROM whatsapp_drafts WHERE user_id=?').get('flow-learner').mission_id,'m1');
+ assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores WHERE user_id=?').get('flow-learner').n,count);
+
 });
 
 
@@ -83,3 +99,20 @@ test('WhatsApp submission shows specific formative feedback without completing w
 test('repeated independent correctness vetoes count as repeated practice evidence',()=>{const r={...review(true),blockingIssue:'The current client shows success on a failed save.',answerAssessment:{onTopic:true,correct:false,reason:'The current client shows success on a failed save.'}};const records=[1,2].map(i=>({mission_id:'m1',review:r,created_at:'2026-10-17T10:00:0'+i+'Z'}));const path=learningPath(defaultProfile,[],'adaptive',false,records);assert.equal(path.focus.repeated,2);assert.equal(path.focus.mastered,false);assert.equal(path.nextMissionId,'m1');assert.match(path.reason,/2 evaluated attempts/);assert.equal(path.level,'guided');});
 
 test('a weak audience does not erase the learner’s demonstrated message skill',()=>{const path=learningPath(defaultProfile,[],'adaptive',false,[{mission_id:'m1',review:review(false),created_at:'2026-10-17T10:00:00Z'}]);assert.equal(path.skills.audience.demonstrated,false);assert.equal(path.skills.message.demonstrated,true);assert.equal(path.focus.skill,m.checks[0]);assert.equal(path.nextMissionId,'m1');assert.equal(path.focus.mastered,false);});
+
+test('parked chat drafts are private and erased with account data',async()=>{
+ h.reset();const {deleteAccountData}=h.load('lib/account-delete.ts');const stamp=new Date().toISOString();
+ for(const user of ['draft-owner','other-owner']){h.db.prepare('INSERT INTO whatsapp_saved_drafts(user_id,mission_id,quiz,body,updated_at,archived_at) VALUES (?,?,?,?,?,?)').run(user,'d1',2,'private draft '+user,stamp,stamp);h.db.prepare('INSERT INTO whatsapp_drafts(user_id,mission_id,quiz,body,updated_at) VALUES (?,?,?,?,?)').run(user,'d1',2,'private active '+user,stamp);}
+ await deleteAccountData('draft-owner');assert.equal(h.db.prepare('SELECT COUNT(*) n FROM whatsapp_saved_drafts WHERE user_id=?').get('draft-owner').n,0);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM whatsapp_drafts WHERE user_id=?').get('draft-owner').n,0);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM whatsapp_saved_drafts WHERE user_id=?').get('other-owner').n,1);
+});
+
+test('an unchanged approved inline artifact remains saveable after a break without paying for another review',async()=>{
+ h.reset({env:{OPENAI_API_KEY:'fake-approved-cache'}});const {saveProfile}=h.load('lib/learning-service.ts'),{reviewedSubmission}=h.load('lib/submission-review.ts'),{saveMissionWork}=h.load('lib/mission-points.ts');await saveProfile('approved-cache',defaultProfile);const body=require('./fixtures/course-samples.json').m1;let calls=0;
+ global.fetch=async()=>{calls++;return Response.json({choices:[{message:{content:JSON.stringify(review(true))}}]})};
+ await reviewedSubmission('approved-cache','m1',body,'en',true);const before=calls;
+ h.db.prepare("UPDATE submission_reviews SET created_at='2020-01-01T00:00:00Z' WHERE user_id='approved-cache'").run();h.db.prepare("UPDATE ai_feedback_usage SET count=3 WHERE user_id='approved-cache'").run();
+ const saved=await saveMissionWork('approved-cache',{missionId:'m1',body,quiz:m.answer,checks:m.checks.map(()=>true)});assert.equal(saved.saved,true);assert.equal(calls,before);
+ await assert.rejects(()=>reviewedSubmission('approved-cache','m1',body.replace('### Your reasoning\n','### Your reasoning\nChanged audience after review. '),'en',true),e=>e.status===429);assert.equal(calls,before);
+ const row=h.db.prepare("SELECT body_hash,review FROM submission_reviews WHERE user_id='approved-cache'").get();const external={...JSON.parse(row.review),source:{commit:'abc123',files:['app.js']}};h.db.prepare("UPDATE submission_reviews SET review=? WHERE user_id='approved-cache'").run(JSON.stringify(external));
+ await assert.rejects(()=>reviewedSubmission('approved-cache','m1',body,'en',true),e=>e.status===429,'External repository evidence must still be refreshed');
+});
