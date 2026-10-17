@@ -35,3 +35,13 @@ Conversational checks/questions have a separate bounded daily budget (20 Explore
 
 ## Live WhatsApp evidence
 With the owner’s permission, the developer sent test replies in the linked learner’s real mentor conversation. The string `wers7se` was rejected and stayed on 1/5. A trial-class user story received answer-specific feedback and advanced to 2/5. A meaningful suggestion to collect private chat history and bank statements was rejected immediately with a privacy correction and a request for minimal booking details; it did not advance. That correction was too long, so chat-part feedback now receives one shortening pass when needed, with a hard 35-word display bound and the original accept/reject verdict preserved. Tone guidance was tuned after observing an overly classroom-like live response. No whole-creation completion or reward is claimed by these chat-part checks.
+
+## Follow-up checks and fixes
+- Live: corrected minimal booking fields were accepted with specific short feedback and advanced to 3/5. A later `a` stayed at 3/5. A question about an occupied slot received task-specific coaching without advancing the draft.
+- Live: reopening the website retained the full synthetic booking draft and stored feedback. The account still had 0/3 reviews available; no successful full-creation save or score is claimed.
+- Live: a Kannada question was blocked by the English keyword filter. Kannada/Kanglish questions now reach the grounded AI coach when configured, even with an English profile; regression tests cover both languages. Actual language quality needs live recheck after deployment.
+- Removed the automatic 24-hour chat-draft deletion so return visits do not silently lose unfinished work. Save/cancel/course switch/unlink/account deletion still clear the draft. Website drafts remain browser-local and account-scoped; settings explicitly distinguishes these from shared completed progress.
+- Repeated independent correctness vetoes now count as repeated practice evidence, even when the initial reviewer marked the individual checklist items as met.
+- WhatsApp progress recaps lead with completed creations and the same next task/focus; reward numbers are available through POINTS. No reward math changed.
+- Recap status refreshes while queued/claimed. The real website request was queued, but no actual receipt was observed: the external n8n website-sync sender needs inspection. Do not call queued or provider-accepted a delivered message.
+- 313 isolated regression tests pass; TypeScript and production build checked separately. Mock-provider tests do not establish real model accuracy or handset delivery.

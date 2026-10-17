@@ -1,4 +1,4 @@
-import {aiReady,aiProvider,askCoach,reviewChatPart,FeedbackError} from '../ai-feedback';
+import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
 import {allow} from '../auth/limits';
 import {chatPartIssue,shortFieldHint,shortFieldLabel} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
@@ -76,12 +76,11 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
 }
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId)])}
 
-// ---------- drafts: the answer being built in chat. Deleted when saved, cancelled, or 24 hours old. ----------
+// Drafts survive a break. Clear only on save, cancellation, unlink or account deletion.
 type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string};pending_clue:string|null};
 async function getDraft(userId:string):Promise<Draft|null>{
  const r=await database().prepare('SELECT mission_id,quiz,body,pending_clue,updated_at FROM whatsapp_drafts WHERE user_id=?').bind(userId).first<{mission_id:string;quiz:number|null;body:string|null;pending_clue:string|null;updated_at:string}>();
  if(!r)return null;
- if(Date.parse(r.updated_at)<Date.now()-864e5){await database().prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId).run();return null}
  let data:Draft['data'];try{data=JSON.parse(r.body||'')}catch{data={fields:{}}}
  return {mission_id:r.mission_id,quiz:r.quiz,data:{...data,fields:data.fields||{}},pending_clue:r.pending_clue};
 }
@@ -293,7 +292,10 @@ async function tutor(c:Contact,text:string):Promise<Out>{
   const hits=courseHits(q),best=Object.entries(hits).filter(([t])=>t!==track).sort((a,b)=>b[1]-a[1])[0][0];
   return reply(`That sounds like *${courseName(best)}*, but you are on *${courseName(track)}*. Reply COURSE to switch, or ask about "${localizeMission(m,c.language).title}".`);
  }
- if(rel==='unclear')return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
+ // English keyword matching cannot judge a Kannada/Kanglish question. The grounded
+ // coach checks its meaning; an English profile must not block the learner's language.
+ const multilingual=/Kannada|Kanglish/.test(feedbackLanguage('en',q));
+ if(rel==='unclear'&&!(aiProvider()&&multilingual))return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
  if(aiProvider()){
   const a=await aiAllowance(c.user_id);if(!await allow('whatsapp-chat-check',c.user_id,a.limit>3?40:20,86400,Date.now()+19800000))return reply('You’ve used today’s chat checks. Your draft’s safe—back after midnight India time.');
   try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level)).answer)}catch{return reply(`Coach’s taking a breather. Try again—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
