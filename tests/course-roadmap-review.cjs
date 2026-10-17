@@ -30,8 +30,8 @@ test('AI reviews are cached per account, failures release quota, and incomplete 
  h.reset({env:{OPENAI_API_KEY:'fake-only'}});const real=global.fetch;let calls=0,mode='ok';
  global.fetch=async()=>{calls++;if(mode==='fail')return new Response('{}',{status:429});const checks=missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present in the answer.'}));return Response.json({choices:[{message:{content:JSON.stringify({summary:'Useful campaign.',strengths:['Clear offer'],checks:mode==='short'?checks.slice(0,1):checks,answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test the offer.'})}}]})};
  try{
-  await Promise.all([reviewedSubmission('review-a','m1',samples.m1),reviewedSubmission('review-a','m1',samples.m1)]);await reviewedSubmission('review-a','m1',samples.m1);assert.equal(calls,1);
-  await reviewedSubmission('review-b','m1',samples.m1);assert.equal(calls,2);
+  await Promise.all([reviewedSubmission('review-a','m1',samples.m1),reviewedSubmission('review-a','m1',samples.m1)]);await reviewedSubmission('review-a','m1',samples.m1);assert.equal(calls,2);
+  await reviewedSubmission('review-b','m1',samples.m1);assert.equal(calls,4);
   mode='short';await assert.rejects(reviewedSubmission('review-c','m1',samples.m1),/complete/);
   assert.equal(h.db.prepare('SELECT count FROM ai_feedback_usage WHERE user_id=?').get('review-c').count,0);
   mode='fail';await assert.rejects(reviewedSubmission('review-d','m1',samples.m1),/busy/);

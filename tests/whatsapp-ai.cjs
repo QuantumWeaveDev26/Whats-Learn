@@ -21,7 +21,7 @@ const inbound=(id,from,text)=>JSON.stringify({entry:[{changes:[{value:{messages:
  await assert.rejects(()=>wa.processWebhook(inbound('m0','919876543210','LESSON'),'sha256='+'0'.repeat(64)),/Invalid signature/);
  let raw=inbound('m1','919876543210','LESSON');await wa.processWebhook(raw,sign(raw));assert.equal(sent.length,1);assert.match(sent[0].text.body,/learn\?mission=m1/);
  await wa.processWebhook(raw,sign(raw));assert.equal(sent.length,1,'Duplicate deliveries are ignored');
- raw=inbound('m2','919876543210','For office-goers in Indiranagar who skip lunch: home food at your desk.');await wa.processWebhook(raw,sign(raw));assert.equal(claudeCalls,1);assert.match(sent[1].text.body,/Clear start/);assert.match(sent[1].text.body,/Name the problem/);
+ raw=inbound('m2','919876543210','For office-goers in Indiranagar who skip lunch: home food at your desk.');await wa.processWebhook(raw,sign(raw));assert.equal(claudeCalls,2);assert.match(sent[1].text.body,/Clear start/);assert.match(sent[1].text.body,/Name the problem/);
  raw=inbound('m3','919876543210','STOP');await wa.processWebhook(raw,sign(raw));assert.equal((await wa.getContact('user-a')).state,'opted_out');
  raw=inbound('m4','910000000000','hi');await wa.processWebhook(raw,sign(raw));assert.match(sent.at(-1).text.body,/settings/,'Unknown numbers are told how to opt in');
  const hook=require('../app/api/whatsapp/webhook/route.ts'),rem=require('../app/api/whatsapp/reminders/route.ts');

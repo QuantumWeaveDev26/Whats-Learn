@@ -20,7 +20,7 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const {handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
  const body=require('./fixtures/course-samples.json').m1;
  await saveProfile('flow-learner',{...defaultProfile,language:'kn',minutes:'15'});
- let strong=false,calls=0,system='',userPrompt='';global.fetch=async(url,options)=>{assert.equal(String(url),'https://api.openai.com/v1/chat/completions');calls++;system=JSON.parse(options.body).messages[0].content;userPrompt=JSON.parse(options.body).messages[1].content;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
+ let strong=false,calls=0,system='',userPrompt='';global.fetch=async(url,options)=>{assert.equal(String(url),'https://api.openai.com/v1/chat/completions');calls++;system=JSON.parse(options.body).messages[0].content;if(!system.includes('FINAL CORRECTNESS VERIFICATION'))userPrompt=JSON.parse(options.body).messages[1].content;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
  const weak=await reviewedSubmission('flow-learner','m1',body,'kn',true);
  assert.equal(reviewAccepted(weak),false);assert.match(system,/Kanglish/);assert.match(system,/Kannada/);
  const cached=await reviewedSubmission('flow-learner','m1',body,'kn',true);assert.deepEqual(cached,weak);assert.equal(calls,1);
@@ -70,5 +70,12 @@ test('WhatsApp submission shows specific formative feedback without completing w
  out=await handleBridgeMessage({wamid:'wa-formative-2',from:phone,text:'SUBMIT',type:'text'});
  assert.match(out.text,/What worked:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,1);
- assert.equal(calls,2,'save reuses the evaluated answer instead of charging twice');
+ assert.equal(calls,3,'save reuses the evaluated answer instead of charging twice');
 });
+
+ test('independent verification blocks a generous review of an unresolved defect',async()=>{
+ h.reset({env:{OPENAI_API_KEY:'fake-independent-verification'}});const {reviewWork}=h.load('lib/ai-feedback.ts');let calls=0;
+ global.fetch=async(url,options)=>{calls++;const prompt=JSON.parse(options.body).messages[0].content;let result=review(true);if(prompt.includes('FINAL CORRECTNESS VERIFICATION'))result={answerAssessment:{onTopic:true,correct:false,reason:'Your client shows Booking saved before the server response.'},practicalTest:{created:true,performed:true,reported:false,note:'The forced failure still displays success; the fix is only planned.'}};return Response.json({choices:[{message:{content:JSON.stringify(result)}}]})};
+ const r=await reviewWork('m1',require('./fixtures/course-samples.json').m1,'en');assert.equal(calls,2);assert.equal(reviewAccepted(r),false);assert.equal(r.answerAssessment.correct,false);assert.match(r.nextStep,/before the server/);assert.ok(r.checks.every(c=>!c.met));
+ });
+ test('language preference follows Kannada script and explicit Kanglish work',()=>{const {feedbackLanguage}=h.load('lib/ai-feedback.ts');assert.equal(feedbackLanguage('en','ನಾನು ಬುಕಿಂಗ್ ಸರ್ವರ್ ಪರೀಕ್ಷೆ ಮಾಡಿದೆ ಮತ್ತು ಫಲಿತಾಂಶವನ್ನು ಬರೆದಿದ್ದೇನೆ'),'Kannada');assert.match(feedbackLanguage('en','Kanglish: nanu server test maadide. Nanna success message aadmele barutte.'),/Kanglish/);assert.equal(feedbackLanguage('en','I ran the server and recorded the result.'),'English')});
