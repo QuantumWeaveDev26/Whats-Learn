@@ -1,0 +1,10 @@
+import {z} from 'zod';
+import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {sameOrigin} from '@/lib/storage';
+import {aiReady,FeedbackError,reviewStarterAnswer} from '@/lib/ai-feedback';
+import {aiAllowance,reserveAiUse,releaseAiUse} from '@/lib/ai-usage';
+import {agencyStory,agencyTracks} from '@/lib/agency-story';
+import {checkStarter} from '@/lib/starter-check';
+import {languageCodes} from '@/lib/languages';
+const input=z.object({track:z.enum(['marketing','development','filmmaking','storytelling']),body:z.string().min(10).max(400),language:z.enum(languageCodes)}).strict();
+export async function POST(request:Request){const out=(d:unknown,status=200)=>Response.json(d,{status,headers:{'Cache-Control':'no-store'}});if(!sameOrigin(request))return out({error:'Invalid origin.'},403);const user=await getChatGPTUser();if(!user)return out({error:'Sign in for AI feedback. Your starter remains on this device.'},401);let reserved=false;try{if(!aiReady())return out({error:'AI feedback is unavailable. Your starter is not AI assessed. Retry later.'},503);const raw=await request.text();if(raw.length>5000)return out({error:'Request too large.'},413);const p=input.parse(JSON.parse(raw)),index=agencyTracks.findIndex(t=>t.id===p.track),task=agencyStory('en',p.track).copy.tasks[index],check=checkStarter(p.track,p.body,task);if(!check.ok)return out({error:check.message},422);const a=await aiAllowance(user.userId);if(a.used>=a.limit)return out({error:'Today’s AI help allowance is used. Retry after midnight India time.',...a},429);if(!await reserveAiUse(user.userId,a.limit))return out({error:'AI allowance used. Retry after midnight India time.'},429);reserved=true;const feedback=await reviewStarterAnswer(task,p.body,p.language);return out({feedback,assessed:true,courseCompleted:false,limit:a.limit,used:a.used+1})}catch(e){if(reserved)await releaseAiUse(user.userId);if(e instanceof FeedbackError)return out({error:e.message},e.status);if(e instanceof z.ZodError||e instanceof SyntaxError)return out({error:'Check your starter answer.'},400);return out({error:'AI feedback is unavailable. Your starter is safe and not AI assessed. Retry.'},503)}}

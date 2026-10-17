@@ -18,3 +18,5 @@ export function feedbackSummary(r:Review){
 
 /** Stable skill families support continuity when criteria are translated or worded differently. */
 export function skillKey(item:string){const t=item.toLowerCase();if(/audience|customer|ಗ್ರಾಹಕ|ಪ್ರೇಕ್ಷಕ|ग्राहक|दर्शक/.test(t))return 'audience';if(/test|result|measure|experiment|ಪರೀಕ್ಷ|ಫಲಿತ|परीक्षण|परिणाम/.test(t))return 'testing';if(/privacy|consent|permission|ಖಾಸಗಿ|ಅನುಮತಿ|गोपनीय|अनुमति/.test(t))return 'privacy';if(/offer|promise|hook|headline|ಕೊಡುಗೆ|ವಾಗ್ದಾನ|वादा|प्रस्ताव/.test(t))return 'message';return t.trim()}
+
+export function shortFeedback(text:string,maxWords=24){const words=text.trim().split(/\s+/u);return words.length>maxWords?words.slice(0,maxWords).join(" ")+"…":text;}
