@@ -1,3 +1,4 @@
+import {questionForStyle} from '../style-questions';
 import {checkSkillPractice} from '../skill-practice-service';
 import {briefFocus} from '../chat-copy';
 import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
@@ -118,7 +119,7 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
  const lm=localizeMission(m,language);
  if(step==='quiz'){
   const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
-  return `${prefix}*${t.question}*\n${lm.question}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
+  return `${prefix}*${t.question}*\n${questionForStyle(lm,style)}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
  if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
  if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SAVE; code is never run.';

@@ -1,4 +1,5 @@
 'use client';
+import {questionForStyle} from '@/lib/style-questions';
 import {useRef,useState} from 'react';
 import {ArrowRight,Check,ChevronLeft,Gamepad2,MessageCircle,BookOpen,Zap,Flag} from 'lucide-react';
 import type {Mission} from '@/lib/missions';
@@ -13,7 +14,7 @@ export default function StyledLesson({mission,style,language,choice=-1,onAnswer,
  function advance(value:number){setPhase(value);requestAnimationFrame(()=>heading.current?.focus({preventScroll:true}))}
  const decision=<div className="style-decision">
   <span className="style-eyebrow">{kind==='game'?'CHECKPOINT · MAKE THE CALL':kind==='story'?'YOUR NEXT MOVE':kind==='casual'?'QUICK QUESTION FOR YOU':'CHECK YOUR UNDERSTANDING'}</span>
-  <h4>{mission.question}</h4>
+  <h4>{questionForStyle(mission,style)}</h4>
   <div className="style-decision-options" role="group" aria-label={t.question}>{mission.options.map((option,i)=><button type="button" key={i} aria-pressed={choice===i} onClick={()=>onAnswer?.(i)}><span className="style-option-letter">{String.fromCharCode(65+i)}</span><span>{option}</span>{choice===i&&<span aria-hidden="true">{correct?<Check size={19}/>: '↻'}</span>}</button>)}</div>
   {choice>=0&&<div className={'style-decision-result '+(correct?'is-correct':'try-again')} role="status"><strong>{correct?(kind==='game'?'Checkpoint cleared.':kind==='story'?'Here’s how that plays out.':'You’ve got it.'):'Try another move.'}</strong><p>{correct?mission.explanation:'No points lost. Revisit the idea, then choose again.'}</p>{correct&&<small>Understanding checked. Mission points are awarded when your completed work is saved.</small>}</div>}
   {!correct&&<details><summary>{t.idea}</summary><p>{mission.lesson}</p></details>}
