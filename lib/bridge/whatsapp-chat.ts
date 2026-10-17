@@ -143,7 +143,7 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
   if(legacyPick>=0){if(legacyPick!==m.answer)return again('That answer is not correct. '+m.explanation);d.quiz=legacyPick;reaction='That decision fits. Now make it concrete.';}
   else {
    let turn=styleTurn(lm,state,t,c.language);
-   if(turn.needsCheck){try{turn=checkedStyleTurn(state,await checkStyleExplanation(userId,m,t,c.language,c.style));}catch(e){return again(e instanceof FeedbackError?e.message:'The coach could not check this. Your draft is kept. Retry.');}}
+   if(turn.needsCheck){try{turn=checkedStyleTurn(state,await checkStyleExplanation(userId,m,t,c.language,c.style,state));}catch(e){return again(e instanceof FeedbackError?e.message:'The coach could not check this. Your draft is kept. Retry.');}}
    d.data.styleState=turn.state;
    if(!turn.completed){await putDraft(userId,d);return reply(turn.state.stage===state.stage?turn.reply:turn.reply+'\n\n'+interactionPrompt(lm,turn.state));}
    d.quiz=m.answer;reaction=turn.reply;

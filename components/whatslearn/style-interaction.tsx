@@ -3,7 +3,8 @@ import {useAiAllowance} from './use-ai-allowance';
 import ConceptAccountDraft from './concept-account-draft';
 import {useState,useRef,useEffect} from 'react';
 import type {Mission} from '@/lib/missions';
-import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,storyBranchOptions} from '@/lib/style-interactions';
+import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,storyBranchOptions,applicationForState} from '@/lib/style-interactions';
+import {applicationCard} from '@/lib/application-bank';
 import {miniChallenge} from '@/lib/play';
 import {missionPractice} from '@/lib/mission-practice';
 export default function StyleInteraction({mission,style='casual',language='en',choice=-1,onAnswer,onContinue}:{mission:Mission;style?:string;language?:string;choice?:number;onAnswer?:(n:number)=>void;onContinue?:()=>void}){
@@ -20,7 +21,7 @@ export default function StyleInteraction({mission,style='casual',language='en',c
  if(turn.needsCheck){setError('Sign in for AI feedback. Your answer is kept.');return;}setState(turn.state);setFeedback(turn.reply);
  }
  async function anotherRound(){if(busy)return;setBusy(true);setError('');try{if(budget.signInRequired){setState({...initialStyleState(style),variant:(s.variant||0)+1});setAnswer('');setFeedback('');return;}const r=await fetch('/api/style-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({missionId:mission.id,action:'restart',answer:''})});const d=await r.json() as {error?:string;session:{state:typeof state;answer:string;feedback:string}};if(!r.ok)throw new Error(d.error);setState(d.session.state);setAnswer('');setFeedback('')}catch{setError('Could not start another round. Your current progress is kept.')}finally{setBusy(false)}}
- const free=s.stage==='explain',options=s.style==='story'&&s.stage==='branch'?storyBranchOptions(mission):s.style==='facts'&&s.stage==='rule'?['TRUE','FALSE']:s.style==='game'&&s.stage==='checkpoint'?[...miniChallenge(mission.id).options]:mission.options;
+ const free=s.stage==='explain',options=s.style==='story'&&s.stage==='branch'?storyBranchOptions(mission):s.style==='story'&&s.stage==='impact'?applicationCard(mission,s.variant).options:s.style==='facts'&&s.stage==='apply'?applicationForState(mission,s).options:s.style==='facts'&&s.stage==='rule'?['TRUE','FALSE']:s.style==='game'&&s.stage==='checkpoint'?applicationCard(mission,s.variant).options:mission.options;
  return <div className={'style-decision style-interaction-'+s.style} data-stage={s.stage}>
  <span className="style-eyebrow">{s.style==='game'?'TWO CHECKPOINTS · NO POINTS YET':s.style==='story'?'CHOOSE → SEE THE CONSEQUENCE → EXPLAIN':s.style==='facts'?'VERIFY A RULE → APPLY IT':'YOUR WORDS → FEEDBACK → NEXT STEP'}</span>
  {!done&&<><h4 className="style-interaction-prompt">{interactionPrompt(mission,s,'web').split('\n').filter(line=>!(/^[A-F]\)/.test(line))).join('\n')}</h4>
