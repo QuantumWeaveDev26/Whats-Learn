@@ -30,3 +30,5 @@ export function shortFieldHint(m:Mission,f:PracticalField){
  const hint=f.hint||'Send your take in one clear message.';
  return hint.split(/(?<=[.!?])\s/)[0].slice(0,160);
 }
+
+export function shortFieldLabel(m:Mission,f:PracticalField){return m.id==='d1'?({story:'The parent’s goal',inputs:'Just the essentials',accept:'Prove it works',failure:'When things break',private:'Keep it private'} as Record<string,string>)[f.id]||f.label:f.label}

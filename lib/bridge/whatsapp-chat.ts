@@ -1,6 +1,6 @@
 import {aiReady,aiProvider,askCoach,reviewChatPart,FeedbackError} from '../ai-feedback';
 import {allow} from '../auth/limits';
-import {chatPartIssue,shortFieldHint} from '../whatsapp-step-check';
+import {chatPartIssue,shortFieldHint,shortFieldLabel} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
 import {missionForLevel,startingLevels} from '../mission-levels';
 import {learnerPerformance} from '../learner-performance';
@@ -71,7 +71,8 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
  if(row.code_hash!==await codeHash(from,code)){await db.prepare('UPDATE whatsapp_link_codes SET attempts=attempts+1 WHERE user_id=?').bind(row.user_id).run();return bad}
  const stamp=at.toISOString();
  await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_in',verified_at=?,opted_out_at=NULL,last_inbound_at=?,updated_at=? WHERE user_id=? AND phone=?").bind(stamp,stamp,stamp,row.user_id,from),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(row.user_id)]);
- return reply(`✅ Linked!\n\n${await learnerOverview(row.user_id)}\n\nReady? Send *TODAY* ⚡\n*HELP* for commands · *STOP* to pause`);
+ const greeting=(await learnerOverview(row.user_id)).split('\n')[0];
+ return reply(greeting+'\nLinked ✅ Small steps. Real skills.\nSend *TODAY* for your first move.\n*PROFILE* for your setup · *STOP* to pause.');
 }
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId)])}
 
@@ -101,10 +102,9 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
  }
  if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
  if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SUBMIT; code is never run.';
- if(step==='checks')return `*Quick self-check*\nWhich did you do? Send numbers (1 3 4), or 0.\n${lm.checks.map((c,i)=>`${i+1}. ${c}`).join('\n')}`;
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'Send your take.';
- return `*${n}/${m.practical!.fields.length} · ${f.label}*\n${followUp||shortFieldHint(m,f)}\n${body}`;
+ return `*${n}/${m.practical!.fields.length} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}\n${body}`;
 }
 function readyText(m:Mission,d:Draft){
  return `*${missionPractice(m).outcome}* — draft ready ✨\nReply *SAVE* to keep it in your journey, or *EDIT* to tweak.\nSaving checks the whole creation before awarding points.`;
@@ -314,7 +314,7 @@ export async function learnerOverview(userId:string){
  const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
  const candidate=saved?.display_name||row?.display_name;
  const name=candidate&&!candidate.includes('@')?candidate:'learner';
- return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI help: ${Math.max(0,a.limit-a.used)}/${a.limit} left today`;
+ return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI reviews: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nChat coaching: ${a.limit>3?40:20} checks/day, separate from reviews`;
 }
 
 // ---------- entry point ----------
