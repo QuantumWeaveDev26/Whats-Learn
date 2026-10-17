@@ -5,7 +5,6 @@ import {MessageCircle} from 'lucide-react';
 import type {Mission} from '@/lib/missions';
 import {checkWriting,aiStars} from '@/lib/writing-check';
 import {answerText} from '@/lib/submission';
-import {MissionStars} from './practice-rewards';
 type HelpAction='simple'|'example'|'hint';
 type AiStatus={loading?:boolean;enabled:boolean;signInRequired?:boolean;limit?:number;used?:number};
 let aiStatus:Promise<AiStatus>|undefined;
@@ -24,5 +23,5 @@ const bandLabel:Record<string,string>={empty:'Not started',filler:'Needs real wr
 /** Basic writing check on this device: reads the text itself and works without any AI key. */
 export function WritingCheckCard({mission,body,checks}:{mission:Mission;body:string;checks:boolean[]}){
  const[ai]=useAiStatus();const aiEnabled=ai.enabled;const r=checkWriting(mission,answerText(mission,body),checks);
- return <div className="writing-check" data-band={r.band} role="status" aria-live="polite"><div className="writing-check-head"><span className="demo-label">QUICK WRITING CHECK</span><MissionStars value={r.blocked?0:r.stars}/></div><p><strong>{bandLabel[r.band]}</strong> · {r.words} words{r.target[0]?` (aim for ${r.target[0]}–${r.target[1]})`:''}{r.onTopic.length>0?` · ${r.onTopic.length} mission idea${r.onTopic.length===1?'':'s'} mentioned`:''}</p><p>{r.tip}</p><small>{r.blocked?'Fix this to save your creation. ':''}A basic check of length, topic and effort on this device{aiEnabled?', not an AI review. Use the AI review below for detailed feedback.':', not an AI review.'}</small></div>;
+ return <div className="writing-check" data-band={r.band} role="status" aria-live="polite"><div className="writing-check-head"><span className="demo-label">QUICK WRITING CHECK</span></div><p><strong>{bandLabel[r.band]}</strong> · {r.words} words{r.target[0]?` (aim for ${r.target[0]}–${r.target[1]})`:''}{r.onTopic.length>0?` · ${r.onTopic.length} mission idea${r.onTopic.length===1?'':'s'} mentioned`:''}</p><p>{r.tip}</p><small>{r.blocked?'Fix this to save your creation. ':''}A basic check of length, topic and effort on this device{aiEnabled?', not an AI review. Use the AI review below for detailed feedback.':', not an AI review.'}</small></div>;
 }

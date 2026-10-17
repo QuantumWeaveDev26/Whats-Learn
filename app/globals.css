@@ -441,3 +441,5 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .workspace-today>.intro{margin-bottom:16px;padding-bottom:0}.workspace-today>.intro h1{font-size:clamp(30px,4vw,46px)}.workspace-today .mission-card{margin-top:8px}
 
 .starter-ai-feedback{display:grid;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid #d7e2d9}.starter-ai-feedback p{margin:0;line-height:1.5}.starter-ai-feedback button{justify-self:start}
+
+.optional-reward-counters,.optional-reward-badges{margin-top:16px}.optional-reward-counters>summary,.optional-reward-badges>summary{cursor:pointer;font-weight:600}.reward-card>h2{font-size:26px;line-height:1.2}.reward-card>p{line-height:1.5}
