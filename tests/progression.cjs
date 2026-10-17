@@ -102,28 +102,28 @@ test('points and clues: stated before starting, exact deductions, no hidden cost
  // Clues touch no streak or practice-day data.
  const ev=count('practice_events');await clue('d1','hint');await clue('f1','example');assert.equal(count('practice_events'),ev);
 });
-test('titles: top title only with no clues in all 10 missions; a separate lower title with clues; rules are explained',async()=>{
+test('course titles recognise completed work with help and breaks allowed',async()=>{
  const t=CT.titleFor('marketing');assert.notEqual(t.top,t.mastery);assert.deepEqual(CT.courseTitles.map(x=>x.track).sort(),[...tracks].sort());
  for(const x of CT.courseTitles){assert.ok(x.top&&x.mastery&&x.top!==x.mastery);assert.doesNotMatch(x.top+x.mastery,/IQ|genius|expert|certified|job-ready/i)}
  for(const track of tracks){
   const ids=course(track);const all=new Set(ids);
   const clean=ids.map(id=>({mission_id:id,clues:0}));
-  assert.equal(CT.courseProgress(track,all,clean).title,'top',track+' clue-free');assert.equal(CT.courseProgress(track,all,clean).name,CT.titleFor(track).top);
-  const oneClue=clean.map((x,i)=>i===4?{...x,clues:1}:x);const cp=CT.courseProgress(track,all,oneClue);assert.equal(cp.title,'mastery');assert.equal(cp.name,CT.titleFor(track).mastery);assert.equal(cp.missionsWithClues,1);
-  assert.equal(CT.courseProgress(track,new Set(ids.slice(0,9)),clean.slice(0,9)).title,null,'nine of ten earns no title');
-  assert.equal(CT.courseProgress(track,all,clean.slice(0,9)).title,'mastery','a mission completed before points existed can only earn the lower title');
+  assert.equal(CT.courseProgress(track,all,clean).title,'streak',track+' complete');assert.equal(CT.courseProgress(track,all,clean).name,CT.titleFor(track).streak);
+  const oneClue=clean.map((x,i)=>i===4?{...x,clues:1}:x);const cp=CT.courseProgress(track,all,oneClue);assert.equal(cp.title,'streak');assert.equal(cp.name,CT.titleFor(track).streak);assert.equal(cp.missionsWithClues,1);
+  assert.equal(CT.courseProgress(track,new Set(ids.slice(0,9)),clean.slice(0,9)).title,'top','nine completed earns the eight-creation milestone');
+  assert.equal(CT.courseProgress(track,all,clean.slice(0,9)).title,'streak','completed work keeps recognition even if old point rows are missing');
  }
  // End to end on the server: ten days, ten marketing missions, no clues, then the badge appears.
  resetAll();for(let i=0;i<10;i++){const id=course('marketing')[i];primeCheckpoints(id);const r=await P.saveMissionWork(user.userId,full(id),day(i));assert.equal(r.status,'awarded',id)}
  const rows=db.prepare('SELECT mission_id,clues FROM mission_scores').all();assert.equal(rows.length,10);
  const w=db.prepare('SELECT mission_id,body,checks,quiz,updated_at FROM work').all().map(x=>({...x,quiz:Number(x.quiz)}));
- let r=practiceRewards(w,[],'marketing',rows);assert.equal(r.course.title,'top');assert.ok(r.badges.find(b=>b.id==='title-top'&&b.earned&&b.name===CT.titleFor('marketing').top));assert.ok(r.badges.find(b=>b.id==='title-mastery'&&!b.earned));
+ let r=practiceRewards(w,[],'marketing',rows);assert.equal(r.course.title,'streak');assert.ok(r.badges.find(b=>b.id==='title-top'&&b.earned&&b.name===CT.titleFor('marketing').top));assert.ok(r.badges.find(b=>b.id==='title-mastery'&&b.earned));
  r=practiceRewards(w,[],'development',rows);assert.equal(r.course.title,null,'another course is unaffected');
  resetAll();await post(clues,{missionId:'m3',clue:'hint'});for(let i=0;i<10;i++){primeCheckpoints(course('marketing')[i]);await P.saveMissionWork(user.userId,full(course('marketing')[i]),day(i))}
  const rows2=db.prepare('SELECT mission_id,clues FROM mission_scores').all();const w2=db.prepare('SELECT mission_id,body,checks,quiz,updated_at FROM work').all().map(x=>({...x,quiz:Number(x.quiz)}));
- r=practiceRewards(w2,[],'marketing',rows2);assert.equal(r.course.title,'mastery');assert.equal(r.course.cluesUsed,1);assert.ok(r.badges.find(b=>b.id==='title-mastery'&&b.earned));assert.ok(r.badges.find(b=>b.id==='title-top'&&!b.earned));
+ r=practiceRewards(w2,[],'marketing',rows2);assert.equal(r.course.title,'streak');assert.equal(r.course.cluesUsed,1);assert.ok(r.badges.find(b=>b.id==='title-mastery'&&b.earned));assert.ok(r.badges.find(b=>b.id==='title-top'&&b.earned));
  // The exact rules sit in the existing rewards help, with no claims about ability.
- const help=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/practice-rewards.tsx'),'utf8');assert.match(help,/titleRules/);assert.match(CT.titleRules,/no clue anywhere in that course/);assert.match(CT.titleRules,/not a qualification or a statement about ability or job readiness/);assert.match(CT.titleRules,/missed day never removes/);
+ const help=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/practice-rewards.tsx'),'utf8');assert.match(help,/titleRules/);assert.match(CT.titleRules,/Asking for clues/);assert.match(CT.titleRules,/not a qualification/);assert.match(CT.titleRules,/taking breaks do not reduce eligibility/);
  assert.match(help,/Missions open in order inside each course/);
 });
 test('streak: kept as before, and a missed day never removes points, work, completed missions or titles',async()=>{

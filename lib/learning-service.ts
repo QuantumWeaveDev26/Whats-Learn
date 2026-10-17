@@ -1,3 +1,4 @@
+import {loadSkillPractice} from './skill-practice-store';
 import {loadEvidence} from './learning-memory';
 import {learningStyleCodes,learningStyle} from './learning-styles';
 import {z} from 'zod';
@@ -17,8 +18,8 @@ export async function loadLearning(userId:string){
   const parsed=profileSchema.safeParse(row);
   const profile=parsed.success?parsed.data:defaultProfile;
   const work=result.results.map(w=>({...w,quiz:Number(w.quiz)})) as unknown as (PracticeRecord & {body:string;updated_at:string})[];
-  const evidence=await loadEvidence(userId);
-  return {profile,hasProfile:parsed.success,work,evidence,path:learningPath(profile,work,'adaptive',false,evidence)};
+  const evidence=await loadEvidence(userId);const skillPractice=await loadSkillPractice(userId);
+  return {profile,hasProfile:parsed.success,work,evidence,skillPractice,path:learningPath(profile,work,'adaptive',false,evidence,skillPractice)};
 }
 export async function saveProfile(userId:string,raw:unknown){
   const input=profileSchema.parse(raw);

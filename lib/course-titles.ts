@@ -1,12 +1,6 @@
 import {missions} from './missions';
-/**
- * Course titles. A title is a recognition inside WhatsLearn for finishing a course. It is not a qualification, a test result, or a statement about ability or job readiness.
- *  - Top title: all 10 missions of the course completed, each one scored here, and no clue used on any of them.
- *  - Mastery title (lower): all 10 missions completed, but at least one clue was used (or a mission was completed before points existed, so its clue use is unknown).
- *  - Streak title (highest): all 10 missions of ONE course completed, zero clues used in that course, and those 10 missions completed as one new mission a day on 10 consecutive India-time days. A day spent on another course, or a missed day, breaks the run (it must be restarted); any clue in the course disqualifies the title for that course. Read from the server-verified score records. A title already earned is never removed.
- *  - Daily streak (separate, shown in the rewards panel): one new scored mission, in any course, on each consecutive India-time day. Practice repeats and clue use neither count for nor against it; a missed day resets only the current streak.
- * Clue use is counted per mission and per course. A missed day never removes a title, points or a completed mission.
- */
+/** Course recognition follows useful completed work. Help, scores and breaks never reduce eligibility.
+ * Legacy title keys remain stable for stored claims; daily streaks are optional statistics only. */
 export type CourseTitle={track:string;course:string;streak:string;top:string;mastery:string};
 export const STREAK_DAYS=10;
 export const courseTitles:CourseTitle[]=[
@@ -16,7 +10,7 @@ export const courseTitles:CourseTitle[]=[
  {track:'storytelling',course:'AI-powered Visual Storytelling',streak:'Creative Director',top:'Lead Visual Storyteller',mastery:'Visual Storytelling Practitioner'}];
 export const titleFor=(track:string)=>courseTitles.find(t=>t.track===track);
 export type ScoreLite={mission_id:string;clues:number;day?:string;points?:number};
-/** Separate from the existing course titles and access rewards: only stored perfect scores count. */
+/** Course completion recognition; historical perfect-score statistics are optional details only. */
 export function starLearnerProgress(track:string,completed:ReadonlySet<string>,scores:ScoreLite[]){
  const ids=missions.filter(m=>m.track===track).map(m=>m.id);
  const perfect=ids.flatMap(id=>{const score=scores.find(s=>s.mission_id===id);return completed.has(id)&&score?.points===100&&score.clues===0?[score]:[]});
@@ -37,9 +31,9 @@ export function courseProgress(track:string,completed:ReadonlySet<string>,scores
  const ids=missions.filter(m=>m.track===track).map(m=>m.id);const total=ids.length;
  const done=ids.filter(id=>completed.has(id)).length;const mine=scores.filter(s=>ids.includes(s.mission_id));
  const cluesUsed=mine.reduce((n,s)=>n+s.clues,0);const missionsWithClues=mine.filter(s=>s.clues>0).length;
- const allDone=done===total;const clean=allDone&&mine.length===total&&cluesUsed===0;
- const t=titleFor(track);const bestStreak=newMissionStreak(mine.map(x=>x.day||'')).best;const title=clean&&bestStreak>=STREAK_DAYS?'streak':clean?'top':allDone?'mastery':null;
+ const allDone=total>0&&done===total;
+ const t=titleFor(track);const bestStreak=newMissionStreak(mine.map(x=>x.day||'')).best;const title=allDone?'streak':done>=8?'top':done>=6?'mastery':null;
  return {track,done,total,scored:mine.length,cluesUsed,missionsWithClues,title,name:t?(title==='streak'?t.streak:title==='top'?t.top:title==='mastery'?t.mastery:null):null,left:total-done,bestStreak};
 }
 export const streakRules='Daily streak: complete one new mission, in any course, on each consecutive day (India time). Repeating a finished mission is practice and does not count. A clue does not count for or against it. A missed day resets only your streak. Points, finished missions and titles are never removed.';
-export const titleRules='Titles, highest first. 10-day no-clue title (Campaign Director, Full-Stack Lead, Film Director or Creative Director): finish all 10 missions of one course, with no clue anywhere in that course, one new mission a day for 10 consecutive days (India time), all in that course. A day on another course, or a missed day, breaks that run, so restart it. Using any clue in the course rules this title out. Top title: all 10 missions, no clue. Practitioner title: all 10 missions with at least one clue, or one finished before points existed. A missed day never removes points, missions or a title you earned. A title is recognition inside WhatsLearn only, not a qualification or a statement about ability or job readiness. There is no leaderboard. A future one would be opt-in and would not show names, emails, work or scores.';
+export const titleRules='Course titles recognise useful completed creations: 6 for Practitioner, 8 for the next title, and all 10 for the highest course title. Asking for clues, imperfect scores and taking breaks do not reduce eligibility. Daily streaks are optional statistics. A title is recognition inside WhatsLearn, not a qualification or a claim of job readiness. There is no leaderboard.';

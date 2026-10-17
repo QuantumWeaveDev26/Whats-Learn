@@ -16,3 +16,13 @@ test('legacy device drafts stay available only to guests and storage failures ke
  global.localStorage={getItem(){throw Error('blocked')},setItem(){throw Error('blocked')}};
  assert.equal(drafts.readMissionDraft('m1','account:a'),null);assert.doesNotThrow(()=>drafts.saveMissionDraft('m1','Still in editor','account:a'));
 });
+
+test('explicit guest recovery moves only nonconflicting drafts to the current account, with no completion data',()=>{
+ data.clear();global.localStorage={getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)};
+ drafts.saveMissionDraft('m1@beginner','Guest marketing creation');drafts.saveMissionDraft('d1','Guest booking creation');drafts.saveMissionDraft('d1','Existing account booking','account:a');
+ const r=drafts.importGuestMissionDrafts('account:a');assert.deepEqual(r.keys,['m1@beginner']);assert.deepEqual(r.conflicts,['d1']);assert.equal(drafts.readMissionDraft('m1@beginner','account:a'),'Guest marketing creation');assert.equal(drafts.readMissionDraft('m1@beginner','account:b'),null);assert.equal(drafts.readMissionDraft('m1@beginner'),null);assert.equal(drafts.readMissionDraft('d1'),'Guest booking creation');assert.equal(drafts.readMissionDraft('d1','account:a'),'Existing account booking');assert.throws(()=>drafts.importGuestMissionDrafts('guest'));
+});
+test('a failed device write never removes the guest source',()=>{
+ data.clear();global.localStorage={getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)};drafts.saveMissionDraft('m1','Keep this guest writing');
+ global.localStorage={getItem:k=>data.get(k)||null,setItem(){throw Error('storage blocked')}};assert.throws(()=>drafts.importGuestMissionDrafts('account:a'));assert.equal(drafts.readMissionDraft('m1'),'Keep this guest writing');
+});

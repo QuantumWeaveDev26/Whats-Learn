@@ -22,13 +22,13 @@ test('nothing can be claimed while the reward is off, even with the title earned
  H.reset({noProvider:true});seed('u1','marketing');const r=await R.claimReward('u1','u1@example.test');assert.equal(r.ok,false);assert.equal(r.status,503);
  assert.equal(H.db.prepare('SELECT COUNT(*) n FROM reward_claims').get().n,0);
 });
-test('only the highest title counts: clue use, an unfinished course or a broken day run does not qualify',async()=>{
+test('only course completion qualifies for the highest title; clues and gaps are welcome',async()=>{
  on();seed('clean','marketing');assert.ok(await R.earnedTopTitle('clean'));
- seed('clue','development',{clues:1});assert.equal(await R.earnedTopTitle('clue'),null,'a clue rules the title out (it earns the separate completion title)');
- seed('gap','filmmaking',{gap:true});assert.equal(await R.earnedTopTitle('gap'),null,'a missed day breaks the 10-day run');
+ seed('clue','development',{clues:1});assert.ok(await R.earnedTopTitle('clue'),'help does not disqualify course completion');
+ seed('gap','filmmaking',{gap:true});assert.ok(await R.earnedTopTitle('gap'),'breaks do not disqualify course completion');
  const ids=M.missions.filter(m=>m.track==='storytelling').map(m=>m.id).slice(0,9);ids.forEach((m,i)=>{H.db.prepare('INSERT INTO mission_scores VALUES (?,?,?,?,?,?,?,?,?)').run('part',m,day(i),25,75,0,0,100,'x');H.db.prepare("INSERT INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)").run('part',m,'w','[]','0','x')});
  assert.equal(await R.earnedTopTitle('part'),null,'9 of 10 missions is not enough');
- const r=await R.claimReward('gap','g@example.test');assert.equal(r.ok,false);assert.equal(r.status,403);
+ const r=await R.claimReward('part','p@example.test');assert.equal(r.ok,false);assert.equal(r.status,403);
 });
 test('the claim: once per account; repeats and simultaneous requests create one row; the entitlement only appears after owner approval',async()=>{
  on();seed('u1','marketing');

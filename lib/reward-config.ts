@@ -1,7 +1,7 @@
 import {env} from 'cloudflare:workers';
 import {billingCatalogue,type SKU} from '@/lib/billing/catalogue';
 /**
- * The free-membership reward for the highest title (10 missions of one course, no clues, 10 consecutive India days).
+ * The free-membership reward for the highest title (10 useful completed creations in one course; help and breaks allowed).
  * It is OFF until the owner sets BOTH REWARD_PLAN (a plan key from the catalogue, e.g. plus_monthly) and REWARD_DAYS (1 to 366).
  * A bad or half-set value keeps it off; nothing is guessed.
  */

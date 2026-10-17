@@ -1,3 +1,4 @@
+import {checkSkillPractice} from '../skill-practice-service';
 import {briefFocus} from '../chat-copy';
 import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
 import {allow} from '../auth/limits';
@@ -175,6 +176,7 @@ async function today(c:Contact):Promise<Out>{
  const userId=c.user_id;await ensureAccount(userId);
  const {path,work}=await loadLearning(userId);const done=await completedIds(userId),cleared=await clearedKeys(userId);
  const track=path.profile.track,list=missionsOfCourse(track);
+ if(path.remediation)return reply(`*${path.remediation.title}*\n${path.remediation.scenario}\n${path.remediation.prompt}\n*PRACTICE your answer* → check this skill. Your main draft is kept.`);
  let open=await getDraft(userId);
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
@@ -271,7 +273,7 @@ async function points(c:Contact):Promise<Out>{
  const s=await loadScores(c.user_id);
  return reply(`Points: ${s.balance}\nStreak: ${s.streak.current} day${s.streak.current===1?'':'s'} (best ${s.streak.best})\nToday's new mission: ${s.todayUsed?'done':'open'}\n\nThis is the same balance as on the website.`);
 }
-const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SAVE* keep your finished work\n*EDIT n* change a part · *CANCEL* discard\n*DRAFTS* kept revisions · *RESUME d1* reopen one\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
+const helpText=`WhatsLearn commands:\n*TODAY* next mission · *ROADMAP* your 10 days\n*LEARN* the idea and task\n*PRACTICE your answer* focused skill check\n*STYLE* switch Game, Casual, Story or Facts\n*HINT* a clue (costs points, asks first)\n*SAVE* keep your finished work\n*EDIT n* change a part · *CANCEL* discard\n*DRAFTS* kept revisions · *RESUME d1* reopen one\n*PROFILE* your name, choices, plan and remaining AI help\n*COURSE* pick a course\n*CHECK B A* answer a mini challenge\n*POINTS* balance · *PERFORMANCE* your progress\n*REMIND 7pm daily* reminders (also weekdays, weekly, OFF)\n*STOP* no more messages\n\nOr just ask a question about your mission.`;
 
 // ---------- reminders: opt-in settings ----------
 function parseHour(t:string){const m=t.toLowerCase().match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/);if(!m)return null;let h=Number(m[1]);if(m[3]==='pm'&&h<12)h+=12;if(m[3]==='am'&&h===12)h=0;return h>=0&&h<=23?h:null}
@@ -373,6 +375,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
+  case 'practice':{const {path}=await loadLearning(c.user_id);if(!path.remediation)return reply('No focused practice is waiting. Send TODAY to continue.');if(!arg)return reply(path.remediation.prompt+'\nReply PRACTICE followed by your answer.');try{const checked=await checkSkillPractice(c.user_id,path.remediation.key,arg);return reply(checked.feedback+'\n'+(checked.accepted?'Skill check passed. Apply it to your creation. *TODAY* → continue.':checked.followUp));}catch(e){return reply(e instanceof FeedbackError?e.message:'Practice check unavailable. Your draft is safe; retry.')}}
   case 'drafts':return savedDrafts(c);
   case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);

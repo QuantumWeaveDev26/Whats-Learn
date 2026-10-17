@@ -142,51 +142,17 @@ test('server: the daily streak counts new scored missions only; repeats, clues a
  const next=await Save('d2',new Date('2026-10-05T18:31:00Z'));assert.equal(next.status,'awarded');
  assert.deepEqual((await P.loadScores('k1',new Date('2026-10-05T18:40:00Z'))).streak,{current:3,best:3});
 });
-test('10-day no-clue title: all 10 missions of one course, no clue in that course, one new mission a day on 10 consecutive India days',()=>{
- const ids=missions.filter(x=>x.track==='marketing').map(x=>x.id);const all=new Set(ids);
- const mk=(days,clues=()=>0)=>ids.slice(0,days.length).map((id,i)=>({mission_id:id,clues:clues(i),day:days[i]}));
- const T=(scores,done=all)=>CT.courseProgress('marketing',done,scores);
- // Earned in a clean run.
- let p=T(mk(dayList(1,10)));assert.equal(p.title,'streak');assert.equal(p.name,'Campaign Director');assert.equal(p.bestStreak,10);
- assert.equal(T(mk(dayList(25,10).map((d,i)=>i<7?d:new Date(Date.UTC(2026,10,1+i-7)).toISOString().slice(0,10)))).title,'streak','a run that crosses a month end still counts');
- // Denied for a clue anywhere in the course (still finishes the course: practitioner title).
- for(const i of [0,4,9]){p=T(mk(dayList(1,10),k=>k===i?1:0));assert.equal(p.title,'mastery','clue on mission '+(i+1));assert.notEqual(p.name,'Campaign Director')}
- // Denied for a gap (a missed day).
- p=T(mk([...dayList(1,5),...dayList(7,5)]));assert.equal(p.title,'top');assert.equal(p.bestStreak,5);assert.notEqual(p.name,'Campaign Director');
- // Denied for a mixed-course day: the learner spent day 6 on another course, so this course's days have a hole.
- const hole=[...dayList(1,5),...dayList(7,5)];p=T(mk(hole));assert.equal(p.title,'top','a day on another course breaks the run');
- // Denied when the missions were spread over more than 10 days.
- p=T(mk([...dayList(1,3),...dayList(5,3),...dayList(9,4)]));assert.equal(p.title,'top');
- // Denied for fewer than 10 missions: nine in a row is not enough, and the course is not complete.
- p=T(mk(dayList(1,9)),new Set(ids.slice(0,9)));assert.equal(p.title,null);assert.equal(p.name,null);assert.equal(p.bestStreak,9);
- // A streak earned in other courses does not help this course.
- const other=missions.filter(x=>x.track==='development').map(x=>x.id);
- p=T(mk(dayList(1,10)).map(x=>({...x,day:'2026-10-01'})));assert.notEqual(p.title,'streak','ten missions on one day is not ten days');
- const mixed=[...ids.slice(0,5).map((id,i)=>({mission_id:id,clues:0,day:dayList(1,5)[i]})),...other.slice(0,1).map(id=>({mission_id:id,clues:0,day:'2026-10-06'})),...ids.slice(5).map((id,i)=>({mission_id:id,clues:0,day:dayList(7,5)[i]}))];
- p=T(mixed);assert.equal(p.title,'top','development mission on day 6 breaks the marketing run');assert.equal(p.bestStreak,5);
- // A title already earned stays when later days are missed (nothing in the inputs changes, so it is derived the same way every time).
- assert.equal(T(mk(dayList(1,10))).title,'streak');
- // The four names and the rules text.
- assert.deepEqual(CT.courseTitles.map(t=>t.streak),['Campaign Director','Full-Stack Lead','Film Director','Creative Director']);assert.equal(new Set(CT.courseTitles.flatMap(t=>[t.streak,t.top,t.mastery])).size,12);
- for(const re of [/10-day no-clue title/,/one course/,/no clue anywhere in that course/,/10 consecutive days \(India time\)/,/another course, or a missed day, breaks that run/,/any clue in the course rules this title out/,/missed day never removes/,/no leaderboard/i])assert.match(CT.titleRules,re);
+test('course recognition ignores clues, gaps and imperfect scores, while keeping 6/8/10 milestones',()=>{
+ const ids=missions.filter(x=>x.track==='marketing').map(x=>x.id);
+ for(const n of [0,5,6,7,8,9,10]){const done=new Set(ids.slice(0,n)),scores=ids.slice(0,n).map((mission_id,i)=>({mission_id,clues:2,points:75,day:dayList(1,20)[i*2]}));const p=CT.courseProgress('marketing',done,scores);assert.equal(p.title,n===10?'streak':n>=8?'top':n>=6?'mastery':null);if(n===10)assert.equal(p.name,'Campaign Director');}
+ assert.match(CT.titleRules,/Asking for clues/);assert.match(CT.titleRules,/taking breaks do not reduce eligibility/);assert.match(CT.titleRules,/not a qualification/);
 });
-test('server-verified 10-day title: ten real saved missions of one course, one a day, no clues; any clue or other-course day denies it',async()=>{
- const ids=missions.filter(x=>x.track==='marketing').map(x=>x.id);const day=(d)=>new Date(Date.UTC(2026,9,d,5,0,0));
- const title=async(u,asOf)=>{const d=await P.loadScores(u,asOf);return CT.courseProgress('marketing',new Set(ids.filter(id=>d.scores.some(s=>s.mission_id===id))),d.scores.map(s=>({mission_id:s.mission_id,clues:s.clues,day:s.day}))).title};
- fresh('t1');for(let i=0;i<10;i++)assert.equal((await Save(ids[i],day(1+i))).status,'awarded',ids[i]);
- assert.equal(await title('t1',day(10)),'streak');assert.equal(await title('t1',day(30)),'streak','a later gap removes nothing');
- const d1=await P.loadScores('t1',day(30));assert.equal(d1.scores.length,10);assert.equal(d1.streak.current,0);assert.equal(d1.streak.best,10);
- // A clue on mission 6 means the learner finishes the course but not with the special title.
- fresh('t2');for(let i=0;i<10;i++){if(i===5)await clue(ids[5],'hint');assert.equal((await Save(ids[i],day(1+i))).status,'awarded')}
- assert.equal(await title('t2',day(10)),'mastery');
- // A day on another course in the middle breaks the run.
- fresh('t3');for(let i=0;i<5;i++)await Save(ids[i],day(1+i));assert.equal((await Save('d1',day(6))).status,'awarded');for(let i=5;i<10;i++)await Save(ids[i],day(7+i-5));
- assert.equal(await title('t3',day(12)),'top');
- // A missed day breaks the run.
- fresh('t4');for(let i=0;i<10;i++)await Save(ids[i],day(1+i+(i>=5?1:0)));assert.equal(await title('t4',day(12)),'top');
- // Nine missions: nothing yet.
- fresh('t5');for(let i=0;i<9;i++)await Save(ids[i],day(1+i));assert.equal(await title('t5',day(9)),null);
+test('server-verified course completion with clues and breaks still earns the highest title',async()=>{
+ const ids=missions.filter(x=>x.track==='marketing').map(x=>x.id),day=d=>new Date(Date.UTC(2026,9,d,5,0,0));fresh('inclusive-title');
+ for(let i=0;i<10;i++){if(i===5)await clue(ids[i],'hint');assert.equal((await Save(ids[i],day(1+i*2))).status,'awarded');}
+ const scores=(await P.loadScores('inclusive-title',day(30))).scores;assert.equal(scores.length,10);assert.ok(scores.some(s=>s.clues>0));assert.equal(CT.courseProgress('marketing',new Set(ids),scores).title,'streak');assert.equal(CT.courseProgress('marketing',new Set(ids.slice(0,9)),scores).title,'top');
 });
+
 test('other learners cannot see or change this learner’s balance',async()=>{
  fresh('j1');await clue('m1','hint');fresh('j2');assert.equal((await P.loadScores('j2')).balance,50);assert.equal(await PT.pointsBalance('j1'),45);
  const h=await PT.pointsHistory('j2');assert.ok(h.every(x=>x.kind==='starting'));

@@ -1,3 +1,4 @@
+import {skillTask,type SkillPracticeRecord} from './skill-practice';
 import {skillKey} from './review-summary';
 import type {LearningEvidence} from './learning-memory';
 import {goals} from './personalization';
@@ -7,7 +8,7 @@ import {defaultProfile,localizeMission,outcomePrompt,challengeInstruction,type P
 
 export type PracticeRecord={mission_id:string;checks:string;quiz:number};
 export function reviewCount(checks:string){try{const values=JSON.parse(checks);return Array.isArray(values)?values.filter(v=>v===true).length:0}catch{return 0}}
-export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[]=[],mode='adaptive',needsSupport=false,evidence:LearningEvidence[]=[]){
+export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[]=[],mode='adaptive',needsSupport=false,evidence:LearningEvidence[]=[],practice:SkillPracticeRecord[]=[]){
   const current=missions.filter(m=>m.track===profile.track);
   const pool=current.length?current:missions.filter(m=>m.track===defaultProfile.track);
   const valid=work.filter(w=>missions.some(m=>m.id===w.mission_id&&m.answer===Number(w.quiz)));
@@ -31,6 +32,12 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
     for(const check of e.review.checks){const key=skillKey(check.item);const state=skills[key]??={demonstrated:check.met&&supported,attempts:0,needsWork:0};state.attempts++;if(!check.met)state.needsWork++;}
   }
   const focus=weak?{skill:weak.item,instruction:weak.note,repeated,mastered:false}:strongEvidence?{skill:'Apply the skill to a new constraint',instruction:'Test a different audience, failure case or constraint and explain what changed.',repeated:0,mastered:true}:null;
+  const task=weak&&skillReview?skillTask(skillReview.mission_id,weak.item,weak.note,skillReview.reviewKey||skillReview.created_at,!!skillReview.review.blockingIssue,missions.find(m=>m.id===skillReview.mission_id)?.brief||''):null;
+  const practiceState=task?practice.find(p=>p.task_key===task.key):undefined;
+  const passed=practiceState?.accepted?practiceState:undefined;
+  if(task&&!passed&&(practiceState?.mistakes||0)>=2)task.prompt+=' Start with one concrete example; keep the rest of your work.';
+  const remediation=task&&!passed?task:null;
+  if(passed){skills[passed.skill]={...(skills[passed.skill]||{attempts:0,needsWork:0}),demonstrated:true};}
   const level=mode==='guided'||needsSupport?'guided':mode==='stretch'?'stretch':weak?'guided':strongEvidence?'stretch':revisit?'guided':profile.level==='experienced'||strong>=2?'stretch':'guided';
   const minutes=profile.minutes==='flexible'?next.minutes:Number(profile.minutes)||15;
   const sessionMinutes=Math.min(minutes,next.minutes);
@@ -39,7 +46,7 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const practiceLevel=skillReview?.review.profileLevel&&skillReview.review.profileLevel!==profile.level?profile.level:skillReview?.mission_id===next.id?skillReview.review.learningLevel||profile.level:strongEvidence?'experienced':repeated>1?'beginner':profile.level;
   const localized=localizeMission(next,profile.language,practiceLevel);
   const {answer: _answer,explanation: _explanation,...challenge}=localized;
-  return {version:'1.0.0',profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
+  return {version:'1.1.0',remediation,practicePassed:passed||null,profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
     sessionHint:minutes<next.minutes?'Use this session for the first part of this task. Keep your draft and return to finish the full practical trial.':'Create, check and improve one practical response.',
     challenge:{...challenge,outcome:outcomePrompt(profile.goal,profile.language),guidance:challengeInstruction(level,profile.language,!!next.practical)},
     steps:pool.map(m=>({id:m.id,title:localizeMission(m,profile.language).title,completed:completed.has(m.id)})),

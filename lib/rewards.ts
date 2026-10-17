@@ -18,7 +18,7 @@ export async function rewardStatus(userId:string,now=new Date()){
 /** One request per account, ever: the claim row's primary key is the account. Simultaneous or repeated requests insert nothing and report the existing state. */
 export async function claimReward(userId:string,email:string,now=new Date()){
  const cfg=rewardConfig();if(!cfg.enabled)return {ok:false as const,status:503,message:cfg.reason};
- const earned=await earnedTopTitle(userId,now);if(!earned)return {ok:false as const,status:403,message:'The reward unlocks when you earn the 10-day no-clue title in one course.'};
+ const earned=await earnedTopTitle(userId,now);if(!earned)return {ok:false as const,status:403,message:'The reward unlocks when you earn the highest title after completing one course.'};
  const r=await database().prepare("INSERT OR IGNORE INTO reward_claims (user_id,email,track,title,plan,days,status,created_at) VALUES (?,?,?,?,?,?,'pending',?)").bind(userId,email,earned.track,earned.title,cfg.plan,cfg.days,now.toISOString()).run();
  const state=(await rewardStatus(userId,now)).state;
  return {ok:true as const,created:(r.meta?.changes||0)>0,state,message:(r.meta?.changes||0)>0?'Your reward request is saved. The WhatsLearn team will review it and add the membership to your account.':'You have already requested this reward. It can be claimed once per account.'};
