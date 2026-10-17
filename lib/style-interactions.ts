@@ -1,3 +1,4 @@
+import {storyOutcomes} from './story-outcomes';
 import type {Mission} from './missions';
 import {learningStyle,type LearningStyle} from './learning-styles';
 import {questionForStyle} from './style-questions';
@@ -8,11 +9,7 @@ export function initialStyleState(style:unknown):StyleState{const kind=learningS
 export function currentStyleState(style:unknown,state?:StyleState):StyleState{return state?.style===learningStyle(style)?state:initialStyleState(style);}
 const wrongIndex=(m:Mission)=>(m.answer+1)%m.options.length;
 export const ruleIsTrue=(m:Mission)=>[...m.question].reduce((n,c)=>((n*31)^c.charCodeAt(0))>>>0,7)%2===0;
-export function storyConsequence(m:Mission,correct:boolean){
- if(m.id==='d1')return correct?'Possible ending: the parent can distinguish a confirmed booking from a failed attempt.':'Alternate ending: the parent expects a trial slot, but the tutor may have no saved booking. The parent has been misled.';
- const scenes:Record<string,[string,string]>={marketing:['Possible ending: the customer has a clearer, evidence-backed next step.','Alternate ending: the campaign reaches people, but its message or evidence may not support their next step.'],development:['Possible ending: the user can rely on the checked behaviour instead of an unchecked assumption.','Alternate ending: someone relies on the app, but the unchecked behaviour can give them a misleading or unsafe result.'],filmmaking:['Possible ending: a viewer has a clearer reason to follow the character and the scene.','Alternate ending: the viewer loses the intended connection between the character, the action and its result.'],storytelling:['Possible ending: the viewer can connect the message to its intended action.','Alternate ending: the viewer notices the images but misses the message or intended action.']};
- return (scenes[m.track]||scenes.development)[correct?0:1]+' In this scene: '+m.brief+' Decision at stake: '+m.question;
-}
+export function storyConsequence(m:Mission,correct:boolean,pick?:number){const outcome=storyOutcomes[m.id];if(!outcome)return 'Consider how this choice changes the user’s next action.';return correct?'Possible ending: '+outcome[0]:'Alternate ending: '+outcome[1]+(pick===undefined?'':' Your move: “'+m.options[pick]+'”.');}
 
 const letters=(options:string[])=>options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n');
 export function interactionPrompt(m:Mission,s:StyleState,channel:'chat'|'web'='chat'):string{
@@ -46,7 +43,7 @@ export function styleTurn(m:Mission,state:StyleState,text:string,language='en'):
   s.stage='ready';return {state:s,completed:true,reply:'Both checkpoints cleared ✅ Now build it. No mission points until your work passes review.'};
  }
  const pick=picked(text,m.options.length);if(pick<0)return {state:s,reply:'Pick one of the shown letters.'};
- if(pick!==m.answer){s.pick=pick;return {state:s,reply:s.style==='story'?storyConsequence(m,false)+' You chose “'+m.options[pick]+'”. '+m.explanation+' Rewind and choose again.':s.style==='game'?'Checkpoint 1 stays open. '+quizFeedback(language,false,m.skill,m.explanation).text:quizFeedback(language,false,m.skill,m.explanation).text};}
+ if(pick!==m.answer){s.pick=pick;return {state:s,reply:s.style==='story'?storyConsequence(m,false,pick)+' '+m.explanation+' Rewind and choose again.':s.style==='game'?'Checkpoint 1 stays open. '+quizFeedback(language,false,m.skill,m.explanation).text:quizFeedback(language,false,m.skill,m.explanation).text};}
  s.pick=pick;
  if(s.style==='game'){s.stage='checkpoint';return {state:s,reply:'Checkpoint 1 cleared. One more move.'};}
  if(s.style==='story'){s.stage='explain';return {state:s,reply:'The story takes your chosen path. Explain the consequence next.'};}

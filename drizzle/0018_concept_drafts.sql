@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS concept_drafts (user_id TEXT NOT NULL, mission_id TEXT NOT NULL, style TEXT NOT NULL, question_key TEXT NOT NULL, answer TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY(user_id,mission_id,style,question_key));
