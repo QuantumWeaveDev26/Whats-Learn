@@ -143,7 +143,7 @@ async function today(c:Contact):Promise<Out>{
   if(fin&&!cleared.has(checkpointKey(track,10)))return reply(`You finished every mission in ${courseName(track)}.\n\n${checkpointText(fin)}`);
   return reply(`You finished ${courseName(track)} and its mini challenges. Send COURSE to start another course, or open ${site()}/learn.`);
  }
- const next=missionForLevel(list.find(m=>!done.has(m.id))!,c.level);
+ const next=missionForLevel(list.find(m=>m.id===path.nextMissionId)||list.find(m=>!done.has(m.id))!,path.practiceLevel);
  if(!await canUseMission(userId,next.id))return reply('✅ Your first 3 missions are done!\n'+membershipRequired+'\n'+site()+'/membership');
  const lock=lockFor(next,done,cleared);
  if(lock.locked&&lock.checkpoint){const cp=checkpointFor(lock.checkpoint.track,lock.checkpoint.after)!;return reply(`${lock.message}\n\n${checkpointText(cp)}`)}
@@ -151,10 +151,10 @@ async function today(c:Contact):Promise<Out>{
  const scores=await loadScores(userId);
  if(scores.todayUsed)return reply(`${dailyLimitMessage}\n\nStreak: ${scores.streak.current} day${scores.streak.current===1?'':'s'}. Points: ${scores.balance}.`);
  void work;await setCurrent(userId,next.id);
- await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:c.level},pending_clue:null});
+ await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
- return reply(`${greeting} 👋\n\n${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nLEARN for the idea · HELP for commands`);
+ return reply(`${greeting} 👋\n\n${path.reason}\n${path.focus?'Focus: '+path.focus.instruction+'\n':''}\n${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -316,7 +316,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(cmd==='start'&&!arg){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(at.toISOString(),c.user_id).run();return reply('Welcome back. Lessons are on; reminders stay off until you send REMIND 7pm daily. Reply TODAY for your next mission.')}
  if(c.state!=='opted_in')return none('opted-out');
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
- const savedProfile=(await loadLearning(c.user_id)).profile;c.style=learningStyle(savedProfile.style);c.level=savedProfile.level;
+ const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;
  const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;

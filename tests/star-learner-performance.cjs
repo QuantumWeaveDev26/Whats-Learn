@@ -3,10 +3,10 @@ const h=require('./helpers/harness.cjs');
 const {missions}=h.load('lib/missions.ts'),{starLearnerProgress}=h.load('lib/course-titles.ts');
 const done=new Set(missions.filter(m=>m.track==='development').map(m=>m.id));
 const perfect=()=>[...done].map((mission_id,i)=>({mission_id,clues:0,points:100,day:`2026-10-${String(i+1).padStart(2,'0')}`}));
-test('Star Learner requires ten actual perfect course scores on consecutive days',()=>{
+test('Star Learner recognises completed course work despite clues, imperfect scores or breaks',()=>{
  const scores=perfect();assert.equal(starLearnerProgress('development',done,scores).earned,true);
  for(const change of [s=>s.pop(),s=>s[3].points=85,s=>s[3].clues=1,s=>s[9].day='2026-10-12',s=>delete s[3].points]){
-  const altered=perfect();change(altered);assert.equal(starLearnerProgress('development',done,altered).earned,false);
+  const altered=perfect();change(altered);assert.equal(starLearnerProgress('development',done,altered).earned,true);
  }
  assert.equal(starLearnerProgress('development',new Set([...done].slice(0,9)),scores).earned,false);
  assert.equal(starLearnerProgress('marketing',done,scores).earned,false);

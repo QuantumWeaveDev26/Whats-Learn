@@ -26,7 +26,7 @@ export async function POST(request:Request){
   const p=input.parse(JSON.parse(text));
   if(!missions.some(m=>m.id===p.missionId))return response({error:'Unknown challenge.'},404);
   if(!await canUseMission(user.userId,p.missionId))return response({error:membershipRequired},403);
-  if(p.action==='review'){const mission=missions.find(m=>m.id===p.missionId)!;if(p.quiz!==mission.answer)return response({error:'Answer the understanding question correctly before requesting review. Nothing was saved or reviewed.'},422);const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language);return response({review,...await allowance(user.userId)})}
+  if(p.action==='review'){const mission=missions.find(m=>m.id===p.missionId)!;if(p.quiz!==mission.answer)return response({error:'Answer the understanding question correctly before requesting review. Nothing was saved or reviewed.'},422);const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language,true);return response({review,...await allowance(user.userId)})}
   const a=await allowance(user.userId);if(a.used>=a.limit)return response({error:`You have used today’s ${a.limit} AI reviews. They reset at midnight (India time).`,...a},429);
   if(!await reserveAiUse(user.userId,a.limit))return response({error:'Today’s AI allowance is used. It resets at midnight India time.'},429);reserved=true;
   const profile=await database().prepare('SELECT level FROM learner_profiles WHERE user_id=?').bind(user.userId).first<{level:string}>();const result=await askCoach(p.missionId,p.question,p.body,p.language,profile?.level||'beginner');

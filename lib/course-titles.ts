@@ -21,7 +21,7 @@ export function starLearnerProgress(track:string,completed:ReadonlySet<string>,s
  const ids=missions.filter(m=>m.track===track).map(m=>m.id);
  const perfect=ids.flatMap(id=>{const score=scores.find(s=>s.mission_id===id);return completed.has(id)&&score?.points===100&&score.clues===0?[score]:[]});
  const best=newMissionStreak(perfect.map(s=>s.day||'')).best;
- return {earned:ids.length===10&&perfect.length===10&&best>=10,perfect:perfect.length,best,total:ids.length};
+ return {earned:ids.length===10&&ids.every(id=>completed.has(id)),completed:ids.filter(id=>completed.has(id)).length,perfect:perfect.length,best,total:ids.length};
 }
 const dayNumber=(d:string)=>Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/86400000;
 /** Runs of consecutive India-time days with a new scored mission. `current` counts only if the run reaches today or yesterday. */

@@ -1,0 +1,6 @@
+import type {Review} from './ai-feedback';
+export function reviewAccepted(r:Review){return r.answerAssessment?.onTopic===true&&r.answerAssessment.correct===true&&r.practicalTest?.created===true&&r.practicalTest.performed===true&&r.practicalTest.reported===true&&r.checks.filter(c=>c.met).length>=3}
+export function feedbackSummary(r:Review){return {worked:r.answerAssessment?.onTopic?r.strengths[0]||r.checks.find(c=>c.met)?.note||'No demonstrated strength yet.':'This answer needs to address the task.',improve:r.answerAssessment?.correct===false?r.answerAssessment.reason:r.checks.find(c=>!c.met)?.note||(r.practicalTest?.reported===false?r.practicalTest?.note||r.nextStep:r.nextStep),next:r.nextStep}}
+
+/** Stable skill families support continuity when criteria are translated or worded differently. */
+export function skillKey(item:string){const t=item.toLowerCase();if(/audience|customer|ಗ್ರಾಹಕ|ಪ್ರೇಕ್ಷಕ|ग्राहक|दर्शक/.test(t))return 'audience';if(/test|result|measure|experiment|ಪರೀಕ್ಷ|ಫಲಿತ|परीक्षण|परिणाम/.test(t))return 'testing';if(/privacy|consent|permission|ಖಾಸಗಿ|ಅನುಮತಿ|गोपनीय|अनुमति/.test(t))return 'privacy';if(/offer|promise|hook|headline|ಕೊಡುಗೆ|ವಾಗ್ದಾನ|वादा|प्रस्ताव/.test(t))return 'message';return t.trim()}
