@@ -64,3 +64,13 @@ With the owner’s permission, the developer sent test replies in the linked lea
 - Natural short Kanglish such as “Slot illa andre enu torisbeku?” is recognized without requiring the word Kanglish. The same detector is used before English-only relevance filtering and when selecting AI feedback language. Meaningful Kanglish answers still require semantic AI approval.
 - Recaps omit the repeated onboarding explanation and limit the focus to a visibly marked 16-word excerpt, with a link to full feedback. Optional performance detail uses the same excerpt limit.
 - 317 isolated tests pass, including natural Kanglish answer advancement, short Kanglish questions and rejection-preserving compression. This does not establish every real model answer is correct. Full live final-review/save/next-task verification remains blocked by the owner’s daily allowance.
+
+
+## Integration completion follow-up
+- Reopened the owner payment setup: live keys, secret, live plans and public checkout are configured. An existing live subscription was refreshed successfully without creating a checkout, charging money or cancelling renewal. The older paid test sprint is isolated from live access.
+- Fixed server-side billing-mode isolation for refresh, checkout verification and cancellation. A test row cannot call Razorpay with live credentials merely by bypassing the disabled UI button.
+- Signed payment webhooks retain the order payment reference even when the browser checkout callback never runs. Refund handling can recover that order from the provider payment and checks currency/amount; multiple partial refunds totalling a full payment end sprint access. No actual refund was requested.
+- Added an owner-only signed-webhook history indicator. Its history can contain test or live events, so it explicitly does not certify live-mode delivery. Customer and guest responses do not expose this history or configuration.
+- Automated provider fixtures cover webhook-only activation, duplicate delivery without extending access, full cumulative refund revocation and mode mismatch rejection before a provider call.
+- Current live mission still shows 0/3 reviews left and the complete synthetic browser draft restored after reopening. Accepted final review/save/next-task remains unverified; no quota reset, fabricated completion or points grant was made.
+- The Meta WhatsApp Manager and Razorpay dashboards both require sign-in. Authenticated owner access is needed to submit/inspect templates and provider webhook delivery logs. No template approval or delivery outside the service window is claimed. A real-money payment requires the owner to complete checkout themselves.

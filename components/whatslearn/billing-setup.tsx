@@ -31,6 +31,7 @@ export default function BillingSetup(){
     <li>{modeLabel} API key: {(live?state.config?.liveKey:state.config?.testKey)?'Ready':'Missing'}</li>
     <li>API secret: {state.config?.secret?'Configured':'Missing'}</li>
     <li>Webhook secret: {state.config?.webhook?'Configured':'Missing'}</li>
+    <li>Signed webhook history (test or live): {state.webhook?.verifiedDeliverySeen?`${state.webhook.lastEvent} · ${state.webhook.lastReceivedAt}`:'Not observed yet — a configured secret alone does not confirm delivery.'}</li>
     <li>Mode: {live?'LIVE · real payments':'Test'}{state.config?.liveKey&&!state.config?.liveEnabled?' (a live key is set but BILLING_LIVE_ENABLED is not true, so checkout stays closed)':''}</li>
     <li>Checkout for all signed-in learners: {state.checkoutOpen?'Open':'Owner only'}</li>
     <li>First-sprint credit offer: {state.config?.sprintOffer?'Configured':'Not set'}</li>

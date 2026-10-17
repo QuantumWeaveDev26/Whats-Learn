@@ -10,7 +10,7 @@ const route=require('../app/api/billing/route.ts'),{ownerPageAccess}=require('..
 const get=async()=>(await route.GET()).json();
 const post=body=>route.POST(new Request('https://whatslearn.in/api/billing',{method:'POST',headers:{origin:'https://whatslearn.in','Content-Type':'application/json'},body:JSON.stringify(body)}));
 const OWNER={userId:'local_seedy',email:'seedy@sites.test'},CUSTOMER={userId:'c1',email:'learner@example.test'};
-const customerSafe=(d,label)=>{const t=JSON.stringify(d);for(const k of ['setup','config','plans','admin','ownerMissing','ownerSetupRequired','RAZORPAY','BILLING_','FAKE','.env'])assert.ok(!t.includes(k),`${label}: customer response must not include ${k}`)};
+const customerSafe=(d,label)=>{const t=JSON.stringify(d);for(const k of ['webhook','setup','config','plans','admin','ownerMissing','ownerSetupRequired','RAZORPAY','BILLING_','FAKE','.env'])assert.ok(!t.includes(k),`${label}: customer response must not include ${k}`)};
 const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../drizzle')).filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.resolve(__dirname,'../drizzle',f),'utf8').replaceAll('--> statement-breakpoint',''))};
 (async()=>{
  // Nothing configured: guests and customers just see "not open".
@@ -25,7 +25,7 @@ const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../driz
  testUser=null;assert.equal((await post({action:'plans'})).status,401);
  // The owner gets the checklist, by setting name only.
  testUser=OWNER;d=await get();assert.equal(d.admin,true);assert.equal(d.enabled,true);assert.equal(d.mode,'test');
- assert.deepEqual(d.setup.steps.filter(s=>!s.ok).map(s=>s.id),['plans']);for(const v of ['FAKEKEY123','FAKE-secret','FAKE-webhook'])assert.ok(!JSON.stringify(d).includes(v),'No values, even for the owner');
+ assert.equal(d.webhook.verifiedDeliverySeen,false);db.prepare('INSERT INTO billing_events(id,event,processed_at) VALUES (?,?,?)').run('signed-fixture','payment.captured','2026-10-17T10:00:00Z');d=await get();assert.equal(d.webhook.verifiedDeliverySeen,true);assert.equal(d.webhook.lastEvent,'payment.captured');assert.deepEqual(d.setup.steps.filter(s=>!s.ok).map(s=>s.id),['plans']);for(const v of ['FAKEKEY123','FAKE-secret','FAKE-webhook'])assert.ok(!JSON.stringify(d).includes(v),'No values, even for the owner');
  // A live key is never treated as a test key, and without BILLING_LIVE_ENABLED checkout stays closed for everyone.
  env.RAZORPAY_KEY_ID='rzp_live_FAKELIVE';d=await get();assert.equal(d.enabled,false);assert.equal(d.config.testKey,false);assert.match(d.setup.steps.find(s=>s.id==='key').fix,/BILLING_LIVE_ENABLED/);
  testUser=CUSTOMER;d=await get();customerSafe(d,'customer, live key without flag');assert.equal(d.enabled,false);

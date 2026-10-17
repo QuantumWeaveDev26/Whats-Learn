@@ -75,7 +75,9 @@ export async function activeEntitlement(userId:string){
  return row?{sku:row.sku,plan:billingCatalogue[row.sku]?.name||row.sku,endsAt:row.ends_at,mode:row.mode}:null;
 }
 export async function hasPaidAccess(userId:string){return !!await activeEntitlement(userId)}
+function assertSessionMode(row:BillingSession){if((row.mode||'test')!==currentMode())throw new BillingError('This checkout belongs to a different billing mode. Use the matching Razorpay configuration.',409)}
 export async function syncSession(row:BillingSession){
+ assertSessionMode(row);
  if(!row.provider_id)throw new BillingError('Checkout needs reconciliation before it can be retried.',409);
  const entity=await razorpay((row.kind==='order'?'orders/':'subscriptions/')+encodeURIComponent(row.provider_id));
  if(row.kind==='order'&&(entity.currency!=='INR'||entity.amount!==Number(row.amount)))throw new BillingError('Order amount verification failed.',409);
@@ -90,7 +92,7 @@ export async function syncSession(row:BillingSession){
  return {id:row.id,sku:row.sku,state,mode:row.mode||'test',paidAccessActivated:activated,currentEnd:entity.current_end||null,message:activated?(test?'Test payment verified. Test access is active; no real money moved.':'Payment verified. Your access is active.'):test?'Test billing status updated. No real payment was made.':'Billing status updated.'};
 }
 export async function verifyCheckout(userId:string,sessionId:string,paymentId:string,signature:string){
- const row=await ownedSession(userId,sessionId);if(!row.provider_id)throw new BillingError('Checkout not ready.',409);
+ const row=await ownedSession(userId,sessionId);assertSessionMode(row);if(!row.provider_id)throw new BillingError('Checkout not ready.',409);
  const message=row.kind==='order'?row.provider_id+'|'+paymentId:paymentId+'|'+row.provider_id;
  if(!await verifyHmac(billingConfig().keySecret,message,signature))throw new BillingError('Payment signature verification failed.',400);
  const payment=await razorpay('payments/'+encodeURIComponent(paymentId));
@@ -121,11 +123,24 @@ export async function processWebhook(raw:string,signature:string,eventId:string)
  if(event.event==='refund.processed'){
   // A full refund of a sprint order ends its access. Partial refunds leave access as it is.
   const refund=event.payload?.refund?.entity;const paymentId=refund?.payment_id;
-  if(paymentId){const row=await db.prepare('SELECT * FROM billing_sessions WHERE payment_id=?').bind(paymentId).first<BillingSession>();if(row&&row.kind==='order'&&Number(refund.amount)>=Number(row.amount))await db.prepare("UPDATE entitlements SET status='refunded',updated_at=? WHERE session_id=?").bind(new Date().toISOString(),row.id).run()}
+  if(typeof paymentId==='string'&&/^pay_[a-zA-Z0-9]+$/.test(paymentId)){
+   const payment=await razorpay('payments/'+encodeURIComponent(paymentId));
+   const row=await db.prepare('SELECT * FROM billing_sessions WHERE payment_id=? OR provider_id=?').bind(paymentId,String(payment.order_id||'')).first<BillingSession>();
+   if(row&&row.kind==='order'){
+    assertSessionMode(row);
+    if(payment.order_id!==row.provider_id||payment.currency!=='INR'||payment.amount!==Number(row.amount))throw new BillingError('Refund payment does not match this order.',409);
+    await db.prepare('UPDATE billing_sessions SET payment_id=? WHERE id=?').bind(paymentId,row.id).run();
+    // Multiple partial refunds can together exhaust a sprint payment.
+    if(Number(refund.amount)>=Number(row.amount)||Number(payment.amount_refunded)>=Number(row.amount))await db.prepare("UPDATE entitlements SET status='refunded',updated_at=? WHERE session_id=?").bind(new Date().toISOString(),row.id).run();
+   }
+  }
  }else{
   const sub=event.payload?.subscription?.entity?.id;const order=event.payload?.order?.entity?.id||event.payload?.payment?.entity?.order_id;
   const providerId=sub||order;
-  if(providerId){const row=await db.prepare('SELECT * FROM billing_sessions WHERE provider_id=?').bind(providerId).first<BillingSession>();if(row)await syncSession(row);}
+  if(providerId){const row=await db.prepare('SELECT * FROM billing_sessions WHERE provider_id=?').bind(providerId).first<BillingSession>();if(row){await syncSession(row);
+    const payment=event.payload?.payment?.entity;
+    if(row.kind==='order'&&typeof payment?.id==='string'&&/^pay_[a-zA-Z0-9]+$/.test(payment.id)&&payment.order_id===row.provider_id&&payment.currency==='INR'&&payment.amount===Number(row.amount))await db.prepare('UPDATE billing_sessions SET payment_id=? WHERE id=?').bind(payment.id,row.id).run();
+   }}
  }
  await db.prepare('INSERT OR IGNORE INTO billing_events(id,event,processed_at) VALUES (?,?,?)').bind(eventId,event.event,new Date().toISOString()).run();return {received:true};
 }

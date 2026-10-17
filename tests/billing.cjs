@@ -23,6 +23,23 @@ await assert.rejects(()=>api.ownedSession('user-b',sprint.sessionId));await asse
 remote.get('orders/'+sprint.order_id).status='paid';remote.set('payments/pay_test',{order_id:sprint.order_id,amount:14900,currency:'INR',status:'captured'});
 const paid=await api.verifyCheckout('user-a',sprint.sessionId,'pay_test',sign(env.RAZORPAY_KEY_SECRET,sprint.order_id+'|pay_test'));assert.equal(paid.state,'paid');assert.equal(paid.paidAccessActivated,true);assert.equal((await api.activeEntitlement('user-a')).sku,'sprint');assert.equal(await api.hasPaidAccess('user-b'),false);
 const raw=JSON.stringify({event:'order.paid',payload:{order:{entity:{id:sprint.order_id}}}});await assert.rejects(()=>api.processWebhook(raw,'0'.repeat(64),'event1'));await api.processWebhook(raw,sign(env.RAZORPAY_WEBHOOK_SECRET,raw),'event1');assert.equal((await api.processWebhook(raw,sign(env.RAZORPAY_WEBHOOK_SECRET,raw),'event1')).duplicate,true);
+// A closed checkout tab must not prevent webhook activation or later refund revocation.
+const webhookOnly=await api.createCheckout('webhook-only','sprint',1);
+remote.get('orders/'+webhookOnly.order_id).status='paid';
+remote.set('payments/pay_webhook',{order_id:webhookOnly.order_id,amount:14900,currency:'INR',status:'captured',amount_refunded:0});
+const captured=JSON.stringify({event:'payment.captured',payload:{payment:{entity:{id:'pay_webhook',...remote.get('payments/pay_webhook')}}}});
+await api.processWebhook(captured,sign(env.RAZORPAY_WEBHOOK_SECRET,captured),'webhook-only-paid');
+assert.equal(await api.hasPaidAccess('webhook-only'),true);
+assert.equal((await api.ownedSession('webhook-only',webhookOnly.sessionId)).payment_id,'pay_webhook');
+const originalEnd=(await api.activeEntitlement('webhook-only')).endsAt;
+assert.equal((await api.processWebhook(captured,sign(env.RAZORPAY_WEBHOOK_SECRET,captured),'webhook-only-paid')).duplicate,true);
+assert.equal((await api.activeEntitlement('webhook-only')).endsAt,originalEnd);
+// The refund event can also recover the order when the callback/payment-id was never stored.
+db.prepare('UPDATE billing_sessions SET payment_id=NULL WHERE id=?').run(webhookOnly.sessionId);
+remote.get('payments/pay_webhook').amount_refunded=14900;
+const cumulative=JSON.stringify({event:'refund.processed',payload:{refund:{entity:{payment_id:'pay_webhook',amount:4900}}}});
+await api.processWebhook(cumulative,sign(env.RAZORPAY_WEBHOOK_SECRET,cumulative),'webhook-only-refund');
+assert.equal(await api.hasPaidAccess('webhook-only'),false);
 const sub=await api.createCheckout('user-a','plus_monthly',1);remote.get('subscriptions/'+sub.subscription_id).status='active';remote.set('payments/pay_sub',{status:'captured'});const active=await api.verifyCheckout('user-a',sub.sessionId,'pay_sub',sign(env.RAZORPAY_KEY_SECRET,'pay_sub|'+sub.subscription_id));assert.equal(active.state,'active');assert.equal(active.paidAccessActivated,true);assert.equal((await api.cancelSubscription('user-a',sub.sessionId)).state,'cancelled');assert.equal((await api.activeEntitlement('user-a')).sku,'sprint','Cancelling the subscription leaves the separate sprint access');
 const beforeCancel=calls;await api.cancelSubscription('user-a',sub.sessionId);assert.equal(calls,beforeCancel+1,'Repeated cancellation should only fetch status');await assert.rejects(()=>api.cancelSubscription('user-b',sub.sessionId));
 const settled=await Promise.allSettled([api.createCheckout('user-b','pro_monthly',1),api.createCheckout('user-b','pro_monthly',1)]);assert.equal(settled.filter(x=>x.status==='fulfilled').length,1);
@@ -42,7 +59,7 @@ console.log('PASS: route authentication, owner restriction, origin validation, p
 
 const refund=JSON.stringify({event:'refund.processed',payload:{refund:{entity:{payment_id:'pay_test',amount:14900}}}});await api.processWebhook(refund,sign(env.RAZORPAY_WEBHOOK_SECRET,refund),'event-refund');assert.equal(await api.hasPaidAccess('user-a'),false,'A full sprint refund ends its access');
 env.RAZORPAY_KEY_ID='rzp_live_forbidden';assert.equal(rzp.testReady(),false);await assert.rejects(()=>rzp.razorpay('plans'));
-env.BILLING_LIVE_ENABLED='true';assert.equal(rzp.billingMode(),'live','Live keys need the explicit live switch');assert.equal(await api.hasPaidAccess('user-a'),false,'Test access never counts in live mode');delete env.BILLING_LIVE_ENABLED;
+env.BILLING_LIVE_ENABLED='true';const beforeWrongMode=calls;await assert.rejects(()=>api.ownedSession('user-a',sprint.sessionId).then(api.syncSession),/different billing mode/);assert.equal(calls,beforeWrongMode);assert.equal(rzp.billingMode(),'live','Live keys need the explicit live switch');assert.equal(await api.hasPaidAccess('user-a'),false,'Test access never counts in live mode');delete env.BILLING_LIVE_ENABLED;
 env.RAZORPAY_KEY_ID='rzp_test_example';env.BILLING_PUBLIC_CHECKOUT='true';testUser={userId:'learner',email:'learner@example.test'};assert.equal((await route.POST(req({action:'plans'}))).status,403,'Plan setup stays owner-only');assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,403,'Test mode stays owner-only even with public checkout on');env.RAZORPAY_KEY_ID='rzp_live_example';env.BILLING_LIVE_ENABLED='true';assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,200,'Public checkout opens for signed-in learners in live mode');delete env.BILLING_LIVE_ENABLED;env.RAZORPAY_KEY_ID='rzp_test_example';
 console.log('PASS: pricing, quantity checks, owner restriction, signatures, plan reuse, duplicate checkout protection, cross-user ownership, callback verification, webhook replay, cancellation, live-key rejection, paid access, refunds, public checkout.');
 })().catch(e=>{console.error(e);process.exitCode=1});
