@@ -145,7 +145,7 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
    let turn=styleTurn(lm,state,t,c.language);
    if(turn.needsCheck){try{turn=checkedStyleTurn(state,await checkStyleExplanation(userId,m,t,c.language,c.style));}catch(e){return again(e instanceof FeedbackError?e.message:'The coach could not check this. Your draft is kept. Retry.');}}
    d.data.styleState=turn.state;
-   if(!turn.completed){await putDraft(userId,d);return reply(turn.reply+'\n\n'+interactionPrompt(lm,turn.state));}
+   if(!turn.completed){await putDraft(userId,d);return reply(turn.state.stage===state.stage?turn.reply:turn.reply+'\n\n'+interactionPrompt(lm,turn.state));}
    d.quiz=m.answer;reaction=turn.reply;
   }
   delete d.data.styleState;
@@ -190,7 +190,7 @@ async function today(c:Contact):Promise<Out>{
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
  const syncNote=synced?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
- if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}\n\nCANCEL to restart.`)}
+ if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
   if(fin&&!cleared.has(checkpointKey(track,10)))return reply(`You finished every mission in ${courseName(track)}.\n\n${checkpointText(fin)}`);
@@ -207,7 +207,7 @@ async function today(c:Contact):Promise<Out>{
  await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel,styleState:initialStyleState(c.style)},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
- return reply(`${syncNote}${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nOne reply. One useful check. Let’s build.\nLEARN for the idea · HELP for commands`);
+ return reply(`${syncNote}${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nLEARN for the idea · HELP for commands`);
 }
 async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  const list=courseTitles.map((t,i)=>`${i+1}. ${t.course}`).join('\n');
@@ -331,7 +331,7 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  if(rel==='unclear'&&!(aiProvider()&&multilingual))return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
  if(aiProvider()){
   const a=await aiAllowance(c.user_id);if(!await allow('whatsapp-chat-check',c.user_id,a.limit>3?40:20,86400,Date.now()+19800000))return reply('You’ve used today’s chat checks. Your draft’s safe—back after midnight India time.');
-  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level)).answer)}catch{return reply(`Coach’s taking a breather. Try again—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
+  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level)).answer)}catch{return reply(`AI help unavailable. Retry—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
  }
  const allowance=await aiAllowance(c.user_id);
  const day=ist().day,db=database();
