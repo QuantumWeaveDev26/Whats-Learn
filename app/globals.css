@@ -435,3 +435,5 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 
 @media(max-width:800px){.account-nav nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;white-space:normal;gap:8px 16px}.account-nav nav>a{min-height:44px;display:flex;align-items:center}}
 .ai-review>small{display:block;margin-bottom:12px}.ai-review button[disabled],.coach-ask button[disabled]{cursor:not-allowed}
+
+.dashboard-preferences{margin:12px 0}.dashboard-preferences>summary{font-weight:600}.dashboard-preferences .profile-panel{margin-top:12px}.main-column>.play-session{margin-top:22px}.main-column>.latest-feedback{margin-top:16px}.right-column>.learning-details{margin-top:0}
