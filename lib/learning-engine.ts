@@ -31,18 +31,18 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
     const supported=e.review.answerAssessment?.onTopic===true&&!e.review.blockingIssue&&e.review.practicalTest?.reported===true&&(e.review.answerAssessment.correct===true||e.review.checks.some(c=>!c.met));
     for(const check of e.review.checks){const key=skillKey(check.item);const state=skills[key]??={demonstrated:check.met&&supported,attempts:0,needsWork:0};state.attempts++;if(!check.met)state.needsWork++;}
   }
-  const focus=weak?{skill:weak.item,instruction:weak.note,repeated,mastered:false}:strongEvidence?{skill:'Apply the skill to a new constraint',instruction:'Test a different audience, failure case or constraint and explain what changed.',repeated:0,mastered:true}:null;
+  let focus=weak?{skill:weak.item,instruction:weak.note,repeated,mastered:false}:strongEvidence?{skill:'Apply the skill to a new constraint',instruction:'Test a different audience, failure case or constraint and explain what changed.',repeated:0,mastered:true}:null;
   const task=weak&&skillReview?skillTask(skillReview.mission_id,weak.item,weak.note,skillReview.reviewKey||skillReview.created_at,!!skillReview.review.blockingIssue,missions.find(m=>m.id===skillReview.mission_id)?.brief||''):null;
   const practiceState=task?practice.find(p=>p.task_key===task.key):undefined;
   const passed=practiceState?.accepted?practiceState:undefined;
   if(task&&!passed&&(practiceState?.mistakes||0)>=2)task.prompt+=' Start with one concrete example; keep the rest of your work.';
   const remediation=task&&!passed?task:null;
-  if(passed){skills[passed.skill]={...(skills[passed.skill]||{attempts:0,needsWork:0}),demonstrated:true};}
+  if(passed){focus={skill:'Apply your practised fix',instruction:'Update your full creation with this fix, then request a whole-mission review.',repeated:0,mastered:false};skills[passed.skill]={...(skills[passed.skill]||{attempts:0,needsWork:0}),demonstrated:true};}
   const level=mode==='guided'||needsSupport?'guided':mode==='stretch'?'stretch':weak?'guided':strongEvidence?'stretch':revisit?'guided':profile.level==='experienced'||strong>=2?'stretch':'guided';
   const minutes=profile.minutes==='flexible'?next.minutes:Number(profile.minutes)||15;
   const sessionMinutes=Math.min(minutes,next.minutes);
   const fit='Your goal: '+(goals[profile.goal]||profile.goal)+'. Starting point: '+profile.level+'. '+(profile.minutes==='flexible'?'Flexible sessions.':profile.minutes+' minutes per session.');
-  const reason=focus?(weak?'Practise '+weak.item+' because '+(repeated>1?'it needed attention in '+repeated+' evaluated attempts.':weak.note):'Your evaluated work met every criterion; try a new constraint instead of repeating the same example.'):revisit?'Your self-review shows a skill to revisit before moving on.':completed.size===0?'Start with one useful creation that matches your chosen programme.':pool.every(m=>completed.has(m.id))?'You have tried every starter challenge here. Improve one with a new example.':'Continue from your saved work with the next challenge in this programme.';
+  const reason=passed?'Your focused practice passed. Apply the fix to your full creation before moving on.':focus?(weak?'Practise '+weak.item+' because '+(repeated>1?'it needed attention in '+repeated+' evaluated attempts.':weak.note):'Your evaluated work met every criterion; try a new constraint instead of repeating the same example.'):revisit?'Your self-review shows a skill to revisit before moving on.':completed.size===0?'Start with one useful creation that matches your chosen programme.':pool.every(m=>completed.has(m.id))?'You have tried every starter challenge here. Improve one with a new example.':'Continue from your saved work with the next challenge in this programme.';
   const practiceLevel=skillReview?.review.profileLevel&&skillReview.review.profileLevel!==profile.level?profile.level:skillReview?.mission_id===next.id?skillReview.review.learningLevel||profile.level:strongEvidence?'experienced':repeated>1?'beginner':profile.level;
   const localized=localizeMission(next,profile.language,practiceLevel);
   const {answer: _answer,explanation: _explanation,...challenge}=localized;
