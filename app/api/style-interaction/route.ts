@@ -1,3 +1,5 @@
+import {aiAllowance} from '@/lib/ai-usage';
+import {attemptsUsed,sha256} from '@/lib/auth/limits';
 import {z} from 'zod';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
 import {sameOrigin} from '@/lib/storage';
@@ -22,3 +24,5 @@ export async function POST(request:Request){
  return response({...result,courseCompleted:false});
  }catch(e){if(e instanceof FeedbackError)return response({error:e.message},e.status);if(e instanceof z.ZodError||e instanceof SyntaxError)return response({error:'Invalid answer.'},400);return response({error:'The coach could not check this. Keep your answer and retry.'},503);}
 }
+
+export async function GET(){const user=await getChatGPTUser();if(!user)return Response.json({signInRequired:true,scope:"guest"},{headers:{"Cache-Control":"no-store"}});try{const a=await aiAllowance(user.userId),used=await attemptsUsed("whatsapp-chat-check",user.userId,86400,Date.now()+19800000);return Response.json({scope:(await sha256(user.userId)).slice(0,32),limit:a.limit>3?40:20,used,reset:"midnight India time"},{headers:{"Cache-Control":"no-store"}})}catch{return Response.json({error:"Practice allowance unavailable. Retry."},{status:503})}}

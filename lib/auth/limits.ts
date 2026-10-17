@@ -7,3 +7,6 @@ export async function allow(kind:string,subject:string,max:number,windowSeconds:
  return Number(row?.count||0)<=max;
 }
 export const clientAddress=(request:Request)=>request.headers.get('cf-connecting-ip')||request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';
+
+/** Read a counter without consuming an attempt. */
+export async function attemptsUsed(kind:string,subject:string,windowSeconds:number,now=Date.now()){const key=kind+":"+(await sha256(subject.toLowerCase().trim())).slice(0,32),win=Math.floor(now/1000/windowSeconds)*windowSeconds;const row=await database().prepare("SELECT count,window_start FROM auth_attempts WHERE key=?").bind(key).first<{count:number;window_start:number}>();return row?.window_start===win?row.count:0;}

@@ -7,11 +7,11 @@ export type StyleState={style:LearningStyle;stage:'decision'|'checkpoint'|'expla
 export function initialStyleState(style:unknown):StyleState{const kind=learningStyle(style);return {style:kind,stage:kind==='casual'?'explain':kind==='facts'?'rule':'decision'};}
 export function currentStyleState(style:unknown,state?:StyleState):StyleState{return state?.style===learningStyle(style)?state:initialStyleState(style);}
 const wrongIndex=(m:Mission)=>(m.answer+1)%m.options.length;
-export const ruleIsTrue=(m:Mission)=>Number(m.id.slice(1))%2===0;
+export const ruleIsTrue=(m:Mission)=>[...m.question].reduce((n,c)=>((n*31)^c.charCodeAt(0))>>>0,7)%2===0;
 export function storyConsequence(m:Mission,correct:boolean){
  if(m.id==='d1')return correct?'Possible ending: the parent can distinguish a confirmed booking from a failed attempt.':'Alternate ending: the parent expects a trial slot, but the tutor may have no saved booking. The parent has been misled.';
  const scenes:Record<string,[string,string]>={marketing:['Possible ending: the customer has a clearer, evidence-backed next step.','Alternate ending: the campaign reaches people, but its message or evidence may not support their next step.'],development:['Possible ending: the user can rely on the checked behaviour instead of an unchecked assumption.','Alternate ending: someone relies on the app, but the unchecked behaviour can give them a misleading or unsafe result.'],filmmaking:['Possible ending: a viewer has a clearer reason to follow the character and the scene.','Alternate ending: the viewer loses the intended connection between the character, the action and its result.'],storytelling:['Possible ending: the viewer can connect the message to its intended action.','Alternate ending: the viewer notices the images but misses the message or intended action.']};
- return (scenes[m.track]||scenes.development)[correct?0:1];
+ return (scenes[m.track]||scenes.development)[correct?0:1]+' In this scene: '+m.brief+' Decision at stake: '+m.question;
 }
 
 const letters=(options:string[])=>options.map((o,i)=>String.fromCharCode(65+i)+') '+o).join('\n');

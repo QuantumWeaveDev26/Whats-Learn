@@ -432,3 +432,6 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 
 /* Style interactions: compact conversation, checkpoints and evidence checks. */
 .style-interaction-prompt{white-space:pre-line}.style-decision form{display:grid;gap:12px}.style-decision form textarea{width:100%;min-height:100px;padding:12px;border:1px solid #ccd9d1;border-radius:12px;color:#142d22;background:#fff}.style-decision form small{line-height:1.5}.style-game .style-decision form textarea{color:#142d22}.style-decision-result{white-space:pre-line}
+
+@media(max-width:800px){.account-nav nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;white-space:normal;gap:8px 16px}.account-nav nav>a{min-height:44px;display:flex;align-items:center}}
+.ai-review>small{display:block;margin-bottom:12px}.ai-review button[disabled],.coach-ask button[disabled]{cursor:not-allowed}
