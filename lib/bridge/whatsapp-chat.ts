@@ -307,7 +307,7 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  await db.prepare('INSERT INTO whatsapp_tutor_usage(user_id,day,count) VALUES (?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET count=count+1').bind(c.user_id,day).run();
  const lm=localizeMission(m,c.language);
  // Approved course material only. The answer key, the explanation and the worked example are never sent out of WhatsLearn.
- return {action:'tutor',question:q,language:c.language,maxWords:45,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
+ return {action:'tutor',question:q,language:feedbackLanguage(c.language,q),maxWords:22,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
 }
 
 export async function learnerOverview(userId:string){
