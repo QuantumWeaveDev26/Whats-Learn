@@ -20,7 +20,7 @@ import {clueDeduction,clueIds,dailyLimitMessage,decideAward,pointsGate,scoreMiss
  */
 export type Creation={missionId:string;body:string;checks:boolean[];quiz:number;reflection?:string;evaluation?:string};
 export type ScoreRow={mission_id:string;day:string;understanding:number;practical:number;clues:number;deduction:number;points:number};
-type Result={status:Award['status']|'locked';score?:Score;message:string;saved:boolean;code:number};
+type Result={review?:Review;status:Award['status']|'locked';score?:Score;message:string;saved:boolean;code:number};
 async function first<T>(sql:string,...args:unknown[]){return (await database().prepare(sql).bind(...args).first()) as T|null}
 async function state(userId:string,missionId:string,day:string){
  const [scored,work,dayUsed,clues]=await Promise.all([
@@ -95,10 +95,10 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
  const invalid=precheck(mission,data);if(invalid)return {status:'rejected',message:invalid,saved:false,code:400};
  if(!aiReady())return {status:'rejected',message:'Automatic evaluation is unavailable. Your answer stays a draft; nothing was completed or scored.',saved:false,code:503};
  if(aiReady()){
-  try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en')}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
-  if(!review.answerAssessment?.onTopic||!review.answerAssessment.correct)return {status:'rejected',message:'Correctness could not be confirmed. Revise your answer; nothing was saved.',saved:false,code:422};
-  if(!review.practicalTest?.reported||!review.practicalTest.created||!review.practicalTest.performed)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),saved:false,code:422};
-  if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,saved:false,code:422};
+  try{const profile=await first<{language:string}>('SELECT language FROM learner_profiles WHERE user_id=?',userId);review=await reviewedSubmission(userId,mission.id,data.body,profile?.language||'en',true)}catch(e){return {status:'rejected',message:e instanceof FeedbackError?e.message:'The automatic review could not finish. Your draft is safe; try again.',saved:false,code:e instanceof FeedbackError?e.status:503}}
+  if(!review.answerAssessment?.onTopic||!review.answerAssessment.correct)return {status:'rejected',message:'Correctness could not be confirmed. Revise your answer; nothing was saved.',review,saved:false,code:422};
+  if(!review.practicalTest?.reported||!review.practicalTest.created||!review.practicalTest.performed)return {status:'rejected',message:'Try the practical test before completing: '+(review.practicalTest?.note||'Add what you tried, its result and one improvement to Your reasoning.'),review,saved:false,code:422};
+  if(review.checks.filter(c=>c.met).length<3)return {status:'rejected',message:'Revise before completing: '+review.summary+' Next: '+review.nextStep,review,saved:false,code:422};
  }
  data={...data,evaluation:review?JSON.stringify(review):undefined};
  if(decision==='award'){
@@ -110,7 +110,7 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
    const db=database();await db.batch([db.prepare('INSERT INTO mission_scores (user_id,mission_id,day,understanding,practical,clues,deduction,points,created_at) VALUES (?,?,?,?,?,?,?,?,?)').bind(userId,mission.id,day,score.understanding,score.practical,score.clues,score.deduction,score.points,now.toISOString()),
     // The mission's points go into the balance once. Clue costs already taken when the clues were revealed are added back here so the learner is charged for each clue exactly once.
     db.prepare("INSERT INTO point_ledger (user_id,kind,ref,delta,created_at) VALUES (?,'mission',?,?+COALESCE((SELECT -SUM(delta) FROM point_ledger WHERE user_id=? AND kind='clue' AND ref LIKE ?),0),?)").bind(userId,mission.id,score.points,userId,mission.id+':%',now.toISOString()),...creationStatements(userId,data,now.toISOString())]);
-   const result=done(mission,'awarded',score);if(review)result.message=scoreSummary(score)+'. AI reviewed: '+review.summary+' Next: '+review.nextStep+(review.source?' Source: '+review.source.commit.slice(0,7)+' · '+review.source.files.join(', ')+' (static review, not executed).':'');return result;
+   const result=done(mission,'awarded',score);result.review=review;if(review)result.message=scoreSummary(score)+'. AI reviewed: '+review.summary+' Next: '+review.nextStep+(review.source?' Source: '+review.source.commit.slice(0,7)+' · '+review.source.files.join(', ')+' (static review, not executed).':'');return result;
   }catch{
    // The database refused: another request scored this mission or this day first. Work out which, and save nothing more than practice.
    s=await state(userId,mission.id,day);decision=decideAward({...s,hasWork:s.hasWork});
@@ -118,5 +118,5 @@ export async function saveMissionWork(userId:string,data:Creation,now=new Date()
   }
  }
  await database().batch(creationStatements(userId,data,now.toISOString()));
- const result=done(mission,decision as 'practice'|'duplicate',undefined);if(review)result.message+=' AI reviewed: '+review.summary+' Next: '+review.nextStep;return result;
+ const result=done(mission,decision as 'practice'|'duplicate',undefined);result.review=review;if(review)result.message+=' AI reviewed: '+review.summary+' Next: '+review.nextStep;return result;
 }

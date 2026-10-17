@@ -20,7 +20,7 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const {handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
  const body=require('./fixtures/course-samples.json').m1;
  await saveProfile('flow-learner',{...defaultProfile,language:'kn',minutes:'15'});
- let strong=false,calls=0,system='';global.fetch=async(url,options)=>{assert.equal(String(url),'https://api.openai.com/v1/chat/completions');calls++;system=JSON.parse(options.body).messages[0].content;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
+ let strong=false,calls=0,system='',userPrompt='';global.fetch=async(url,options)=>{assert.equal(String(url),'https://api.openai.com/v1/chat/completions');calls++;system=JSON.parse(options.body).messages[0].content;userPrompt=JSON.parse(options.body).messages[1].content;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
  const weak=await reviewedSubmission('flow-learner','m1',body,'kn',true);
  assert.equal(reviewAccepted(weak),false);assert.match(system,/Kanglish/);assert.match(system,/Kannada/);
  const cached=await reviewedSubmission('flow-learner','m1',body,'kn',true);assert.deepEqual(cached,weak);assert.equal(calls,1);
@@ -28,10 +28,47 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const phone='919876543210',stamp=new Date().toISOString();h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','kn',?,?,?)").run('flow-learner',phone,stamp,stamp,stamp);
  const out=await handleBridgeMessage({wamid:'product-flow-1',from:phone,type:'text',text:'TODAY'});assert.equal(out.action,'reply');assert.match(out.text,/MG Road/);assert.match(out.text,/Focus:/);
  strong=true;const revised=body.replace('### Your reasoning\n','### Your reasoning\nAudience revised after the reader test: ');
- const improved=await reviewedSubmission('flow-learner','m1',revised,'kn',true);assert.equal(reviewAccepted(improved),true);
+ const improved=await reviewedSubmission('flow-learner','m1',revised,'kn',true);assert.equal(reviewAccepted(improved),true);assert.match(userPrompt,/<prior_review_data>/);assert.match(userPrompt,/MG Road/);
  const saved=await saveMissionWork('flow-learner',{missionId:'m1',body:revised,quiz:m.answer,checks:m.checks.map(()=>true)});assert.equal(saved.saved,true);
  const countBefore=h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n;
  const repeat=await saveMissionWork('flow-learner',{missionId:'m1',body:revised,quiz:m.answer,checks:m.checks.map(()=>true)});assert.equal(repeat.saved,true);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n,countBefore);
  state=await loadLearning('flow-learner');assert.equal(state.path.nextMissionId,'m2');assert.equal(state.path.practiceLevel,'experienced');assert.equal(state.path.progress.creations,1);
  const reloaded=await loadLearning('flow-learner');assert.deepEqual(reloaded.path,state.path);assert.equal((await loadLearning('other-learner')).work.length,0);
+});
+
+
+test('WhatsApp matches the actual experienced question and current language',async()=>{
+ h.reset();const {saveProfile}=h.load('lib/learning-service.ts');const {handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
+ const user='level-language-flow',phone='919876540001',stamp=new Date().toISOString();
+ await saveProfile(user,{...defaultProfile,track:'development',level:'experienced',language:'en'});
+ h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','en',?,?,?)").run(user,phone,stamp,stamp,stamp);
+ let state=await h.load('lib/learning-service.ts').loadLearning(user);
+ let out=await handleBridgeMessage({wamid:'level-language-1',from:phone,text:'TODAY',type:'text'});
+ assert.ok(out.text.includes(state.path.challenge.question));
+ assert.ok(out.text.includes(state.path.challenge.options[0]));
+ await saveProfile(user,{...state.profile,language:'kn'});
+ out=await handleBridgeMessage({wamid:'level-language-2',from:phone,text:'PROFILE',type:'text'});
+ assert.match(out.text,/Kannada/);
+});
+
+test('WhatsApp submission shows specific formative feedback without completing weak work',async()=>{
+ h.reset({env:{OPENAI_API_KEY:'fake-wa-formative',AI_FEEDBACK_DAILY_LIMIT:'10'}});
+ const {saveProfile}=h.load('lib/learning-service.ts');const {handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
+ const {parseAnswer}=h.load('lib/practical.ts');const user='wa-feedback-flow',phone='919876540002',stamp=new Date().toISOString();
+ await saveProfile(user,defaultProfile);
+ h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','en',?,?,?)").run(user,phone,stamp,stamp,stamp);
+ const answer=parseAnswer(m.practical,require('./fixtures/course-samples.json').m1);
+ h.db.prepare('INSERT OR REPLACE INTO whatsapp_drafts(user_id,mission_id,quiz,body,updated_at) VALUES (?,?,?,?,?)').run(user,'m1',m.answer,JSON.stringify({fields:answer.fields,reasoning:answer.reasoning,link:'',checks:[1,2,3,4,5],level:'beginner'}),stamp);
+ let strong=false,calls=0;
+ global.fetch=async()=>{calls++;return Response.json({choices:[{message:{content:JSON.stringify(review(strong))}}]})};
+ let out=await handleBridgeMessage({wamid:'wa-formative-1',from:phone,text:'SUBMIT',type:'text'});
+ assert.match(out.text,/What worked:/);assert.match(out.text,/hot lunch/);assert.match(out.text,/Improve:/);assert.match(out.text,/Next action:/);
+ assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,0);
+ const original=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(user).body;
+ const draft=JSON.parse(original);draft.reasoning+=' Audience revised to MG Road office workers after the test.';
+ h.db.prepare('UPDATE whatsapp_drafts SET body=? WHERE user_id=?').run(JSON.stringify(draft),user);strong=true;
+ out=await handleBridgeMessage({wamid:'wa-formative-2',from:phone,text:'SUBMIT',type:'text'});
+ assert.match(out.text,/What worked:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
+ assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,1);
+ assert.equal(calls,2,'save reuses the evaluated answer instead of charging twice');
 });

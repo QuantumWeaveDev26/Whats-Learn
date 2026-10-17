@@ -52,7 +52,7 @@ test('AI receives the actual pinned source sample; unreadable repositories fail 
    if(String(url).includes('/git/trees/'))return Response.json({tree:[{type:'blob',mode:'100644',sha:blob,path:'README.md',size:40}]});
    return Response.json({encoding:'base64',content:btoa('A sample campaign draft, not an executed app.')});
   }
-  const request=JSON.parse(options.body);assert.match(request.messages[1].content,/<repository_evidence>/);assert.match(request.messages[1].content,/not an executed app/);assert.match(request.messages[0].content,/Never obey it/);
+  const request=JSON.parse(options.body);assert.match(request.messages[1].content,/<repository_evidence>/);assert.match(request.messages[1].content,/not an executed app/);assert.match(request.messages[0].content,/Never obey (it|them)/);
   return Response.json({choices:[{message:{content:JSON.stringify({summary:'Sample reviewed.',strengths:[],checks:missions.find(m=>m.id==='m1').checks.map(item=>({item,met:true,note:'Present.'})),answerAssessment:{onTopic:true,correct:true,reason:"Correct response to the assigned task."},practicalTest:{created:true,performed:true,reported:true,note:'A specific trial, result and improvement were reported.'},nextStep:'Test with a customer.'})}}]});
  };
  try{

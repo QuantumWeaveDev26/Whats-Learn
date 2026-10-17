@@ -1,3 +1,4 @@
+import {feedbackSummary} from '../review-summary';
 import {missionForLevel,startingLevels} from '../mission-levels';
 import {learnerPerformance} from '../learner-performance';
 import {missionPractice} from '../mission-practice';
@@ -91,9 +92,8 @@ function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) 
 function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual'):string{
  const lm=localizeMission(m,language);
  if(step==='quiz'){
-  const compact=m.id==='d1'&&language==='en'?{question:'A booking request fails on weak Wi-Fi. When should the page say “Booking saved”?',options:['On the Book click','After sending, even without a reply','After the server confirms it saved','After the spinner, then retry quietly']}:null;
   const t=styleLabels(language),kind=learningStyle(style),prefix=kind==='game'?'🎯 ':kind==='story'?'📖 ':kind==='facts'?'⚡ ':'';
-  return `${prefix}*${t.question}*\n${compact?.question||lm.question}\n\n${optionList(compact?.options||lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
+  return `${prefix}*${t.question}*\n${lm.question}\n\n${optionList(lm.options)}\n\n${t.pick} *${letters.slice(0,lm.options.length).split('').join(' / ')}*`;
  }
  if(step==='reasoning')return `*Your reasoning:* What did you make? Send the work or an extract, your actual test result and what you improved. Plans or invented results do not count. At least ${LIMITS.minReasoning} characters.\n*Try it:* ${missionPractice(m).trial}`;
  if(step==='link')return `*Optional link* (${m.practical?.link?.label||'a draft you own'}): send an https address, or reply SKIP. Public GitHub source is shared with our AI reviewer on SUBMIT; code is not run.`;
@@ -201,11 +201,14 @@ async function submit(c:Contact,arg:string):Promise<Out>{
   return reply(`${bad}\n\nNothing was saved. Reply EDIT n to change a part, then SUBMIT again.`);
  }
  const r=await saveMissionWork(c.user_id,data);
- if(!r.saved)return reply(`${r.message}\n\nNothing was saved. Your answer is kept for 24 hours${r.status==='daily-limit'?'; reply SUBMIT again tomorrow':'; reply EDIT n to change a part'}.`);
+ const feedback=r.review?feedbackSummary(r.review):null;
+ const feedbackText=feedback?`What worked: ${feedback.worked}\nImprove: ${feedback.improve}\nNext action: ${feedback.next}\n\n`:'';
+ if(!r.saved)return reply(`${feedbackText}${r.message}\n\nNothing was saved. Your answer is kept for 24 hours${r.status==='daily-limit'?'; reply SUBMIT again tomorrow':'; reply EDIT n to change a part'}.`);
  await dropDraft(c.user_id);
  const balance=await pointsBalance(c.user_id),scores=await loadScores(c.user_id);
  const performance=await learnerPerformance(c.user_id);
- return reply(`✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${r.status==='awarded'?`+${r.score?.points||0} points · `:''}💎 ${balance} total · 🔥 ${scores.streak.current}-day streak\n${performance.star.earned?'🌟 *Star Learner* — 10 perfect missions. 10 days. Earned!\n':''}Website synced ✅\n\n*TODAY* → next move · *PERFORMANCE* → your recap`);
+ const nextPath=(await loadLearning(c.user_id)).path;
+ return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${r.status==='awarded'?`+${r.score?.points||0} points · `:''}💎 ${balance} total · 🔥 ${scores.streak.current}-day streak\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\nNext challenge: ${nextPath.challenge.title}\n${nextPath.reason}\n\n*TODAY* → next move · *PERFORMANCE* → your recap`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -316,7 +319,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(cmd==='start'&&!arg){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(at.toISOString(),c.user_id).run();return reply('Welcome back. Lessons are on; reminders stay off until you send REMIND 7pm daily. Reply TODAY for your next mission.')}
  if(c.state!=='opted_in')return none('opted-out');
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
- const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;
+ const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
  const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){levelDraft.quiz=null;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
