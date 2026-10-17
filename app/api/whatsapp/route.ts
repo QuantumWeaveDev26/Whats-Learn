@@ -1,3 +1,4 @@
+import {briefFocus} from '@/lib/chat-copy';
 import {queueNotice} from '@/lib/bridge/whatsapp-jobs';
 import {z} from 'zod';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
@@ -28,7 +29,7 @@ export async function POST(request:Request){
  if(!await allow('whatsapp-recap',user.userId,1,60))return response({error:'A recap was requested recently. Wait a minute before retrying.'},429);
  const {path}=await loadLearning(user.userId);const feedback=path.lastFeedback?feedbackSummary(path.lastFeedback):null;
  const focus=path.focus?.instruction||feedback?.next||path.reason;
- const text=`*Your WhatsLearn continuation*\n${path.progress.creations}/10 course creations saved.\nNext task: *${path.challenge.title}*\n${path.fit}\nOne focus: ${focus}\nContinue: ${whatsappConfig().siteUrl}/learn?mission=${path.nextMissionId}\n*TODAY* → resume your chat draft · *STOP* → pause`;
+ const text=`*Your WhatsLearn continuation*\n${path.progress.creations}/10 saved\nNext task: *${path.challenge.title}*\nFocus: ${briefFocus(focus)}\n${whatsappConfig().siteUrl}/learn?mission=${path.nextMissionId}\n*TODAY* → continue · *STOP* → pause`;
  if(!whatsappReady()){const queued=await queueNotice(user.userId,'recap','manual-'+Math.floor(Date.now()/60000),{recap:text});if(!queued)return response({error:'This recap is already queued, or your WhatsApp link changed. Refresh and check your connection.'},409);return response({queued:true,recapStatus:'queued',message:'Your learning recap is queued for the WhatsLearn mentor connection. Delivery has not yet been confirmed.',contact:view(contact)});}
  await sendText(contact.phone,text);
  return response({accepted:true,message:'WhatsApp accepted your learning recap. Check your linked phone; delivery has not yet been confirmed.',contact:view(contact)});

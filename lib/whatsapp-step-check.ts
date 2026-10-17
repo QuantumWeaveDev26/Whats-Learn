@@ -1,3 +1,4 @@
+import {isKanglish} from './ai-feedback';
 import type {Mission} from './missions';
 import type {PracticalField} from './practical';
 import {LIMITS} from './practical';
@@ -20,7 +21,7 @@ export function chatPartIssue(m:Mission,text:string,field?:PracticalField):strin
  if(value.length<(isReason?LIMITS.minReasoning:field?.type==='long'?20:8)||words.length<(nonLatin?Math.min(2,minimum):minimum)||looksLikeGibberish(value)||(words.length>=5&&new Set(words.map(w=>w.toLowerCase())).size/words.length<0.4)||/(.)\1{5,}/u.test(value))return 'That looks like a typo or a placeholder 👀 Send one real line for this part.';
  const keys=keywords(m).all;const fieldKeys=new Set(tokens((field?.label||'')+' '+(field?.hint||'')).filter(meaningful).map(stem));
  const hits=words.filter(meaningful).map(stem).some(w=>keys.has(w)||fieldKeys.has(w));
- const kanglish=(value.match(/\b(nanu|nanna|nivu|maadide|madide|beku|illa|aadmele|aagide|barutte|idare)\b/gi)||[]).length>=2;
+ const kanglish=isKanglish(value);
  if(!isReason&&!nonLatin&&!kanglish&&!hits)return 'This doesn’t connect to the task yet. Keep it about this situation.';
  return null;
 }

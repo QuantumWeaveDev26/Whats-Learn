@@ -102,11 +102,11 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
  if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
  if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SAVE; code is never run.';
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
- const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'Send your take.';
- return `*${n}/${m.practical!.fields.length} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}\n${body}`;
+ const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'';
+ return `*${n}/${m.practical!.fields.length} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
 }
 function readyText(m:Mission,d:Draft){
- return `*${missionPractice(m).outcome}* — draft ready ✨\nReply *SAVE* to keep it in your journey, or *EDIT* to tweak.\nSaving checks the whole creation before awarding points.`;
+ return `Draft ready ✨\nReply *SAVE* → final AI check + save\n*EDIT* → tweak`;
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{

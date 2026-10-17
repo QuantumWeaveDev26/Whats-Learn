@@ -56,3 +56,11 @@ With the owner’s permission, the developer sent test replies in the linked lea
 - At 390px, live dashboard, Companion, Settings, Membership and onboarding entry had no horizontal overflow or server error. The practical mission dialog measured about 371px inside the 390px viewport and retained the full browser draft. The temporary viewport override was reset.
 - Partial skill memory now keeps a demonstrated message skill when a separate audience criterion needs work; independent correctness vetoes still block mastery. Tests cover repeated vetoes and weak-to-improved progression.
 - Regression coverage: 316 isolated tests, including concurrent duplicate-reward protection, account isolation, stored review memory, progression and transport limits. Production build and isolated Node deployment checks pass. The full provider-backed save flow remains the explicit outstanding live test; no launch-readiness claim is made.
+
+
+## Further brevity and natural Kanglish
+- Normal question answers and per-part feedback plus follow-up are limited to 22 words. Overlong provider output is rewritten; rejected answers cannot become accepted during shortening.
+- Removed the repeated “Send your take” instruction from written-part prompts and shortened the final-review invitation. Task options and necessary starter code remain visible.
+- Natural short Kanglish such as “Slot illa andre enu torisbeku?” is recognized without requiring the word Kanglish. The same detector is used before English-only relevance filtering and when selecting AI feedback language. Meaningful Kanglish answers still require semantic AI approval.
+- Recaps omit the repeated onboarding explanation and limit the focus to a visibly marked 16-word excerpt, with a link to full feedback. Optional performance detail uses the same excerpt limit.
+- 317 isolated tests pass, including natural Kanglish answer advancement, short Kanglish questions and rejection-preserving compression. This does not establish every real model answer is correct. Full live final-review/save/next-task verification remains blocked by the owner’s daily allowance.

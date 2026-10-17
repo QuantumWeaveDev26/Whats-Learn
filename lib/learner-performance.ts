@@ -1,3 +1,4 @@
+import {briefFocus} from './chat-copy';
 import {completedIds,loadScores} from './mission-points';
 import {loadLearning} from './learning-service';
 import {missions} from './missions';
@@ -14,5 +15,5 @@ export async function learnerPerformance(userId:string,at=new Date()){
  const name=saved?.display_name&&!saved.display_name.includes('@')?saved.display_name.slice(0,60):'learner';
  const todayScore=scores.scores.find(s=>s.day===today);
  return {name,count,star,todayPoints:todayScore?.points||0,weekMissions:recent.length,weekPoints:recent.reduce((n,s)=>n+s.points,0),streak:scores.streak.current,balance:scores.balance,
- text:`*Your progress, ${name}*\n${programmeNames[profile.track]} · ${count}/10 creations saved\n${count===10?'🌟 Star Learner — earned! Help and breaks welcome.':`Next: *${path.challenge.title}*\n${path.focus?'Focus: '+path.focus.instruction:path.reason}`}\n\n${count===10?'*ROADMAP* → review your work':'*TODAY* → pick up where you left off'}\n*POINTS* → optional reward details`};
+ text:`*Your progress, ${name}*\n${programmeNames[profile.track]} · ${count}/10 creations saved\n${count===10?'🌟 Star Learner — earned! Help and breaks welcome.':`Next: *${path.challenge.title}*\n${path.focus?'Focus: '+briefFocus(path.focus.instruction):briefFocus(path.reason)}`}\n\n${count===10?'*ROADMAP* → review your work':'*TODAY* → pick up where you left off'}\n*POINTS* → optional reward details`};
 }
