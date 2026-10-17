@@ -1,5 +1,7 @@
 import { join } from 'node:path';
 
+process.env.WHATSLEARN_APP_ROOT = import.meta.dirname;
+
 // Hostinger terminates HTTPS before forwarding requests to the Node process.
 // Allow only this site's forwarded host, keeping origin and secure-cookie checks intact.
 const hosts = process.env.SITE_URL

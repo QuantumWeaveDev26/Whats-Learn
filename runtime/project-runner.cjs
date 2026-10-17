@@ -1,0 +1,22 @@
+const {parentPort,workerData}=require('node:worker_threads');
+const {getQuickJS}=require('quickjs-emscripten');
+const {randomBytes}=require('node:crypto');
+(async()=>{let runtime,vm,parse,stringify;try{const Q=await getQuickJS();runtime=Q.newRuntime();runtime.setMemoryLimit(8*1024*1024);runtime.setMaxStackSize(256*1024);const deadline=Date.now()+500;runtime.setInterruptHandler(()=>Date.now()>deadline);vm=runtime.newContext();const json=vm.getProp(vm.global,'JSON');parse=vm.getProp(json,'parse');stringify=vm.getProp(json,'stringify');json.dispose();
+ const unwrap=r=>{if(r.error){r.error.dispose();throw new Error('Code failed, exceeded its limits, or used an unavailable API.')}return r.value};
+ const read=h=>{const text=unwrap(vm.callFunction(stringify,vm.undefined,h));try{if(vm.typeof(text)!=='string')return null;const s=vm.getString(text);if(s.length>8192)throw new Error('Output exceeds 8,192 characters.');return JSON.parse(s)}finally{text.dispose()}};
+ const value=v=>{const s=vm.newString(JSON.stringify(v));try{return unwrap(vm.callFunction(parse,vm.undefined,s))}finally{s.dispose()}};
+ const evaluated=unwrap(vm.evalCode(workerData.source,'learner.js'));
+ if(workerData.mode==='javascript'){const output=read(evaluated);evaluated.dispose();parentPort.postMessage({executed:true,mode:'javascript',output,assessed:false,courseCompleted:false});return;}evaluated.dispose();
+ const fn=vm.getProp(vm.global,'book');try{if(vm.typeof(fn)!=='function')throw new Error('Define function book(request, bookings).');
+ const slot='synthetic-'+randomBytes(6).toString('hex');let rows=[];const tests=[];
+ const run=(name,request,expect)=>{const a=value(request),b=value(rows);let handle;try{handle=unwrap(vm.callFunction(fn,vm.undefined,a,b));const out=read(handle);if(!out||typeof out!=='object'||!Array.isArray(out.bookings)||out.bookings.length>32||typeof out.status!=='number'||typeof out.message!=='string'||out.message.length>300||typeof out.draftKept!=='boolean')throw new Error('Return {status,message,bookings,draftKept} with bounded JSON values.');const actual={status:out.status,message:out.message,rows:out.bookings.length,draftKept:out.draftKept};tests.push({name,passed:expect(actual),actual});rows=out.bookings;}finally{a.dispose();b.dispose();handle?.dispose()}};
+ const base={name:'Synthetic Parent',phone:'9999999999',slot};
+ run('Successful save stores one booking',base,o=>o.status===201&&o.message==='Booking saved'&&o.rows===1);
+ run('503 has no success message or extra row',{...base,slot:slot+'-fail',fail:true},o=>o.status===503&&o.message!=='Booking saved'&&o.rows===1&&o.draftKept);
+ run('Duplicate slot returns 409 without another row',base,o=>o.status===409&&o.message!=='Booking saved'&&o.rows===1&&o.draftKept);
+ run('Invalid input returns 400 without storage',{...base,name:'',phone:'123',slot:slot+'-invalid'},o=>o.status===400&&o.message!=='Booking saved'&&o.rows===1&&o.draftKept);
+ run('Network failure keeps draft and shows no success',{...base,slot:slot+'-network',networkFailure:true},o=>o.status===0&&o.message!=='Booking saved'&&o.rows===1&&o.draftKept);
+ run('Pending response never claims success',{...base,slot:slot+'-pending',pending:true},o=>o.status===102&&o.message!=='Booking saved'&&o.rows===1&&o.draftKept);
+ parentPort.postMessage({executed:true,mode:'booking-v1',passed:tests.every(t=>t.passed),tests,assessed:false,courseCompleted:false});
+ }finally{fn.dispose()}
+ }catch(e){parentPort.postMessage({executed:false,error:e instanceof Error?e.message:'Execution failed.',assessed:false,courseCompleted:false})}finally{parse?.dispose();stringify?.dispose();vm?.dispose();runtime?.dispose()}})();

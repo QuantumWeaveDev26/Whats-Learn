@@ -29,7 +29,8 @@ function target(m:Mission):[number,number]{const r=m.task.match(/(\d+)\s*[–-]\
 /** `selfReview` is the learner's ticked checklist, used only to choose the tip. */
 export function checkWriting(missionOrId:Mission|string,body:string,selfReview:boolean[]=[]):WritingCheck{
  const m=typeof missionOrId==='string'?missions.find(x=>x.id===missionOrId):missionOrId;if(!m)throw new Error('Unknown challenge');
- const text=body.trim();const words=tokens(text);const n=words.length;const [min,max]=target(m);const k=keywords(m);
+ // Executable artifacts are checked by the isolated runner; judge the learner’s own prose separately.
+ const text=body.replace(/JS_ARTIFACT_BEGIN[\s\S]*?JS_ARTIFACT_END/g,'').trim();const words=tokens(text);const n=words.length;const [min,max]=target(m);const k=keywords(m);
  const stems=new Set(words.filter(meaningful).map(stem));
  const onTopic=[...stems].filter(s=>k.all.has(s));
  const unique=new Set(words).size/Math.max(1,n);
