@@ -437,3 +437,5 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .ai-review>small{display:block;margin-bottom:12px}.ai-review button[disabled],.coach-ask button[disabled]{cursor:not-allowed}
 
 .dashboard-preferences{margin:12px 0}.dashboard-preferences>summary{font-weight:600}.dashboard-preferences .profile-panel{margin-top:12px}.main-column>.play-session{margin-top:22px}.main-column>.latest-feedback{margin-top:16px}.right-column>.learning-details{margin-top:0}
+
+.workspace-today>.intro{margin-bottom:16px;padding-bottom:0}.workspace-today>.intro h1{font-size:clamp(30px,4vw,46px)}.workspace-today .mission-card{margin-top:8px}
