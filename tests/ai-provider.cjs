@@ -19,7 +19,7 @@ const body={action:'review',quiz:1,missionId:'m1',body:require('./fixtures/cours
 (async()=>{
  assert.equal(ai.aiProvider(),null);assert.equal((await route.POST(req(body))).status,503,'No key keeps the prepared help');
  env.OPENAI_API_KEY='fake-openai';assert.equal(ai.aiProvider(),'openai','OpenAI alone is used without AI_PROVIDER');
- let r=await (await route.POST(req(body))).json();assert.equal(r.review.checks.length,5);assert.equal(r.review.checks[0].met,true);assert.equal(r.review.nextStep,'Name the problem.');assert.deepEqual(calls.at(-1),{provider:'openai',model:'gpt-4o-mini'});
+ let r=await (await route.POST(req(body))).json();assert.equal(r.review.checks.length,5);assert.equal(r.review.checks[0].met,true);assert.equal(r.review.nextStep,'Name the problem.');assert.deepEqual(calls.at(-1),{provider:'openai',model:'gpt-4.1-mini'});
  env.OPENAI_MODEL='my-openai-model';const ask=await (await route.POST(req({action:'ask',missionId:'m1',question:'How do I start?',body:'',language:'hi'}))).json();assert.ok(ask.answer);assert.equal(calls.at(-1).model,'my-openai-model');
  env.ANTHROPIC_API_KEY='fake-anthropic';assert.equal(ai.aiProvider(),'anthropic','With both keys and no choice, Claude stays the default');
  env.AI_PROVIDER='openai';assert.equal(ai.aiProvider(),'openai');env.AI_PROVIDER='anthropic';assert.equal(ai.aiProvider(),'anthropic');env.AI_PROVIDER='claude';assert.equal(ai.aiProvider(),'anthropic','AI_PROVIDER=claude selects Claude');env.AI_PROVIDER='Claude ';assert.equal(ai.aiProvider(),'anthropic','Case and spaces are ignored');env.AI_PROVIDER='claude';

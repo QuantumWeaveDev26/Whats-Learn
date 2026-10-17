@@ -41,7 +41,7 @@ Set the key for **one** provider. If you set both, `AI_PROVIDER` chooses; if it 
 |---|---|
 | `AI_PROVIDER` | Optional: `openai` or `claude` (`anthropic` is accepted as the same) |
 | `OPENAI_API_KEY` | From platform.openai.com → API keys |
-| `OPENAI_MODEL` | Optional, default `gpt-4o-mini`; any current OpenAI chat model works |
+| `OPENAI_MODEL` | Optional, default `gpt-4.1-mini`; any current OpenAI chat model works |
 | `ANTHROPIC_API_KEY` | From console.anthropic.com → API keys |
 | `ANTHROPIC_MODEL` | Optional, default `claude-sonnet-5-5` |
 | `AI_FEEDBACK_DAILY_LIMIT` | Optional, reviews/questions per day for free learners (default 3) |
