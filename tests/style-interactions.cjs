@@ -11,15 +11,16 @@ test('all 40 game modes require two distinct decisions and never clear after a w
 });
 test('Facts verifies a misconception before applying the rule; Casual and Story need checked explanation',()=>{
  let turn=I.styleTurn(m,I.initialStyleState('facts'),'TRUE');assert.equal(turn.state.stage,'rule');turn=I.styleTurn(m,turn.state,'FALSE');assert.equal(turn.state.stage,'apply');assert.equal(turn.completed,undefined);assert.equal(I.styleTurn(m,turn.state,letter(m.answer)).completed,true);
+ for(const base of missions){const fact=I.styleTurn(base,I.initialStyleState('facts'),I.ruleIsTrue(base)?'TRUE':'FALSE');assert.equal(fact.state.stage,'apply');}
  const casual=I.styleTurn(m,I.initialStyleState('casual'),'Only after a confirmed server save.');assert.equal(casual.needsCheck,true);assert.equal(casual.completed,undefined);
- let story=I.styleTurn(m,I.initialStyleState('story'),letter((m.answer+1)%m.options.length));assert.match(story.reply,/Alternate ending/);assert.equal(story.state.stage,'decision');story=I.styleTurn(m,story.state,letter(m.answer));assert.equal(story.state.stage,'explain');assert.equal(story.completed,undefined);assert.equal(I.styleTurn(m,story.state,'The server must confirm the stored booking.').needsCheck,true);
+ let story=I.styleTurn(m,I.initialStyleState('story'),letter((m.answer+1)%m.options.length));assert.match(story.reply,/Alternate ending/);assert.match(story.reply,/parent expects a trial slot/);assert.equal(story.state.stage,'decision');story=I.styleTurn(m,story.state,letter(m.answer));assert.equal(story.state.stage,'explain');assert.equal(story.completed,undefined);assert.equal(I.styleTurn(m,story.state,'The server must confirm the stored booking.').needsCheck,true);
  assert.equal(I.checkedStyleTurn(story.state,{accepted:false,feedback:'Wrong reason.',followUp:'What proves storage?'}).completed,undefined);
  assert.equal(I.currentStyleState('facts',story.state).stage,'rule');
 });
 test('website interactions actually differ: open response, two checkpoints, story consequences and true/false',()=>{
  require.extensions['.tsx']=require.extensions['.ts'];const React=require('react'),{renderToStaticMarkup}=require('react-dom/server'),View=h.load('components/whatslearn/style-interaction.tsx').default;
  const render=style=>renderToStaticMarkup(React.createElement(View,{mission:m,style}));
- assert.match(render('casual'),/<textarea/);assert.doesNotMatch(render('casual'),/Your decision/);
+ assert.match(render('casual'),/<textarea/);assert.doesNotMatch(render('casual'),/Send ASK|\*Question/);assert.doesNotMatch(render('casual'),/Your decision/);
  assert.match(render('game'),/CHECKPOINT 1\/2/);assert.doesNotMatch(render('game'),/<textarea/);
  assert.match(render('facts'),/TRUE OR FALSE/);assert.match(render('facts'),/>FALSE</);
  assert.match(render('story'),/CHOOSE → SEE THE CONSEQUENCE → EXPLAIN/);
