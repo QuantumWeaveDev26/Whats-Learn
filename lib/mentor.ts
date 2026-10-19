@@ -1,4 +1,4 @@
-import {learnerName,addressLearner} from './learner-name';
+import {learnerName} from './learner-name';
 import {loadLearning} from './learning-service';
 import {readContext} from './learner-context-store';
 import {coachContext} from './learner-context';
@@ -37,5 +37,5 @@ export async function mentorContext(userId:string,missionId?:string,draft='',rec
 export async function mentorReply(userId:string,question:string,missionId?:string,draft='',recentConversation?:{question:string;answer?:string}|null){
  const context=await mentorContext(userId,missionId,draft,recentConversation);
  const result=await answerMentor(question,context.profile.language,context);
- return {...result,answer:addressLearner(result.answer,context.name)};
+ return result;
 }

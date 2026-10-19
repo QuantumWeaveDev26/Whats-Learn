@@ -11,11 +11,11 @@ const say=text=>h.load('lib/bridge/whatsapp-chat.ts').handleBridgeMessage({wamid
 test('greeting and performance use the verified linking name when website display name is absent',async()=>{
  await setup();assert.match((await say('Hello')).text,/Hey Pavana!/);assert.equal((await h.load('lib/learner-performance.ts').learnerPerformance(uid)).name,'Pavana');assert.match((await say('show my progress')).text,/Pavana/);
 });
-test('personal answers use the saved name even when the model omits it',async()=>{
- await setup();const first=await say('What is a keyframe?');assert.match(first.text,/^Pavana,/);assert.match(first.text,/keyframe/);const second=await say('How do I preview it?');assert.match(second.text,/^Pavana,/);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
+test('follow-up answers do not have the learner name forced onto every reply',async()=>{
+ await setup();await say('Hello');const first=await say('What is a keyframe?');assert.doesNotMatch(first.text,/^Pavana,/);assert.match(first.text,/keyframe/);const second=await say('How do I preview it?');assert.doesNotMatch(second.text,/^Pavana,/);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
 });
-test('continuing an open mission addresses the learner and preserves its exact draft',async()=>{
- await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;const result=await say('TODAY');assert.match(result.text,/Pavana/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
+test('continuing an open mission preserves its exact draft without another greeting',async()=>{
+ await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;const result=await say('TODAY');assert.doesNotMatch(result.text,/Pavana/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
 });
 test('website name wins; formatting and email addresses never become a greeting',async()=>{
  await setup('Account name');h.db.prepare('UPDATE learner_profiles SET display_name=? WHERE user_id=?').run('  Pavana\n*_Rao*  ',uid);let p=await h.load('lib/learner-performance.ts').learnerPerformance(uid);assert.equal(p.name,'Pavana Rao');

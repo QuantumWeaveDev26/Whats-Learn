@@ -21,6 +21,12 @@ test('unlinked/opted-out contacts never become authenticated tutor requests',()=
 test('task saves and actual validation feedback are sent unchanged',()=>{
  const request={mentorIntent:'save',profileSnapshot:snapshot('Pavana').json.text};const response={action:'reply',text:'Your answer is not complete yet.'};assert.deepEqual(context({all:()=>[item(response)]},()=>({all:()=>[item(request)]}))[0].json,response);
 });
+
+test('wanting to learn explains the current lesson even when a finished draft is waiting',()=>{
+ const request={mentorIntent:'continue',learnerQuestion:'I want to learn',profileSnapshot:snapshot('Pavana').json.text,profileContext:{currentTask:{title:'Build a booking page',idea:'Only confirm after saving.'}}};
+ const out=context({all:()=>[item({action:'reply',text:'Draft ready. SAVE or EDIT.'})]},()=>({all:()=>[item(request)]}))[0].json;
+ assert.equal(out.action,'tutor');assert.equal(out.question,'I want to learn');assert.equal(out.maxWords,35);assert.equal(out.material.mentorIntent,'continue');assert.match(out.material.currentTask.idea,/Only confirm/);
+});
 test('a batch keeps names and sender context separate',()=>{
  const inputs=['A','B'].map((_,i)=>item({output:'{"kind":"profile"}'}));const messages=['A','B'].map(name=>item({text:'Tell me about myself',from:name}));const rows=resolve({all:()=>inputs},name=>({all:()=>name==='One Item Per Message'?messages:[snapshot('Pavana'),snapshot('Anita')]}));
  assert.match(rows[0].json.profileSnapshot,/Pavana/);assert.doesNotMatch(rows[0].json.profileSnapshot,/Anita/);assert.match(rows[1].json.profileSnapshot,/Anita/);

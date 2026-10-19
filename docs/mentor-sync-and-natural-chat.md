@@ -6,7 +6,7 @@ The website PROFILE response now includes an account-scoped context object: save
 
 Natural conversation is separated from assessed answers. The classifier can recognize paraphrases and multilingual requests; uncertain messages reach the tutor instead of becoming practical answers. Final saving still requires correct, relevant practical work and the existing server review. Accepted parts persist during a break. A website course change parks the former chat draft without deleting it. Unfinished web and chat drafts remain separate, as previously requested; saved progress is shared.
 
-The teaching contract calls for short, warm replies using the saved name, one useful explanation and a small real-world example when helpful. It adapts to saved interests and learning style, stays calm under frustration, corrects mistaken prior replies and admits uncertainty. Provider failure can fall through to the n8n tutor with current account facts. A failed shortening call no longer discards a usable answer.
+The teaching contract calls for a named greeting at the start, then direct answers without repeated greetings or name prefixes. Default replies target 20–35 words and one familiar example; detailed steps are available when requested. The formatter keeps complete sentences instead of cutting an answer mid-thought. “I want to learn” explains the current lesson even when a ready draft exists, rather than repeating SAVE/EDIT. It adapts to saved interests and learning style, stays calm under frustration, corrects mistaken prior replies and admits uncertainty. Provider failure can fall through to the n8n tutor with current account facts. A failed shortening call no longer discards a usable answer.
 
 ## Deployment status
 

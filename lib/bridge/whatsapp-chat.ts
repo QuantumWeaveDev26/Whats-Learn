@@ -351,8 +351,7 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
   const prior=await db.prepare('SELECT user_id,state,last_inbound_at FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<{user_id:string;state:string;last_inbound_at:string|null}>();
   const out=await route(from,String(m.text||''),m.type||'text',at);
   const returning=prior&&(!prior.last_inbound_at||at.getTime()-Date.parse(prior.last_inbound_at)>30*60000);
-  const continuation=/^(?:today|lesson|next)\s*[.!]?$/i.test(String(m.text||'').trim());
-  if(prior?.state==='opted_in'&&(returning||continuation)&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
+  if(prior?.state==='opted_in'&&returning&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
    const name=await learnerName(prior.user_id);
    if(out.action==='reply')out.text=addressLearner(out.text,name);
    if(out.action==='tutor')out.material={...out.material,addressAs:name};
@@ -387,7 +386,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const dispatch=async(intent:MentorIntent|null):Promise<Out|null>=>{
  if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name?p.name+', here':'Here'}’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\n*TODAY* → continue.`)}
  if(intent?.kind==='course')return chooseCourse(c,intent.track||'');
- if(intent?.kind==='continue'){const out=await today(c);if(out.action==='reply')out.text=addressLearner(out.text,await learnerName(c.user_id));return out}
+ if(intent?.kind==='continue')return today(c);
  if(intent?.kind==='save')return submit(c,'');
  if(intent?.kind==='draft')return showDraft(c);
  if(intent?.kind==='keep-draft'){const d=await getDraft(c.user_id);return reply(d?'Your draft is already kept. Take your time—message me when you want to continue.':'No WhatsApp draft is open yet. Want to start your next task?')}

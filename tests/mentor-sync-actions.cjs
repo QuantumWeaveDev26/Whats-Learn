@@ -25,15 +25,15 @@ test('fresh snapshots include all-course status, personal setup and observed pra
 });
 test('indirect resume and pause requests do not become task answers or complete work',async()=>{
  await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
- provider('continue');let out=await say('Can we pick up from yesterday?');assert.equal(out.action,'reply');assert.match(out.text,/Pavana/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
+ provider('continue');let out=await say('Can we pick up from yesterday?');assert.equal(out.action,'reply');assert.doesNotMatch(out.text,/Pavana/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
  provider('keep-draft');out=await say('Gotta run, hold my place till tomorrow');assert.match(out.text,/already kept/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
 });
 test('an indirect completion request still cannot skip practical work or correctness checks',async()=>{
  await setup();await say('TODAY');provider('save');const out=await say('Ready to hand this in for the final check');assert.equal(out.action,'reply');assert.match(out.text,/not complete yet/);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n,0);
 });
-test('unclear chat and an unrelated question stay out of practical answers and use the saved name',async()=>{
+test('unclear chat and an unrelated question stay out of practical answers without repeating the saved name',async()=>{
  await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
- provider('question','Did you mean where to start, or something else?');const out=await say('Wia');assert.match(out.text,/^Pavana,/);assert.match(out.text,/Did you mean/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM ai_feedback_usage').get().n,0);
+ provider('question','Did you mean where to start, or something else?');const out=await say('Wia');assert.doesNotMatch(out.text,/^Pavana,/);assert.match(out.text,/Did you mean/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM ai_feedback_usage').get().n,0);
  assert.match(calls.at(-1).messages[0].content,/real-world example|real.world example/);assert.match(calls.at(-1).messages[0].content,/Stay calm/);
 });
 test('website AI failure hands WhatsApp to n8n with current account context rather than a dead-end reply',async()=>{
