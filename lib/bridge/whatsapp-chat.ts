@@ -1,13 +1,14 @@
 import {mentorContext,mentorReply} from '../mentor';
+import {recentMentorTurn,rememberMentorQuestion,rememberMentorTurn} from '../mentor-conversation';
 import {learnerName,addressLearner} from '../learner-name';
-import {mentorIntent} from '../mentor-intent';
+import {mentorIntent,type MentorIntent} from '../mentor-intent';
 import {readContext} from '../learner-context-store';
 import {personalAngle} from '../learner-context';
 import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,type StyleState} from '../style-interactions';
 import {checkStyleExplanation} from '../style-coach';
 import {checkSkillPractice} from '../skill-practice-service';
 import {briefFocus} from '../chat-copy';
-import {aiReady,aiProvider,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
+import {aiReady,aiProvider,reviewChatPart,feedbackLanguage,FeedbackError,interpretMentorMessage} from '../ai-feedback';
 import {allow} from '../auth/limits';
 import {chatPartIssue,shortFieldHint,shortFieldLabel} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
@@ -40,7 +41,7 @@ import {sha256Hex} from './auth';
  * clue costs, points, streaks, relevance checks) runs here, on the same functions and tables the website uses. Nothing in n8n computes or awards points.
  */
 export type Contact={user_id:string;phone:string;state:string;language:string;consent_at:string;opted_out_at:string|null;last_inbound_at:string|null;last_reminder_at:string|null;current_mission:string|null;updated_at:string;verified_at:string|null;remind_state:string;remind_hour:number;remind_freq:string;quiet_start:number;quiet_end:number;style?:LearningStyle;level?:string};
-export type Out={action:'reply';text:string}|{action:'none';reason:string}|{action:'tutor';question:string;language:string;material:Record<string,unknown>;maxWords:number;fallback:string};
+export type Out={action:'reply';text:string;context?:Record<string,unknown>}|{action:'none';reason:string}|{action:'tutor';question:string;language:string;material:Record<string,unknown>;maxWords:number;fallback:string};
 const reply=(text:string):Out=>({action:'reply',text:text.slice(0,3900)});
 const none=(reason:string):Out=>({action:'none',reason});
 export const LINK_MINUTES=30;
@@ -320,12 +321,13 @@ export function relevance(text:string,mission:Mission,track:string):'ok'|'wrong-
  if(generic.test(text)&&text.trim().split(/\s+/).length>=3)return 'ok';
  return 'unclear';
 }
-async function tutor(c:Contact,text:string):Promise<Out>{
+async function tutor(c:Contact,text:string,followup?:{question:string;answer?:string}|null):Promise<Out>{
  const {path}=await loadLearning(c.user_id);const d=await getDraft(c.user_id);
  const id=d?.mission_id||path.nextMissionId;
  const body=d?composeAnswer(getMission(id,c.level).practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';
- if(aiProvider())try{return reply((await mentorReply(c.user_id,text,id,body)).answer)}catch{return reply('I couldn’t finish that reply. Try again in a moment—your task is still here.')}
- const context=await mentorContext(c.user_id,id,body);
+ if(aiProvider())try{const answer=(await mentorReply(c.user_id,text,id,body,followup)).answer;return reply(answer)}catch{/* Let the n8n tutor try with the same fresh context; never return a dead end or mutate the draft. */}
+ const context=await mentorContext(c.user_id,id,body,followup);
+ if(!followup)await rememberMentorQuestion(c.user_id,'whatsapp',id,text);
  return {action:'tutor',question:text.trim().slice(0,500),language:feedbackLanguage(c.language,text),maxWords:45,fallback:'I couldn’t reach the mentor just now. Please ask again in a moment—your task is safe.',material:context};
 }
 
@@ -355,6 +357,10 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
    if(out.action==='reply')out.text=addressLearner(out.text,name);
    if(out.action==='tutor')out.material={...out.material,addressAs:name};
   }
+  if(prior?.state==='opted_in'&&out.action==='reply'&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
+   const {path}=await loadLearning(prior.user_id),draft=await getDraft(prior.user_id);
+   await rememberMentorTurn(prior.user_id,'whatsapp',draft?.mission_id||path.nextMissionId,String(m.text||''),out.text);
+  }
   return out;
  }
  catch(e){await db.prepare('DELETE FROM whatsapp_events WHERE id=?').bind(m.wamid).run();throw e}
@@ -375,26 +381,39 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(c.state!=='opted_in')return none('opted-out');
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
- const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
- const intent=mentorIntent(text);
+ let levelDraft=await getDraft(c.user_id);
+ if(levelDraft&&!levelDraft.data.revisiting&&(getMission(levelDraft.mission_id).track!==savedProfile.track||savedLearning.work.some(w=>w.mission_id===levelDraft!.mission_id))){await archiveCompletedDraft(c.user_id,levelDraft.mission_id);await db.prepare('UPDATE whatsapp_contacts SET current_mission=NULL WHERE user_id=?').bind(c.user_id).run();levelDraft=null;}
+ if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
+ const dispatch=async(intent:MentorIntent|null):Promise<Out|null>=>{
  if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name?p.name+', here':'Here'}’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\n*TODAY* → continue.`)}
  if(intent?.kind==='course')return chooseCourse(c,intent.track||'');
+ if(intent?.kind==='continue'){const out=await today(c);if(out.action==='reply')out.text=addressLearner(out.text,await learnerName(c.user_id));return out}
+ if(intent?.kind==='save')return submit(c,'');
+ if(intent?.kind==='draft')return showDraft(c);
+ if(intent?.kind==='keep-draft'){const d=await getDraft(c.user_id);return reply(d?'Your draft is already kept. Take your time—message me when you want to continue.':'No WhatsApp draft is open yet. Want to start your next task?')}
+ if(intent?.kind==='roadmap')return roadmap(c);
+ if(intent?.kind==='profile')return tutor(c,text);
  if(intent?.kind==='greeting'){const name=await learnerName(c.user_id);return reply(`Hey${name?' '+name:''}! 👋 What’s on your mind?`)}
- if(intent?.kind==='frustrated')return reply('Let’s make this useful. What do you need: a simpler explanation, your progress, or a different course? Your draft is safe.');
+ if(intent?.kind==='frustrated')return tutor(c,text);
  if(intent?.kind==='clarify'){
   const draft=await getDraft(c.user_id);const m=getMission(draft?.mission_id||savedLearning.path.nextMissionId,c.level);
-  if(aiProvider())return tutor(c,text+' — explain the current task simply and give one small first action.');
+  const previous=await recentMentorTurn(c.user_id,'whatsapp',m.id);
+  if(previous||aiProvider())return tutor(c,text,previous);
   const field=draft?currentStep(m,draft):'quiz';
-  return reply(field==='ready'?'Your draft is filled in. Which part should we unpack? Send EDIT to see the parts.':`One small step: ${field==='quiz'?'read the question and choose the action you would actually take.':field==='reasoning'?'describe what you made, what happened when you tested it, and what you fixed.':(()=>{const f=m.practical?.fields.find(f=>'f:'+f.id===field);return f?shortFieldHint(m,f):'share the part you want help with.'})()}\nTell me which word or step is confusing.`);
+  return reply(field==='ready'?'Your draft is filled in. Send EDIT to see the parts.':`Quick version: ${field==='quiz'?'choose the action you would take in this situation.':field==='reasoning'?'say what you made, what happened when you tested it, and what you changed.':(()=>{const f=m.practical?.fields.find(f=>'f:'+f.id===field);return f?shortFieldHint(m,f):'tell me which part is unclear.'})()}`);
  }
+ return null;
+ };
+ const directed=await dispatch(mentorIntent(text));if(directed)return directed;
  switch(cmd){
   case 'today':case 'lesson':case 'next':case 'menu':if(!arg)return today(c);break;
   case 'practice':{const {path}=await loadLearning(c.user_id);if(!path.remediation)return reply('No focused practice is waiting. Send TODAY to continue.');if(!arg)return reply(path.remediation.prompt+'\nReply PRACTICE followed by your answer.');try{const checked=await checkSkillPractice(c.user_id,path.remediation.key,arg);return reply(checked.feedback+'\n'+(checked.accepted?'Skill check passed. Apply it to your creation. *TODAY* → continue.':checked.followUp));}catch(e){return reply(e instanceof FeedbackError?e.message:'Practice check unavailable. Your draft is safe; retry.')}}
   case 'drafts':return savedDrafts(c);
+  case 'draft':return showDraft(c);
   case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
-  case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;const next=rows.findIndex(r=>r.status==='current'),visible=arg.toLowerCase()==='all'?rows:rows.slice(Math.max(0,next),Math.max(0,next)+3);return reply(`🗺️ *${courseName(profile.track)}*\n${count}/10 saved · 10-day foundation\n\n${visible.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} Day ${r.day}: ${r.deliverable}`).join('\n')}\n\n${count===10?'🎉 Foundation done. Review your creations.':'*TODAY* → make your next piece'}\n*ROADMAP ALL* → all 10 days`)}
-  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id);return reply(await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''))}
+  case 'roadmap':return roadmap(c,arg.toLowerCase()==='all');
+  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id);return {action:'reply',text:await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''),context:await mentorContext(c.user_id)}}
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';
    if(!arg)return reply(`Your style: *${learningStyles[learningStyle(c.style)]}*\n\n${choices}\n\nSend *STYLE GAME* (or 1–4). Same points; your current answer stays safe.`);
@@ -424,10 +443,24 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'answer':{const d=await getDraft(c.user_id);if(d&&arg)return takeAnswer(c.user_id,c,getMission(d.mission_id,c.level),d,arg);break}
  }
  const d=await getDraft(c.user_id);
- if(d){
-  const m=getMission(d.mission_id,c.level),step=currentStep(m,d);
-  if(step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d));
-  if(!questionLike(text)&&step!=='ready')return takeAnswer(c.user_id,c,m,d,text);
- }else if(/^[a-f1-6]$/i.test(text))return reply('Reply TODAY first to get a mission, then answer with a letter.');
+ const m=d?getMission(d.mission_id,c.level):null,step=m&&d?currentStep(m,d):null;
+ if(d&&m&&step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d));
+ if(d&&m&&step!=='ready'&&/^[a-f1-6][).]?$/i.test(text))return takeAnswer(c.user_id,c,m,d,text);
+ if(!d&&/^[a-f1-6]$/i.test(text))return reply('Reply TODAY first to get a mission, then answer with a letter.');
+ const semantic=await interpretMentorMessage(text,{hasDraft:!!d,ready:step==='ready',mission:m?.title,prompt:m?(step==='quiz'?m.question:step==='reasoning'?'Show your created work, actual test result and improvement.':m.practical?.fields.find(f=>'f:'+f.id===step)?.hint):undefined});
+ const action=await dispatch(semantic);if(action)return action;
+ if(semantic?.kind==='answer'&&d&&m&&step!=='ready')return takeAnswer(c.user_id,c,m,d,text);
+ // When interpretation is unavailable, ordinary questions still reach the tutor. Ambiguous text never becomes graded work.
  return tutor(c,text);
+}
+
+async function showDraft(c:Contact):Promise<Out>{
+ const d=await getDraft(c.user_id);if(!d)return reply('No WhatsApp draft is open. Message TODAY to start from your saved journey.');
+ const m=getMission(d.mission_id,c.level),parts=Object.entries(d.data.fields).filter(([,v])=>v).slice(-3).map(([id,v])=>`${m.practical?.fields.find(f=>f.id===id)?.label||id}: ${briefFocus(v,12)}`);
+ return reply(`*Your draft · ${m.title}*\n${parts.length?parts.join('\n'):'Your task is open; no practical answer is saved yet.'}\n\n${currentStep(m,d)==='ready'?'Ready for the final check. Say “submit my work” when you’re ready.':'Your place is kept. Say “let’s continue” to pick up here.'}`);
+}
+async function roadmap(c:Contact,all=false):Promise<Out>{
+ const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;
+ const next=rows.findIndex(r=>r.status==='current'),visible=all?rows:rows.slice(Math.max(0,next),Math.max(0,next)+3);
+ return reply(`🗺️ *${courseName(profile.track)}*\n${count}/10 saved · 10-day foundation\n\n${visible.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} Day ${r.day}: ${r.deliverable}`).join('\n')}\n\n${count===10?'🎉 Foundation done. Review your creations.':'*TODAY* → make your next piece'}\n*ROADMAP ALL* → all 10 days`);
 }

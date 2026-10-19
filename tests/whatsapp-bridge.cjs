@@ -45,9 +45,9 @@ async function answerMission(phone,id,{quiz,sub=true}={}){
  const m=byId(id),s=samples[id];let out=await say(phone,'TODAY');assert.match(textOf(out),/Question 1/);
  out=await say(phone,'ABCDEF'[quiz??m.answer]);
  for(const f of m.practical.fields){
-  const v=s.fields[f.id];out=await say(phone,f.type==='choice'?'ABCDEF'[f.options.indexOf(v)]:v);
+  const v=s.fields[f.id];out=await say(phone,f.type==='choice'?'ABCDEF'[f.options.indexOf(v)]:'ANSWER '+v);
  }
- out=await say(phone,s.reasoning);
+ out=await say(phone,'ANSWER '+s.reasoning);
  if(m.practical.link)out=await say(phone,s.link||'SKIP');
  out=await say(phone,'1 2 3 4 5');assert.match(textOf(out),/Reply \*(SAVE|SUBMIT)\*/);
  return sub?say(phone,'SUBMIT'):out;
@@ -518,7 +518,7 @@ test('ordinary requests escape a ready draft and course switches preserve it',as
  let out=await say(phone,'Hello');assert.match(textOf(out),/What.s on your mind/);assert.doesNotMatch(textOf(out),/Draft ready/);
  out=await say(phone,'Tell the progress');assert.match(textOf(out),/0\/10 missions saved/);
  out=await say(phone,'Change my course');assert.match(textOf(out),/COURSE 1/);assert.doesNotMatch(textOf(out),/Draft ready/);
- out=await say(phone,'Nange gothilla');assert.match(textOf(out),/Which part should we unpack/);
+ out=await say(phone,'Nange gothilla');assert.equal(out.action,'tutor');assert.match(out.material.recentConversation.question,/Change my course/);
  assert.equal(db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
  db.prepare('UPDATE whatsapp_contacts SET current_mission=? WHERE user_id=?').run('m1',uid);
  out=await say(phone,'switch to filmmaking');assert.match(textOf(out),/Course set/);

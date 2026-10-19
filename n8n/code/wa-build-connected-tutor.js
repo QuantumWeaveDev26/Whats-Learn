@@ -1,0 +1,1 @@
+return $input.all().map((it,i)=>{const t=it.json;return {json:{input:String(t.question||'').slice(0,500),language:String(t.language||'en'),material:t.material||{},maxWords:Math.min(120,Math.max(20,Number(t.maxWords)||45)),fallback:'I couldn’t finish that reply. Please ask again—your task is safe.'},pairedItem:{item:i}};});
