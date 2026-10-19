@@ -1,3 +1,6 @@
+import {mentorIntent} from '../mentor-intent';
+import {readContext} from '../learner-context-store';
+import {coachContext,personalAngle} from '../learner-context';
 import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,type StyleState} from '../style-interactions';
 import {checkStyleExplanation} from '../style-coach';
 import {checkSkillPractice} from '../skill-practice-service';
@@ -215,7 +218,7 @@ async function chooseCourse(c:Contact,arg:string):Promise<Out>{
  if(!arg)return reply(`You are on *${courseName(profile.track)}*. Your progress in each course is kept.\n\n${list}\n\nReply COURSE 1, 2, 3 or 4 to switch.`);
  const a=arg.toLowerCase();const hit=/^[1-4]$/.test(a)?courseTitles[Number(a)-1]:courseTitles.find(t=>t.track===a||t.course.toLowerCase().includes(a));
  if(!hit)return reply(`I did not find that course.\n\n${list}\n\nReply COURSE 1, 2, 3 or 4.`);
- await saveProfile(c.user_id,{...profile,track:hit.track});await dropDraft(c.user_id);
+ await saveProfile(c.user_id,{...profile,track:hit.track});await database().prepare('UPDATE whatsapp_contacts SET current_mission=NULL WHERE user_id=?').bind(c.user_id).run();const prior=await getDraft(c.user_id);if(prior)await archiveCompletedDraft(c.user_id,prior.mission_id);
  return reply(`Course set to *${hit.course}*. The website uses the same course. Reply TODAY for your next mission.`);
 }
 async function hint(c:Contact,arg:string):Promise<Out>{
@@ -328,10 +331,10 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  // English keyword matching cannot judge a Kannada/Kanglish question. The grounded
  // coach checks its meaning; an English profile must not block the learner's language.
  const multilingual=/Kannada|Kanglish/.test(feedbackLanguage('en',q));
- if(rel==='unclear'&&!(aiProvider()&&multilingual))return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
+ if(rel==='unclear'&&!(aiProvider()&&(multilingual||questionLike(q))))return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
  if(aiProvider()){
   const a=await aiAllowance(c.user_id);if(!await allow('whatsapp-chat-check',c.user_id,a.limit>3?40:20,86400,Date.now()+19800000))return reply('You’ve used today’s chat checks. Your draft’s safe—back after midnight India time.');
-  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level)).answer)}catch{return reply(`AI help unavailable. Retry—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
+  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level,coachContext((await readContext(c.user_id))?.answers||null))).answer)}catch{return reply(`AI help unavailable. Retry—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
  }
  const allowance=await aiAllowance(c.user_id);
  const day=ist().day,db=database();
@@ -382,14 +385,25 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
  const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
+ const intent=mentorIntent(text);
+ if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name}, here’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\nWant the next mission? Send TODAY.`)}
+ if(intent?.kind==='course')return chooseCourse(c,intent.track||'');
+ if(intent?.kind==='greeting'){const p=await learnerPerformance(c.user_id);return reply(`Hey ${p.name}! What’s on your mind?\nAsk a question, check progress or send TODAY to continue.`)}
+ if(intent?.kind==='frustrated')return reply('Let’s make this useful. What do you need: a simpler explanation, your progress, or a different course? Your draft is safe.');
+ if(intent?.kind==='clarify'){
+  const draft=await getDraft(c.user_id);const m=getMission(draft?.mission_id||savedLearning.path.nextMissionId,c.level);
+  if(aiProvider())return tutor(c,'Explain the current task simply. What is the first small action I should take?');
+  const field=draft?currentStep(m,draft):'quiz';
+  return reply(field==='ready'?'Your draft is filled in. Which part should we unpack? Send EDIT to see the parts.':`One small step: ${field==='quiz'?'read the question and choose the action you would actually take.':field==='reasoning'?'describe what you made, what happened when you tested it, and what you fixed.':(()=>{const f=m.practical?.fields.find(f=>'f:'+f.id===field);return f?shortFieldHint(m,f):'share the part you want help with.'})()}\nTell me which word or step is confusing.`);
+ }
  switch(cmd){
-  case 'today':case 'lesson':case 'next':case 'hi':case 'hello':case 'menu':if(!arg)return today(c);break;
+  case 'today':case 'lesson':case 'next':case 'menu':if(!arg)return today(c);break;
   case 'practice':{const {path}=await loadLearning(c.user_id);if(!path.remediation)return reply('No focused practice is waiting. Send TODAY to continue.');if(!arg)return reply(path.remediation.prompt+'\nReply PRACTICE followed by your answer.');try{const checked=await checkSkillPractice(c.user_id,path.remediation.key,arg);return reply(checked.feedback+'\n'+(checked.accepted?'Skill check passed. Apply it to your creation. *TODAY* → continue.':checked.followUp));}catch(e){return reply(e instanceof FeedbackError?e.message:'Practice check unavailable. Your draft is safe; retry.')}}
   case 'drafts':return savedDrafts(c);
   case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
   case 'roadmap':{const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;const next=rows.findIndex(r=>r.status==='current'),visible=arg.toLowerCase()==='all'?rows:rows.slice(Math.max(0,next),Math.max(0,next)+3);return reply(`🗺️ *${courseName(profile.track)}*\n${count}/10 saved · 10-day foundation\n\n${visible.map(r=>`${r.status==='complete'?'✅':r.status==='current'?'👉':'○'} Day ${r.day}: ${r.deliverable}`).join('\n')}\n\n${count===10?'🎉 Foundation done. Review your creations.':'*TODAY* → make your next piece'}\n*ROADMAP ALL* → all 10 days`)}
-  case 'profile':case 'info':case 'plan':return reply(await learnerOverview(c.user_id));
+  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id);return reply(await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''))}
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';
    if(!arg)return reply(`Your style: *${learningStyles[learningStyle(c.style)]}*\n\n${choices}\n\nSend *STYLE GAME* (or 1–4). Same points; your current answer stays safe.`);
@@ -398,7 +412,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
    const {profile}=await loadLearning(c.user_id);await saveProfile(c.user_id,{...profile,style:picked});
    return reply(`Style set: *${learningStyles[picked]}* ✅\nSynced with the website. Send *TODAY* to continue or *LEARN* for the idea.`);
   }
-  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id,c.level),c.language);return reply(`${chatStyleLesson({...lm,task:missionPractice(lm).trial},c.style,c.language)}\n\n*Make:* ${missionPractice(lm).outcome}\n\nSend *TODAY* to continue.`)}
+  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id,c.level),c.language);const personal=await readContext(c.user_id);const angle=personal?personalAngle(personal.answers,lm.track):null;return reply(`${chatStyleLesson({...lm,task:missionPractice(lm).trial},c.style,c.language)}${angle?'\n\nYour angle: '+angle.text:''}\n\n*Make:* ${missionPractice(lm).outcome}\n\nSend *TODAY* to continue.`)}
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}
@@ -421,7 +435,8 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const d=await getDraft(c.user_id);
  if(d){
   const m=getMission(d.mission_id,c.level),step=currentStep(m,d);
-  if(!questionLike(text))return step==='ready'?reply(readyText(m,d)):takeAnswer(c.user_id,c,m,d,text);
+  if(step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d));
+  if(!questionLike(text)&&step!=='ready')return takeAnswer(c.user_id,c,m,d,text);
  }else if(/^[a-f1-6]$/i.test(text))return reply('Reply TODAY first to get a mission, then answer with a letter.');
  return tutor(c,text);
 }

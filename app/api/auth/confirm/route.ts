@@ -1,3 +1,4 @@
+import {afterSignIn,welcomeUrl} from '@/lib/learner-context-store';
 import {z} from 'zod';
 import {verifyLink} from '@/lib/auth/gotrue';
 import {setSessionCookies} from '@/lib/auth/session';
@@ -12,5 +13,6 @@ export async function POST(request:Request){
  const r=await verifyLink(b.data.type,b.data.tokenHash);if(!r.ok)return failure(r);
  await setSessionCookies(r.data,secureRequest(request));
  try{await ensureAccount(r.data.user.id)}catch{}
- return reply({ok:true,type:b.data.type,redirect:b.data.type==='recovery'?'/reset-password':b.data.next});
+ let destination=b.data.type==='recovery'?'/reset-password':welcomeUrl(b.data.next);if(b.data.type!=='recovery')try{destination=await afterSignIn(r.data.user.id,b.data.next)}catch{}
+ return reply({ok:true,type:b.data.type,redirect:destination});
 }

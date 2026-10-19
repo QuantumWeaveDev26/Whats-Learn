@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import LegalPage from '@/components/whatslearn/legal-page';
 export const metadata:Metadata={title:'Privacy policy · WhatsLearn',description:'How WhatsLearn handles your learning profile, creations and contact details.'};
-export default function Privacy(){return <LegalPage kicker="YOUR WORK. YOUR DATA." title={<>Privacy <em>policy.</em></>} updated="10 October 2026">
+export default function Privacy(){return <LegalPage kicker="YOUR WORK. YOUR DATA." title={<>Privacy <em>policy.</em></>} updated="19 October 2026">
 <p>WhatsLearn is a venture of BrandMint AI Pvt. Ltd. (“we”, “us”). This policy explains what we collect when you use whatslearn.in, the WhatsLearn ChatGPT companion and our WhatsApp contact channel, why we collect it and the choices you have. We aim to follow India’s Digital Personal Data Protection Act, 2023 (DPDP Act) and the Information Technology Act, 2000 with its rules. For the DPDP Act, BrandMint AI Pvt. Ltd. is the Data Fiduciary for the personal data described here.</p>
 <h2>1. If you learn as a guest</h2>
 <p>You can play challenges without signing in. Your learning profile, language, preferences, starter pieces, unsaved drafts, saved creations and practice rewards are stored only in your browser’s local storage on that device. We do not receive them. Clearing your browser data removes them.</p>
@@ -32,6 +32,6 @@ export default function Privacy(){return <LegalPage kicker="YOUR WORK. YOUR DATA
 <p>You can update your learning profile in <a href="/settings">Settings</a>, export your work from <a href="/learn?view=portfolio">My Creations</a>, and ask us to correct or delete your account data or withdraw consent by emailing <a href="mailto:connect@brandmintai.io">connect@brandmintai.io</a> with the subject “Privacy”. Under the DPDP Act you can also ask for a summary of the personal data we process, name a person to exercise your rights if you cannot, and raise a grievance with us. We will reply within 30 days.</p>
 <h2>12. Grievance Officer</h2>
 <p>Grievance Officer: <strong>[name to be confirmed by BrandMint AI Pvt. Ltd.]</strong>, BrandMint AI Pvt. Ltd., Bengaluru, Karnataka, India. Email <a href="mailto:connect@brandmintai.io?subject=Grievance">connect@brandmintai.io</a> with the subject “Grievance”. We acknowledge grievances within 24 hours and aim to resolve them within 15 days. If you are not satisfied with our answer, you may complain to the Data Protection Board of India once it accepts complaints.</p>
-<h2>13. Changes</h2>
+<h2>Personal learning setup</h2><p>After sign-in we offer seven optional questions about age range (not date of birth), current stage, hobbies, interests, a project idea, learning barriers and available device. Submitted answers are saved to your account and locked against later editing. They personalise examples and guidance on the website and your verified, linked WhatsApp mentor. Relevant preferences may be sent to our existing AI provider when you request coaching; they do not change assessment standards. You can skip questions. Account deletion removes this setup with your other learner data.</p><h2>13. Changes</h2>
 <p>We will update this page when our practices change, for example when a new feature goes live, and change the date above. For significant changes we will also tell signed-in learners on the site.</p>
 </LegalPage>}

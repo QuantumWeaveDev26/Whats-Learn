@@ -516,3 +516,20 @@ test('learning styles sync both ways without changing drafts, course or points',
  await assert.rejects(()=>saveProfile(userId,{...p,style:'invalid'}));
  assert.equal((await loadLearning(userId)).profile.style,'facts');
 });
+
+test('ordinary requests escape a ready draft and course switches preserve it',async()=>{
+ const phone='919990000080',uid='natural-request';await newLearner(uid,phone,{track:'marketing'});
+ const m=byId('m1'),sample=samples.m1;
+ db.prepare('INSERT INTO whatsapp_drafts(user_id,mission_id,quiz,body,updated_at) VALUES (?,?,?,?,?)').run(uid,m.id,m.answer,JSON.stringify({fields:sample.fields,reasoning:sample.reasoning,link:sample.link||'',level:'beginner'}),new Date().toISOString());
+ const before=db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
+ let out=await say(phone,'Hello');assert.match(textOf(out),/What.s on your mind/);assert.doesNotMatch(textOf(out),/Draft ready/);
+ out=await say(phone,'Tell the progress');assert.match(textOf(out),/0\/10 missions saved/);
+ out=await say(phone,'Change my course');assert.match(textOf(out),/COURSE 1/);assert.doesNotMatch(textOf(out),/Draft ready/);
+ out=await say(phone,'Nange gothilla');assert.match(textOf(out),/Which part should we unpack/);
+ assert.equal(db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
+ db.prepare('UPDATE whatsapp_contacts SET current_mission=? WHERE user_id=?').run('m1',uid);
+ out=await say(phone,'switch to filmmaking');assert.match(textOf(out),/Course set/);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM whatsapp_saved_drafts WHERE user_id=? AND mission_id=?').get(uid,'m1').n,1);
+ assert.equal(db.prepare('SELECT track FROM learner_profiles WHERE user_id=?').get(uid).track,'filmmaking');
+ assert.equal(db.prepare('SELECT current_mission FROM whatsapp_contacts WHERE user_id=?').get(uid).current_mission,null);
+});

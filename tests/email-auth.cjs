@@ -50,7 +50,7 @@ test('sign-up: name, email and password only; same answer for a new and a regist
 test('a new account cannot sign in until the email is confirmed; the confirmation link signs in, once',async()=>{
  const fake=H.reset();await register(fake);
  const early=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:PW}});assert.equal(early.status,403);assert.equal(early.json.code,'email_not_confirmed');assert.match(early.json.error,/confirm your email/i);assert.equal(H.jar.size,0,'no session before confirmation');
- const {r,m}=await confirmLast(fake);assert.equal(r.status,200);assert.equal(r.json.redirect,'/learn?mission=m2');assert.ok(await signedIn(),'the confirmation link signs the learner in');
+ const {r,m}=await confirmLast(fake);assert.equal(r.status,200);assert.equal(r.json.redirect,'/welcome?next=%2Flearn%3Fmission%3Dm2');assert.ok(await signedIn(),'the confirmation link signs the learner in');
  const reuse=await H.call(confirm,'/api/auth/confirm',{body:{tokenHash:new URL(m.link).searchParams.get('token_hash'),type:'signup',next:'/learn'}});assert.equal(reuse.status,400);assert.equal(reuse.json.code,'link_expired');assert.match(reuse.json.error,/expired or was already used/);
  const forged=await H.call(confirm,'/api/auth/confirm',{body:{tokenHash:'th_'+'A'.repeat(24),type:'signup',next:'/learn'}});assert.equal(forged.json.code,'link_expired');
  const bad=await H.call(confirm,'/api/auth/confirm',{body:{tokenHash:'bad token!',type:'signup',next:'/learn'}});assert.equal(bad.status,400);
@@ -66,11 +66,11 @@ test('sign-in: success sets HttpOnly session cookies and returns only a safe pat
  const fake=H.reset();await register(fake);await confirmLast(fake);for(const k of [...H.jar.keys()])H.jar.delete(k);
  const bad=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:'wrong password!!'}});const none=await H.call(signin,'/api/auth/signin',{body:{email:'nobody@example.test',password:'wrong password!!'}});
  assert.equal(bad.status,401);assert.equal(bad.json.code,'invalid_credentials');assert.deepEqual(bad.json,none.json,'same answer for a wrong password and an unknown address');assert.equal(H.jar.size,0);assert.ok(!JSON.stringify(bad.json).includes('wrong password'),'the password is never echoed');
- const ok=await H.call(signin,'/api/auth/signin',{body:{email:'ASHA@example.test',password:PW,returnTo:'/learn?mission=m2'}});assert.equal(ok.status,200);assert.equal(ok.json.redirect,'/learn?mission=m2');
+ const ok=await H.call(signin,'/api/auth/signin',{body:{email:'ASHA@example.test',password:PW,returnTo:'/learn?mission=m2'}});assert.equal(ok.status,200);assert.equal(ok.json.redirect,'/welcome?next=%2Flearn%3Fmission%3Dm2');
  assert.ok(!JSON.stringify(ok.json).includes('access_token')&&!JSON.stringify(ok.json).includes('at_'),'tokens are never sent to page JavaScript');
  assert.equal(H.jar.size,2);for(const [,c] of H.jar){assert.equal(c.httpOnly,true);assert.equal(c.sameSite,'lax');assert.equal(c.path,'/')}
- const evil=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:PW,returnTo:'https://evil.example/steal'}});assert.equal(evil.json.redirect,'/learn','an outside address becomes /learn');
- const loop=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:PW,returnTo:'/signin'}});assert.equal(loop.json.redirect,'/learn');
+ const evil=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:PW,returnTo:'https://evil.example/steal'}});assert.equal(evil.json.redirect,'/welcome?next=%2Flearn','an outside address becomes safe /learn after setup');
+ const loop=await H.call(signin,'/api/auth/signin',{body:{email:'asha@example.test',password:PW,returnTo:'/signin'}});assert.equal(loop.json.redirect,'/welcome?next=%2Flearn');
  assert.ok(await signedIn());const sess=await H.call(sessionRoute,'/api/session',{method:'GET'});assert.equal(sess.json.signedIn,true);
 });
 test('secure cookies on https use the __Host- prefix; the password never appears in any response or log line',async()=>{

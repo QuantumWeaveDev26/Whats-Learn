@@ -1,0 +1,8 @@
+import {z} from 'zod';
+import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {sameOrigin} from '@/lib/storage';
+import {contextSchema} from '@/lib/learner-context';
+import {readContext,finishContext} from '@/lib/learner-context-store';
+const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}});
+export async function GET(){const u=await getChatGPTUser();if(!u)return response({error:'Sign in to view your personal setup.'},401);try{return response({context:await readContext(u.userId)})}catch{return response({error:'Personal setup could not load. Please retry.'},503)}}
+export async function POST(request:Request){if(!sameOrigin(request))return response({error:'Invalid origin.'},403);const u=await getChatGPTUser();if(!u)return response({error:'Sign in to save your personal setup.'},401);try{const text=await request.text();if(text.length>3000)return response({error:'Setup is too large.'},413);const p=z.object({answers:contextSchema,skipped:z.boolean().default(false)}).strict().parse(JSON.parse(text));return response({saved:true,...await finishContext(u.userId,p.answers,p.skipped)})}catch(e){if(e instanceof z.ZodError||e instanceof SyntaxError)return response({error:'Choose a listed option or a short project idea.'},400);if(e instanceof Error&&e.message.includes('already submitted'))return response({error:e.message},409);return response({error:'Could not save. Your answers are still here; retry.'},503)}}

@@ -26,7 +26,7 @@ function Msg({text,kind}:{text:string;kind:'error'|'ok'}){return text?<p role={k
 export function SignInForm(){
  const [showPassword,setShowPassword]=useState(false);
  const back=useReturnTarget();const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[err,setErr]=useState(''),[code,setCode]=useState(''),[info,setInfo]=useState('');
- useEffect(()=>{let on=true;fetch('/api/session',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json() as Promise<{signedIn:boolean}>).then(d=>{if(on&&d.signedIn)window.location.replace(back)}).catch(()=>{});return()=>{on=false}},[back]);
+ useEffect(()=>{let on=true;fetch('/api/session',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json() as Promise<{signedIn:boolean}>).then(d=>{if(on&&d.signedIn)window.location.replace('/welcome?next='+encodeURIComponent(back))}).catch(()=>{});return()=>{on=false}},[back]);
  async function submit(e:React.FormEvent){e.preventDefault();setErr('');setInfo('');setBusy(true);const r=await send('/api/auth/signin',{email,password,returnTo:back});setBusy(false);
   if(r.ok&&r.redirect)window.location.assign(r.redirect);else{setErr(r.error||'');setCode(r.code||'')}}
  async function again(){setBusy(true);const r=await send('/api/auth/resend',{email,returnTo:back});setBusy(false);if(r.ok)setInfo(r.message||'');else setErr(r.error||'')}

@@ -16,8 +16,8 @@ export default function HostSignIn({mode}:{mode:'in'|'out'}){
   let alive=true;const target=safeReturnTo(new URLSearchParams(window.location.search).get('return_to'),mode==='in'?'/learn':'/');
   (async()=>{
    await Promise.resolve();if(alive)setBack(target);
-   if(mode==='in'){try{const s=await fetch('/api/session',{cache:'no-store',credentials:'same-origin'});if(s.ok&&(await s.json() as {signedIn:boolean}).signedIn){window.location.replace(target);return}}catch{}}
-   const path=mode==='in'?hostSignInHref(target):hostSignOutHref(target);
+   if(mode==='in'){try{const s=await fetch('/api/session',{cache:'no-store',credentials:'same-origin'});if(s.ok&&(await s.json() as {signedIn:boolean}).signedIn){window.location.replace('/welcome?next='+encodeURIComponent(target));return}}catch{}}
+   const path=mode==='in'?hostSignInHref('/welcome?next='+encodeURIComponent(target)):hostSignOutHref(target);
    if(await hostHasPath(path)){if(alive){setState('going');window.location.replace(path)}}else if(alive)setState('unavailable');
   })();
   return()=>{alive=false};
