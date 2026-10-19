@@ -35,7 +35,7 @@ test('routes refuse to run, with a clear message, when no provider is configured
  const c=await H.call(config,'/api/auth/config',{method:'GET'});assert.deepEqual([c.json.mode,c.json.emailPassword,c.json.chatgpt],['host',false,true]);
  H.reset();const c2=await H.call(config,'/api/auth/config',{method:'GET'});assert.deepEqual([c2.json.mode,c2.json.emailPassword,c2.json.chatgpt],['email',true,false]);
  for(const [dir,form] of [['signin','SignInForm'],['signup','SignUpForm'],['forgot-password','ForgotForm'],['verify-email','VerifyEmailPanel'],['auth/confirm','ConfirmPanel'],['signout','SignOutPanel']]){
-  const src=fs.readFileSync(path.join(H.ROOT,'app',dir,'page.tsx'),'utf8');assert.match(src,new RegExp('emailAuthConfigured\\(\\)\\s*\\?\\s*(<AccountShell>)?<'+form),dir+' shows its form only in email mode');}
+  const src=fs.readFileSync(path.join(H.ROOT,'app',dir,'page.tsx'),'utf8');assert.match(src,new RegExp('emailAuthConfigured\\(\\)\\s*\\?\\s*(<AccountShell(?: auth)?>)?<'+form),dir+' shows its form only in email mode');}
 });
 test('sign-up: name, email and password only; same answer for a new and a registered address; weak or malformed input is refused first',async()=>{
  const fake=H.reset();const r=await register(fake);assert.match(r.json.message,/Check your email/);assert.equal(fake.outbox.length,1);

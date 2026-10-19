@@ -8,7 +8,7 @@ test('generic praise is rewritten into specific feedback without changing the ve
 });
 test('Kanglish reply keeps the meaning short rather than copying English hype',async()=>{
  h.reset({env:{OPENAI_API_KEY:'fake-tone-key'}});let system='';global.fetch=async(url,options)=>{system=JSON.parse(options.body).messages[0].content;return Response.json({choices:[{message:{content:JSON.stringify({accepted:true,feedback:'Save aadmele confirmation barutte ✅',followUp:''})}}]});};
- const r=await reviewChatPart('d1',{label:'Explain confirmation',type:'concept-explanation'},'Nanu save aadmele success toristini, fail aadre retry kodtini.',{},null,'en');
+ const r=await reviewChatPart('d1',{label:'Explain confirmation',type:'concept-explanation'},'Nanu save aadmele success toristini, fail aadre retry kodtini.',{},null,'kn');
  assert.equal(r.accepted,true);assert.match(system,/Kanglish/);assert.match(system,/never translate English slang literally/);assert.match(r.feedback,/aadmele/);assert.ok(r.feedback.split(/\s+/).length<=22);
 });
 test('tutor answers rewrite filler and lead with the actual explanation',async()=>{

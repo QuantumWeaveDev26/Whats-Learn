@@ -16,10 +16,10 @@ export function languageDirection(language:string){return ['ks','sd','ur'].inclu
 export function readPreferredLanguage(fallback='en'){try{const value=localStorage.getItem('whatslearn-language');return value&&languages[value]?value:languages[fallback]?fallback:'en'}catch{return languages[fallback]?fallback:'en'}}
 export function rememberLanguage(language:string){if(!languages[language])throw new Error('Choose a listed language.');localStorage.setItem('whatslearn-language',language);window.dispatchEvent(new CustomEvent('whatslearn-language-change',{detail:language}));}
 
-/** A lesson link is an explicit choice for this visit; otherwise the account wins over device history. */
+/** Saved account language is authoritative; lesson links select language for guests. */
 export function resolveLearningLanguage(accountLanguage?:string,requestedLanguage?:string|null,fallback='en'){
  const valid=(value:unknown):value is string=>typeof value==='string'&&Object.hasOwn(languages,value);
- if(valid(requestedLanguage))return requestedLanguage;
  if(valid(accountLanguage))return accountLanguage;
+ if(valid(requestedLanguage))return requestedLanguage;
  return readPreferredLanguage(fallback);
 }

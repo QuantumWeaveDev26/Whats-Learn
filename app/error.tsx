@@ -1,0 +1,2 @@
+'use client';
+export default function PageError({reset}:{error:Error&{digest?:string};reset:()=>void}){return <main className="account-main"><section className="account-card" role="alert"><h1>This page could not load.</h1><p>There may be a temporary connection problem. Retry first; your saved work is kept.</p><button className="primary" onClick={reset}>Retry this page</button><a className="text-button" href="/learn">Back to my journey</a></section></main>}

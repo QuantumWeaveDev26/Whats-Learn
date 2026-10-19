@@ -210,7 +210,10 @@ test('reminders: explicit opt-in, chosen time and frequency in India time, quiet
  db.prepare("DELETE FROM mission_scores WHERE user_id='asha'").run();  // not yet learned "today" for this check
  assert.equal((await jobs.claimReminders(50,T('2026-10-13T12:30:00Z'))).items.length,0,'18:00 IST is before the chosen hour');
  const night=await jobs.claimReminders(50,T('2026-10-13T16:45:00Z'));assert.equal(night.items.length,0,'22:15 IST: quiet hours, and past the window');
- const run1=await call(reminders,'/api/bridge/whatsapp/reminders',{action:'claim'});   // real clock: may or may not be due; only used for the HTTP shape
+ // Keep the real-clock HTTP shape check from claiming a slot used by the dated fixtures below.
+ db.exec('SAVEPOINT reminder_http_shape');let run1;
+ try{run1=await call(reminders,'/api/bridge/whatsapp/reminders',{action:'claim'})}
+ finally{db.exec('ROLLBACK TO reminder_http_shape');db.exec('RELEASE reminder_http_shape')}
  assert.equal(run1.status,200);assert.ok(Array.isArray(run1.json.items));
  const a=await jobs.claimReminders(50,T('2026-10-13T13:35:00Z'));
  const mine=a.items.filter(i=>i.to===P1);assert.equal(mine.length,1);assert.equal(mine[0].mode,'template','outside the window an approved template is the only option');

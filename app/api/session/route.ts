@@ -1,6 +1,8 @@
 import {getChatGPTUser} from '@/app/chatgpt-auth';
+import {SessionUnavailable} from '@/lib/auth/session';
 export const dynamic = 'force-dynamic';
 export async function GET(){
- const user=await getChatGPTUser();
- return Response.json({signedIn:!!user},{headers:{'Cache-Control':'private, no-store','Vary':'Cookie'}});
+ const headers={'Cache-Control':'private, no-store','Vary':'Cookie'};
+ try{const user=await getChatGPTUser();return Response.json({signedIn:!!user},{headers});}
+ catch(e){if(e instanceof SessionUnavailable)return Response.json({error:e.message,retry:true},{status:503,headers});throw e;}
 }

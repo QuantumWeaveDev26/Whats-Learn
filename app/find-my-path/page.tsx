@@ -1,5 +1,5 @@
-import {learningPath} from '@/lib/learning-engine';
 'use client';
+import {learningPath} from '@/lib/learning-engine';
 import {learningStyles,styleDescriptions} from '@/lib/learning-styles';
 import {useEffect,useState} from 'react';
 import {ArrowLeft,ArrowRight,ArrowUpRight,Check,Sparkles} from 'lucide-react';

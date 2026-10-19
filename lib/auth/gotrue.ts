@@ -9,7 +9,7 @@ export type Failure={ok:false;code:AuthErrorCode;message:string;status:number};
 export type Ok<T>={ok:true;data:T};
 export type Result<T>=Ok<T>|Failure;
 export type Session={accessToken:string;refreshToken:string;expiresIn:number;user:ProviderUser};
-export type ProviderUser={id:string;email:string;name:string|null;emailConfirmed:boolean};
+export type ProviderUser={id:string;email:string;name:string|null;emailConfirmed:boolean;authProvider?:'email'|'google'};
 export const messages:Record<AuthErrorCode,string>={
  invalid_credentials:'That email and password do not match. Check them and try again, or reset your password.',
  email_not_confirmed:'Please confirm your email first. We sent you a link; you can ask for a new one below.',
@@ -56,7 +56,7 @@ const str=(v:unknown)=>typeof v==='string'?v:'';
 function toUser(u:unknown):ProviderUser|null{
  const o=u as Record<string,unknown>|null;if(!o||!str(o.id))return null;
  const meta=(o.user_metadata as Record<string,unknown>|undefined)||{};
- return {id:str(o.id),email:str(o.email).toLowerCase(),name:str(meta.full_name)||str(meta.name)||null,emailConfirmed:!!(o.email_confirmed_at||o.confirmed_at)};
+ return {id:str(o.id),email:str(o.email).toLowerCase(),name:str(meta.full_name)||str(meta.name)||null,emailConfirmed:!!(o.email_confirmed_at||o.confirmed_at),authProvider:(o.app_metadata as Record<string,unknown>|undefined)?.provider==='google'?'google':'email'};
 }
 function toSession(d:Record<string,unknown>):Session|null{
  const user=toUser(d.user);if(!user||!str(d.access_token)||!str(d.refresh_token))return null;
@@ -76,6 +76,12 @@ export async function signIn(email:string,password:string):Promise<Result<Sessio
 }
 export async function refresh(refreshToken:string):Promise<Result<Session>>{
  const r=await call({path:'token',query:{grant_type:'refresh_token'},body:{refresh_token:refreshToken}});if(!r.ok)return r;
+ const s=toSession(r.data);return s&&s.user.emailConfirmed?{ok:true,data:s}:fail('forbidden',401);
+}
+/** Google uses the same provider accounts and session cookies as email sign-in. */
+export async function googleEnabled():Promise<Result<boolean>>{const r=await call({method:'GET',path:'settings'});return r.ok?{ok:true,data:(r.data.external as Record<string,unknown>|undefined)?.google===true}:r;}
+export async function exchangeGoogleCode(code:string,verifier:string):Promise<Result<Session>>{
+ const r=await call({path:'token',query:{grant_type:'pkce'},body:{auth_code:code,code_verifier:verifier}});if(!r.ok)return r;
  const s=toSession(r.data);return s&&s.user.emailConfirmed?{ok:true,data:s}:fail('forbidden',401);
 }
 /** The provider is the authority on whether an access token is valid right now. */

@@ -17,11 +17,11 @@ test('priority keeps all 23 languages and places northern choices after the sout
  assert.deepEqual([...languageCodes].sort(),['en','as','bn','brx','doi','gu','hi','kn','ks','kok','mai','ml','mni','mr','ne','or','pa','sa','sat','sd','ta','te','ur'].sort());
 });
 
-test('saved account language wins over stale device history, except for an explicit lesson link',()=>{
+test('saved account language wins over device history and old lesson links',()=>{
  global.localStorage={getItem:()=> 'en'};
  const resolve=output.exports.resolveLearningLanguage;
  assert.equal(resolve('kn'),'kn');assert.equal(resolve('hi'),'hi');assert.equal(resolve(undefined),'en');
- assert.equal(resolve('kn','hi'),'hi');assert.equal(resolve('kn','invalid'),'kn');assert.equal(resolve('kn','__proto__'),'kn');
+ assert.equal(resolve('kn','hi'),'kn');assert.equal(resolve(undefined,'hi'),'hi');assert.equal(resolve('kn','invalid'),'kn');assert.equal(resolve('kn','__proto__'),'kn');
  global.localStorage={getItem(){throw Error('disabled')}};
  assert.equal(resolve('kn'),'kn');assert.equal(resolve(undefined,null,'hi'),'hi');
 });

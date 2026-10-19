@@ -3,6 +3,7 @@ import {useEffect,useState} from 'react';
 import {Check,Mail,ShieldCheck,Eye,EyeOff} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {safeReturnTo} from '@/lib/return-to';
+import GoogleSignIn from './google-signin';
 /**
  * Email and password screens. They only talk to this site's own /api/auth routes, which pass the password straight to the managed provider.
  * They are shown only when the site is in email mode (the pages check first), so a form never appears on a host where it could not work.
@@ -20,7 +21,7 @@ function useReturnTarget(fallback='/learn'){
  return t;
 }
 function Frame({kicker,title,lead,children}:{kicker:string;title:string;lead:string;children:React.ReactNode}){
- return <div className="join-grid"><section><p className="kicker">{kicker}</p><h1>{title}</h1><p className="account-lead">{lead}</p><div className="join-promises"><p><ShieldCheck size={19}/>Your password goes straight to our sign-in provider. We never see or store it.</p><p><Mail size={19}/>We only ask for your name and email. No phone number.</p></div></section><section className="account-card">{children}</section></div>;
+ return <div className="join-grid"><section><p className="kicker">{kicker}</p><h1>{title}</h1><p className="account-lead">{lead}</p></section><section className="account-card">{children}<details className="small muted"><summary>How sign-in works</summary><p>Your password is handled by our sign-in provider. Google sign-in opens Google; never enter your Google password on WhatsLearn.</p></details></section></div>;
 }
 function Msg({text,kind}:{text:string;kind:'error'|'ok'}){return text?<p role={kind==='error'?'alert':'status'} className={kind==='error'?'form-error':'form-ok'}>{text}</p>:null}
 export function SignInForm(){
@@ -30,7 +31,7 @@ export function SignInForm(){
  async function submit(e:React.FormEvent){e.preventDefault();setErr('');setInfo('');setBusy(true);const r=await send('/api/auth/signin',{email,password,returnTo:back});setBusy(false);
   if(r.ok&&r.redirect)window.location.assign(r.redirect);else{setErr(r.error||'');setCode(r.code||'')}}
  async function again(){setBusy(true);const r=await send('/api/auth/resend',{email,returnTo:back});setBusy(false);if(r.ok)setInfo(r.message||'');else setErr(r.error||'')}
- return <Frame kicker="WELCOME BACK" title="Sign in" lead="Pick up where you left off. Your work and points are saved to your account."><form onSubmit={submit} noValidate>
+ return <Frame kicker="WELCOME BACK" title="Sign in" lead="Pick up where you left off."><GoogleSignIn returnTo={back}/><form onSubmit={submit} noValidate>
   <span className="label">SIGN IN WITH EMAIL</span><label htmlFor="si-email">Email</label><Input id="si-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required maxLength={254}/>
   <label htmlFor="si-password">Password</label><div className="signin-password-field"><Input id="si-password" type={showPassword?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required maxLength={200}/><button className="signin-password-toggle" type="button" onClick={()=>setShowPassword(value=>!value)} aria-label={showPassword?'Hide password':'Show password'} aria-controls="si-password" aria-pressed={showPassword} title={showPassword?'Hide password':'Show password'}>{showPassword?<EyeOff size={20} aria-hidden="true"/>:<Eye size={20} aria-hidden="true"/>}</button></div>
   <button className="primary" type="submit" disabled={busy||!email||!password}>{busy?'Signing in…':'Sign in'}</button>
@@ -44,7 +45,7 @@ export function SignUpForm(){
  async function submit(e:React.FormEvent){e.preventDefault();setErr('');setBusy(true);const r=await send('/api/auth/signup',{name,email,password,returnTo:back});setBusy(false);if(r.ok)setDone(r.message||'Check your email.');else setErr(r.error||'')}
  async function again(){setBusy(true);setInfo('');const r=await send('/api/auth/resend',{email,returnTo:back});setBusy(false);if(r.ok)setInfo(r.message||'');else setErr(r.error||'')}
  if(done)return <Frame kicker="ONE MORE STEP" title="Check your email" lead="Confirm your address to finish creating your account."><p role="status"><Check size={18}/> {done}</p><p className="small muted">The link works once and expires in an hour. Look in spam if you do not see it.</p><button type="button" className="outline account-full" onClick={again} disabled={busy}>Send the link again</button><Msg text={err} kind="error"/><Msg text={info} kind="ok"/><p className="small"><a href={`/signin?return_to=${encodeURIComponent(back)}`}>Already confirmed? Sign in</a></p></Frame>;
- return <Frame kicker="YOUR AMBITION. YOUR WAY." title="Create your account" lead="Save your progress, earn points and keep your work on any device."><form onSubmit={submit} noValidate>
+ return <Frame kicker="YOUR AMBITION. YOUR WAY." title="Create your account" lead="Save your progress across devices."><GoogleSignIn returnTo={back}/><form onSubmit={submit} noValidate>
   <span className="label">CREATE AN ACCOUNT</span><label htmlFor="su-name">Name</label><Input id="su-name" value={name} onChange={e=>setName(e.target.value)} autoComplete="name" required maxLength={80}/>
   <label htmlFor="su-email">Email</label><Input id="su-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required maxLength={254}/>
   <label htmlFor="su-password">Password</label><Input id="su-password" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="new-password" required minLength={10} maxLength={72} aria-describedby="su-hint"/><p id="su-hint" className="small muted">At least 10 characters. A passphrase works well.</p>
@@ -109,7 +110,7 @@ export function DeleteAccount(){
 
 /** Shows the delete-account card only when email accounts are in use and the learner is signed in. */
 export function DeleteAccountIfEmail(){
- const [show,setShow]=useState(false);
- useEffect(()=>{let live=true;fetch('/api/auth/config').then(r=>r.json() as Promise<{emailPassword?:boolean;signedIn?:boolean}>).then(d=>{if(live)setShow(!!d.emailPassword&&!!d.signedIn)}).catch(()=>{});return()=>{live=false}},[]);
- return show?<DeleteAccount/>:null;
+ const [show,setShow]=useState(false),[google,setGoogle]=useState(false);
+ useEffect(()=>{let live=true;fetch('/api/auth/config').then(r=>r.json() as Promise<{emailPassword?:boolean;signedIn?:boolean;googleAccount?:boolean}>).then(d=>{if(live){setShow(!!d.emailPassword&&!!d.signedIn);setGoogle(d.googleAccount===true)}}).catch(()=>{});return()=>{live=false}},[]);
+ return show?google?<section className="account-card"><h2>Delete my account</h2><p className="small muted">You signed in with Google. Contact us from your account email to request deletion; do not send your Google password.</p><a className="outline" href="mailto:connect@brandmintai.io?subject=WhatsLearn%20account%20deletion">Request account deletion</a></section>:<DeleteAccount/>:null;
 }

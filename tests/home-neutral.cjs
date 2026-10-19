@@ -52,7 +52,8 @@ test('signed-out visitors do not get an account resume link from device work',()
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Hero));
  assert.doesNotMatch(html,/Continue my journey|Welcome back/);
- assert.match(html,/Sign in<\/a> to sync progress/);
+ assert.match(html,/Checking your account/);
+ assert.doesNotMatch(html,/Sign in<\/a> to sync progress/,'do not label an unresolved session as a guest');
  assert.match(html,/10-day foundation courses/);
  assert.match(html,/first 3 per course free/);
 });

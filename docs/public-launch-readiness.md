@@ -6,7 +6,7 @@ Broad public launch is **not yet cleared**. The checks below support the repaire
 
 ## Verified
 
-- 448 non-payment automated checks pass, covering authentication rules, account isolation, saved progress, mission access, correctness gates, drafts, style interactions, roadmaps, mentor routing and UI contracts.
+- 468 non-payment automated checks pass, covering authentication rules, account isolation, saved progress, mission access, correctness gates, drafts, style interactions, roadmaps, mentor routing and UI contracts.
 - TypeScript checking and the production standalone build pass.
 - An unpublished, manual-only n8n audit used a real AI provider and synthetic learners. Blind execution 24996 correctly classified all 15 messages, including tone/emoji/pace feedback, task editing, asking for the actual question, points, journey, resumption, general questions, ambiguity and a genuine user-story submission. Expected labels were excluded from the model input.
 - A six-turn real-model conversation was inspected. Raw output still needed restraint; the production formatter now caps emojis and keeps preference acknowledgements to the first complete thought. This is an implementation safeguard, not a claim that the model always follows its prompt.
@@ -17,6 +17,10 @@ Broad public launch is **not yet cleared**. The checks below support the repaire
 ## Behavior repairs
 
 Tone, emoji count and pacing are conversation preferences, never graded answers. Generic mentor questions no longer receive the stored draft body as material for an unsolicited review. The classifier receives the actual pending prompt. Editing and asking for a question use server operations and recheck mission access, including older drafts outside the free allowance. Points and progress are server facts. Task completion still requires the existing correctness and practical-evidence checks. Ordinary questions do not consume practical-review credits.
+
+## Usability follow-up
+
+See [usability repairs](usability-repairs-2026-10-19.md) for session renewal, selected-language enforcement, homepage language sync, clearer WhatsApp linking and Google sign-in. Google provider configuration and a real Google login must be verified before calling that sign-in method ready. The earlier model audit above is supplemented by the six English-language cases in execution 25487.
 
 ## Live checks required before launch clearance
 

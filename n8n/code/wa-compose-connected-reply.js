@@ -4,6 +4,13 @@ return $input.all().map((it,i)=>{
  const prior=priors[i]?.json||{},result=it.json||{};
  let text=String(result.output||result.text||"").trim();
  if(result.error||!text)text=String(prior.fallback||"I couldn’t connect just now. Please try again.");
+ // Never deliver a mixed-script answer when the model ignores the saved language.
+ const chosen=String(prior.material?.profile?.language||prior.language||'en');
+ const scripts={en:'Latin',English:'Latin',kn:'Kannada',Kannada:'Kannada',te:'Telugu',Telugu:'Telugu',ta:'Tamil',Tamil:'Tamil',ml:'Malayalam',Malayalam:'Malayalam',hi:'Devanagari',Hindi:'Devanagari',mr:'Devanagari',ne:'Devanagari',sa:'Devanagari',kok:'Devanagari',doi:'Devanagari',mai:'Devanagari',brx:'Devanagari',bn:'Bengali',as:'Bengali',gu:'Gujarati',pa:'Gurmukhi',or:'Oriya',ur:'Arabic',ks:'Arabic',sd:'Arabic',mni:'Meetei_Mayek',sat:'Ol_Chiki'};
+ const script=scripts[chosen]||(chosen.startsWith('Kanglish')?'Latin':null);
+ const prose=text.replace(/```[\s\S]*?```|`[^`\n]*`/g,'');
+ const romanKannada=(prose.match(/\b(nanu|nanna|neevu|maadi|maadide|beku|illa|andre|aadmele|tumba|hege|enu|torisi|torisbeku|haudu)\b/gi)||[]);
+ if(script&&(new RegExp(`[^\\p{Script=${script}}\\p{Script=Latin}\\p{Script=Common}\\p{Script=Inherited}\\s]`,'u').test(prose)||(['en','English'].includes(chosen)&&new Set(romanKannada.map(x=>x.toLowerCase())).size>=2)))text=String(prior.fallback||'I couldn’t finish that reply in your selected language. Please try again.');
  text=text.replace(/[ \t]+\n/g,"\n").replace(/(?:\s|^)\d+[.)]\s*$/u,'').trim();
  // Ordinal markers are not sentence endings. Give each complete step its own line.
  text=text.replace(/(?:^|\s)(\d+)\.\s+(?=\S)/gu,'\n$1) ').trim();

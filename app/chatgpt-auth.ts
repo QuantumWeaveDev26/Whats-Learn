@@ -7,6 +7,7 @@ export type ChatGPTUser = {
   displayName: string;
   email: string;
   fullName: string | null;
+  authProvider?: 'email' | 'google';
 };
 
 const USER_ID_HEADER = "oai-authenticated-user-id";
@@ -99,7 +100,9 @@ function isReservedAuthPath(pathname: string): boolean {
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
     pathname === "/verify-email" ||
-    pathname === "/auth/confirm"
+    pathname === "/auth/confirm" ||
+    pathname === "/auth/google/callback" ||
+    pathname === "/api/auth/google"
   );
 }
 
