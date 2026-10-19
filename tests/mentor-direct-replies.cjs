@@ -15,3 +15,7 @@ test('long answers stop at a complete thought instead of cutting words mid-sente
 test('names with regex punctuation cannot change greeting stripping rules',()=>{
  assert.equal(reply('Explain','Hey A. Rao! One simple example.',35,'A. Rao'),'One simple example.');
 });
+test('numbered steps do not end with a dangling ordinal or get collapsed into one paragraph',()=>{
+ const out=reply('How to build a website','To build a website: 1. Make a screen. 2. Save its data. 3. Connect the two. 4.',80);
+ assert.match(out,/\n1\) Make a screen/);assert.match(out,/\n3\) Connect the two\.$/);assert.doesNotMatch(out,/4[.)]\s*$/);
+});

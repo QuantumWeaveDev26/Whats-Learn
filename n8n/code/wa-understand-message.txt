@@ -3,11 +3,14 @@ Classify the meaning of a WhatsLearn learner's message, including indirect phras
 Allowed kinds:
 question: a normal question, chat, frustration, ambiguity or unclear text such as "Wia". Never pretend you understood unclear text.
 clarify: wants the previous explanation simplified or another example, e.g. "that went over my head".
-continue: wants to start learning, resume or work on a task, e.g. "where were we?", "I wanna learn", "need to finish my task", "let's pick up from yesterday".
+learn: wants teaching or an explanation of the current lesson, e.g. "I wanna learn", "teach me first", "first explain the task". This is different from resuming/submitting their draft.
+continue: wants to resume or work on a task, e.g. "where were we?", "need to finish my task", "let's pick up from yesterday", "ok now I wanna finish my mission", "can I finish the task now?". Asking whether they can finish is not permission to submit.
 save: explicitly wants existing work submitted for final checking or marked complete. This requests server validation, not a successful completion.
 keep-draft: wants to take a break or keep partial work.
 draft: asks to see or return to unfinished work.
 progress: asks how they are doing, points or completed/pending work.
+points: asks their points, score or balance, e.g. "what's my point?", "how many points do I have?". Use points instead of progress for a balance question.
+journey: asks where their journey or learning workspace is, e.g. "where's my journey in WhatsLearn?". They need the real link and roadmap, not a vague description.
 course: explicitly wants to choose or switch course. Asking a question about another subject is question, not a switch.
 roadmap: asks for the course plan.
 profile: asks what the mentor knows about them, e.g. "tell me about myself".

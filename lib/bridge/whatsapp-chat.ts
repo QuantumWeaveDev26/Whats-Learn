@@ -132,7 +132,7 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
  return `*${heading} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
 }
 function readyText(m:Mission,d:Draft){
- return `Draft ready ✨\nReply *SAVE* → final AI check + save\n*EDIT* → tweak`;
+ return `Your draft is filled in—not yet approved.\nReply *SAVE* for the final review, or *EDIT* to change it.`;
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{
@@ -384,6 +384,9 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(levelDraft&&!levelDraft.data.revisiting&&(getMission(levelDraft.mission_id).track!==savedProfile.track||savedLearning.work.some(w=>w.mission_id===levelDraft!.mission_id))){await archiveCompletedDraft(c.user_id,levelDraft.mission_id);await db.prepare('UPDATE whatsapp_contacts SET current_mission=NULL WHERE user_id=?').bind(c.user_id).run();levelDraft=null;}
  if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  const dispatch=async(intent:MentorIntent|null):Promise<Out|null>=>{
+ if(intent?.kind==='points')return points(c);
+ if(intent?.kind==='journey'){const out=await roadmap(c);if(out.action==='reply')out.text+='\n\nOpen your journey: '+site()+'/learn';return out}
+ if(intent?.kind==='learn')return tutor(c,text);
  if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name?p.name+', here':'Here'}’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\n*TODAY* → continue.`)}
  if(intent?.kind==='course')return chooseCourse(c,intent.track||'');
  if(intent?.kind==='continue')return today(c);

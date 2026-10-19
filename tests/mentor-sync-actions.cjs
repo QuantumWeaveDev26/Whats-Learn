@@ -9,6 +9,14 @@ async function setup(){
  calls=[];
 }
 const say=text=>h.load('lib/bridge/whatsapp-chat.ts').handleBridgeMessage({wamid:'semantic-'+Date.now()+'-'+(++seq),from:phone,text,type:'text'});
+test('screenshot points, journey and completion-permission phrases use actual account functions',async()=>{
+ await setup();provider('question');await say('TODAY');calls=[];
+ const points=await say("What's my point");assert.ok(points.text.includes("Points: "+(await h.load("lib/mission-points.ts").loadScores(uid)).balance));assert.doesNotMatch(points.text,/rewards|redeem|looks strong/);
+ const journey=await say("Where's my journey in whatslearn");assert.match(journey.text,/\/learn/);assert.match(journey.text,/10-day foundation/);
+ const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
+ for(const text of ['Ok now I wanna finish my mission','Can i finish the task now']){const out=await say(text);assert.equal(out.action,'reply');assert.doesNotMatch(out.text,/looks strong|503|fixed|approved/i);}
+ assert.equal(calls.length,0);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
+});
 function provider(kind='question',answer='We can take this one step at a time. Which part would you like help with?'){
  global.fetch=async(url,o)=>{const r=JSON.parse(o.body);calls.push(r);return Response.json({choices:[{message:{content:r.messages[0].content.startsWith('Classify the meaning')?JSON.stringify({kind,track:null}):answer}}]})};
 }

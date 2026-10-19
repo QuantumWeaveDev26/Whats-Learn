@@ -1,9 +1,13 @@
-export type MentorIntent={kind:'progress'|'course'|'clarify'|'continue'|'greeting'|'frustrated'|'save'|'draft'|'keep-draft'|'roadmap'|'profile'|'question'|'answer';track?:string};
+export type MentorIntent={kind:'progress'|'points'|'journey'|'learn'|'course'|'clarify'|'continue'|'greeting'|'frustrated'|'save'|'draft'|'keep-draft'|'roadmap'|'profile'|'question'|'answer';track?:string};
 /** Only short conversational requests; never classify an artifact/code block as navigation. */
 export function mentorIntent(raw:string):MentorIntent|null{
  const t=raw.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.,]+$/g,'').replace(/\s+/g,' ');
  if(t.length>130||/[{};\n]/.test(t))return null;
  if(/^(hi|hello|hey|hey mentor|hello mentor|namaste|namaskara)$/.test(t))return {kind:'greeting'};
+ if(/^(?:what(?:'s| is)|show(?: me)?|tell me|how many) (?:my |the )?(?:point|points|score|balance)(?: do i have)?$/.test(t))return {kind:'points'};
+ if(/^(?:where(?:'s| is)|show(?: me)?) (?:my |the )?journey(?: in whatslearn)?$/.test(t))return {kind:'journey'};
+ if(/^(?:i (?:want|wanna) (?:to )?learn|teach me(?: first)?|first explain(?: (?:me|the task))?)$/.test(t))return {kind:'learn'};
+ if(/^(?:ok(?:ay)? now )?(?:i (?:want to|wanna)|can i) finish (?:my |the )?(?:task|mission)(?: now)?$/.test(t))return {kind:'continue'};
  if(/^(?:(?:please |can you |could you )?(?:save (?:my |the |this )?(?:draft|progress)|pause (?:my |the |this )?(?:task|mission|lesson)|take a break))(?: please)?$/.test(t))return {kind:'keep-draft'};
  if(/^(?:please |can you |could you )?(?:(?:save|submit) (?:my |the |this )?(?:work|task|mission|answer)|mark (?:my |the |this )?(?:task|mission) (?:as )?(?:done|complete|completed)|(?:complete|finish) (?:this|the) (?:task|mission))(?: please)?$/.test(t))return {kind:'save'};
  if(/^(?:please |can you |could you )?(?:show|read)(?: me)? (?:my |the |this )?draft(?: please)?$/.test(t))return {kind:'draft'};
