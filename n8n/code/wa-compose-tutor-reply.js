@@ -13,5 +13,8 @@ else{
   if(words.length>Math.ceil(prior.maxWords*1.5))text=words.slice(0,prior.maxWords).join(" ")+"…";
   if(!text)text=prior.fallback;
 }
+const name=String(prior.addressAs||'').replace(/[\r\n*_~`<>]/g,' ').replace(/\s+/g,' ').trim().slice(0,60);
+const nameWords=value=>' '+value.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim()+' ';
+if(name&&!name.includes('@')&&!nameWords(text).includes(nameWords(name)))text=name+', '+text;
 return {json:{reply:text.slice(0,1500)},pairedItem:{item:i}};
 });

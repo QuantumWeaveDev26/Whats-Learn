@@ -1,4 +1,5 @@
 import {mentorContext,mentorReply} from '../mentor';
+import {learnerName,addressLearner} from '../learner-name';
 import {mentorIntent} from '../mentor-intent';
 import {readContext} from '../learner-context-store';
 import {personalAngle} from '../learner-context';
@@ -325,16 +326,13 @@ async function tutor(c:Contact,text:string):Promise<Out>{
  const body=d?composeAnswer(getMission(id,c.level).practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';
  if(aiProvider())try{return reply((await mentorReply(c.user_id,text,id,body)).answer)}catch{return reply('I couldn’t finish that reply. Try again in a moment—your task is still here.')}
  const context=await mentorContext(c.user_id,id,body);
- return {action:'tutor',question:text.trim().slice(0,500),language:feedbackLanguage(c.language,text),maxWords:65,fallback:'I couldn’t reach the mentor just now. Please ask again in a moment—your task is safe.',material:context};
+ return {action:'tutor',question:text.trim().slice(0,500),language:feedbackLanguage(c.language,text),maxWords:45,fallback:'I couldn’t reach the mentor just now. Please ask again in a moment—your task is safe.',material:context};
 }
 
 export async function learnerOverview(userId:string){
  const {profile}=await loadLearning(userId);const a=await aiAllowance(userId);
- const row=await database().prepare('SELECT display_name FROM whatsapp_contacts WHERE user_id=? AND verified_at IS NOT NULL').bind(userId).first<{display_name:string|null}>();
- const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
- const candidate=saved?.display_name||row?.display_name;
- const name=candidate&&!candidate.includes('@')?candidate:'learner';
- return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI reviews: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nMentor questions: no daily limit · reviews keep their plan allowance`;
+ const name=await learnerName(userId);
+ return `Hey${name?' '+name:''}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI reviews: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nMentor questions: no daily limit · reviews keep their plan allowance`;
 }
 
 // ---------- entry point ----------
@@ -347,7 +345,18 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
  if(!m.wamid||from.length<8||from.length>15)return none('invalid');
  const seen=await db.prepare('INSERT OR IGNORE INTO whatsapp_events(id,kind,processed_at) VALUES (?,?,?)').bind(m.wamid,m.type||'text',at.toISOString()).run();
  if(!seen.meta.changes)return none('duplicate');
- try{return await route(from,String(m.text||''),m.type||'text',at)}
+ try{
+  const prior=await db.prepare('SELECT user_id,state,last_inbound_at FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<{user_id:string;state:string;last_inbound_at:string|null}>();
+  const out=await route(from,String(m.text||''),m.type||'text',at);
+  const returning=prior&&(!prior.last_inbound_at||at.getTime()-Date.parse(prior.last_inbound_at)>30*60000);
+  const continuation=/^(?:today|lesson|next)\s*[.!]?$/i.test(String(m.text||'').trim());
+  if(prior?.state==='opted_in'&&(returning||continuation)&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
+   const name=await learnerName(prior.user_id);
+   if(out.action==='reply')out.text=addressLearner(out.text,name);
+   if(out.action==='tutor')out.material={...out.material,addressAs:name};
+  }
+  return out;
+ }
  catch(e){await db.prepare('DELETE FROM whatsapp_events WHERE id=?').bind(m.wamid).run();throw e}
 }
 async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
@@ -368,9 +377,9 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
  const levelDraft=await getDraft(c.user_id);if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  const intent=mentorIntent(text);
- if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name}, here’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\nWant the next mission? Send TODAY.`)}
+ if(intent?.kind==='progress'){const p=await learnerPerformance(c.user_id);return reply(`${p.name?p.name+', here':'Here'}’s your progress:\n${p.count}/10 missions saved · ${p.streak}-day streak\nToday: +${p.todayPoints} points\n*TODAY* → continue.`)}
  if(intent?.kind==='course')return chooseCourse(c,intent.track||'');
- if(intent?.kind==='greeting'){const p=await learnerPerformance(c.user_id);return reply(`Hey ${p.name}! What’s on your mind?\nAsk a question, check progress or send TODAY to continue.`)}
+ if(intent?.kind==='greeting'){const name=await learnerName(c.user_id);return reply(`Hey${name?' '+name:''}! 👋 What’s on your mind?`)}
  if(intent?.kind==='frustrated')return reply('Let’s make this useful. What do you need: a simpler explanation, your progress, or a different course? Your draft is safe.');
  if(intent?.kind==='clarify'){
   const draft=await getDraft(c.user_id);const m=getMission(draft?.mission_id||savedLearning.path.nextMissionId,c.level);
