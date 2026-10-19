@@ -418,7 +418,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
   case 'roadmap':return roadmap(c,arg.toLowerCase()==='all');
-  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id),context=await mentorContext(c.user_id),d=await getDraft(c.user_id);const m=d?getMission(d.mission_id,c.level):null;return {action:'reply',text:await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''),context:{...context,currentPrompt:d&&m?{missionId:m.id,step:currentStep(m,d),text:currentStep(m,d)==='ready'?'All draft parts are filled in; final review has not been performed.':promptFor(m,currentStep(m,d),d,c.language,c.style)}:null}}}
+  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id),context=await mentorContext(c.user_id),d=await getDraft(c.user_id);const m=d&&await canUseMission(c.user_id,d.mission_id)?getMission(d.mission_id,c.level):null;return {action:'reply',text:await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''),context:{...context,currentPrompt:d&&m?{missionId:m.id,step:currentStep(m,d),text:currentStep(m,d)==='ready'?'All draft parts are filled in; final review has not been performed.':promptFor(m,currentStep(m,d),d,c.language,c.style)}:null}}}
   case 'question':return currentQuestion(c);
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';
@@ -469,11 +469,13 @@ async function showDraft(c:Contact):Promise<Out>{
 }
 async function editParts(c:Contact):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return reply('No draft is open yet. Say “start my task” to begin.');
+ if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');
  const m=getMission(d.mission_id,c.level),steps=stepsFor(m);
  return reply('Which part do you want to change?\n'+steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your first answer':s==='reasoning'?'Your work and test result':s==='checks'?'Self-review':s==='link'?'Project link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nReply EDIT and the number, e.g. EDIT 2.');
 }
 async function currentQuestion(c:Contact):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return today(c);
+ if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');
  const m=getMission(d.mission_id,c.level),step=currentStep(m,d);
  return reply(step==='ready'?`*Your first question*\n${localizeMission(m,c.language).question}\n\nYour draft is filled in. Reply EDIT 1 to change this answer, or EDIT for another part.`:promptFor(m,step,d,c.language,c.style));
 }

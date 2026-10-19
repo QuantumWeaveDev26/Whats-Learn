@@ -6,7 +6,7 @@ Broad public launch is **not yet cleared**. The checks below support the repaire
 
 ## Verified
 
-- 447 non-payment automated checks pass, covering authentication rules, account isolation, saved progress, mission access, correctness gates, drafts, style interactions, roadmaps, mentor routing and UI contracts.
+- 448 non-payment automated checks pass, covering authentication rules, account isolation, saved progress, mission access, correctness gates, drafts, style interactions, roadmaps, mentor routing and UI contracts.
 - TypeScript checking and the production standalone build pass.
 - An unpublished, manual-only n8n audit used a real AI provider and synthetic learners. Blind execution 24996 correctly classified all 15 messages, including tone/emoji/pace feedback, task editing, asking for the actual question, points, journey, resumption, general questions, ambiguity and a genuine user-story submission. Expected labels were excluded from the model input.
 - A six-turn real-model conversation was inspected. Raw output still needed restraint; the production formatter now caps emojis and keeps preference acknowledgements to the first complete thought. This is an implementation safeguard, not a claim that the model always follows its prompt.
@@ -16,7 +16,7 @@ Broad public launch is **not yet cleared**. The checks below support the repaire
 
 ## Behavior repairs
 
-Tone, emoji count and pacing are conversation preferences, never graded answers. Generic mentor questions no longer receive the stored draft body as material for an unsolicited review. The classifier receives the actual pending prompt. Editing and asking for a question use server operations. Points and progress are server facts. Task completion still requires the existing correctness and practical-evidence checks. Ordinary questions do not consume practical-review credits.
+Tone, emoji count and pacing are conversation preferences, never graded answers. Generic mentor questions no longer receive the stored draft body as material for an unsolicited review. The classifier receives the actual pending prompt. Editing and asking for a question use server operations and recheck mission access, including older drafts outside the free allowance. Points and progress are server facts. Task completion still requires the existing correctness and practical-evidence checks. Ordinary questions do not consume practical-review credits.
 
 ## Live checks required before launch clearance
 

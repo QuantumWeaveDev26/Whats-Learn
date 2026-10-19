@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const h=require('./helpers/harness.cjs');const uid='mentor-synced',phone='919990000087';let seq=0,calls=[];
 async function setup(){
- h.reset({env:{OPENAI_API_KEY:'fake-semantic'}});h.db.exec('DELETE FROM whatsapp_events; DELETE FROM learner_context');
+ h.reset({env:{OPENAI_API_KEY:'fake-semantic'}});h.db.exec('DELETE FROM whatsapp_events; DELETE FROM whatsapp_drafts; DELETE FROM learner_context');
  await h.load('lib/learning-service.ts').saveProfile(uid,{...h.load('lib/personalization.ts').defaultProfile,track:'development'});
  h.db.prepare('UPDATE learner_profiles SET display_name=? WHERE user_id=?').run('Pavana',uid);
  const at=new Date().toISOString();h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,verified_at,last_inbound_at,updated_at) VALUES (?,?,'opted_in','en',?,?,?,?)").run(uid,phone,at,at,at,at);
@@ -9,6 +9,11 @@ async function setup(){
  calls=[];
 }
 const say=text=>h.load('lib/bridge/whatsapp-chat.ts').handleBridgeMessage({wamid:'semantic-'+Date.now()+'-'+(++seq),from:phone,text,type:'text'});
+test('an old draft outside Explore access does not expose locked prompts through question, edit or profile routes',async()=>{
+ await setup();await say('TODAY');h.db.prepare('UPDATE whatsapp_drafts SET mission_id=? WHERE user_id=?').run('d4',uid);
+ for(const text of ['Tell me the qns','I need to edit that']){const out=await say(text);assert.equal(out.action,'reply');assert.match(out.text,/membership/);}
+ const profile=await say('PROFILE');assert.equal(profile.context.currentPrompt,null);
+});
 test('screenshot points, journey and completion-permission phrases use actual account functions',async()=>{
  await setup();provider('question');await say('TODAY');calls=[];
  const points=await say("What's my point");assert.ok(points.text.includes("Points: "+(await h.load("lib/mission-points.ts").loadScores(uid)).balance));assert.doesNotMatch(points.text,/rewards|redeem|looks strong/);
