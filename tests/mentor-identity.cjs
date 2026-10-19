@@ -11,8 +11,8 @@ const say=text=>h.load('lib/bridge/whatsapp-chat.ts').handleBridgeMessage({wamid
 test('greeting and performance use the verified linking name when website display name is absent',async()=>{
  await setup();assert.match((await say('Hello')).text,/Hey Pavana!/);assert.equal((await h.load('lib/learner-performance.ts').learnerPerformance(uid)).name,'Pavana');assert.match((await say('show my progress')).text,/Pavana/);
 });
-test('a returning question uses the name even when the model omits it, without repeating it every turn',async()=>{
- await setup();const first=await say('What is a keyframe?');assert.match(first.text,/^Pavana,/);assert.match(first.text,/keyframe/);const second=await say('How do I preview it?');assert.doesNotMatch(second.text,/Pavana,/);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
+test('personal answers use the saved name even when the model omits it',async()=>{
+ await setup();const first=await say('What is a keyframe?');assert.match(first.text,/^Pavana,/);assert.match(first.text,/keyframe/);const second=await say('How do I preview it?');assert.match(second.text,/^Pavana,/);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
 });
 test('continuing an open mission addresses the learner and preserves its exact draft',async()=>{
  await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;const result=await say('TODAY');assert.match(result.text,/Pavana/);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);

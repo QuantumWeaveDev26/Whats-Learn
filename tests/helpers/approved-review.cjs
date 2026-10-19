@@ -8,7 +8,7 @@ Module._load=function(name,parent,main){
  const chat=parent?.filename.endsWith(path.join('lib','bridge','whatsapp-chat.ts'));
  if(chat&&name==='../ai-feedback'){
   const actual=original.call(this,name,parent,main);
-  return {...actual,aiReady:()=>true,reviewChatPart:async(...args)=>actual.aiReady()?actual.reviewChatPart(...args):{accepted:true,feedback:'Draft noted — '+String(args[2]).slice(0,45),followUp:''}};
+  return {...actual,aiReady:()=>true,interpretMentorMessage:async(...args)=>actual.aiReady()?actual.interpretMentorMessage(...args):{kind:/\?|^(what|why|how|when|where|who|which|can|could|should|is|are|do|does|explain|help|tell)\b/i.test(args[0])?'question':'answer'},reviewChatPart:async(...args)=>actual.aiReady()?actual.reviewChatPart(...args):{accepted:true,feedback:'Draft noted — '+String(args[2]).slice(0,45),followUp:''}};
  }
  if(chat&&name==='../auth/limits'){
   const actual=original.call(this,name,parent,main),ai=original.call(this,'../ai-feedback',parent,main);
