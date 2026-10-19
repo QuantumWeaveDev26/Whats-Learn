@@ -9,7 +9,9 @@ const review={summary:'Clear start.',strengths:['Specific customer'],checks:Arra
 const calls=[];
 global.fetch=async(url,options={})=>{const body=JSON.parse(options.body||'{}');const u=String(url);
  if(u==='https://api.anthropic.com/v1/messages'){calls.push({provider:'anthropic',model:body.model});assert.equal(options.headers['x-api-key'],'fake-anthropic');return Response.json({content:[{type:'text',text:JSON.stringify(review)}]})}
- if(u==='https://api.openai.com/v1/chat/completions'){calls.push({provider:'openai',model:body.model});assert.equal(options.headers.Authorization,'Bearer fake-openai');assert.equal(body.messages[0].role,'system');assert.match(body.messages[0].content,/Checklist/);assert.match(body.messages[1].content,/<learner_(work|question)>/);assert.ok(body.max_completion_tokens>0);
+ if(u==='https://api.openai.com/v1/chat/completions'){calls.push({provider:'openai',model:body.model});assert.equal(options.headers.Authorization,'Bearer fake-openai');assert.equal(body.messages[0].role,'system');assert.ok(body.max_completion_tokens>0);
+  if(body.messages[0].content.includes('You are the WhatsLearn mentor:')){assert.equal(JSON.parse(body.messages[1].content).question,'How do I start?');return Response.json({choices:[{message:{content:'Start with one small action your user needs. What would count as success?'}}]})}
+  assert.match(body.messages[0].content,/Checklist/);assert.match(body.messages[1].content,/<learner_(work|question)>/);
   if(env.FAIL_OPENAI)return new Response('{}',{status:429});
   return Response.json({choices:[{message:{content:'```json\n'+JSON.stringify(review)+'\n```'}}]})}
  throw new Error('Unexpected fetch '+u)};

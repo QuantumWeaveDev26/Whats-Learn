@@ -1,0 +1,3 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
+test('the live reminder payload includes every approved template body parameter',()=>{const p=JSON.parse(fs.readFileSync('docs/mentor-workflow-fix.json','utf8'));const expression=p.operations.find(x=>x.nodeName==='Send Approved Template').parameters.jsonBody.trim().slice(3,-2).trim();const run=new Function('$json','return ('+expression+')');for(const params of [['2','Build a trial request'],['100','3','4','5']]){const body=JSON.parse(run({to:'+91 9999999999',template:{name:'sample',language:'en',params}}));assert.deepEqual(body.template.components[0].parameters.map(x=>x.text),params)}});
+

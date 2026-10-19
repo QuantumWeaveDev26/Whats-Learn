@@ -1,11 +1,12 @@
+import {mentorContext,mentorReply} from '../mentor';
 import {mentorIntent} from '../mentor-intent';
 import {readContext} from '../learner-context-store';
-import {coachContext,personalAngle} from '../learner-context';
+import {personalAngle} from '../learner-context';
 import {currentStyleState,initialStyleState,interactionPrompt,styleTurn,checkedStyleTurn,type StyleState} from '../style-interactions';
 import {checkStyleExplanation} from '../style-coach';
 import {checkSkillPractice} from '../skill-practice-service';
 import {briefFocus} from '../chat-copy';
-import {aiReady,aiProvider,askCoach,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
+import {aiReady,aiProvider,reviewChatPart,feedbackLanguage,FeedbackError} from '../ai-feedback';
 import {allow} from '../auth/limits';
 import {chatPartIssue,shortFieldHint,shortFieldLabel} from '../whatsapp-step-check';
 import {feedbackSummary} from '../review-summary';
@@ -16,7 +17,7 @@ import {canUseMission} from '../mission-access-server';
 import {membershipRequired} from '../mission-access';
 import {courseRoadmap} from '../course-roadmap';
 import {learningStyle,learningStyles,learningStyleCodes,chatStyleIntro,chatStyleLesson,type LearningStyle} from '../learning-styles';
-import {aiAllowance,reserveAiUse} from '../ai-usage';
+import {aiAllowance} from '../ai-usage';
 import {goals,languages} from '../personalization';
 import {database} from '../storage';
 import {missions,type Mission} from '../missions';
@@ -41,7 +42,6 @@ export type Contact={user_id:string;phone:string;state:string;language:string;co
 export type Out={action:'reply';text:string}|{action:'none';reason:string}|{action:'tutor';question:string;language:string;material:Record<string,unknown>;maxWords:number;fallback:string};
 const reply=(text:string):Out=>({action:'reply',text:text.slice(0,3900)});
 const none=(reason:string):Out=>({action:'none',reason});
-export const TUTOR_DAILY_LIMIT=3;
 export const LINK_MINUTES=30;
 const LINK_ATTEMPTS=5;
 const letters='ABCDEF';
@@ -308,8 +308,9 @@ async function remind(c:Contact,arg:string):Promise<Out>{
  return reply(state==='on'?`Done. Reminders: ${freq} at ${hourText(hour)} India time, quiet hours ${hourText(qs)} to ${hourText(qe)}. Reply REMIND OFF or STOP any time.`:'Saved.');
 }
 
-// ---------- tutor (OpenAI in n8n, grounded in approved material) ----------
-const questionLike=(t:string)=>/\?\s*(?:(?:short|brief|please|in\s|Kanglish|Kannada|English|Hindi)\b[^?]{0,100})?$/i.test(t)||(t.length<200&&/^(what|why|how|when|where|who|which|can|could|should|is|are|do|does|explain|help|tell|i don't|i do not|i'm stuck|im stuck|meaning)\b/i.test(t));
+// ---------- mentor questions; practical drafts stay separate ----------
+const localQuestion=/(?:\b(?:enu|yaake|yake|hege|andre enu|arthavenu|heli|samjhao|kya|kyun|kaise)\b|ಏನು|ಯಾಕೆ|ಹೇಗೆ|ಅರ್ಥವೇನು|ತಿಳಿಸಿ|क्या|क्यों|कैसे|समझाओ)/iu;
+const questionLike=(t:string)=>localQuestion.test(t)||/\?\s*(?:(?:short|brief|please|in\s|Kanglish|Kannada|English|Hindi)\b[^?]{0,100})?$/i.test(t)||(t.length<200&&/^(what|why|how|when|where|who|which|can|could|should|is|are|do|does|explain|help|tell|i don't|i do not|i'm stuck|im stuck|meaning)\b/i.test(t));
 const generic=/\b(mission|task|lesson|hint|clue|question|option|checklist|stuck|confus|understand|mean|idea|part)\b/i;
 export function relevance(text:string,mission:Mission,track:string):'ok'|'wrong-course'|'unclear'{
  const hits=courseHits(text),mine=hits[track]||0,others=Object.entries(hits).filter(([t])=>t!==track).sort((a,b)=>b[1]-a[1])[0];
@@ -319,31 +320,12 @@ export function relevance(text:string,mission:Mission,track:string):'ok'|'wrong-
  return 'unclear';
 }
 async function tutor(c:Contact,text:string):Promise<Out>{
- const {path,profile}=await loadLearning(c.user_id);const d=await getDraft(c.user_id);
- const m=getMission(d?.mission_id||c.current_mission||path.nextMissionId,c.level),track=profile.track;
- if(!await canUseMission(c.user_id,m.id))return reply(membershipRequired+'\n'+site()+'/membership');
- const q=text.trim().slice(0,500);
- const rel=relevance(q,m,track);
- if(rel==='wrong-course'){
-  const hits=courseHits(q),best=Object.entries(hits).filter(([t])=>t!==track).sort((a,b)=>b[1]-a[1])[0][0];
-  return reply(`That sounds like *${courseName(best)}*, but you are on *${courseName(track)}*. Reply COURSE to switch, or ask about "${localizeMission(m,c.language).title}".`);
- }
- // English keyword matching cannot judge a Kannada/Kanglish question. The grounded
- // coach checks its meaning; an English profile must not block the learner's language.
- const multilingual=/Kannada|Kanglish/.test(feedbackLanguage('en',q));
- if(rel==='unclear'&&!(aiProvider()&&(multilingual||questionLike(q))))return reply(`I can help with your *${courseName(track)}* course, starting with "${localizeMission(m,c.language).title}". Which part is unclear: the idea, the task or the question?`);
- if(aiProvider()){
-  const a=await aiAllowance(c.user_id);if(!await allow('whatsapp-chat-check',c.user_id,a.limit>3?40:20,86400,Date.now()+19800000))return reply('You’ve used today’s chat checks. Your draft’s safe—back after midnight India time.');
-  try{const body=d?composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';return reply((await askCoach(m.id,q,body,c.language,c.level,coachContext((await readContext(c.user_id))?.answers||null))).answer)}catch{return reply(`AI help unavailable. Retry—your draft is safe.\n${site()}/learn?mission=${m.id}`)}
- }
- const allowance=await aiAllowance(c.user_id);
- const day=ist().day,db=database();
- const used=await db.prepare('SELECT count FROM whatsapp_tutor_usage WHERE user_id=? AND day=?').bind(c.user_id,day).first<{count:number}>();
- if((used?.count||0)>=allowance.limit||!await reserveAiUse(c.user_id,allowance.limit))return reply('You have used today\'s tutor questions. TODAY and your draft still work. AI review and tutor help reset at midnight India time.');
- await db.prepare('INSERT INTO whatsapp_tutor_usage(user_id,day,count) VALUES (?,?,1) ON CONFLICT(user_id,day) DO UPDATE SET count=count+1').bind(c.user_id,day).run();
- const lm=localizeMission(m,c.language);
- // Approved course material only. The answer key, the explanation and the worked example are never sent out of WhatsLearn.
- return {action:'tutor',question:q,language:feedbackLanguage(c.language,q),maxWords:22,fallback:`I could not reach the tutor just now. Try again, or open ${site()}/learn?mission=${m.id}.`,material:{course:courseName(track),title:lm.title,skill:lm.skill,brief:lm.brief,lesson:lm.lesson,task:lm.task,checklist:lm.checks,question:lm.question,options:lm.options}};
+ const {path}=await loadLearning(c.user_id);const d=await getDraft(c.user_id);
+ const id=d?.mission_id||path.nextMissionId;
+ const body=d?composeAnswer(getMission(id,c.level).practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';
+ if(aiProvider())try{return reply((await mentorReply(c.user_id,text,id,body)).answer)}catch{return reply('I couldn’t finish that reply. Try again in a moment—your task is still here.')}
+ const context=await mentorContext(c.user_id,id,body);
+ return {action:'tutor',question:text.trim().slice(0,500),language:feedbackLanguage(c.language,text),maxWords:65,fallback:'I couldn’t reach the mentor just now. Please ask again in a moment—your task is safe.',material:context};
 }
 
 export async function learnerOverview(userId:string){
@@ -352,7 +334,7 @@ export async function learnerOverview(userId:string){
  const saved=await database().prepare('SELECT display_name FROM learner_profiles WHERE user_id=?').bind(userId).first<{display_name:string|null}>();
  const candidate=saved?.display_name||row?.display_name;
  const name=candidate&&!candidate.includes('@')?candidate:'learner';
- return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI reviews: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nChat coaching: ${a.limit>3?40:20} checks/day, separate from reviews`;
+ return `Hey ${name}! 👋\nCourse: ${courseName(profile.track)}\nGoal: ${goals[profile.goal]}\nLanguage: ${languages[profile.language]} · ${profile.minutes==='flexible'?'Flexible pace':profile.minutes+' min/day'}\nStyle: ${learningStyles[learningStyle(profile.style)]}\nPlan: ${a.plan} · AI reviews: ${Math.max(0,a.limit-a.used)}/${a.limit} left today\nMentor questions: no daily limit · reviews keep their plan allowance`;
 }
 
 // ---------- entry point ----------
@@ -392,7 +374,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(intent?.kind==='frustrated')return reply('Let’s make this useful. What do you need: a simpler explanation, your progress, or a different course? Your draft is safe.');
  if(intent?.kind==='clarify'){
   const draft=await getDraft(c.user_id);const m=getMission(draft?.mission_id||savedLearning.path.nextMissionId,c.level);
-  if(aiProvider())return tutor(c,'Explain the current task simply. What is the first small action I should take?');
+  if(aiProvider())return tutor(c,text+' — explain the current task simply and give one small first action.');
   const field=draft?currentStep(m,draft):'quiz';
   return reply(field==='ready'?'Your draft is filled in. Which part should we unpack? Send EDIT to see the parts.':`One small step: ${field==='quiz'?'read the question and choose the action you would actually take.':field==='reasoning'?'describe what you made, what happened when you tested it, and what you fixed.':(()=>{const f=m.practical?.fields.find(f=>'f:'+f.id===field);return f?shortFieldHint(m,f):'share the part you want help with.'})()}\nTell me which word or step is confusing.`);
  }

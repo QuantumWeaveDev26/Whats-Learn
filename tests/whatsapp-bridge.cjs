@@ -108,21 +108,14 @@ test('commands: HELP, COURSE (same course as the website), POINTS (same balance 
  const pts=textOf(await say(P1,'POINTS'));assert.match(pts,new RegExp('Points: '+balance('asha')));
  assert.equal(balance('asha'),50,'welcome balance is the same single grant the website uses');
 });
-test('wrong-course, unrelated and relevant questions; the tutor only ever receives approved course material, never the answer key',async()=>{
- let out=await say(P1,'How do I compose a camera shot with a storyboard and a lens for my film scene?');
- assert.match(textOf(out),/AI Filmmaking/);assert.match(textOf(out),/COURSE/);assert.equal(out.action,'reply','a wrong-course question never reaches OpenAI');
- out=await say(P1,'Who won the cricket match yesterday?');assert.equal(out.action,'reply');assert.match(textOf(out),/Which part is unclear/);
- const before=count('SELECT COALESCE(SUM(count),0) n FROM whatsapp_tutor_usage');
- out=await say(P1,'What does a believable outcome mean for my customer offer?');
- assert.equal(out.action,'tutor');assert.equal(out.material.course,'AI Digital Marketing');assert.ok(out.maxWords<=90);
- const sent=JSON.stringify(out),m=byId('m1');
- assert.ok(!sent.includes(m.explanation),'explanation never leaves WhatsLearn');assert.ok(!sent.includes(m.example),'the worked example is a paid clue and is not sent');
- assert.ok(!('answer' in out.material));assert.deepEqual(Object.keys(out.material).sort(),['brief','checklist','course','lesson','options','question','skill','task','title']);
- assert.equal(count('SELECT COALESCE(SUM(count),0) n FROM whatsapp_tutor_usage'),before+1);
- db.prepare("UPDATE whatsapp_tutor_usage SET count=?").run(chat.TUTOR_DAILY_LIMIT);
- out=await say(P1,'What does a believable outcome mean for my customer offer?');assert.match(textOf(out),/used today's tutor questions/);
- db.prepare('DELETE FROM whatsapp_tutor_usage').run();
+test('ordinary questions can cross courses without switching, expose no answer key and use no daily tutor credits',async()=>{
+ for(const question of ['How do I compose a camera shot with a storyboard and lens?','Who won the cricket match yesterday?','What does a believable outcome mean for my customer offer?']){
+  const out=await say(P1,question);assert.equal(out.action,'tutor');assert.equal(out.material.course,'AI Digital Marketing');assert.ok(out.maxWords<=90);
+  const sent=JSON.stringify(out),m=byId('m1');assert.ok(!sent.includes(m.explanation));assert.ok(!sent.includes(m.example));assert.ok(!('answer' in out.material));assert.ok(!sent.includes('Correct understanding:'));
+ }
+ assert.equal(count('SELECT COALESCE(SUM(count),0) n FROM whatsapp_tutor_usage'),0);
 });
+
 test('clues: the cost is asked first, taken once from the same balance, and repeats are free',async()=>{
  let out=await say(P1,'TODAY');assert.match(textOf(out),/Question 1/);
  out=await say(P1,'HINT');assert.match(textOf(out),/costs 5 points/);assert.equal(balance('asha'),50,'nothing is charged until the learner says YES');
@@ -533,3 +526,5 @@ test('ordinary requests escape a ready draft and course switches preserve it',as
  assert.equal(db.prepare('SELECT track FROM learner_profiles WHERE user_id=?').get(uid).track,'filmmaking');
  assert.equal(db.prepare('SELECT current_mission FROM whatsapp_contacts WHERE user_id=?').get(uid).current_mission,null);
 });
+
+test('signed reminder diagnostics reveal no learner identifiers and claim no delivery slots',async()=>{const route=R('bridge/whatsapp/reminders'),before=count('SELECT COUNT(*) n FROM whatsapp_reminder_log');const out=await call(route,'/api/bridge/whatsapp/reminders',{action:'status'});assert.equal(out.status,200);assert.equal(out.json.template.parameterCount,4);assert.equal(out.json.template.approvalVerified,false);assert.equal(count('SELECT COUNT(*) n FROM whatsapp_reminder_log'),before);assert.doesNotMatch(JSON.stringify(out.json),/phone|user_id|display_name|bridgeSecret|token/)});

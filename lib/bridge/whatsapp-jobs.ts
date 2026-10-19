@@ -14,6 +14,14 @@ type C={user_id:string;phone:string;language:string;last_inbound_at:string|null;
 const inWindow=(c:{last_inbound_at:string|null},at:Date)=>!!c.last_inbound_at&&at.getTime()-Date.parse(c.last_inbound_at)<WINDOW_MS;
 
 export type ReminderItem={ref:string;to:string;mode:'text'|'template';text?:string;template?:{name:string;language:string;params:string[]}};
+/** Signed, read-only operations view: no phone numbers, names, drafts or credentials. */
+export async function reminderDiagnostics(at=new Date()){
+ const db=database(),cfg=whatsappConfig();
+ const contacts=(await db.prepare("SELECT state,remind_state,COUNT(*) count FROM whatsapp_contacts WHERE verified_at IS NOT NULL GROUP BY state,remind_state").all()).results;
+ const schedules=(await db.prepare("SELECT remind_hour,remind_freq,quiet_start,quiet_end,COUNT(*) count FROM whatsapp_contacts WHERE state='opted_in' AND verified_at IS NOT NULL AND remind_state='on' GROUP BY remind_hour,remind_freq,quiet_start,quiet_end").all()).results;
+ const recent=(await db.prepare("SELECT slot,state,COUNT(*) count FROM whatsapp_reminder_log WHERE slot>=? GROUP BY slot,state ORDER BY slot DESC LIMIT 30").bind(ist(new Date(at.getTime()-7*864e5)).day).all()).results;
+ return {checkedAt:at.toISOString(),indiaTime:ist(at),contacts,schedules,recent,template:{configured:!!(cfg.progressTemplate||cfg.performanceTemplate),name:cfg.progressTemplate||cfg.performanceTemplate||null,language:cfg.templateLanguage,parameterCount:cfg.progressTemplate?2:cfg.performanceTemplate?4:0,approvalVerified:false},note:'Configured does not mean Meta-approved or delivered. This read-only check claims no reminders.'};
+}
 export async function claimReminders(limit=50,at=new Date()){
  const cfg=whatsappConfig(),t=ist(at),db=database();
  const rows=(await db.prepare("SELECT user_id,phone,language,last_inbound_at,remind_hour,remind_freq,quiet_start,quiet_end FROM whatsapp_contacts WHERE state='opted_in' AND verified_at IS NOT NULL AND remind_state='on' LIMIT 1000").all<C>()).results;

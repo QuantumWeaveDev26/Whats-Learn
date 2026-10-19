@@ -1,14 +1,12 @@
-import {readContext} from '@/lib/learner-context-store';
-import {coachContext} from '@/lib/learner-context';
-import {database} from '@/lib/storage';
+import {mentorReply} from '@/lib/mentor';
 import {missions} from '@/lib/missions';
 import {canUseMission} from '@/lib/mission-access-server';
 import {membershipRequired} from '@/lib/mission-access';
 import {z} from 'zod';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
 import {sameOrigin} from '@/lib/storage';
-import {aiReady,askCoach,FeedbackError} from '@/lib/ai-feedback';
-import {aiAllowance,reserveAiUse,releaseAiUse} from '@/lib/ai-usage';
+import {aiReady,FeedbackError} from '@/lib/ai-feedback';
+import {aiAllowance} from '@/lib/ai-usage';
 import {reviewedSubmission} from '@/lib/submission-review';
 import {languageCodes} from '@/lib/languages';
 const input=z.discriminatedUnion('action',[
@@ -22,17 +20,13 @@ export async function POST(request:Request){
  if(!sameOrigin(request))return response({error:'Invalid origin.'},403);
  if(!aiReady())return response({error:'Live AI review is not connected yet.'},503);
  const user=await getChatGPTUser();if(!user)return response({error:'Sign in to get AI review.'},401);
- let reserved=false;
  try{
   const text=await request.text();if(text.length>12000)return response({error:'Request too large.'},413);
   const p=input.parse(JSON.parse(text));
   if(!missions.some(m=>m.id===p.missionId))return response({error:'Unknown challenge.'},404);
-  if(!await canUseMission(user.userId,p.missionId))return response({error:membershipRequired},403);
+  if(p.action==='review'&&!await canUseMission(user.userId,p.missionId))return response({error:membershipRequired},403);
   if(p.action==='review'){const mission=missions.find(m=>m.id===p.missionId)!;if(p.quiz!==mission.answer)return response({error:'Answer the understanding question correctly before requesting review. Nothing was saved or reviewed.'},422);const review=await reviewedSubmission(user.userId,p.missionId,p.body,p.language,true);return response({review,...await allowance(user.userId)})}
-  const a=await allowance(user.userId);if(a.used>=a.limit)return response({error:`You have used today’s ${a.limit} AI reviews. They reset at midnight (India time).`,...a},429);
-  if(!await reserveAiUse(user.userId,a.limit))return response({error:'Today’s AI allowance is used. It resets at midnight India time.'},429);reserved=true;
-  const profile=await database().prepare('SELECT level FROM learner_profiles WHERE user_id=?').bind(user.userId).first<{level:string}>();const result=await askCoach(p.missionId,p.question,p.body,p.language,profile?.level||'beginner',coachContext((await readContext(user.userId))?.answers||null));
-
-  return response({...result,limit:a.limit,used:a.used+1});
- }catch(e){if(reserved)await releaseAiUse(user.userId);if(e instanceof FeedbackError)return response({error:e.message},e.status);if(e instanceof z.ZodError||e instanceof SyntaxError)return response({error:'Invalid request.'},400);return response({error:'AI review could not finish. Your work is safe; please try again.'},503)}
+  const result=await mentorReply(user.userId,p.question,p.missionId,p.body);
+  return response({...result,...await allowance(user.userId),questionsUnlimited:true});
+ }catch(e){if(e instanceof FeedbackError)return response({error:e.message},e.status);if(e instanceof z.ZodError||e instanceof SyntaxError)return response({error:'Invalid request.'},400);return response({error:'AI review could not finish. Your work is safe; please try again.'},503)}
 }
