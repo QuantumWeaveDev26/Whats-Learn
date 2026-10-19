@@ -1,9 +1,12 @@
-export type MentorIntent={kind:'progress'|'points'|'journey'|'learn'|'course'|'clarify'|'continue'|'greeting'|'frustrated'|'save'|'draft'|'keep-draft'|'roadmap'|'profile'|'question'|'answer';track?:string};
+export type MentorIntent={kind:'progress'|'points'|'journey'|'learn'|'preference'|'edit'|'task-question'|'course'|'clarify'|'continue'|'greeting'|'frustrated'|'save'|'draft'|'keep-draft'|'roadmap'|'profile'|'question'|'answer';track?:string};
 /** Only short conversational requests; never classify an artifact/code block as navigation. */
 export function mentorIntent(raw:string):MentorIntent|null{
  const t=raw.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.,]+$/g,'').replace(/\s+/g,' ');
  if(t.length>130||/[{};\n]/.test(t))return null;
  if(/^(hi|hello|hey|hey mentor|hello mentor|namaste|namaskara)$/.test(t))return {kind:'greeting'};
+ if(/^(?:(?:please )?(?:add|use|include|remove|fewer|less|more|no|keep).*(?:emojis?|casual|formal).*|i.*(?:learn|teach|talk|style).*gen.?z.*|(?:but )?(?:u|you(?:'re| are)?)? ?rushing|slow down|go slower|less formal|more casual|not too many(?: just (?:a )?few)?(?: is enough)?|just (?:a )?few(?: is enough)?)$/.test(t)||/^(?:keep it short|shorter please|don't rush|do not rush)$/.test(t))return {kind:'preference'};
+ if(/^(?:(?:i )?(?:need|want) to |(?:can you |please )?)edit(?: (?:my|the|this|that)(?: (?:task|draft|answer|part))?)?$/.test(t))return {kind:'edit'};
+ if(/^(?:tell|show|give)(?: me)? (?:the |my )?(?:qns?|questions?|current question|next question)$/.test(t)||/^(?:can|could) i (?:do|complete) (?:the |my )?task here$/.test(t))return {kind:'task-question'};
  if(/^(?:what(?:'s| is)|show(?: me)?|tell me|how many) (?:my |the )?(?:point|points|score|balance)(?: do i have)?$/.test(t))return {kind:'points'};
  if(/^(?:where(?:'s| is)|show(?: me)?) (?:my |the )?journey(?: in whatslearn)?$/.test(t))return {kind:'journey'};
  if(/^(?:i (?:want|wanna) (?:to )?learn|teach me(?: first)?|first explain(?: (?:me|the task))?)$/.test(t))return {kind:'learn'};

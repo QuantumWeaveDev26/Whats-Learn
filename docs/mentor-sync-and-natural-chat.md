@@ -18,4 +18,6 @@ Deploy this website source to enable the expanded PROFILE context and backend ch
 
 ## Verification limits
 
+The latest conversation routing separates tone/emoji/pace preferences, editing and requesting the actual current question. The classifier receives currentTask/currentPrompt rather than only a profile overview. General coaching no longer receives the stored draft body for an unsolicited review. The formatter caps emojis and trims preference acknowledgements to a complete opening thought. Facts TRUE/FALSE replies use their deterministic checkpoint. See `public-launch-readiness.md` for the release evidence and remaining live checks.
+
 Regression checks use synthetic learners and simulated provider responses. They cover account isolation, fresh choices and all-course progress, paraphrased actions, preserved drafts, correctness gates, language handling and fallbacks. The production build passed. A pinned n8n simulation succeeded with external HTTP, model and WhatsApp-send outputs simulated; no real WhatsApp message was sent. These checks do not establish actual model response quality, real Meta delivery or error-free answers to every possible question.

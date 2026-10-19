@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const compose=new Function('$input','$',fs.readFileSync('n8n/code/wa-compose-connected-reply.js','utf8'));
-function reply(question,text,maxWords=35,name='Pavana'){return compose({all:()=>[{json:{output:text}}]},()=>({all:()=>[{json:{input:question,maxWords,material:{name}}}]}))[0].json.reply;}
+function reply(question,text,maxWords=35,name='Pavana',mentorIntent='question'){return compose({all:()=>[{json:{output:text}}]},()=>({all:()=>[{json:{input:question,maxWords,material:{name,mentorIntent}}}]}))[0].json.reply;}
 test('only a greeting message gets a greeting; follow-ups never force the name',()=>{
  assert.equal(reply('Hi','Hey Pavana! 👋 What’s on your mind?'),'Hey Pavana! 👋 What’s on your mind?');
  assert.equal(reply('What is AI','Hi Pavana! AI helps software recognise patterns.'),'AI helps software recognise patterns.');
@@ -18,4 +18,13 @@ test('names with regex punctuation cannot change greeting stripping rules',()=>{
 test('numbered steps do not end with a dangling ordinal or get collapsed into one paragraph',()=>{
  const out=reply('How to build a website','To build a website: 1. Make a screen. 2. Save its data. 3. Connect the two. 4.',80);
  assert.match(out,/\n1\) Make a screen/);assert.match(out,/\n3\) Connect the two\.$/);assert.doesNotMatch(out,/4[.)]\s*$/);
+});
+test('emoji-heavy model replies are reduced to one emoji without changing the words',()=>{
+ const out=reply('Add some emojis','Sure 🙂 Keep it simple ✨ One step at a time 🎉');assert.equal([...out.matchAll(/\p{Extended_Pictographic}/gu)].length,1);assert.match(out,/One step at a time/);
+});
+test('preference acknowledgements cannot expand into an unsolicited lecture or task review',()=>{
+ const out=reply('Not too many just few is enough','Just a few, got it. Your draft looks strong; now fix the booking bug.',25,'Learner','preference');assert.equal(out,'Just a few, got it.');
+});
+test('the floating mentor does not cover onboarding actions',()=>{
+ const source=fs.readFileSync('components/whatslearn/whatsapp-mentor-widget.tsx','utf8');assert.match(source,/\[.*'\/find-my-path'.*'\/welcome'.*\]\.includes\(pathname\|\|''\)\)return null/);
 });

@@ -36,6 +36,8 @@ export async function mentorContext(userId:string,missionId?:string,draft='',rec
 /** Normal questions have no daily counter and never consume a practical-review credit. */
 export async function mentorReply(userId:string,question:string,missionId?:string,draft='',recentConversation?:{question:string;answer?:string}|null){
  const context=await mentorContext(userId,missionId,draft,recentConversation);
+ // General teaching must not become a second, unvalidated review of a stored draft.
+ context.draft='';context.learning.feedback=null;
  const result=await answerMentor(question,context.profile.language,context);
  return result;
 }

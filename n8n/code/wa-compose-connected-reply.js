@@ -7,6 +7,15 @@ return $input.all().map((it,i)=>{
  text=text.replace(/[ \t]+\n/g,"\n").replace(/(?:\s|^)\d+[.)]\s*$/u,'').trim();
  // Ordinal markers are not sentence endings. Give each complete step its own line.
  text=text.replace(/(?:^|\s)(\d+)\.\s+(?=\S)/gu,'\n$1) ').trim();
+ // A few emojis means restraint, even when a model ignores the style instructions.
+ let emojiCount=0;
+ text=text.replace(/\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?)*/gu,emoji=>++emojiCount<=1?emoji:'');
+ if(prior.material?.mentorIntent==='preference'){
+  const sentences=text.match(/[^.!?\n]+[.!?]+(?:\s|$)|[^\n]+(?:\n|$)/gu)||[text];
+  let acknowledgement=sentences[0]?.trim()||text;
+  if(acknowledgement.split(/\s+/u).length<3&&sentences[1])acknowledgement+=' '+sentences[1].trim();
+  text=acknowledgement;
+ }
  const greeting=/^(?:hi|hey|hello|namaste|namaskara)(?:\s+mentor)?[!.\s]*$/i.test(String(prior.input||"").trim());
  const name=String(prior.material?.name||prior.material?.addressAs||"").replace(/[\r\n*_~`<>]/g," ").trim().slice(0,60);
  if(!greeting){

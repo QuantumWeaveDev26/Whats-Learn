@@ -40,7 +40,7 @@ import {sha256Hex} from './auth';
  * WhatsApp learning chat for the n8n workflows. n8n only carries messages: every rule below (account link, mission order, mini challenges, one new mission a day,
  * clue costs, points, streaks, relevance checks) runs here, on the same functions and tables the website uses. Nothing in n8n computes or awards points.
  */
-export type Contact={user_id:string;phone:string;state:string;language:string;consent_at:string;opted_out_at:string|null;last_inbound_at:string|null;last_reminder_at:string|null;current_mission:string|null;updated_at:string;verified_at:string|null;remind_state:string;remind_hour:number;remind_freq:string;quiet_start:number;quiet_end:number;style?:LearningStyle;level?:string};
+export type Contact={user_id:string;phone:string;state:string;language:string;consent_at:string;opted_out_at:string|null;last_inbound_at:string|null;last_reminder_at:string|null;current_mission:string|null;updated_at:string;verified_at:string|null;remind_state:string;remind_hour:number;remind_freq:string;quiet_start:number;quiet_end:number;style?:LearningStyle;level?:string;journeySynced?:boolean};
 export type Out={action:'reply';text:string;context?:Record<string,unknown>}|{action:'none';reason:string}|{action:'tutor';question:string;language:string;material:Record<string,unknown>;maxWords:number;fallback:string};
 const reply=(text:string):Out=>({action:'reply',text:text.slice(0,3900)});
 const none=(reason:string):Out=>({action:'none',reason});
@@ -194,7 +194,7 @@ async function today(c:Contact):Promise<Out>{
  let open=await getDraft(userId);
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
- const syncNote=synced?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
+ const syncNote=(synced||c.journeySynced)?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
  if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
@@ -381,9 +381,12 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
  let levelDraft=await getDraft(c.user_id);
- if(levelDraft&&!levelDraft.data.revisiting&&(getMission(levelDraft.mission_id).track!==savedProfile.track||savedLearning.work.some(w=>w.mission_id===levelDraft!.mission_id))){await archiveCompletedDraft(c.user_id,levelDraft.mission_id);await db.prepare('UPDATE whatsapp_contacts SET current_mission=NULL WHERE user_id=?').bind(c.user_id).run();levelDraft=null;}
+ if(levelDraft&&!levelDraft.data.revisiting&&(getMission(levelDraft.mission_id).track!==savedProfile.track||savedLearning.work.some(w=>w.mission_id===levelDraft!.mission_id))){await archiveCompletedDraft(c.user_id,levelDraft.mission_id);await db.prepare('UPDATE whatsapp_contacts SET current_mission=NULL WHERE user_id=?').bind(c.user_id).run();levelDraft=null;c.journeySynced=true;}
  if(levelDraft&&levelDraft.data.level!==c.level){const completed=(await completedIds(c.user_id)).has(levelDraft.mission_id);if(levelDraft.data.revisiting)c.level=levelDraft.data.level||c.level;else if(!completed){levelDraft.quiz=null;delete levelDraft.data.styleState;levelDraft.data.level=c.level;await putDraft(c.user_id,levelDraft)}}
  const dispatch=async(intent:MentorIntent|null):Promise<Out|null>=>{
+ if(intent?.kind==='preference')return tutor(c,text);
+ if(intent?.kind==='edit')return editParts(c);
+ if(intent?.kind==='task-question')return currentQuestion(c);
  if(intent?.kind==='points')return points(c);
  if(intent?.kind==='journey'){const out=await roadmap(c);if(out.action==='reply')out.text+='\n\nOpen your journey: '+site()+'/learn';return out}
  if(intent?.kind==='learn')return tutor(c,text);
@@ -415,7 +418,8 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'resume':return savedDrafts(c,arg.toLowerCase());
   case 'performance':case 'stats':return reply((await learnerPerformance(c.user_id)).text);
   case 'roadmap':return roadmap(c,arg.toLowerCase()==='all');
-  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id);return {action:'reply',text:await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''),context:await mentorContext(c.user_id)}}
+  case 'profile':case 'info':case 'plan':{const personal=await readContext(c.user_id),context=await mentorContext(c.user_id),d=await getDraft(c.user_id);const m=d?getMission(d.mission_id,c.level):null;return {action:'reply',text:await learnerOverview(c.user_id)+(personal?'\nPersonal setup: saved and locked · shared with the website.':''),context:{...context,currentPrompt:d&&m?{missionId:m.id,step:currentStep(m,d),text:currentStep(m,d)==='ready'?'All draft parts are filled in; final review has not been performed.':promptFor(m,currentStep(m,d),d,c.language,c.style)}:null}}}
+  case 'question':return currentQuestion(c);
   case 'style':{
    const choices='1 · Casual 💬\n2 · Game 🎮\n3 · Story 📖\n4 · Facts ⚡';
    if(!arg)return reply(`Your style: *${learningStyles[learningStyle(c.style)]}*\n\n${choices}\n\nSend *STYLE GAME* (or 1–4). Same points; your current answer stays safe.`);
@@ -432,6 +436,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   case 'help':return reply(helpText);
   case 'cancel':{const d=await getDraft(c.user_id);if(d){await dropDraft(c.user_id);return reply('Discarded. Nothing was saved. Reply TODAY to start again.')}return reply('There is nothing to cancel.')}
   case 'edit':{
+   if(!arg)return editParts(c);
    const d=await getDraft(c.user_id);if(!d)return reply('Reply TODAY to start a mission first.');
    const m=getMission(d.mission_id,c.level),steps=stepsFor(m),n=Number(arg);
    if(!Number.isInteger(n)||n<1||n>steps.length)return reply(steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your decision':s==='reasoning'?'Your reasoning':s==='checks'?'Self-review':s==='link'?'Link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nSend *EDIT 2*, for example.');
@@ -448,6 +453,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const m=d?getMission(d.mission_id,c.level):null,step=m&&d?currentStep(m,d):null;
  if(d&&m&&step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d));
  if(d&&m&&step!=='ready'&&/^[a-f1-6][).]?$/i.test(text))return takeAnswer(c.user_id,c,m,d,text);
+ if(d&&m&&step==='quiz'&&learningStyle(c.style)==='facts'&&/^(?:true|false)[.!]?$/i.test(text))return takeAnswer(c.user_id,c,m,d,text);
  if(!d&&/^[a-f1-6]$/i.test(text))return reply('Reply TODAY first to get a mission, then answer with a letter.');
  const semantic=await interpretMentorMessage(text,{hasDraft:!!d,ready:step==='ready',mission:m?.title,prompt:m?(step==='quiz'?m.question:step==='reasoning'?'Show your created work, actual test result and improvement.':m.practical?.fields.find(f=>'f:'+f.id===step)?.hint):undefined});
  const action=await dispatch(semantic);if(action)return action;
@@ -460,6 +466,16 @@ async function showDraft(c:Contact):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return reply('No WhatsApp draft is open. Message TODAY to start from your saved journey.');
  const m=getMission(d.mission_id,c.level),parts=Object.entries(d.data.fields).filter(([,v])=>v).slice(-3).map(([id,v])=>`${m.practical?.fields.find(f=>f.id===id)?.label||id}: ${briefFocus(v,12)}`);
  return reply(`*Your draft · ${m.title}*\n${parts.length?parts.join('\n'):'Your task is open; no practical answer is saved yet.'}\n\n${currentStep(m,d)==='ready'?'Ready for the final check. Say “submit my work” when you’re ready.':'Your place is kept. Say “let’s continue” to pick up here.'}`);
+}
+async function editParts(c:Contact):Promise<Out>{
+ const d=await getDraft(c.user_id);if(!d)return reply('No draft is open yet. Say “start my task” to begin.');
+ const m=getMission(d.mission_id,c.level),steps=stepsFor(m);
+ return reply('Which part do you want to change?\n'+steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your first answer':s==='reasoning'?'Your work and test result':s==='checks'?'Self-review':s==='link'?'Project link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nReply EDIT and the number, e.g. EDIT 2.');
+}
+async function currentQuestion(c:Contact):Promise<Out>{
+ const d=await getDraft(c.user_id);if(!d)return today(c);
+ const m=getMission(d.mission_id,c.level),step=currentStep(m,d);
+ return reply(step==='ready'?`*Your first question*\n${localizeMission(m,c.language).question}\n\nYour draft is filled in. Reply EDIT 1 to change this answer, or EDIT for another part.`:promptFor(m,step,d,c.language,c.style));
 }
 async function roadmap(c:Contact,all=false):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const rows=courseRoadmap(profile.track,await completedIds(c.user_id),await clearedKeys(c.user_id)),count=rows.filter(r=>r.status==='complete').length;

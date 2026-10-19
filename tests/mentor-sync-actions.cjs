@@ -20,6 +20,17 @@ test('screenshot points, journey and completion-permission phrases use actual ac
 function provider(kind='question',answer='We can take this one step at a time. Which part would you like help with?'){
  global.fetch=async(url,o)=>{const r=JSON.parse(o.body);calls.push(r);return Response.json({choices:[{message:{content:r.messages[0].content.startsWith('Classify the meaning')?JSON.stringify({kind,track:null}):answer}}]})};
 }
+test('style requests do not assess or mutate a draft; edit and question requests return real account prompts',async()=>{
+ await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
+ provider('answer','Got it—just one emoji and no rushing.');
+ for(const text of ['I need to be learn different and genz style','Add some emojis too','Not too many just few is enough','But u rushing?']){
+  const out=await say(text);assert.equal(out.action,'reply');assert.match(out.text,/no rushing/);const account=JSON.parse(calls.at(-1).messages[1].content).account;assert.equal(account.draft,'');assert.equal(account.learning.feedback,null);
+ }
+ assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM ai_feedback_usage').get().n,0);
+ const edit=await say('I need to edit that');assert.match(edit.text,/Which part/);assert.match(edit.text,/EDIT 2/);
+ const q=await say('Tell me the qns');assert.match(q.text,/When should a booking page say Booking saved/);assert.doesNotMatch(q.text,/Write the feature brief/);
+ const p=await say('PROFILE');assert.equal(typeof p.context.currentPrompt.text,'string');assert.equal(p.context.currentPrompt.missionId,'d1');
+});
 test('fresh snapshots include all-course status, personal setup and observed practice without another account or an answer key',async()=>{
  await setup();const m=h.load('lib/missions.ts').missions.find(m=>m.id==='m1');const at=new Date().toISOString();
  h.db.prepare('INSERT INTO work(user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)').run(uid,m.id,'An accepted creation',JSON.stringify([true,true,true,true,true]),m.answer,at);

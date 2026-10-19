@@ -3,6 +3,8 @@ const h=require('./helpers/harness.cjs'),{missions}=h.load('lib/missions.ts'),{m
 const I=h.load('lib/style-interactions.ts'),{miniChallenge}=h.load('lib/play.ts'),{saveProfile}=h.load('lib/learning-service.ts'),{handleBridgeMessage}=h.load('lib/bridge/whatsapp-chat.ts');
 const {applicationCard}=h.load('lib/application-bank.ts');
 const letter=n=>String.fromCharCode(65+n),m=missionForLevel(missions.find(m=>m.id==='d1'),'beginner');
+// These fixtures isolate style assessment; real semantic routing is exercised separately.
+h.load('lib/ai-feedback.ts').interpretMentorMessage=async()=>({kind:'answer'});
 let serial=0;
 async function setup(style){h.reset({env:{OPENAI_API_KEY:'fake-style-provider'}});const user='interaction-'+style+'-'+(++serial),phone='919000000080',stamp=new Date().toISOString();await saveProfile(user,{goal:'job',track:'development',level:'beginner',language:'en',minutes:'15',style});h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,verified_at,consent_at,updated_at) VALUES (?,?,'opted_in','en',?,?,?)").run(user,phone,stamp,stamp,stamp);return {user,send:text=>handleBridgeMessage({wamid:'style-flow-'+(++serial),from:phone,type:'text',text}),draft:()=>{const r=h.db.prepare('SELECT quiz,body FROM whatsapp_drafts WHERE user_id=?').get(user);return {...r,data:JSON.parse(r.body)}}};}
 function provider(accepted){global.fetch=async(url,options)=>Response.json({choices:[{message:{content:JSON.stringify({accepted,feedback:accepted?'Server confirmation prevents false success.':'A click does not prove storage.',followUp:accepted?'':'What confirms the row was stored?'})}}]});}
