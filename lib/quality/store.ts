@@ -4,7 +4,7 @@ import {database} from '@/lib/storage';
 
 export class QualityError extends Error{constructor(message:string,public status=400){super(message)}}
 export const reportReasons={wrong_answer:'Wrong answer',wrong_language:'Wrong language',too_long:'Too long',not_helpful:'Not helpful',other:'Other'} as const;
-export const supportCategories={learning:'My task',account:'My account',mentor:'Mentor reply',reminder:'WhatsApp or reminder',other:'Other'} as const;
+export {supportCategories} from './options';
 const key=z.string().min(12).max(100).regex(/^[a-zA-Z0-9:_-]+$/);
 export const reportInput=z.object({replyId:z.string().uuid(),reason:z.enum(['wrong_answer','wrong_language','too_long','not_helpful','other']),note:z.string().trim().max(500).default(''),idempotencyKey:key}).strict();
 export const supportInput=z.object({category:z.enum(['learning','account','mentor','reminder','other']),description:z.string().trim().min(10).max(2000),reportId:z.string().uuid().optional(),idempotencyKey:key}).strict();
@@ -50,6 +50,13 @@ const ownerQuery=z.object({kind:z.enum(['reports','support','failures']).default
 export const qualityUpdate=z.object({kind:z.enum(['reports','support']),id:z.string().uuid(),status:z.enum(['received','acknowledged','resolved']),resolution:z.string().trim().max(2000).default('')}).strict().refine(p=>p.status!=='resolved'||p.resolution.length>=5,{message:'Add a short learner-visible resolution.'});
 type Owner={userId:string;email:string};
 const tableFor={reports:'quality_reports',support:'quality_support',failures:'quality_events'} as const;
+export async function learnerQualityItems(userId:string,reportId?:string){
+ await pruneQualityRecords();const db=database(),since=cutoff(new Date(),90);
+ const requests=(await db.prepare("SELECT id,category,description,report_id,status,resolution,created_at FROM quality_support WHERE user_id=? AND (status!='resolved' OR resolved_at>?) ORDER BY created_at DESC,id DESC LIMIT 30").bind(userId,since).all()).results;
+ const reports=(await db.prepare("SELECT id,reason,answer_excerpt,status,resolution,created_at FROM quality_reports WHERE user_id=? AND (status!='resolved' OR resolved_at>?) ORDER BY created_at DESC,id DESC LIMIT 30").bind(userId,since).all()).results;
+ const attachment=reportId?await db.prepare("SELECT id,reason,answer_excerpt FROM quality_reports WHERE user_id=? AND id=? AND (status!='resolved' OR resolved_at>?)").bind(userId,reportId,since).first():null;
+ return {requests,reports,attachment};
+}
 export async function listQualityItems(_owner:Owner,raw:unknown){
  const p=parse(ownerQuery,raw);let cursor:{at:string;id:string}|null=null;
  if(p.cursor){try{cursor=JSON.parse(Buffer.from(p.cursor,'base64url').toString());if(!cursor||typeof cursor.at!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(cursor.at)||typeof cursor.id!=='string'||!z.string().uuid().safeParse(cursor.id).success)throw Error()}catch{throw new QualityError('Invalid page cursor.')}}
