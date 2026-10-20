@@ -1,3 +1,4 @@
+import {createReport,latestReply} from '../quality/store';
 import {mentorContext,mentorReply} from '../mentor';
 import {recentMentorTurn,rememberMentorQuestion,rememberMentorTurn} from '../mentor-conversation';
 import {learnerName,addressLearner} from '../learner-name';
@@ -377,7 +378,14 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  await db.prepare('UPDATE whatsapp_contacts SET last_inbound_at=?,updated_at=? WHERE user_id=?').bind(at.toISOString(),at.toISOString(),c.user_id).run();
  if(STOP_WORDS.includes(word)){await unlink(c.user_id);return reply('You will not get more WhatsLearn messages or reminders. Send START any time to turn lessons back on.')}
  if(cmd==='start'&&!arg){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(at.toISOString(),c.user_id).run();return reply('Welcome back. Lessons are on; reminders stay off until you send REMIND 7pm daily. Reply TODAY for your next mission.')}
+
  if(c.state!=='opted_in')return none('opted-out');
+ if(cmd==='report'||(/^(?:please |can you |could you )?(?:report|flag)\b/i.test(text)&&/\b(?:reply|answer|response)\b/i.test(text))){
+  const last=await latestReply(c.user_id,'whatsapp');if(!last)return reply('No recent reply is available to attach. Open '+site()+ '/support and paste it in a support request, or use Report reply beside a website answer. Your task is kept.');
+  const reason=/language/i.test(text)?'wrong_language':/wrong|incorrect/i.test(text)?'wrong_answer':/long/i.test(text)?'too_long':/help/i.test(text)?'not_helpful':'other';
+  const report=await createReport(c.user_id,{replyId:last.id,reason,note:text.slice(0,500),idempotencyKey:'wa-report-'+last.id});return reply('Report received · '+report.id.slice(0,8)+'. Attached reply: “'+last.answer.slice(0,200)+'”\nYour task is kept. Need a person? '+site()+'/support?report='+report.id);
+ }
+
  if(type!=='text'&&type!=='button')return reply('Please send text. Reply HELP to see what I understand.');
  const savedLearning=await loadLearning(c.user_id);const savedProfile=savedLearning.profile;c.style=learningStyle(savedProfile.style);c.level=savedLearning.path.practiceLevel;c.language=savedProfile.language;
  let levelDraft=await getDraft(c.user_id);

@@ -1,4 +1,4 @@
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import {z} from 'zod';
 import {database} from '@/lib/storage';
 
@@ -21,10 +21,10 @@ export async function pruneQualityRecords(at=new Date()){
   db.prepare("DELETE FROM quality_support WHERE status='resolved' AND resolved_at<=?").bind(cutoff(at,90))
  ]);
 }
-export async function recordReply(userId:string,input:{channel:'web'|'whatsapp';missionId?:string;question:string;answer:string}){
+export async function recordReply(userId:string,input:{channel:'web'|'whatsapp';missionId?:string;question:string;answer:string;sourceId?:string}){
  if(!userId||!['web','whatsapp'].includes(input.channel)||!input.answer.trim())throw new QualityError('No reply to record.');
- await pruneQualityRecords();const db=database(),id=randomUUID();
- await db.prepare('INSERT INTO quality_replies(id,user_id,channel,mission_id,question,answer,created_at) VALUES (?,?,?,?,?,?,?)').bind(id,userId,input.channel,input.missionId||null,input.question.trim().slice(0,500),input.answer.trim().slice(0,1800),new Date().toISOString()).run();
+ await pruneQualityRecords();const db=database();const hex=input.sourceId?createHash('sha256').update(userId+'|'+input.channel+'|'+input.sourceId).digest('hex'):null;const id=hex?hex.slice(0,8)+'-'+hex.slice(8,12)+'-5'+hex.slice(13,16)+'-a'+hex.slice(17,20)+'-'+hex.slice(20,32):randomUUID();
+ await db.prepare('INSERT OR IGNORE INTO quality_replies(id,user_id,channel,mission_id,question,answer,created_at) VALUES (?,?,?,?,?,?,?)').bind(id,userId,input.channel,input.missionId||null,input.question.trim().slice(0,500),input.answer.trim().slice(0,1800),new Date().toISOString()).run();
  await db.prepare('DELETE FROM quality_replies WHERE user_id=? AND id NOT IN (SELECT id FROM quality_replies WHERE user_id=? ORDER BY created_at DESC,id DESC LIMIT 100)').bind(userId,userId).run();
  return {id};
 }

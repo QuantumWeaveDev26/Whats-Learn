@@ -1,0 +1,10 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const h=require('./helpers/harness.cjs'),q=h.load('lib/quality/store.ts'),chat=h.load('lib/bridge/whatsapp-chat.ts');
+async function setup(){h.reset();const at=new Date().toISOString();await h.load('lib/learning-service.ts').saveProfile('a',h.load('lib/personalization.ts').defaultProfile);h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,updated_at,verified_at,last_inbound_at) VALUES ('a','919900001111','opted_in','en',?,?,?,?)").run(at,at,at,at);h.db.prepare("INSERT INTO whatsapp_drafts(user_id,mission_id,quiz,body,updated_at) VALUES ('a','m1',NULL,?,?)").run(JSON.stringify({fields:{audience:'Synthetic unfinished work'},step:0}),at)}
+test('explicit report requests attach the actual last reply and preserve the task',async()=>{
+ await setup();const before=h.db.prepare("SELECT body FROM whatsapp_drafts WHERE user_id='a'").get().body;await q.recordReply('a',{channel:'whatsapp',missionId:'m1',question:'What is an offer?',answer:'A promise of value to a specific customer.'});
+ const out=await chat.handleBridgeMessage({wamid:'quality-report-whatsapp-1',from:'919900001111',type:'text',text:'Please report your last reply as wrong'});assert.equal(out.action,'reply');assert.match(out.text,/report.*received|received.*report/i);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM quality_reports').get().n,1);assert.equal(h.db.prepare("SELECT body FROM whatsapp_drafts WHERE user_id='a'").get().body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM mission_scores').get().n,0);
+});
+test('missing reply history asks for the actual reply instead of reporting a draft',async()=>{
+ await setup();const out=await chat.handleBridgeMessage({wamid:'quality-report-whatsapp-2',from:'919900001111',type:'text',text:'Report the last mentor reply'});assert.equal(out.action,'reply');assert.match(out.text,/paste|copy|send.*reply/i);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM quality_reports').get().n,0);
+});

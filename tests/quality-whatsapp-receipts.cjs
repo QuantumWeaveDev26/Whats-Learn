@@ -1,0 +1,11 @@
+const test=require('node:test'),assert=require('node:assert/strict'),{createHmac,randomBytes}=require('node:crypto');
+const h=require('./helpers/harness.cjs');let route;try{route=h.load('app/api/bridge/whatsapp/quality/route.ts')}catch{route={}}
+const secret='quality-receipt-synthetic-secret-32-characters',path='/api/bridge/whatsapp/quality';
+function signed(body,valid=true){const raw=JSON.stringify(body),ts=String(Math.floor(Date.now()/1000)),nonce=randomBytes(16).toString('hex'),sig=createHmac('sha256',secret).update(ts+'\n'+nonce+'\nPOST\n'+path+'\n'+raw).digest('hex');return new Request('https://whatslearn.example.test'+path,{method:'POST',headers:{'content-type':'application/json','x-wl-timestamp':ts,'x-wl-nonce':nonce,'x-wl-signature':valid?sig:'0'.repeat(64)},body:raw})}
+test('only a signed accepted-send receipt records the final WhatsApp reply, with retry deduplication',async()=>{
+ assert.equal(typeof route.POST,'function');h.reset({env:{N8N_BRIDGE_SECRET:secret}});const at=new Date().toISOString();h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,updated_at,verified_at) VALUES ('a','919900001111','opted_in','en',?,?,?)").run(at,at,at);h.db.prepare("INSERT INTO whatsapp_events(id,kind,processed_at) VALUES ('inbound-quality-test','text',?)").run(at);
+ const body={action:'record-reply',from:'919900001111',sourceMessageId:'inbound-quality-test',messageId:'wamid.accepted-quality-test',question:'What is an offer?',answer:'A promise of value.'};
+ assert.equal((await route.POST(signed(body,false))).status,401);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM quality_replies').get().n,0);
+ const a=await route.POST(signed(body)),b=await route.POST(signed(body));assert.equal(a.status,200);assert.equal((await a.json()).replyId,(await b.json()).replyId);const row=h.db.prepare('SELECT user_id,channel,answer FROM quality_replies').get();assert.deepEqual({...row},{user_id:'a',channel:'whatsapp',answer:'A promise of value.'});assert.equal(h.db.prepare('SELECT COUNT(*) n FROM quality_replies').get().n,1);
+ assert.equal((await route.POST(signed({...body,from:'919900002222'}))).status,200);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM quality_replies').get().n,1);
+});

@@ -1,0 +1,1 @@
+return $input.all().map((it,i)=>{const m=$("One Item Per Message").itemMatching(i).json;return {json:{...it.json,qualityReceipt:{from:String(m.from||""),sourceMessageId:String(m.wamid||""),question:String(m.text||"").slice(0,4000),answer:String(it.json.reply||"").slice(0,3800)}},pairedItem:{item:i}}});

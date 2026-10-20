@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './motion.css';
+import '@/components/whatslearn/quality.css';
 import Reveal from '@/components/whatslearn/reveal';
 import WhatsAppMentorWidget from '@/components/whatslearn/whatsapp-mentor-widget';
 import WebsiteTour from '@/components/whatslearn/website-tour';

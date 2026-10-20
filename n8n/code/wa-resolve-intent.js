@@ -17,6 +17,7 @@ return $input.all().map((it,i)=>{
  if(/^(?:i (?:want|wanna) (?:to )?learn|teach me(?: first)?|first explain(?: (?:me|the task))?)$/.test(natural))kind="learn";
  if(/^(?:ok(?:ay)? now )?(?:i (?:want to|wanna)|can i) finish (?:my |the )?(?:task|mission)(?: now)?$/.test(natural))kind="continue";
  // Existing explicit commands stay exact, including STOP and the account-link proof.
+ if(/^(?:please |can you |could you )?(?:report|flag)\b/i.test(raw.trim())&&/\b(?:reply|answer|response)\b/i.test(raw)){return {json:{...m,bridgeText:'REPORT '+raw.slice(0,500),mentorIntent:'report',profileSnapshot:profile.action==='reply'?String(profile.text||'').slice(0,5000):'',profileContext:profile.context||{}},pairedItem:{item:i}};}
  const exact=/^(?:stop|start|unsubscribe|end|pause|optout|opt out|today|lesson|next|menu|drafts|performance|stats|roadmap(?: all)?|profile|info|plan|style|learn|course|hint(?: example)?|yes|save|submit|help|cancel|edit|check|points|score|balance|remind|reminders|रुको|बंद|ನಿಲ್ಲಿಸಿ)[.!]?$/i;
  const arguments=/^(?:link\s+[a-z0-9-]{6,12}|(?:ask|answer|practice)\s+.+|edit\s+\d+|style\s+(?:[1-4]|casual|game|story|facts)|course\s+(?:[1-4]|marketing|development|filmmaking|storytelling)|resume\s+[mdfv]\d+|check\s+[a-f1-6]\s+[a-f1-6]|remind\s+(?:on|off|quiet|\d).*)$/i;
  if(exact.test(raw.trim())||arguments.test(raw.trim()))kind="answer";
