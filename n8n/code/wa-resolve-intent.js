@@ -1,7 +1,7 @@
 // Interpret the model's bounded intent; only the website may execute account actions.
-const messages=$("One Item Per Message").all(),profiles=$("Read Mentor Profile").all();
+
 return $input.all().map((it,i)=>{
- const m=messages[i]?.json||{},profile=profiles[i]?.json||{};
+ const m=$("One Item Per Message").itemMatching(i).json,profile=$("Read Mentor Profile").itemMatching(i).json;
  let choice={};try{choice=JSON.parse(String(it.json.output||"").replace(/^```(?:json)?\s*|\s*```$/g,""))}catch{}
  const kinds=["question","preference","clarify","learn","continue","edit","task-question","save","keep-draft","draft","progress","points","journey","course","roadmap","profile","answer"];
  let kind=kinds.includes(choice.kind)?choice.kind:"question";

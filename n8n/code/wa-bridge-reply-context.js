@@ -1,7 +1,7 @@
 // Read-only account facts come from a signed website response, never model memory.
-const requests=$("Sign Request To WhatsLearn").all();
+
 return $input.all().map((it,i)=>{
- const response=it.json||{},request=requests[i]?.json||{},snapshot=String(request.profileSnapshot||"");
+ const response=it.json||{},request=$("Sign Request To WhatsLearn").itemMatching(i).json,snapshot=String(request.profileSnapshot||"");
  if(response.action==="none"||!/(?:^|\n)Course:/.test(snapshot))return {json:response,pairedItem:{item:i}};
  const kind=request.mentorIntent;
  if(kind==="journey"&&response.action==="reply")return {json:{...response,text:String(response.text||"")+"\n\nOpen your journey: https://whatslearn.in/learn"},pairedItem:{item:i}};

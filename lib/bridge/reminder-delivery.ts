@@ -8,7 +8,7 @@ export type DeliveryReport={ref?:string;id?:number;claimToken?:string;ok:boolean
 const seconds=(at:Date)=>Math.floor(at.getTime()/1000);
 function target(kind:DeliveryKind,key:string|number){if(kind==='notice'){if(!Number.isSafeInteger(Number(key))||Number(key)<1)throw Error('Invalid notice');return {table:'whatsapp_outbox',where:'id=?',args:[Number(key)]}}const m=/^([^|]{1,128})\|(\d{4}-\d{2}-\d{2})$/.exec(String(key));if(!m)throw Error('Invalid reminder');return {table:'whatsapp_reminder_log',where:'user_id=? AND slot=?',args:[m[1],m[2]]}}
 type Row={user_id:string;state:string;claim_token:string|null;lease_expires_at:number|null;claimed_at:number;message_id:string|null;attempts:number};
-export async function claimDelivery(kind:DeliveryKind,key:string|number,at=new Date()){
+export async function claimDelivery(kind:DeliveryKind,key:string|number,at=new Date(),staged=true){
  const t=target(kind,key),db=database(),n=seconds(at);const old=await db.prepare(`SELECT user_id,state,claim_token,lease_expires_at,claimed_at,message_id,attempts FROM ${t.table} WHERE ${t.where}`).bind(...t.args).first<Row>();if(!old)return null;
  // Legacy claims might already have sent a message; they are not safe to reclaim.
  if((old.state==='sending'&&Number(old.lease_expires_at||old.claimed_at+600)<=n)||(old.state==='claimed'&&!old.claim_token&&old.claimed_at+600<=n)){
@@ -16,7 +16,7 @@ export async function claimDelivery(kind:DeliveryKind,key:string|number,at=new D
   if(changed.meta.changes)await recordQualityEvent({userId:old.user_id,channel:'whatsapp',category:'whatsapp_unknown',correlationId:randomUUID()});return null;
  }
  const claimToken=randomUUID(),expires=n+600;
- const r=await db.prepare(`UPDATE ${t.table} SET state='claimed',claim_token=?,lease_expires_at=?,claimed_at=?,sending_at=NULL,attempts=attempts+1,error_category=NULL WHERE ${t.where} AND message_id IS NULL AND attempts<3 AND (state='queued' OR state='failed' OR (state='claimed' AND claim_token IS NOT NULL AND lease_expires_at<=?))`).bind(claimToken,expires,n,...t.args,n).run();
+ const r=await db.prepare(`UPDATE ${t.table} SET state='claimed',claim_token=?,lease_expires_at=?,claimed_at=?,sending_at=NULL,attempts=attempts+1,error_category=NULL WHERE ${t.where} AND message_id IS NULL AND attempts<3 AND (state='queued' OR state='failed' OR (state='claimed' AND claim_token IS NOT NULL AND lease_expires_at<=?))`).bind(staged?claimToken:null,staged?expires:null,n,...t.args,n).run();
  return r.meta.changes?{claimToken,leaseExpiresAt:new Date(expires*1000).toISOString()}:null;
 }
 export async function beginDelivery(kind:DeliveryKind,key:string|number,claimToken:string,at=new Date()){

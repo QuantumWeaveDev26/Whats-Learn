@@ -48,7 +48,7 @@ test('signed-out visitors do not get an account resume link from device work',()
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
  assert.match(source,/account&&<a className="hero-continue"/);
  assert.doesNotMatch(source,/returning|setReturning|readGuestWork/);
- assert.match(source,/r.status===401.*setAccount\(null\);setProgress\(null\)/);
+ assert.match(source,/r.status===401.*clearAccountStarter\(\)/);assert.match(source,/function clearAccountStarter\(\).*setAccount\(null\);setProgress\(null\)/);
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Hero));
  assert.doesNotMatch(html,/Continue my journey|Welcome back/);

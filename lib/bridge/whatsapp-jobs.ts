@@ -25,7 +25,7 @@ export async function reminderDiagnostics(at=new Date()){
  const recent=(await db.prepare("SELECT slot,state,COUNT(*) count FROM whatsapp_reminder_log WHERE slot>=? GROUP BY slot,state ORDER BY slot DESC LIMIT 30").bind(ist(new Date(at.getTime()-7*864e5)).day).all()).results;
  return {checkedAt:at.toISOString(),indiaTime:ist(at),contacts,schedules,recent,template:{configured:!!(cfg.progressTemplate||cfg.performanceTemplate),name:cfg.progressTemplate||cfg.performanceTemplate||null,language:cfg.templateLanguage,parameterCount:cfg.progressTemplate?2:cfg.performanceTemplate?4:0,approvalVerified:false},note:'Configured does not mean Meta-approved or delivered. This read-only check claims no reminders.'};
 }
-export async function claimReminders(limit=50,at=new Date()){
+export async function claimReminders(limit=50,at=new Date(),staged=true){
  const cfg=whatsappConfig(),t=ist(at),db=database();
  const rows=(await db.prepare("SELECT user_id,phone,language,last_inbound_at,remind_hour,remind_freq,quiet_start,quiet_end FROM whatsapp_contacts WHERE state='opted_in' AND verified_at IS NOT NULL AND remind_state='on' LIMIT 1000").all<C>()).results;
  const items:ReminderItem[]=[];let skipped=0;
@@ -37,7 +37,7 @@ export async function claimReminders(limit=50,at=new Date()){
   if(c.remind_freq==='weekly'&&t.weekday!=='Mon')continue;
   const slot=t.day,ref=`${c.user_id}|${slot}`;
   await db.prepare("INSERT OR IGNORE INTO whatsapp_reminder_log(user_id,slot,state,claimed_at) VALUES (?,?,'queued',?)").bind(c.user_id,slot,Math.floor(at.getTime()/1000)).run();
-  const claim=await claimDelivery('reminder',ref,at);if(!claim)continue;
+  const claim=await claimDelivery('reminder',ref,at,staged);if(!claim)continue;
   const mark=(state:string)=>db.prepare('UPDATE whatsapp_reminder_log SET state=? WHERE user_id=? AND slot=?').bind(state,c.user_id,slot).run();
   // The performance recap replaces the nudge: one message at the chosen frequency/time.
   const performance=await learnerPerformance(c.user_id,at);const template=performanceTemplate(c.language);const copy=reminderCopy(c.language);
@@ -60,13 +60,13 @@ export async function queueNotice(userId:string,kind:'mission'|'badge'|'recap',r
  const r=await db.prepare('INSERT OR IGNORE INTO whatsapp_outbox(user_id,kind,ref,payload,created_at) VALUES (?,?,?,?,?)').bind(userId,kind,ref,JSON.stringify(payload),new Date().toISOString()).run();
  return !!r.meta.changes;
 }
-export async function claimNotices(limit=20,at=new Date(),noticeId?:number){
+export async function claimNotices(limit=20,at=new Date(),noticeId?:number,staged=true){
  const db=database();
  // A signed diagnostic can target one known notice without touching other learners.
  const rows=(await db.prepare("SELECT o.id,o.user_id,o.kind,o.payload,c.phone,c.last_inbound_at,c.state FROM whatsapp_outbox o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE (o.state='queued' OR (o.state='failed' AND o.message_id IS NULL AND o.attempts<3) OR (o.state IN ('claimed','sending') AND COALESCE(o.lease_expires_at,o.claimed_at+600)<=?)) AND o.created_at>? AND (? IS NULL OR o.id=?) ORDER BY o.id LIMIT ?").bind(Math.floor(at.getTime()/1000),new Date(at.getTime()-3*864e5).toISOString(),noticeId??null,noticeId??null,limit).all<{id:number;user_id:string;kind:string;payload:string;phone:string;last_inbound_at:string|null;state:string}>()).results;
  const items:{id:number;to:string;text:string;claimToken:string;leaseExpiresAt:string}[]=[];
  for(const o of rows){
-  const claim=await claimDelivery('notice',o.id,at);if(!claim)continue;
+  const claim=await claimDelivery('notice',o.id,at,staged);if(!claim)continue;
   // Learner opted out since, or the 24-hour window is closed: no message (a notice is not worth an approved template).
   if(o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
   const p=JSON.parse(o.payload) as {recap?:string;title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);

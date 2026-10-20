@@ -26,7 +26,7 @@ Reply receipts: seven days, most recent 100 per account. Reported excerpts are r
 
 “Sent to WhatsApp” is provider acceptance, not delivery. Delivered/Read requires a valid matching Meta status and recipient. Unknown IDs cannot change another learner's records. Duplicate/out-of-order receipts cannot regress Read/Delivered.
 
-New pre-send claims expire after ten minutes and can recover. Dispatches with lost acknowledgements become Unknown and are not blindly resent. Definite pre-acceptance failure has at most three attempts per slot. Old boolean reports remain compatible but establish no delivery receipt.
+Clients explicitly request `protocol: staged-v1` before receiving recoverable pre-send leases. Those claims expire after ten minutes and can recover. Legacy senders without the begin stage remain conservative: an expired claim becomes Unknown and cannot be blindly resent. Dispatches with lost acknowledgements become Unknown and are not blindly resent. Definite pre-acceptance failure has at most three attempts per slot. Old boolean reports remain compatible but establish no delivery receipt.
 
 The hourly scheduler runs at seven minutes past the hour. A selected-hour slot stays eligible for two hours, subject to quiet hours and daily/weekdays/Monday-weekly frequency. The displayed next time is an eligible attempt, not a promise of delivery.
 

@@ -1,6 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
-const resolve=new Function('$input','$',fs.readFileSync('n8n/code/wa-resolve-intent.js','utf8'));
-const context=new Function('$input','$',fs.readFileSync('n8n/code/wa-bridge-reply-context.js','utf8'));
+const linked=fn=>(input,lookup)=>fn(input,name=>{const api=lookup(name);return {...api,itemMatching:i=>api.itemMatching?api.itemMatching(i):api.all()[i]}});
+const resolve=linked(new Function('$input','$',fs.readFileSync('n8n/code/wa-resolve-intent.js','utf8')));
+const context=linked(new Function('$input','$',fs.readFileSync('n8n/code/wa-bridge-reply-context.js','utf8')));
 const item=json=>({json}),snapshot=name=>item({action:'reply',text:`Hey ${name}! 👋\nCourse: AI Full-Stack Development\nLanguage: English · 15 min/day`});
 function routed(text,kind,track=null){const rows=resolve({all:()=>[item({output:JSON.stringify({kind,track})})]},name=>({all:()=>name==='One Item Per Message'?[item({text,wamid:'m1',from:'919990000087'})]:[snapshot('Pavana')]}));return rows[0].json;}
 test('semantic intents map to bounded website actions while explicit commands and actual work stay unchanged',()=>{
