@@ -1,3 +1,4 @@
+import {performanceTemplate,reminderCopy} from '../reminder-copy';
 import {claimDelivery,reportDelivery,type DeliveryReport} from './reminder-delivery';
 import {recordQualityEvent} from '../quality/events';
 import {database} from '../storage';
@@ -39,11 +40,11 @@ export async function claimReminders(limit=50,at=new Date()){
   const claim=await claimDelivery('reminder',ref,at);if(!claim)continue;
   const mark=(state:string)=>db.prepare('UPDATE whatsapp_reminder_log SET state=? WHERE user_id=? AND slot=?').bind(state,c.user_id,slot).run();
   // The performance recap replaces the nudge: one message at the chosen frequency/time.
-  const performance=await learnerPerformance(c.user_id,at);
-  if(inWindow(c,at)){items.push({ref,...claim,to:c.phone,mode:'text',text:performance.text+'\n*REMIND OFF* → pause'});continue}
+  const performance=await learnerPerformance(c.user_id,at);const template=performanceTemplate(c.language);const copy=reminderCopy(c.language);
+  if(inWindow(c,at)){items.push({ref,...claim,to:c.phone,mode:'text',text:performance.text+'\n'+copy.pause});continue}
   // Outside the service window the exact recap template must be approved; never reuse a lesson template.
-  if(!cfg.progressTemplate&&!cfg.performanceTemplate){await mark('skipped_no_performance_template');skipped++;continue}
-  items.push({ref,...claim,to:c.phone,mode:'template',template:{name:cfg.progressTemplate||cfg.performanceTemplate,language:cfg.templateLanguage,params:cfg.progressTemplate?[String(performance.count),performance.nextTitle]:[String(performance.todayPoints),String(performance.streak),String(performance.count),String(performance.weekMissions)]}});
+  if(!template){await mark('skipped_no_performance_template');skipped++;continue}
+  items.push({ref,...claim,to:c.phone,mode:'template',template:{name:template!.name,language:template!.language,params:template!.kind==='progress'?[String(performance.count),performance.nextTitle]:[String(performance.todayPoints),String(performance.streak),String(performance.count),String(performance.weekMissions)]}});
 
  }
  return {items,skipped};

@@ -1,3 +1,4 @@
+import {reminderCopy} from '../reminder-copy';
 import {normalizeControlCommand,stopCommands,pauseReminders,stopMessages} from '../reminder-control';
 import {createReport,latestReply} from '../quality/store';
 import {mentorContext,mentorReply} from '../mentor';
@@ -377,11 +378,11 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   return reply(`Welcome to WhatsLearn. To learn here, link this number to your account first: open ${site()}/settings, turn on WhatsApp lessons, then send the code you see as *LINK CODE* from this number.`);
  }
  await db.prepare('UPDATE whatsapp_contacts SET last_inbound_at=?,updated_at=? WHERE user_id=?').bind(at.toISOString(),at.toISOString(),c.user_id).run();
- if(STOP_WORDS.includes(word)){await stopMessages(c.user_id);return reply('You will not get more WhatsLearn messages or reminders. Send START any time to turn lessons back on.')}
+ if(STOP_WORDS.includes(word)){await stopMessages(c.user_id);return reply(reminderCopy(c.language).stopped)}
  if(cmd==='start'&&!arg){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(at.toISOString(),c.user_id).run();return reply('Welcome back. Lessons are on; reminders stay off until you send REMIND 7pm daily. Reply TODAY for your next mission.')}
 
  if(c.state!=='opted_in')return none('opted-out');
- if(word==='pause'){await pauseReminders(c.user_id);return reply('Reminders paused. Your draft is kept; lessons still work. Send REMIND ON to resume reminders.')}
+ if(word==='pause'){await pauseReminders(c.user_id);return reply(reminderCopy(c.language).paused)}
  if(cmd==='support'||/^(?:i need a person|human support|(?:i want to |can i )?(?:talk|speak) to (?:a )?(?:human|person|team)|contact support)/i.test(text))return reply('You can reach the team here: '+site()+'/support. Your draft is kept. Requests are saved for team review; this is not live chat.');
  if(cmd==='report'||(/^(?:please |can you |could you )?(?:report|flag)\b/i.test(text)&&/\b(?:reply|answer|response)\b/i.test(text))){
   const last=await latestReply(c.user_id,'whatsapp');if(!last)return reply('No recent reply is available to attach. Open '+site()+ '/support and paste it in a support request, or use Report reply beside a website answer. Your task is kept.');
