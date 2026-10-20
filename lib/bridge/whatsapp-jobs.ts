@@ -1,3 +1,4 @@
+import {recordQualityEvent} from '../quality/events';
 import {database} from '../storage';
 import {pointsBalance} from '../points';
 import {whatsappConfig} from '../whatsapp';
@@ -55,7 +56,7 @@ export async function reportReminders(results:{ref:string;ok:boolean}[]){
  for(const r of results){
   const m=/^([^|]{1,128})\|(\d{4}-\d{2}-\d{2})$/.exec(r.ref||'');if(!m)continue;
   const x=await db.prepare("UPDATE whatsapp_reminder_log SET state=? WHERE user_id=? AND slot=? AND state='claimed'").bind(r.ok?'sent':'failed',m[1],m[2]).run();
-  if(x.meta.changes){updated++;if(r.ok)await db.prepare('UPDATE whatsapp_contacts SET last_reminder_at=? WHERE user_id=?').bind(new Date().toISOString(),m[1]).run()}
+  if(x.meta.changes){updated++;if(!r.ok)await recordQualityEvent({userId:m[1],channel:'whatsapp',category:'whatsapp_send_failed',correlationId:crypto.randomUUID()});if(r.ok)await db.prepare('UPDATE whatsapp_contacts SET last_reminder_at=? WHERE user_id=?').bind(new Date().toISOString(),m[1]).run()}
  }
  return {updated};
 }
@@ -92,6 +93,6 @@ export async function claimNotices(limit=20,at=new Date(),noticeId?:number){
 }
 export async function reportNotices(results:{id:number;ok:boolean}[]){
  const db=database();let updated=0;
- for(const r of results){if(!Number.isInteger(r.id))continue;const x=await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=? AND state='claimed'").bind(r.ok?'sent':'failed',r.id).run();if(x.meta.changes)updated++}
+ for(const r of results){if(!Number.isInteger(r.id))continue;const x=await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=? AND state='claimed'").bind(r.ok?'sent':'failed',r.id).run();if(x.meta.changes){updated++;if(!r.ok){const o=await db.prepare('SELECT user_id FROM whatsapp_outbox WHERE id=?').bind(r.id).first<{user_id:string}>();await recordQualityEvent({userId:o?.user_id,channel:'whatsapp',category:'whatsapp_send_failed',correlationId:'notice-'+r.id})}}}
  return {updated};
 }
