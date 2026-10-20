@@ -5,7 +5,7 @@ test('every v40 setting is in .env.example (empty) and in the deployment guide',
  const ex=read('.env.example'),g=read('docs/deployment-guide.md');
  for(const n of ['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SERVICE_ROLE_KEY','SITE_URL','STARTING_POINTS','REWARD_PLAN','REWARD_DAYS','UPLOADS_ENABLED','CF_D1_DATABASE_ID','CF_D1_DATABASE_NAME','CF_R2_BUCKET_NAME','BILLING_LIVE_ENABLED','BILLING_PUBLIC_CHECKOUT']){
   assert.match(ex,new RegExp('^'+n+'=$','m'),n+' is an empty placeholder');assert.ok(g.includes(n),n+' is explained in the guide')}
- for(const line of ex.split('\n').filter(l=>/^[A-Z_]+=/.test(l)))assert.match(line,/^[A-Z_0-9]+=$/,'no value in .env.example: '+line.split('=')[0]);
+ for(const line of ex.replaceAll('\r\n','\n').split('\n').filter(l=>/^[A-Z_]+=/.test(l)))assert.match(line,/^[A-Z_0-9]+=$/,'no value in .env.example: '+line.split('=')[0]);
 });
 test('the guide covers host choice, accounts, env names, migrations and backup, email setup, DNS, Razorpay test and live, checklist and rollback',()=>{
  const g=read('docs/deployment-guide.md');

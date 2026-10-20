@@ -1,3 +1,4 @@
+import {accountKey} from '@/lib/auth/account-key';
 import {hasPaidAccess} from '@/lib/billing/service';
 import {getChatGPTUser} from '@/app/chatgpt-auth';
 import {database} from '@/lib/storage';
@@ -17,6 +18,6 @@ export async function GET(){
    (SELECT COUNT(*) FROM checkpoint_clears WHERE user_id=?) AS badges,
    (SELECT COUNT(*) FROM practice_events WHERE user_id=?) AS practice,
    (SELECT MAX(updated_at) FROM entitlements WHERE user_id=?) AS plan`).bind(id,id,id,id,id,id,id).first();
-  return Response.json({revision:JSON.stringify({...version,paidAccess:await hasPaidAccess(id)})}, {headers});
+  return Response.json({accountKey:accountKey(id),revision:JSON.stringify({...version,paidAccess:await hasPaidAccess(id)})}, {headers});
  }catch{return Response.json({error:'Sync temporarily unavailable.'},{status:503,headers})}
 }

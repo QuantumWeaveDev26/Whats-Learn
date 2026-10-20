@@ -22,8 +22,8 @@ test('guests choose a subject while accounts restore saved course',()=>{
  assert.match(source,/function selectTrack[\s\S]*setChosen\(true\)/);
  assert.match(source,/chosen\?'agency-first-choice':'agency-first-subject'/);
  assert.doesNotMatch(source,/const initial=agencyTracks|removeItem|localStorage\.clear/);
- assert.match(source,/const stored=readAgencyDrafts\(\)\[value\]/);
- assert.match(source,/startSavedProgressSync\(loadAccount\)/);
+ assert.match(source,/const stored=readAgencyDrafts\(starterScope.current\)\[value\]/);
+ assert.match(source,/startSavedProgressSync\(loadAccount,/);
  assert.match(source,/accountTrack.current!==selected.id/);
  assert.match(source,/setTrack\(selected.id\);setChosen\(true\)/);
 });
