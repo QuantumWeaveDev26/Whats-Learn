@@ -12,7 +12,7 @@ import {aiReady,reviewWork,FeedbackError} from './ai-feedback';
  * WhatsApp lessons and reminders through Meta's WhatsApp Cloud API.
  * Nothing is sent until the WHATSAPP_* settings are present and the learner opts in on the site.
  */
-export class WhatsAppError extends Error{constructor(message:string,public status=400){super(message)}}
+export class WhatsAppError extends Error{constructor(message:string,public status=400,public definiteRejected=false){super(message)}}
 export function whatsappConfig(){const e=env as unknown as Record<string,string|undefined>;return {token:e.WHATSAPP_TOKEN||'',phoneNumberId:e.WHATSAPP_PHONE_NUMBER_ID||'',verifyToken:e.WHATSAPP_VERIFY_TOKEN||'',appSecret:e.WHATSAPP_APP_SECRET||'',progressTemplate:e.WHATSAPP_PROGRESS_TEMPLATE||'',performanceTemplate:e.WHATSAPP_PERFORMANCE_TEMPLATE||'',template:e.WHATSAPP_REMINDER_TEMPLATE||'',templateLanguage:e.WHATSAPP_TEMPLATE_LANGUAGE||'en',businessNumber:(e.WHATSAPP_BUSINESS_NUMBER||'').replace(/\D/g,''),cronSecret:e.REMINDER_CRON_SECRET||'',graphVersion:e.WHATSAPP_GRAPH_VERSION||'v23.0',siteUrl:(e.SITE_URL||'https://whatslearn.in').replace(/\/$/,'')}}
 export function whatsappReady(){const c=whatsappConfig();return !!(c.token&&c.phoneNumberId&&c.verifyToken&&c.appSecret)}
 export function whatsappLinkReady(){const c=whatsappConfig();return whatsappReady()||(bridgeSecret().length>=32&&!!c.appSecret&&!!c.phoneNumberId&&!!c.businessNumber)}
@@ -23,7 +23,7 @@ export const maskPhone=(p:string)=>'+'+p.slice(0,2)+' ••••• '+p.slice(
 async function graph(body:Record<string,unknown>){
  const c=whatsappConfig();if(!whatsappReady())throw new WhatsAppError('WhatsApp is not connected yet.',503);
  const r=await fetch(`https://graph.facebook.com/${c.graphVersion}/${c.phoneNumberId}/messages`,{method:'POST',headers:{Authorization:'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',...body}),signal:AbortSignal.timeout(15000)});
- if(!r.ok)throw new WhatsAppError('WhatsApp did not accept the message.',502);
+ if(!r.ok)throw new WhatsAppError('WhatsApp did not accept the message.',502,r.status>=400&&r.status<500);
  return await r.json() as Record<string,unknown>;
 }
 /** Free-form text. Only allowed within 24 hours of the learner's last message. */
@@ -77,6 +77,7 @@ export async function processWebhook(raw:string,signature:string){
  const c=whatsappConfig();if(!whatsappReady())throw new WhatsAppError('WhatsApp is not connected yet.',503);
  if(!signature.startsWith('sha256=')||!await verifyHmac(c.appSecret,raw,signature.slice(7)))throw new WhatsAppError('Invalid signature.',401);
  const body=JSON.parse(raw) as {entry?:{changes?:{value?:{messages?:{id:string;from:string;type:string;text?:{body:string};button?:{text:string}}[]}}[]}[]};
+ await (await import('./bridge/reminder-delivery')).receiveStatusWebhook(raw,signature);
  const db=database();let handled=0;
  for(const entry of body.entry||[])for(const change of entry.changes||[])for(const m of change.value?.messages||[]){
   const seen=await db.prepare('INSERT OR IGNORE INTO whatsapp_events(id,kind,processed_at) VALUES (?,?,?)').bind(m.id,m.type,new Date().toISOString()).run();
@@ -91,10 +92,12 @@ export async function processWebhook(raw:string,signature:string){
 export async function sendReminders(limit=100){
  const c=whatsappConfig();if(!whatsappReady())throw new WhatsAppError('WhatsApp reminders are not configured.',503);
  const {claimReminders,reportReminders}=await import('./bridge/whatsapp-jobs');
- const {items,skipped}=await claimReminders(limit);const results:{ref:string;ok:boolean}[]=[];
+ const {beginDelivery}=await import('./bridge/reminder-delivery');
+ const {items,skipped}=await claimReminders(limit);const results:import('./bridge/reminder-delivery').DeliveryReport[]=[];
  for(const it of items){
-  try{if(it.mode==='text')await sendText(it.to,it.text!);else await sendTemplate(it.to,it.template!.name,it.template!.language,it.template!.params);results.push({ref:it.ref,ok:true})}
-  catch{results.push({ref:it.ref,ok:false})}
+  if(!(await beginDelivery('reminder',it.ref,it.claimToken)).dispatch)continue;
+  try{const response=it.mode==='text'?await sendText(it.to,it.text!):await sendTemplate(it.to,it.template!.name,it.template!.language,it.template!.params);const id=(response.messages as {id?:string}[]|undefined)?.[0]?.id;results.push({ref:it.ref,claimToken:it.claimToken,ok:!!id,...(id?{messageId:id}:{errorCategory:'transport_unknown' as const})})}
+  catch(e){results.push({ref:it.ref,claimToken:it.claimToken,ok:false,errorCategory:e instanceof WhatsAppError&&e.definiteRejected?'provider_rejected':'transport_unknown'})}
  }
  await reportReminders(results);void c;
  return {due:items.length,sent:results.filter(r=>r.ok).length,failed:results.filter(r=>!r.ok).length,skipped};

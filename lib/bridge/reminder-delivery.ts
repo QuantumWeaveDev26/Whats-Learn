@@ -1,6 +1,8 @@
 import {randomUUID} from 'node:crypto';
 import {database} from '../storage';
 import {recordQualityEvent} from '../quality/events';
+import {env} from 'cloudflare:workers';
+import {verifyHmac} from '../billing/razorpay';
 export type DeliveryKind='reminder'|'notice';
 export type DeliveryReport={ref?:string;id?:number;claimToken?:string;ok:boolean;messageId?:string;errorCategory?:'provider_rejected'|'pre_send'|'transport_unknown'};
 const seconds=(at:Date)=>Math.floor(at.getTime()/1000);
@@ -34,4 +36,26 @@ export async function reportDelivery(kind:DeliveryKind,input:DeliveryReport,at=n
  const r=await db.prepare(`UPDATE ${t.table} SET state=?,message_id=?,accepted_at=?,error_category=? WHERE ${t.where} AND state=? AND (claim_token=? OR (? IS NULL AND claim_token IS NULL))`).bind(state,messageId,input.ok?at.toISOString():null,input.ok?null:input.errorCategory||'transport_unknown',...t.args,row.state,row.claim_token,row.claim_token).run();
  if(r.meta.changes){if(input.ok&&kind==='reminder')await db.prepare('UPDATE whatsapp_contacts SET last_reminder_at=? WHERE user_id=?').bind(at.toISOString(),row.user_id).run();if(!input.ok)await recordQualityEvent({userId:row.user_id,channel:'whatsapp',category:state==='unknown'?'whatsapp_unknown':'whatsapp_send_failed',correlationId:randomUUID()})}
  return {updated:!!r.meta.changes};
+}
+const ranks={sent:1,failed:2,delivered:3,read:4} as const;
+export async function applyDeliveryStatus(input:{messageId:string;status:keyof typeof ranks;timestamp:number;recipient?:string}){
+ if(!input.messageId||input.messageId.length>300||!Object.hasOwn(ranks,input.status)||!Number.isSafeInteger(input.timestamp)||input.timestamp<1)return {updated:false};
+ const db=database();for(const table of ['whatsapp_reminder_log','whatsapp_outbox']){
+  const row=await db.prepare(`SELECT o.user_id,o.receipt_status,o.status_at,c.phone FROM ${table} o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE o.message_id=?`).bind(input.messageId).first<{user_id:string;receipt_status:keyof typeof ranks|null;status_at:number|null;phone:string}>();if(!row)continue;
+  if(input.recipient&&row.phone!==input.recipient)return {updated:false};
+  if((row.receipt_status&&ranks[row.receipt_status]>=ranks[input.status])||(row.status_at&&row.status_at>input.timestamp))return {updated:false};
+  const r=await db.prepare(`UPDATE ${table} SET state=?,receipt_status=?,status_at=?,error_category=? WHERE message_id=? AND (receipt_status IS NULL OR receipt_status=?) AND (status_at IS NULL OR status_at<=?)`).bind(input.status,input.status,input.timestamp,input.status==='failed'?'provider_rejected':null,input.messageId,row.receipt_status,input.timestamp).run();
+  if(r.meta.changes&&input.status==='failed')await recordQualityEvent({userId:row.user_id,channel:'whatsapp',category:'whatsapp_send_failed',correlationId:randomUUID()});return {updated:!!r.meta.changes};
+ }return {updated:false};
+}
+export class StatusSignatureError extends Error{status=401}
+/** Verify the original Meta body even when n8n forwards it over the signed bridge. */
+export async function receiveStatusWebhook(raw:string,signature:string){
+ const secret=(env as unknown as Record<string,string|undefined>).WHATSAPP_APP_SECRET||'';
+ if(!secret||raw.length>400000||!signature.startsWith('sha256=')||!await verifyHmac(secret,raw,signature.slice(7)))throw new StatusSignatureError('Invalid status signature.');
+ const payload=JSON.parse(raw);let updated=0;
+ for(const e of (Array.isArray(payload.entry)?payload.entry:[]))for(const c of (Array.isArray(e.changes)?e.changes:[]))for(const s of (Array.isArray(c.value?.statuses)?c.value.statuses:[]).slice(0,1000)){
+  if(typeof s.id!=='string'||!Object.hasOwn(ranks,s.status)||typeof s.recipient_id!=='string')continue;
+  if((await applyDeliveryStatus({messageId:s.id,status:s.status,timestamp:Number(s.timestamp),recipient:s.recipient_id})).updated)updated++;
+ }return {updated};
 }
