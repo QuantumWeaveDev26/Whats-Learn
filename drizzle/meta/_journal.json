@@ -155,6 +155,13 @@
       "when": 1792477054624,
       "tag": "0021_learner_quality",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1792479314954,
+      "tag": "0022_reminder_receipts",
+      "breakpoints": true
     }
   ]
 }

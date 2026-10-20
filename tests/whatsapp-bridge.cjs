@@ -218,7 +218,7 @@ test('reminders: explicit opt-in, chosen time and frequency in India time, quiet
  const a=await jobs.claimReminders(50,T('2026-10-13T13:35:00Z'));
  const mine=a.items.filter(i=>i.to===P1);assert.equal(mine.length,1);assert.equal(mine[0].mode,'template','outside the window an approved template is the only option');
  assert.equal(mine[0].template.name,'learning_performance');assert.equal(mine[0].template.params.length,4);assert.ok(!('text' in mine[0]));
- const b=await jobs.claimReminders(50,T('2026-10-13T14:10:00Z'));assert.equal(b.items.filter(i=>i.to===P1).length,0,'a retried or repeated scheduled run sends nothing twice');
+ const b=await jobs.claimReminders(50,T('2026-10-13T13:40:00Z'));assert.equal(b.items.filter(i=>i.to===P1).length,0,'a retried or repeated scheduled run sends nothing twice');
  await jobs.reportReminders([{ref:mine[0].ref,ok:false}]);
  const c=await jobs.claimReminders(50,T('2026-10-13T14:20:00Z'));assert.equal(c.items.filter(i=>i.to===P1).length,1,'a send that failed is tried again');
  await jobs.reportReminders([{ref:mine[0].ref,ok:true}]);

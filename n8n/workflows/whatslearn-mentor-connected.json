@@ -659,11 +659,12 @@
         2032,
         800
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "retryOnFail": false
     },
     {
       "parameters": {
-        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\n// Tell WhatsLearn whether this notice was sent. WhatsLearn marks it sent or failed; n8n never decides anything about progress.\nconst notice=$(\"Loop Over Notices\").first().json;\nreturn [{json:sign(\"/api/bridge/whatsapp/outbox\",{action:\"report\",results:[{id:Number(notice.id),ok:!$input.first().json.error}]})}];"
+        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\n// Sign one request per learner message. The same signed request is reused if n8n retries, and WhatsLearn answers a repeat with the first answer.\n\nreturn $input.all().map((it,i)=>{const item=$(\"Loop Over Notices\").itemMatching(i).json;const data=it.json||{};const messageId=data.messages?.[0]?.id;const status=Number(data.error?.statusCode||data.error?.httpCode||data.statusCode||0);const rejected=!!data.error&&(status>=400&&status<500||typeof data.error.code===\"number\");return {json:sign(\"/api/bridge/whatsapp/outbox\",{action:\"report\",results:[{id:item.id,claimToken:item.claimToken,ok:!!messageId&&!data.error,...(messageId&&!data.error?{messageId:String(messageId)}:{errorCategory:rejected?\"provider_rejected\":\"transport_unknown\"})}]}),pairedItem:{item:i}}});"
       },
       "id": "e95d546a-8bf1-401e-97fa-f7891b432cb9",
       "name": "Notices: Sign Report Request",
@@ -713,7 +714,8 @@
       ],
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -849,11 +851,12 @@
         2256,
         1120
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "retryOnFail": false
     },
     {
       "parameters": {
-        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\nconst reminder=$(\"Loop Over Reminders\").first().json;\nreturn [{json:sign(\"/api/bridge/whatsapp/reminders\",{action:\"report\",results:[{ref:String(reminder.ref),ok:!$input.first().json.error}]})}];"
+        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\n// Sign one request per learner message. The same signed request is reused if n8n retries, and WhatsLearn answers a repeat with the first answer.\n\nreturn $input.all().map((it,i)=>{const item=$(\"Loop Over Reminders\").itemMatching(i).json;const data=it.json||{};const messageId=data.messages?.[0]?.id;const status=Number(data.error?.statusCode||data.error?.httpCode||data.statusCode||0);const rejected=!!data.error&&(status>=400&&status<500||typeof data.error.code===\"number\");return {json:sign(\"/api/bridge/whatsapp/reminders\",{action:\"report\",results:[{ref:item.ref,claimToken:item.claimToken,ok:!!messageId&&!data.error,...(messageId&&!data.error?{messageId:String(messageId)}:{errorCategory:rejected?\"provider_rejected\":\"transport_unknown\"})}]}),pairedItem:{item:i}}});"
       },
       "id": "0d6cd7fb-932b-489b-9efc-d525486793ba",
       "name": "Reminders: Sign Report Request",
@@ -903,7 +906,8 @@
       ],
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 2000
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -939,7 +943,8 @@
         2256,
         1312
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "retryOnFail": false
     },
     {
       "parameters": {
@@ -1417,6 +1422,208 @@
         -100,
         900
       ]
+    },
+    {
+      "id": "5cf50873-3ac5-46ca-90ef-fd38bd1b5438",
+      "name": "Reminders: Sign Begin Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        2000
+      ],
+      "parameters": {
+        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\n// Sign one request per learner message. The same signed request is reused if n8n retries, and WhatsLearn answers a repeat with the first answer.\n\nreturn $input.all().map((it,i)=>({json:sign(\"/api/bridge/whatsapp/reminders\",{action:\"begin\",ref:it.json.ref,claimToken:it.json.claimToken}),pairedItem:{item:i}}));"
+      }
+    },
+    {
+      "id": "bdd341b1-d5ae-410d-8645-a8459ac444b3",
+      "name": "Reminders: Restore Send Item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        2000
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((it,i)=>({json:$(\"Loop Over Reminders\").itemMatching(i).json,pairedItem:{item:i}}));"
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-wl-timestamp",
+              "value": "={{ $json.ts }}"
+            },
+            {
+              "name": "x-wl-nonce",
+              "value": "={{ $json.nonce }}"
+            },
+            {
+              "name": "x-wl-signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.body }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "31186331-031d-4a9f-8fac-c7118e902c38",
+      "name": "Reminders: Authorize Dispatch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2704,
+        1280
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.dispatch === true }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": ""
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "f5ccedec-3d73-43db-8e87-952474b64301",
+      "name": "Reminders: Dispatch Allowed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -100,
+        900
+      ]
+    },
+    {
+      "id": "4366ce01-306a-46e3-b318-5bc77a7d0936",
+      "name": "Notices: Sign Begin Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1600
+      ],
+      "parameters": {
+        "jsCode": "const cfg=$(\"Resolve Settings\").first().json.cfg;\n// Pure JavaScript HMAC-SHA256, so this node needs no extra n8n server setting.\nconst wlBytes=s=>{if(typeof s!==\"string\")return s;const o=[];for(let i=0;i<s.length;i++){let c=s.charCodeAt(i);if(c>=0xd800&&c<0xe000){const d=i+1<s.length?s.charCodeAt(i+1):0;if(c<0xdc00&&d>=0xdc00&&d<0xe000){c=0x10000+((c-0xd800)<<10)+(d-0xdc00);i++}else c=0xfffd}\nif(c<0x80)o.push(c);else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63)}return Uint8Array.from(o)};\nconst wlSha=m=>{const P=[];for(let n=2;P.length<64;n++)if(P.every(p=>n%p))P.push(n);\nconst fr=x=>Math.floor((x-Math.floor(x))*4294967296)>>>0;const K=P.map(p=>fr(Math.pow(p,1/3)));const H=P.slice(0,8).map(p=>fr(Math.sqrt(p)));\nconst l=m.length,n=((l+9+63)>>6)<<6,b=new Uint8Array(n);b.set(m);b[l]=0x80;const hi=Math.floor(l/0x20000000),lo=(l<<3)>>>0;\n[hi,lo].forEach((v,k)=>{for(let j=0;j<4;j++)b[n-8+k*4+j]=(v>>>(24-8*j))&255});\nconst w=new Array(64),r=(x,k)=>(x>>>k)|(x<<(32-k));\nfor(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=((b[o+4*i]<<24)|(b[o+4*i+1]<<16)|(b[o+4*i+2]<<8)|b[o+4*i+3])>>>0;\nfor(let i=16;i<64;i++){const a=w[i-15],c=w[i-2];w[i]=(w[i-16]+(r(a,7)^r(a,18)^(a>>>3))+w[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0}\nlet [a,c,d,e,f,g,h,i2]=H;\nfor(let i=0;i<64;i++){const t1=(i2+(r(f,6)^r(f,11)^r(f,25))+((f&g)^(~f&h))+K[i]+w[i])>>>0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&c)^(a&d)^(c&d)))>>>0;i2=h;h=g;g=f;f=(e+t1)>>>0;e=d;d=c;c=a;a=(t1+t2)>>>0}\n[a,c,d,e,f,g,h,i2].forEach((v,i)=>{H[i]=(H[i]+v)>>>0})}\nconst out=new Uint8Array(32);H.forEach((v,i)=>{for(let j=0;j<4;j++)out[4*i+j]=(v>>>(24-8*j))&255});return out};\nconst wlHmacHex=(key,msg)=>{let k=wlBytes(key);if(k.length>64)k=wlSha(k);const ip=new Uint8Array(64).fill(0x36),op=new Uint8Array(64).fill(0x5c);for(let i=0;i<k.length;i++){ip[i]^=k[i];op[i]^=k[i]}\nconst m=wlBytes(msg),a=new Uint8Array(64+m.length);a.set(ip);a.set(m,64);const inner=wlSha(a),b=new Uint8Array(96);b.set(op);b.set(inner,64);return Array.from(wlSha(b),x=>(\"0\"+x.toString(16)).slice(-2)).join(\"\")};\nconst wlSame=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};\nconst wlNonce=()=>{let s=\"\";for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16);return s};\nconst base=String(cfg.baseUrl||\"\").replace(/\\/+$/,\"\");\nconst secret=String(cfg.bridgeSecret||\"\");\nif(!/^https:\\/\\//.test(base)&&!/^http:\\/\\/(localhost|127\\.0\\.0\\.1)(:|\\/|$)/.test(base))throw new Error(\"Open node 'My Settings (edit here)' and fill in baseUrl (the https address of the site), or set WHATSLEARN_BASE_URL on the n8n server.\");\nif(secret.length<32)throw new Error(\"Open node 'My Settings (edit here)' and fill in bridgeSecret (32+ characters, same as N8N_BRIDGE_SECRET on the website), or set WHATSLEARN_BRIDGE_SECRET on the n8n server.\");\nfunction sign(path,payload){\n  const body=JSON.stringify(payload);\n  const ts=String(Math.floor(Date.now()/1000));\n  const nonce=wlNonce();\n  const signature=wlHmacHex(secret,ts+\"\\n\"+nonce+\"\\nPOST\\n\"+path+\"\\n\"+body);\n  return {url:base+path,body,ts,nonce,signature};\n}\n// Sign one request per learner message. The same signed request is reused if n8n retries, and WhatsLearn answers a repeat with the first answer.\n\nreturn $input.all().map((it,i)=>({json:sign(\"/api/bridge/whatsapp/outbox\",{action:\"begin\",id:it.json.id,claimToken:it.json.claimToken}),pairedItem:{item:i}}));"
+      }
+    },
+    {
+      "id": "81e8456e-b0ce-40aa-bdcc-369abba6199b",
+      "name": "Notices: Restore Send Item",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1600
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((it,i)=>({json:$(\"Loop Over Notices\").itemMatching(i).json,pairedItem:{item:i}}));"
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-wl-timestamp",
+              "value": "={{ $json.ts }}"
+            },
+            {
+              "name": "x-wl-nonce",
+              "value": "={{ $json.nonce }}"
+            },
+            {
+              "name": "x-wl-signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.body }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "4ae0fcc3-c3fc-4387-a4ae-79f91f049e80",
+      "name": "Notices: Authorize Dispatch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2480,
+        896
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.dispatch === true }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": ""
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          }
+        },
+        "options": {}
+      },
+      "id": "c41f1e6f-42e1-4094-9341-f9af57519ff3",
+      "name": "Notices: Dispatch Allowed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -100,
+        900
+      ]
     }
   ],
   "connections": {
@@ -1697,7 +1904,7 @@
         [],
         [
           {
-            "node": "Send Notice",
+            "node": "Notices: Sign Begin Request",
             "type": "main",
             "index": 0
           }
@@ -1793,7 +2000,7 @@
         [],
         [
           {
-            "node": "Needs Approved Template?",
+            "node": "Reminders: Sign Begin Request",
             "type": "main",
             "index": 0
           }
@@ -2088,6 +2295,108 @@
         [
           {
             "node": "Standalone Mode?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminders: Sign Begin Request": {
+      "main": [
+        [
+          {
+            "node": "Reminders: Authorize Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminders: Authorize Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Reminders: Dispatch Allowed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminders: Restore Send Item": {
+      "main": [
+        [
+          {
+            "node": "Needs Approved Template?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reminders: Dispatch Allowed?": {
+      "main": [
+        [
+          {
+            "node": "Reminders: Restore Send Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notices: Sign Begin Request": {
+      "main": [
+        [
+          {
+            "node": "Notices: Authorize Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notices: Authorize Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Notices: Dispatch Allowed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notices: Restore Send Item": {
+      "main": [
+        [
+          {
+            "node": "Send Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notices: Dispatch Allowed?": {
+      "main": [
+        [
+          {
+            "node": "Notices: Restore Send Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Notices",
             "type": "main",
             "index": 0
           }
