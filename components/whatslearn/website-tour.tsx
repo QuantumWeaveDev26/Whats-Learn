@@ -14,7 +14,7 @@ const learnerSteps:Step[]=[
  {id:'roadmap',url:'/learn?view=paths',target:'#course-roadmap .roadmap-heading',title:'See your 10-day roadmap',text:'See completed missions, your next task, and what you’ll build. The first 3 missions per course are free.'},
  {id:'creations',url:'/learn?view=portfolio',target:'.workspace-tabbar',title:'Find your saved work',text:'My Creations keeps your accepted submissions. Open a piece to review or improve it.'},
  {id:'settings',url:'/settings',target:'[data-tour="direction"]',title:'Change your direction',text:'Edit your course, goal, starting point or daily time here. Choose Save my settings when finished.'},
- {id:'language',url:'/settings',target:'[data-tour="language"]',title:'Choose your language',text:'Lesson and mentor language controls replies on the website and linked WhatsApp. A reference language is separate.'},
+ {id:'language',url:'/settings',target:'[data-tour="language"]',title:'Choose your language',text:'Lesson and mentor language controls replies on the website and linked WhatsApp.'},
  {id:'whatsapp',url:'/settings?connect=whatsapp#whatsapp',target:'#whatsapp',title:'Take your learning to WhatsApp',text:'Link your number using the steps here. Then ask the mentor to show, resume or review your task. Website learning stays available.'},
  {id:'chatgpt',url:'/companion',target:'[data-tour="chatgpt"]',title:'Prefer ChatGPT?',text:'Open the optional WhatsLearn Companion here. It offers guidance in a separate chat; it does not save website mission progress.'},
 ];
@@ -49,15 +49,14 @@ export default function WebsiteTour(){
  },[pathname,hidden]);
  useEffect(()=>{
   if(!step||hidden)return;
-  let target:HTMLElement|null=null;
-  const locate=()=>{
-   target=document.querySelector<HTMLElement>(step.target);
-   if(target){let parent:HTMLElement|null=target;while(parent){if(parent instanceof HTMLDetailsElement)parent.open=true;parent=parent.parentElement}target.scrollIntoView({block:'center',behavior:'instant'});}
-   measure();setReady(true);card.current?.focus();
-  };
-  const measure=()=>{setSize({width:window.innerWidth,height:window.innerHeight});const r=target?.getBoundingClientRect();setRect(r&&r.width>0&&r.height>0?r:null)};
-  const timer=window.setTimeout(locate,120);const observer=new MutationObserver(()=>{if(!target){target=document.querySelector<HTMLElement>(step.target);if(target)locate()}});observer.observe(document.body,{childList:true,subtree:true});
-  window.addEventListener('resize',measure);window.addEventListener('scroll',measure,true);return()=>{clearTimeout(timer);observer.disconnect();window.removeEventListener('resize',measure);window.removeEventListener('scroll',measure,true)};
+  let target:HTMLElement|null=null,frame=0;
+  const measure=()=>{setSize(old=>old.width===window.innerWidth&&old.height===window.innerHeight?old:{width:window.innerWidth,height:window.innerHeight});const r=target?.isConnected?target.getBoundingClientRect():null;const next=r&&r.width>0&&r.height>0?r:null;setRect(old=>old?.left===next?.left&&old?.top===next?.top&&old?.width===next?.width&&old?.height===next?.height?old:next)};
+  const resize=typeof ResizeObserver==='undefined'?null:new ResizeObserver(()=>schedule());
+  const locate=()=>{resize?.disconnect();resize?.observe(document.body);target=document.querySelector<HTMLElement>(step.target);if(target){resize?.observe(target);let parent:HTMLElement|null=target;while(parent){if(parent instanceof HTMLDetailsElement)parent.open=true;parent=parent.parentElement}target.scrollIntoView({block:'center',behavior:'instant'});}measure();setReady(true);card.current?.focus()};
+  const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{if(!target?.isConnected)locate();else measure()})};
+  const timer=window.setTimeout(locate,120);const observer=new MutationObserver(schedule);observer.observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('resize',schedule);window.addEventListener('scroll',schedule,true);return()=>{clearTimeout(timer);cancelAnimationFrame(frame);observer.disconnect();resize?.disconnect();window.removeEventListener('resize',schedule);window.removeEventListener('scroll',schedule,true)};
+
  },[step,hidden]);
  useEffect(()=>{if(!run&&!offer)return;const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();close()}if(e.key==='Tab'&&card.current){const items=Array.from(card.current.querySelectorAll<HTMLElement>('button,a[href]')).filter(el=>!el.hasAttribute('disabled'));const first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===card.current)){e.preventDefault();last?.focus()}else if(!e.shiftKey&&(document.activeElement===last||document.activeElement===card.current)){e.preventDefault();first?.focus()}}};document.addEventListener('keydown',key);if(offer)card.current?.focus();return()=>document.removeEventListener('keydown',key)},[run,offer]);
  if(!mounted||hidden)return null;
