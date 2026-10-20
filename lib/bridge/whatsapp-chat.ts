@@ -1,3 +1,4 @@
+import {normalizeControlCommand,stopCommands,pauseReminders,stopMessages} from '../reminder-control';
 import {createReport,latestReply} from '../quality/store';
 import {mentorContext,mentorReply} from '../mentor';
 import {recentMentorTurn,rememberMentorQuestion,rememberMentorTurn} from '../mentor-conversation';
@@ -339,7 +340,7 @@ export async function learnerOverview(userId:string){
 }
 
 // ---------- entry point ----------
-const STOP_WORDS=['stop','unsubscribe','end','pause','optout','opt out','रुको','बंद','ನಿಲ್ಲಿಸಿ'];
+const STOP_WORDS=stopCommands;
 export type Inbound={wamid:string;from:string;text:string;type?:string};
 /** One inbound WhatsApp message. Returns what n8n should do next. Duplicate message ids do nothing. */
 export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
@@ -352,12 +353,12 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
   const prior=await db.prepare('SELECT user_id,state,last_inbound_at FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<{user_id:string;state:string;last_inbound_at:string|null}>();
   const out=await route(from,String(m.text||''),m.type||'text',at);
   const returning=prior&&(!prior.last_inbound_at||at.getTime()-Date.parse(prior.last_inbound_at)>30*60000);
-  if(prior?.state==='opted_in'&&returning&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
+  if(prior?.state==='opted_in'&&returning&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(normalizeControlCommand(String(m.text||'')))){
    const name=await learnerName(prior.user_id);
    if(out.action==='reply')out.text=addressLearner(out.text,name);
    if(out.action==='tutor')out.material={...out.material,addressAs:name};
   }
-  if(prior?.state==='opted_in'&&out.action==='reply'&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(String(m.text||'').trim().toLowerCase())){
+  if(prior?.state==='opted_in'&&out.action==='reply'&&!m.wamid.startsWith('mentor-profile:')&&!STOP_WORDS.includes(normalizeControlCommand(String(m.text||'')))){
    const {path}=await loadLearning(prior.user_id),draft=await getDraft(prior.user_id);
    await rememberMentorTurn(prior.user_id,'whatsapp',draft?.mission_id||path.nextMissionId,String(m.text||''),out.text);
   }
@@ -367,7 +368,7 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
 }
 async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const db=database(),text=raw.trim().slice(0,4000);
- const word=text.toLowerCase().replace(/\s+/g,' ');const [cmdRaw,...rest]=text.split(/\s+/);const cmd=cmdRaw.toLowerCase().replace(/[.!,:;]+$/,'');const arg=rest.join(' ');
+ const word=normalizeControlCommand(text);const [cmdRaw,...rest]=text.split(/\s+/);const cmd=cmdRaw.toLowerCase().replace(/[.!,:;]+$/,'');const arg=rest.join(' ');
  const linkMatch=text.match(/^\s*link\s+([A-Za-z0-9-]{6,12})\s*$/i);
  if(linkMatch)return confirmLink(from,linkMatch[1].replace(/-/g,''),at);
  const c=await db.prepare('SELECT * FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<Contact>();
@@ -376,10 +377,12 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
   return reply(`Welcome to WhatsLearn. To learn here, link this number to your account first: open ${site()}/settings, turn on WhatsApp lessons, then send the code you see as *LINK CODE* from this number.`);
  }
  await db.prepare('UPDATE whatsapp_contacts SET last_inbound_at=?,updated_at=? WHERE user_id=?').bind(at.toISOString(),at.toISOString(),c.user_id).run();
- if(STOP_WORDS.includes(word)){await unlink(c.user_id);return reply('You will not get more WhatsLearn messages or reminders. Send START any time to turn lessons back on.')}
+ if(STOP_WORDS.includes(word)){await stopMessages(c.user_id);return reply('You will not get more WhatsLearn messages or reminders. Send START any time to turn lessons back on.')}
  if(cmd==='start'&&!arg){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(at.toISOString(),c.user_id).run();return reply('Welcome back. Lessons are on; reminders stay off until you send REMIND 7pm daily. Reply TODAY for your next mission.')}
 
  if(c.state!=='opted_in')return none('opted-out');
+ if(word==='pause'){await pauseReminders(c.user_id);return reply('Reminders paused. Your draft is kept; lessons still work. Send REMIND ON to resume reminders.')}
+ if(cmd==='support'||/^(?:i need a person|human support|(?:i want to |can i )?(?:talk|speak) to (?:a )?(?:human|person|team)|contact support)/i.test(text))return reply('You can reach the team here: '+site()+'/support. Your draft is kept. Requests are saved for team review; this is not live chat.');
  if(cmd==='report'||(/^(?:please |can you |could you )?(?:report|flag)\b/i.test(text)&&/\b(?:reply|answer|response)\b/i.test(text))){
   const last=await latestReply(c.user_id,'whatsapp');if(!last)return reply('No recent reply is available to attach. Open '+site()+ '/support and paste it in a support request, or use Report reply beside a website answer. Your task is kept.');
   const reason=/language/i.test(text)?'wrong_language':/wrong|incorrect/i.test(text)?'wrong_answer':/long/i.test(text)?'too_long':/help/i.test(text)?'not_helpful':'other';

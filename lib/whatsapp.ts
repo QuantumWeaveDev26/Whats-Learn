@@ -1,3 +1,4 @@
+import {normalizeControlCommand,pauseReminders} from './reminder-control';
 import {canUseMission} from './mission-access-server';
 import {membershipRequired} from './mission-access';
 import {env} from 'cloudflare:workers';
@@ -44,17 +45,18 @@ async function lessonMessage(contact:Contact){
  await database().prepare('UPDATE whatsapp_contacts SET current_mission=?,updated_at=? WHERE user_id=?').bind(path.nextMissionId,new Date().toISOString(),contact.user_id).run();
  return {missionId:path.nextMissionId,title:c.title,text:`*${c.title}* · ${path.sessionMinutes} min\n\n${c.brief}\n\n${c.lesson}\n\n*Your task:* ${c.task}\n\n${c.guidance}\n\nReply here with your answer${aiReady()?' for quick AI feedback':''}, or open it on the site to save it to your portfolio:\n${url}\n\nReply LESSON for the next challenge · STOP to pause messages.`};
 }
-const STOP=['stop','unsubscribe','pause','cancel','रुको','बंद','ನಿಲ್ಲಿಸಿ'];
+const STOP=['stop','unsubscribe','cancel','रुको','बंद','ನಿಲ್ಲಿಸಿ'];
 const START=['start','resume','unstop'];
 const LESSON=['hi','hello','lesson','next','start lesson','menu','नमस्ते','ನಮಸ್ಕಾರ'];
 /** Handles one inbound WhatsApp text and returns the reply text (or null for no reply). */
 export async function handleInbound(from:string,text:string):Promise<string|null>{
- const db=database();const now=new Date().toISOString();const word=text.trim().toLowerCase();
+ const db=database();const now=new Date().toISOString();const word=normalizeControlCommand(text);
  const contact=await db.prepare('SELECT * FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<Contact>();
  const site=whatsappConfig().siteUrl;
  if(!contact)return `Welcome to WhatsLearn! To get lessons here, link this number first: sign in at ${site}/settings, switch on WhatsApp lessons, then send the code you see (LINK CODE) from this number.`;
  await db.prepare('UPDATE whatsapp_contacts SET last_inbound_at=?,updated_at=? WHERE user_id=?').bind(now,now,contact.user_id).run();
  if(STOP.includes(word)){await optOut(contact.user_id);return 'You will not get more WhatsLearn reminders. Reply START anytime to turn them back on.'}
+ if(word==='pause'){await pauseReminders(contact.user_id);return 'Reminders paused. Your draft is kept.'}
  if(START.includes(word)){await db.prepare("UPDATE whatsapp_contacts SET state='opted_in',opted_out_at=NULL,updated_at=? WHERE user_id=?").bind(now,contact.user_id).run();return 'Welcome back! Reply LESSON for your next challenge.'}
  if(contact.state!=='opted_in')return null;
  if(LESSON.includes(word)||!contact.current_mission)return (await lessonMessage(contact)).text;

@@ -1,3 +1,5 @@
+import {pauseReminders,stopMessages} from '@/lib/reminder-control';
+import {matchesAccount} from '@/lib/auth/account-key';
 import {briefFocus} from '@/lib/chat-copy';
 import {queueNotice} from '@/lib/bridge/whatsapp-jobs';
 import {z} from 'zod';
@@ -12,7 +14,9 @@ import {startLink,unlink} from '@/lib/bridge/whatsapp-chat';
 const input=z.discriminatedUnion('action',[
  z.object({action:z.literal('optin'),phone:z.string().max(25),language:z.enum(languageCodes),consent:z.literal(true)}).strict(),
  z.object({action:z.literal('optout')}).strict(),
- z.object({action:z.literal('recap')}).strict()
+ z.object({action:z.literal('recap')}).strict(),
+ z.object({action:z.literal('pause')}).strict(),
+ z.object({action:z.literal('resume')}).strict()
 ]);
 const response=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const view=(c:Contact|null,link?:{code:string|null;expiresAt:string|null})=>c?{phone:maskPhone(c.phone),state:c.state,since:c.consent_at,verified:!!c.verified_at,...(link&&link.code?{linkCode:link.code,linkExpires:link.expiresAt}:{})}:null;
@@ -26,7 +30,8 @@ export async function POST(request:Request){
  if(!sameOrigin(request))return response({error:'Invalid origin.'},403);
  if(!whatsappLinkReady())return response({error:'WhatsApp lessons are not connected yet.'},503);
  const user=await getChatGPTUser();if(!user)return response({error:'Sign in to connect your WhatsApp lessons.'},401);
- try{const p=input.parse(await request.json());if(p.action==='recap'){
+ if(!matchesAccount(request,user.userId))return response({error:'Your account changed. Reload Settings.'},409);
+ try{const p=input.parse(await request.json());if(p.action==='pause'||p.action==='resume'){const c=await getContact(user.userId);if(!c?.verified_at||c.state!=='opted_in')return response({error:'Link and verify WhatsApp before enabling reminders.'},403);if(p.action==='pause')await pauseReminders(user.userId);else await database().prepare("UPDATE whatsapp_contacts SET remind_state='on',updated_at=? WHERE user_id=? AND state='opted_in'").bind(new Date().toISOString(),user.userId).run();return response({contact:view(await getContact(user.userId)),reminder:await reminderStatus(user.userId),message:p.action==='pause'?'Reminders paused. Your draft is kept.':'Reminders on at your saved schedule.'})}if(p.action==='recap'){
  const contact=await getContact(user.userId);
  if(!contact?.verified_at||contact.state!=='opted_in')return response({error:'Link and verify your own WhatsApp number first.'},403);
  const elapsed=Date.now()-Date.parse(contact.last_inbound_at||'');
@@ -38,6 +43,6 @@ export async function POST(request:Request){
  if(!whatsappReady()){const queued=await queueNotice(user.userId,'recap','manual-'+Math.floor(Date.now()/60000),{recap:text});if(!queued)return response({error:'This recap is already queued, or your WhatsApp link changed. Refresh and check your connection.'},409);return response({queued:true,recapStatus:'queued',message:'Your learning recap is queued for the WhatsLearn mentor connection. Delivery has not yet been confirmed.',contact:view(contact)});}
  await sendText(contact.phone,text);
  return response({accepted:true,message:'WhatsApp accepted your learning recap. Check your linked phone; delivery has not yet been confirmed.',contact:view(contact)});
- }if(p.action==='optout'){await unlink(user.userId);return response({performanceRemindersReady:!!(whatsappConfig().progressTemplate||whatsappConfig().performanceTemplate),contact:view(await getContact(user.userId)),business:whatsappConfig().businessNumber})}const r=await startLink(user.userId,normalisePhone(p.phone),p.language,undefined,user.fullName||user.displayName);if(!r.ok)return response({error:r.message},r.status);return response({contact:view(await getContact(user.userId),r),business:whatsappConfig().businessNumber})}
+ }if(p.action==='optout'){await stopMessages(user.userId);return response({performanceRemindersReady:!!(whatsappConfig().progressTemplate||whatsappConfig().performanceTemplate),contact:view(await getContact(user.userId)),business:whatsappConfig().businessNumber})}const r=await startLink(user.userId,normalisePhone(p.phone),p.language,undefined,user.fullName||user.displayName);if(!r.ok)return response({error:r.message},r.status);return response({contact:view(await getContact(user.userId),r),business:whatsappConfig().businessNumber})}
  catch(e){if(e instanceof WhatsAppError)return response({error:e.message},e.status);if(e instanceof z.ZodError)return response({error:'Tick the consent box and enter your number.'},400);return response({error:'Could not save. Please try again.'},503)}
 }

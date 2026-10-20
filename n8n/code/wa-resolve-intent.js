@@ -6,6 +6,8 @@ return $input.all().map((it,i)=>{
  const kinds=["question","preference","clarify","learn","continue","edit","task-question","save","keep-draft","draft","progress","points","journey","course","roadmap","profile","answer"];
  let kind=kinds.includes(choice.kind)?choice.kind:"question";
  const raw=String(m.text||"");
+ const control=raw.trim().toLowerCase().replace(/\s+/g," ").replace(/[\s.!?,;:…]+$/u,"");
+ if(["stop","unsubscribe","end","optout","opt out","pause","रुको","बंद","ನಿಲ್ಲಿಸಿ","support"].includes(control))return {json:{...m,bridgeText:control,mentorIntent:"answer"},pairedItem:{item:i}};
  const natural=raw.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/g,'');
  if(natural.length<160&&!/[{};\n]/.test(natural)&&(/^(?:(?:please )?(?:add|use|include|remove|fewer|less|more|no|keep).*(?:emojis?|casual|formal).*|i.*(?:learn|teach|talk|style).*gen.?z.*|(?:but )?(?:u|you(?:'re| are)?)? ?rushing|slow down|go slower|less formal|more casual|not too many(?: just (?:a )?few)?(?: is enough)?|just (?:a )?few(?: is enough)?)$/.test(natural)||/^(?:not too many just few|keep it short|shorter please|don't rush|do not rush)$/.test(natural)))kind="preference";
  if(/^(?:(?:i )?(?:need|want) to |(?:can you |please )?)edit(?: (?:my|the|this|that)(?: (?:task|draft|answer|part))?)?$/.test(natural))kind="edit";
