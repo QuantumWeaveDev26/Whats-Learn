@@ -1,4 +1,5 @@
 import vinext from "vinext";
+import {selectedLanguagePacks} from "./build/language-packs-plugin";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { readExecutionProfile } from "./scripts/execution-profile.mjs";
@@ -68,6 +69,7 @@ export default defineConfig(async ({command}) => {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
     },
     plugins: [
+      selectedLanguagePacks(),
       vinext(),
       sites({ mockAuth: !managedLinux }),
       ...(!nodeRuntime ? [cloudflare({

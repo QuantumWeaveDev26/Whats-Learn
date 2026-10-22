@@ -1,0 +1,28 @@
+name: Mentor and learner regression checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 2 * * *'
+permissions:
+  contents: read
+jobs:
+  synthetic-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/mentor-regression.cjs
+      - run: node scripts/verify-migrations.cjs
+      - run: pnpm exec tsc --noEmit
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: services/project-sandbox
+      - run: node --test tests/sandbox-service.test.mjs

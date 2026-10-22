@@ -1,0 +1,5 @@
+// Synthetic fixtures only. No provider keys, outbound messages or production writes.
+const {spawnSync}=require('node:child_process');
+const files=['mentor-conversation','mentor-direct-replies','mentor-followups','mentor-tone','mentor-live-routing','mentor-sync-actions','language-priority','session-language-journey','evaluation-next-step','correctness-gate','practical-draft-sync','tour-reliability','support-alerts','full-project','full-project-api','deferred-language-safety'].map(n=>'tests/'+n+'.cjs');
+for(const file of files)if(!require('node:fs').existsSync(file))throw Error('Missing regression: '+file);
+const result=spawnSync(process.execPath,['--test',...files],{stdio:'inherit',env:{...process.env,OPENAI_API_KEY:'',ANTHROPIC_API_KEY:''}});process.exit(result.status??1);

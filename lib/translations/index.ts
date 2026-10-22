@@ -21,3 +21,6 @@ import pack_te from './te';
 import pack_ur from './ur';
 /** Machine-drafted lesson packs, keyed by language code. See docs/go-live-setup.md section 7. */
 export const languagePacks:Record<string,LanguagePack>={as:pack_as,bn:pack_bn,brx:pack_brx,doi:pack_doi,gu:pack_gu,ks:pack_ks,kok:pack_kok,mai:pack_mai,ml:pack_ml,mni:pack_mni,mr:pack_mr,ne:pack_ne,or:pack_or,pa:pack_pa,sa:pack_sa,sat:pack_sat,sd:pack_sd,ta:pack_ta,te:pack_te,ur:pack_ur};
+
+/** Server builds keep synchronous language data; browser builds load only the selected pack. */
+export async function ensureLanguagePack(language:string){return ['en','kn','hi'].includes(language)||!!languagePacks[language]}

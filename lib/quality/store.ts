@@ -14,6 +14,7 @@ function parse<S extends z.ZodTypeAny>(schema:S,raw:unknown):z.output<S>{const r
 const cutoff=(at:Date,days:number)=>new Date(at.getTime()-days*864e5).toISOString();
 export async function pruneQualityRecords(at=new Date()){
  const db=database();await db.batch([
+  db.prepare('DELETE FROM quality_alerts WHERE created_at<=?').bind(cutoff(at,90)),
   db.prepare('DELETE FROM quality_replies WHERE created_at<=?').bind(cutoff(at,7)),
   db.prepare('DELETE FROM quality_events WHERE created_at<=?').bind(cutoff(at,30)),
   db.prepare('DELETE FROM quality_audit WHERE created_at<=?').bind(cutoff(at,90)),
@@ -35,14 +36,14 @@ export async function createReport(userId:string,raw:ReportInput){
  const existing=await db.prepare('SELECT id,status FROM quality_reports WHERE user_id=? AND idempotency_key=?').bind(userId,p.idempotencyKey).first<{id:string;status:string}>();if(existing)return existing;
  const reply=await ownedReply(userId,p.replyId);if(!reply)throw new QualityError('That reply is unavailable for this account.',404);
  const id=randomUUID(),at=new Date().toISOString();
- await db.prepare("INSERT OR IGNORE INTO quality_reports(id,user_id,reply_id,reason,note,channel,mission_id,question_excerpt,answer_excerpt,status,idempotency_key,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,'received',?,?,?)").bind(id,userId,p.replyId,p.reason,p.note,reply.channel,reply.mission_id,reply.question,reply.answer,p.idempotencyKey,at,at).run();
+ await db.batch([db.prepare("INSERT OR IGNORE INTO quality_reports(id,user_id,reply_id,reason,note,channel,mission_id,question_excerpt,answer_excerpt,status,idempotency_key,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,'received',?,?,?)").bind(id,userId,p.replyId,p.reason,p.note,reply.channel,reply.mission_id,reply.question,reply.answer,p.idempotencyKey,at,at),db.prepare("INSERT OR IGNORE INTO quality_alerts(id,user_id,kind,item_id,created_at) SELECT ?,user_id,'report',id,created_at FROM quality_reports WHERE user_id=? AND idempotency_key=?").bind(randomUUID(),userId,p.idempotencyKey)]);
  return (await db.prepare('SELECT id,status FROM quality_reports WHERE user_id=? AND idempotency_key=?').bind(userId,p.idempotencyKey).first<{id:string;status:string}>())!;
 }
 export async function createSupportRequest(userId:string,raw:SupportInput){
  const p=parse(supportInput,raw);await pruneQualityRecords();const db=database();
  const existing=await db.prepare('SELECT id,status FROM quality_support WHERE user_id=? AND idempotency_key=?').bind(userId,p.idempotencyKey).first<{id:string;status:string}>();if(existing)return existing;
  if(p.reportId&&!await db.prepare('SELECT id FROM quality_reports WHERE id=? AND user_id=?').bind(p.reportId,userId).first())throw new QualityError('That report is unavailable for this account.',404);
- const id=randomUUID(),at=new Date().toISOString();await db.prepare("INSERT OR IGNORE INTO quality_support(id,user_id,category,description,report_id,status,idempotency_key,created_at,updated_at) VALUES (?,?,?,?,?,'received',?,?,?)").bind(id,userId,p.category,p.description,p.reportId||null,p.idempotencyKey,at,at).run();
+ const id=randomUUID(),at=new Date().toISOString();await db.batch([db.prepare("INSERT OR IGNORE INTO quality_support(id,user_id,category,description,report_id,status,idempotency_key,created_at,updated_at) VALUES (?,?,?,?,?,'received',?,?,?)").bind(id,userId,p.category,p.description,p.reportId||null,p.idempotencyKey,at,at),db.prepare("INSERT OR IGNORE INTO quality_alerts(id,user_id,kind,item_id,created_at) SELECT ?,user_id,'support',id,created_at FROM quality_support WHERE user_id=? AND idempotency_key=?").bind(randomUUID(),userId,p.idempotencyKey)]);
  return (await db.prepare('SELECT id,status FROM quality_support WHERE user_id=? AND idempotency_key=?').bind(userId,p.idempotencyKey).first<{id:string;status:string}>())!;
 }
 

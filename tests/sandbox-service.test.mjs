@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createHash,randomUUID} from 'node:crypto';
+import {processRun,validateStart} from '../services/project-sandbox/api/run.mjs';
+const input=()=>{const p={action:'start',id:randomUUID(),script:'test',files:[{name:'package.json',source:'{"scripts":{"test":"node test.js"}}'},{name:'src/test.js',source:'console.log(42)'}]};p.artifactHash=createHash('sha256').update(JSON.stringify({script:p.script,files:p.files})).digest('hex');return p};
+test('isolated service validates source before VM creation and restricts capabilities',async()=>{
+ const p=input();let opts,command,files;const box={mkDir:async()=>{},writeFiles:async f=>{files=f},runCommand:async c=>{command=c;return {cmdId:'cmd'}},stop:async()=>{}};const Provider={create:async o=>{opts=o;return box}};
+ const result=await processRun(p,Provider);assert.equal(result.commandId,'cmd');assert.equal(opts.persistent,false);assert.equal(opts.timeout,90000);assert.deepEqual(opts.ports,[]);assert.deepEqual(opts.networkPolicy,{allow:['registry.npmjs.org']});assert.deepEqual(opts.env,{CI:'true',NPM_CONFIG_IGNORE_SCRIPTS:'true'});assert.ok(!JSON.stringify(command).includes('VERCEL_TOKEN'));assert.match(command.args[1],/--ignore-scripts/);assert.equal(files.length,2);
+ for(const name of ['.env','../escape','node_modules/a.js','credentials.env']){const bad=input();bad.files.push({name,source:'secret'});assert.throws(()=>validateStart(bad))}assert.throws(()=>validateStart({...input(),artifactHash:'forged'}));
+});
+test('status cannot auto-resume stopped machines and output is bounded without awarding completion',async()=>{
+ const p={...input(),action:'status',commandId:'cmd'};let settings,stops=0;const Provider={get:async o=>{settings=o;return {status:'running',getCommand:async()=>({wait:async()=>({exitCode:0,async *logs(){yield {data:'x'.repeat(20000)}}})}),stop:async()=>{stops++}}}};const r=await processRun(p,Provider);assert.equal(settings.resume,false);assert.equal(r.output.length,16000);assert.equal(r.assessed,false);assert.equal(r.courseCompleted,false);assert.equal(stops,1);Provider.get=async()=>({status:'stopped',getCommand:()=>{throw Error('Must not resume')}});assert.equal((await processRun(p,Provider)).state,'expired');
+});

@@ -169,6 +169,20 @@
       "when": 1792647624970,
       "tag": "0023_practical_drafts",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1792652342828,
+      "tag": "0024_support_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1792652562507,
+      "tag": "0025_full_project_jobs",
+      "breakpoints": true
     }
   ]
 }

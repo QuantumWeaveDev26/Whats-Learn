@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),ts=require('typescript');
 const React=require('react');let hooks=[],cursor=0;
-const fakeReact={...React,useState(initial){const i=cursor++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],value=>{hooks[i]=typeof value==='function'?value(hooks[i]):value}]},useRef(initial){const i=cursor++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i]}};
+const fakeReact={...React,useEffect(){},useState(initial){const i=cursor++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],value=>{hooks[i]=typeof value==='function'?value(hooks[i]):value}]},useRef(initial){const i=cursor++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i]}};
 const original=Module._load;Module._load=function(name,parent,main){if(name==='react')return fakeReact;if(name.startsWith('@/'))name=path.resolve(__dirname,'..',name.slice(2));return original.call(this,name,parent,main)};
 for(const ext of ['.ts','.tsx'])require.extensions[ext]=(m,f)=>m._compile(ts.transpileModule(fs.readFileSync(f,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText,f);
 const Mini=require('../components/whatslearn/mini-challenge.tsx').default,{miniChallenge}=require('../lib/play.ts');

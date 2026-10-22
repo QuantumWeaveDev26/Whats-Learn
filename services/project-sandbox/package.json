@@ -1,0 +1,11 @@
+{
+  "name": "whatslearn-project-sandbox",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@vercel/sandbox": "3.8.0"
+  }
+}
