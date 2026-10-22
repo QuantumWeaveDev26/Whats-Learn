@@ -32,3 +32,9 @@
 - Payment/billing test execution remains excluded.
 
 Deployment evidence is confirmed separately using the live release marker and published n8n active version; a GitHub push alone is insufficient.
+
+## Deployment confirmation
+
+Website commit `ba8c101fdbf8891c652281abff292e522496e62f` is deployed on Hostinger. Live HTML returned release marker `2026-10-22-learner-quality-v4`; home, `/age-policy`, `/robots.txt` and `/sitemap.xml` returned 200. The new mentor-context API returned 401 to an anonymous request; session status returned signed out. These are public HTTP checks, not a signed-in age/onboarding walkthrough. GitHub Actions run 39784139361 completed successfully.
+
+The matching production n8n workflow is active at version `c3366f9f-f25d-4e20-9d79-66a802da0d36`, with 69 nodes and no validation warnings after removing the retired memory node. Readback confirmed two-minute reminder polling and the 180-second website deadline. No production message or scheduler was manually executed.

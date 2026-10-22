@@ -1066,21 +1066,6 @@
     },
     {
       "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ 'whatslearn-mentor-v4:' + $('One Item Per Message').item.json.from }}",
-        "contextWindowLength": 12
-      },
-      "id": "whatslearn-learner-memory-v1",
-      "name": "WhatsLearn Learner Memory",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.2,
-      "position": [
-        3520,
-        640
-      ]
-    },
-    {
-      "parameters": {
         "jsCode": "// Greeting is for a greeting message, not a prefix for every answer.\nconst priors=$(\"Build Tutor Request\").all();\nreturn $input.all().map((it,i)=>{\n const prior=priors[i]?.json||{},result=it.json||{};\n let text=String(result.output||result.text||\"\").trim();\n if(result.error||!text)text=String(prior.fallback||\"I couldn’t connect just now. Please try again.\");\n // Never deliver a mixed-script answer when the model ignores the saved language.\n const chosen=String(prior.material?.profile?.language||prior.language||'en');\n const scripts={en:'Latin',English:'Latin',kn:'Kannada',Kannada:'Kannada',te:'Telugu',Telugu:'Telugu',ta:'Tamil',Tamil:'Tamil',ml:'Malayalam',Malayalam:'Malayalam',hi:'Devanagari',Hindi:'Devanagari',mr:'Devanagari',ne:'Devanagari',sa:'Devanagari',kok:'Devanagari',doi:'Devanagari',mai:'Devanagari',brx:'Devanagari',bn:'Bengali',as:'Bengali',gu:'Gujarati',pa:'Gurmukhi',or:'Oriya',ur:'Arabic',ks:'Arabic',sd:'Arabic',mni:'Meetei_Mayek',sat:'Ol_Chiki'};\n const script=scripts[chosen]||(chosen.startsWith('Kanglish')?'Latin':null);\n const prose=text.replace(/```[\\s\\S]*?```|`[^`\\n]*`/g,'');\n const romanKannada=(prose.match(/\\b(nanu|nanna|neevu|maadi|maadide|beku|illa|andre|aadmele|tumba|hege|enu|torisi|torisbeku|haudu)\\b/gi)||[]);\n if(script&&(new RegExp(`[^\\\\p{Script=${script}}\\\\p{Script=Latin}\\\\p{Script=Common}\\\\p{Script=Inherited}\\\\s]`,'u').test(prose)||(['en','English'].includes(chosen)&&new Set(romanKannada.map(x=>x.toLowerCase())).size>=2)))text=String(prior.fallback||'I couldn’t finish that reply in your selected language. Please try again.');\n text=text.replace(/[ \\t]+\\n/g,\"\\n\").replace(/(?:\\s|^)\\d+[.)]\\s*$/u,'').trim();\n // Ordinal markers are not sentence endings. Give each complete step its own line.\n text=text.replace(/(?:^|\\s)(\\d+)\\.\\s+(?=\\S)/gu,'\\n$1) ').trim();\n // A few emojis means restraint, even when a model ignores the style instructions.\n let emojiCount=0;\n text=text.replace(/\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?(?:\\u200D\\p{Extended_Pictographic}(?:\\uFE0F|\\p{Emoji_Modifier})?)*/gu,emoji=>++emojiCount<=1?emoji:'');\n if(prior.material?.mentorIntent==='preference'){\n  const sentences=text.match(/[^.!?\\n]+[.!?]+(?:\\s|$)|[^\\n]+(?:\\n|$)/gu)||[text];\n  let acknowledgement=sentences[0]?.trim()||text;\n  if(acknowledgement.split(/\\s+/u).length<3&&sentences[1])acknowledgement+=' '+sentences[1].trim();\n  text=acknowledgement;\n }\n const greeting=/^(?:hi|hey|hello|namaste|namaskara)(?:\\s+mentor)?[!.\\s]*$/i.test(String(prior.input||\"\").trim());\n const name=String(prior.material?.name||prior.material?.addressAs||\"\").replace(/[\\r\\n*_~`<>]/g,\" \").trim().slice(0,60);\n if(!greeting){\n  const escaped=name.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&');\n  if(escaped)text=text.replace(new RegExp('^(?:(?:hi|hey|hello|sure|okay|ok)[,!.\\\\s]+)?'+escaped+'[,!:.\\\\s]+(?:[👋✨⚡]+\\\\s*)?','iu'),'');\n  text=text.replace(/^(?:hi|hey|hello)[!,.\\s]+(?:👋\\s*)?/iu,'');\n }\n // Keep complete sentences, never send a chopped \"Want me to…\" ending.\n const limit=Math.min(120,Math.max(20,Number(prior.maxWords)||35));\n if(text.split(/\\s+/u).length>limit){\n  const sentences=text.match(/[^.!?\\n]+[.!?]+(?:\\s|$)|[^\\n]+(?:\\n|$)/gu)||[text];\n  let short='';\n  for(const sentence of sentences){const next=(short+(short?'\\n':'')+sentence.trim()).trim();if(short&&next.split(/\\s+/u).length>limit)break;short=next;}\n  text=short||text;\n }\n return {json:{reply:text.trim().slice(0,1500)},pairedItem:{item:i}};\n});\n"
       },
       "id": "compose-whatslearn-agent-reply-v1",
@@ -2143,11 +2128,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "WhatsLearn Learner Memory": {
-      "ai_memory": [
-        []
       ]
     },
     "Standalone Mentor": {
