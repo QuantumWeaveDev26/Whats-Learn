@@ -273,7 +273,7 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  const r=await saveMissionWork(c.user_id,data);
  const feedback=r.review?feedbackSummary(r.review):null;
  const crisp=(text:string)=>briefFocus(text,12);
- const feedbackText=feedback?`✅ Works: ${crisp(feedback.worked)}\n🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
+ const feedbackText=feedback?`${feedback.worked?'✅ Works: '+crisp(feedback.worked)+'\n':''}🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
  if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Your draft is kept. ${r.code===429?'SAVE after midnight India time.':'EDIT to pick a part, then SAVE.'}`);
  let newerDraft=false;try{await dropDraft(c.user_id,d)}catch(e){if(e instanceof DraftError&&e.status===409)newerDraft=true;else throw e}
  const performance=await learnerPerformance(c.user_id);

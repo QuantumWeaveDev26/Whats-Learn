@@ -10,7 +10,7 @@ function actionCopy(r:Review){
  return kn?'ಆ ಭಾಗವನ್ನು ಸರಿಪಡಿಸಿ, ಒಮ್ಮೆ ಪರೀಕ್ಷಿಸಿ, ಬದಲಾದ ಕೆಲಸವನ್ನು ಸಲ್ಲಿಸಿ.':kang?'Aa part fix maadi, once test maadi, changed work submit maadi.':'Fix that part, test it once, and submit the changed work.';
 }
 export function feedbackSummary(r:Review){
- const worked=r.answerAssessment?.onTopic?r.strengths[0]||r.checks.find(c=>c.met)?.note||'No demonstrated strength yet.':'This answer needs to address the task.';
+ const worked=r.answerAssessment?.onTopic&&r.answerAssessment.correct?r.strengths[0]||r.checks.find(c=>c.met)?.note||'No demonstrated strength yet.':'';
  const improve=r.blockingIssue||(r.answerAssessment?.correct===false?r.answerAssessment.reason:r.checks.find(c=>!c.met)?.note)||(r.practicalTest?.reported===false?r.practicalTest.note:'No required correction in this review.');
  const next=r.nextStep.trim()&&!sameText(r.nextStep,improve)?r.nextStep:actionCopy(r);
  return {worked,improve,next};

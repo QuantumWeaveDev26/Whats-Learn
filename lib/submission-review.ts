@@ -29,7 +29,7 @@ export async function reviewedSubmission(userId:string,missionId:string,body:str
  const path=learningPath({...defaultProfile,...profile,track:mission.track},records.results.map(r=>({mission_id:String(r.mission_id),checks:String(r.checks),quiz:Number(r.quiz)})),'adaptive',false,await loadEvidence(userId));
  const previous=(await loadEvidence(userId)).find(e=>e.mission_id===missionId);
  const level=startingLevel((previous&&previous.review.profileLevel===profile?.level?previous.review.learningLevel:undefined)||(path.nextMissionId===missionId?path.practiceLevel:profile?.level)||'beginner');
- const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('feedback-v8|'+level+'|'+language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
+ const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('feedback-v9|'+level+'|'+language+'\n'+body.trim()))),b=>b.toString(16).padStart(2,'0')).join('');
  const key=JSON.stringify([userId,missionId,hash]);const existing=pending.get(key);if(existing){const r=await existing;if(!feedbackOnly&&!reviewAccepted(r))throw new FeedbackError('Revise before completing: '+r.summary+' Next: '+r.nextStep+' Nothing was saved or rated.',422,true);return r;}
  const task=performReview(userId,missionId,body,language,hash,level,profile?.level||'beginner',reuseAccepted);pending.set(key,task);
  try{const review=await task;if(!feedbackOnly&&!reviewAccepted(review))throw new FeedbackError('Revise before completing: '+review.summary+' '+(review.practicalTest?.note||'')+' Next: '+review.nextStep+' Nothing was saved or rated.',422,true);return review}finally{pending.delete(key)}
