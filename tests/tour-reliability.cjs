@@ -31,5 +31,5 @@ test('both launchers use one exact height and bottom offset on desktop and mobil
  const shared=fs.readFileSync('app/globals.css','utf8'),css=fs.readFileSync('components/whatslearn/website-tour.css','utf8');
  assert.match(shared,/--floating-action-height:68px/);assert.match(shared,/--floating-action-height:52px/);
  assert.match(shared,/\.whatsapp-mentor-widget\{height:var\(--floating-action-height\);bottom:var\(--floating-action-bottom\)\}/);
- assert.match(css,/height:var\(--floating-action-height\)/);assert.match(css,/bottom:var\(--floating-action-bottom\)/);
+ assert.match(css,/height:var\(--floating-action-height\)/);assert.match(css,/bottom:var\(--floating-action-bottom\)/);assert.match(shared,/whatsapp-mentor-widget:hover\{transform:none/);assert.match(css,/website-tour-launch:hover\{transform:none/);
 });
