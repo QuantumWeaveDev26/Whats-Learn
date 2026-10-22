@@ -18,7 +18,7 @@
 
 ## Pending external verification
 
-- Browser access is disabled in Work settings: fresh signed-in desktop/phone layout and Google login checks remain pending.
+- Signed-in desktop (1440px) and phone (390px) navigation, support, reporting, reminder controls and tour placement were checked live on 22 October. A fresh Google OAuth sign-in and cross-account live acceptance check remain pending; the existing owner session stayed signed in across pages.
 - Actual Meta delivery, approved template acceptance and an end-to-end WhatsApp task save need an identified opted-in owner test recipient. A configured template name is not evidence of approval or delivery.
 - Full apps/npm remains pending a separate sandbox provider/account/budget connection. Hostinger continues hosting the website; no hosting move is required. The current six-file JavaScript runner is accurately labelled. No dummy full-app button or unsafe npm execution was added.
 
@@ -39,6 +39,25 @@
 
 The owner dashboard initially shows all statuses instead of unresolved only. The owner can filter to received/acknowledged. Cost: an extra filter selection; learner reporting and resolutions work.
 
-## Deployment
+## Deployment — verified live on 22 October 2026
 
-Prepared for GitHub main → Hostinger plus the matching n8n workflow. Final remote commit, live HTTP observation and published workflow version are recorded after deployment.
+- Hostinger deployment `01a161ec-d883-7254-a6fc-47acf8433069` completed and is Current for GitHub main commit `4a2d8d2ee206e3743f4d39ca79391b58dcf7cb44`. The dashboard outage that blocked the previous attempt no longer prevented this deployment.
+- Live `/support` returns 200 with the new support heading. `/settings` returns 200. Signed-out `/api/support` and `/api/quality/reports` return 401; `/api/admin/quality` returns 404. Unsigned POSTs to the new WhatsApp quality/status bridge routes return 401, confirming the new routes exist and reject unauthenticated writes.
+- n8n workflow `pktkYZFWUH8gPBVN` is active with version `4e7fbe44-0249-4871-a4c0-b9a3e814d2dd` and 70 nodes. The matching reviewed draft was published only after the new website endpoints were verified live.
+- Fresh local release checks: 516/516 non-payment tests pass, TypeScript passes. Hostinger's actual production build completed and published successfully.
+
+### Live owner acceptance checks
+
+- Existing owner session stayed signed in across Support, Settings, My Journey and the owner quality dashboard.
+- Settings retained English, linked WhatsApp and the saved daily 7pm schedule. The new card showed the actual 7:07pm India scheduler attempt and the truthful provider-accepted/delivery-unconfirmed result.
+- Paused reminders through the live control, observed Paused, resumed, and confirmed On with the original schedule. No recap or WhatsApp test message was sent.
+- Created explicitly labelled support verification request `c10c127f-c8d2-4890-b051-669cc22c8747`, resolved it through the owner dashboard, and observed the learner-visible resolution after navigation.
+- Asked the real website mentor what an API does with the unchanged older Kanglish booking draft open and English selected. It answered the API question in two English sentences using a weather-app example, without greeting repetition or assessing the saved draft.
+- Reported that actual reply under Other with a note explicitly identifying it as a verification test, not a complaint. Report `fb3b45e0-62b8-4a8f-8eaa-167f2d08f245` appeared in the owner dashboard, was resolved, and the learner's report history displayed the resolution.
+- Course progress remained 1/10; original booking work was not edited, re-reviewed, or saved again. No mission completion or points were awarded during these checks.
+- Phone support and tour pages had no document horizontal overflow. Tour advanced from step1 to2, stayed within the mobile viewport, repositioned on desktop resize, and closed. Temporary viewport overrides were reset.
+- Evidence screenshots and HTTP/test logs are in the ignored execution ledger folder `.superpowers/sdd/2026-10-19-quality-and-support/`.
+
+### Full project sandbox — still separate
+
+The user selected Vercel Sandbox preparation, then asked whether their existing Hostinger VPS could be used. Read-only dashboard inspection confirmed one KVM2 VPS with 2 CPU cores, 8GB RAM and100GB disk, currently running n8n on Ubuntu24.04. A dedicated self-hosted execution backend is technically possible but has separate isolation, concurrency and maintenance requirements; no learner code was run on the n8n host. No Vercel project, subscription, credentials, paid run, VPS changes or full-app UI was created. Provider account, operating budget and provider-specific implementation plan remain required before full npm execution is released.
