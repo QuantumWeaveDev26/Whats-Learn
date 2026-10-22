@@ -1,3 +1,6 @@
+import {messageCopy} from '../question-translations';
+import {localizeMission} from '../personalization';
+import {guestOnlyLearner} from '../learner-eligibility';
 import {performanceTemplate,reminderCopy} from '../reminder-copy';
 import {claimDelivery,reportDelivery,type DeliveryReport} from './reminder-delivery';
 import {recordQualityEvent} from '../quality/events';
@@ -27,7 +30,7 @@ export async function reminderDiagnostics(at=new Date()){
 }
 export async function claimReminders(limit=50,at=new Date(),staged=true){
  const cfg=whatsappConfig(),t=ist(at),db=database();
- const rows=(await db.prepare("SELECT user_id,phone,language,last_inbound_at,remind_hour,remind_freq,quiet_start,quiet_end FROM whatsapp_contacts WHERE state='opted_in' AND verified_at IS NOT NULL AND remind_state='on' LIMIT 1000").all<C>()).results;
+ const rows=(await db.prepare("SELECT c.user_id,c.phone,c.language,c.last_inbound_at,c.remind_hour,c.remind_freq,c.quiet_start,c.quiet_end FROM whatsapp_contacts c WHERE c.state='opted_in' AND c.verified_at IS NOT NULL AND c.remind_state='on' AND NOT EXISTS (SELECT 1 FROM learner_context a WHERE a.user_id=c.user_id AND json_extract(a.answers,'$.ageBand')='under-18') AND c.remind_hour<=? AND c.remind_hour>? AND (c.remind_freq!='weekly' OR ?='Mon') AND (c.remind_freq!='weekdays' OR ? NOT IN ('Sat','Sun')) AND (c.quiet_start=c.quiet_end OR c.quiet_start<c.quiet_end AND NOT (? >= c.quiet_start AND ? < c.quiet_end) OR c.quiet_start>c.quiet_end AND NOT (? >= c.quiet_start OR ? < c.quiet_end)) AND NOT EXISTS (SELECT 1 FROM whatsapp_reminder_log l WHERE l.user_id=c.user_id AND l.slot=? AND (l.state NOT IN ('queued','failed','claimed','sending') OR l.state IN ('claimed','sending') AND COALESCE(l.lease_expires_at,l.claimed_at+600)>? OR l.state IN ('failed','claimed') AND l.attempts>=3)) ORDER BY c.user_id LIMIT 1000").bind(t.hour,t.hour-2,t.weekday,t.weekday,t.hour,t.hour,t.hour,t.hour,t.day,Math.floor(at.getTime()/1000)).all<C>()).results;
  const items:ReminderItem[]=[];let skipped=0;
  for(const c of rows){
   if(items.length>=limit)break;
@@ -56,26 +59,27 @@ export async function reportReminders(results:DeliveryReport[]){let updated=0;fo
 export async function queueNotice(userId:string,kind:'mission'|'badge'|'recap',ref:string,payload:Record<string,unknown>){
  const db=database();
  const c=await db.prepare("SELECT 1 x FROM whatsapp_contacts WHERE user_id=? AND state='opted_in' AND verified_at IS NOT NULL").bind(userId).first();
- if(!c)return false;
+ if(!c||await guestOnlyLearner(userId))return false;
  const r=await db.prepare('INSERT OR IGNORE INTO whatsapp_outbox(user_id,kind,ref,payload,created_at) VALUES (?,?,?,?,?)').bind(userId,kind,ref,JSON.stringify(payload),new Date().toISOString()).run();
  return !!r.meta.changes;
 }
 export async function claimNotices(limit=20,at=new Date(),noticeId?:number,staged=true){
  const db=database();
  // A signed diagnostic can target one known notice without touching other learners.
- const rows=(await db.prepare("SELECT o.id,o.user_id,o.kind,o.payload,c.phone,c.last_inbound_at,c.state FROM whatsapp_outbox o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE (o.state='queued' OR (o.state='failed' AND o.message_id IS NULL AND o.attempts<3) OR (o.state IN ('claimed','sending') AND COALESCE(o.lease_expires_at,o.claimed_at+600)<=?)) AND o.created_at>? AND (? IS NULL OR o.id=?) ORDER BY o.id LIMIT ?").bind(Math.floor(at.getTime()/1000),new Date(at.getTime()-3*864e5).toISOString(),noticeId??null,noticeId??null,limit).all<{id:number;user_id:string;kind:string;payload:string;phone:string;last_inbound_at:string|null;state:string}>()).results;
+ const rows=(await db.prepare("SELECT o.id,o.user_id,o.kind,o.payload,c.phone,c.language,c.last_inbound_at,c.state FROM whatsapp_outbox o JOIN whatsapp_contacts c ON c.user_id=o.user_id WHERE (o.state='queued' OR (o.state='failed' AND o.message_id IS NULL AND o.attempts<3) OR (o.state IN ('claimed','sending') AND COALESCE(o.lease_expires_at,o.claimed_at+600)<=?)) AND o.created_at>? AND (? IS NULL OR o.id=?) ORDER BY o.id LIMIT ?").bind(Math.floor(at.getTime()/1000),new Date(at.getTime()-3*864e5).toISOString(),noticeId??null,noticeId??null,limit).all<{id:number;user_id:string;kind:string;payload:string;phone:string;language:string;last_inbound_at:string|null;state:string}>()).results;
  const items:{id:number;to:string;text:string;claimToken:string;leaseExpiresAt:string}[]=[];
  for(const o of rows){
   const claim=await claimDelivery('notice',o.id,at,staged);if(!claim)continue;
   // Learner opted out since, or the 24-hour window is closed: no message (a notice is not worth an approved template).
-  if(o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
+  const ageRestricted=await guestOnlyLearner(o.user_id);if(ageRestricted||o.state!=='opted_in'||!inWindow(o,at)){await db.prepare("UPDATE whatsapp_outbox SET state=? WHERE id=?").bind(ageRestricted?'skipped_age_restricted':o.state!=='opted_in'?'skipped_opted_out':'skipped_window',o.id).run();continue}
   const p=JSON.parse(o.payload) as {recap?:string;title?:string;status?:string;points?:number};const balance=await pointsBalance(o.user_id);
-  const title=p.title||missions.find(m=>m.id===(p as {missionId?:string}).missionId)?.title||'your mission';
+  const mission=missions.find(m=>m.id===(p as {missionId?:string}).missionId),copy=messageCopy(o.language);
+  const title=mission?localizeMission(mission,o.language).title:p.title||'';
   const performance=o.kind==='mission'&&p.status==='awarded'?await learnerPerformance(o.user_id,at):null;
-  const star=performance?.star.earned?'\n🌟 *Star Learner unlocked!* 10 useful creations completed. Help and breaks are welcome.':'';
-  const text=o.kind==='recap'?String(p.recap||'Continue your learning on the website.').slice(0,3900):o.kind==='badge'?`🏅 Checkpoint cleared: *${title}*\nWebsite synced. *TODAY* → next move.`
-   :p.status==='awarded'?`✅ Built it. Saved it. *${title}*\n+${p.points??0} points · 🔥 ${performance?.streak||0}-day streak\n💎 ${balance} total · website synced${star}\n*TODAY* → what’s next.`
-   :`🙌 Practice saved: *${title}*\n💎 ${balance} points · website synced\n*TODAY* → next step.`;
+  const star=performance?.star.earned?'\n🌟 '+copy.star:'';
+  const text=o.kind==='recap'?String(p.recap||copy.continue).slice(0,3900):o.kind==='badge'?`🏅 ${copy.checkpoint}: *${title}*\n${copy.synced}\n${copy.continue}`
+   :p.status==='awarded'?`✅ ${copy.saved}: *${title}*\n+${p.points??0} · 🔥 ${performance?.streak||0} ${copy.streak}\n💎 ${balance} ${copy.total} · ${copy.synced}${star}\n${copy.continue}`
+   :`✅ ${copy.practiceSaved}: *${title}*\n💎 ${balance} ${copy.total} · ${copy.synced}\n${copy.continue}`;
   items.push({id:o.id,...claim,to:o.phone,text});
  }
  return {items};

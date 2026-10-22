@@ -1,3 +1,5 @@
+import {messageCopy} from '../question-translations';
+import {guestOnlyLearner} from '../learner-eligibility';
 import {readPracticalDraft,writePracticalDraft,DraftError,type DraftLevel,type PracticalDraft} from '../practical-draft-store';
 import {reminderCopy} from '../reminder-copy';
 import {normalizeControlCommand,stopCommands,pauseReminders,stopMessages} from '../reminder-control';
@@ -80,6 +82,7 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
  const row=await db.prepare('SELECT user_id,code_hash,expires_at,attempts FROM whatsapp_link_codes WHERE phone=?').bind(from).first<{user_id:string;code_hash:string;expires_at:string;attempts:number}>();
  const bad=reply(`That link code is not valid. Open ${site()}/settings, turn on WhatsApp lessons and send the new code from this number.`);
  if(!row)return bad;
+ if(await guestOnlyLearner(row.user_id))return reply('Account learning is currently for ages 18 and over. Continue as a guest: '+site()+'/age-policy');
  if(row.attempts>=LINK_ATTEMPTS||row.expires_at<at.toISOString()){await db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(row.user_id).run();return bad}
  if(row.code_hash!==await codeHash(from,code)){await db.prepare('UPDATE whatsapp_link_codes SET attempts=attempts+1 WHERE user_id=?').bind(row.user_id).run();return bad}
  const stamp=at.toISOString();
@@ -125,7 +128,7 @@ async function savedDrafts(c:Contact,missionId=''):Promise<Out>{
  const take=await db.prepare('INSERT OR IGNORE INTO whatsapp_drafts(user_id,mission_id,quiz,body,pending_clue,updated_at) SELECT user_id,mission_id,quiz,body,pending_clue,? FROM whatsapp_saved_drafts WHERE user_id=? AND mission_id=?').bind(now().toISOString(),c.user_id,missionId).run();
  if(!take.meta.changes)return reply('That saved draft was not opened. Send DRAFTS to see yours.');
  let draft=await getDraft(c.user_id);if(!draft){const legacy=await db.prepare('SELECT mission_id,quiz,body,pending_clue FROM whatsapp_drafts WHERE user_id=?').bind(c.user_id).first<{mission_id:string;quiz:number|null;body:string;pending_clue:string|null}>();if(!legacy)return reply('That kept draft is unavailable.');const data=JSON.parse(legacy.body);const prior=await readPracticalDraft(c.user_id,legacy.mission_id,data.level||'beginner');draft={...legacy,data,_revision:prior?.revision||0,_level:data.level||'beginner'};}draft.data.revisiting=true;await putDraft(c.user_id,draft);const m=getMission(draft.mission_id,draft.data.level||c.level),step=currentStep(m,draft);
- return reply('Revision opened. Your completed progress stays saved.\n'+(step==='ready'?readyText(m,draft):promptFor(m,step,draft,c.language,c.style)));
+ return reply('Revision opened. Your completed progress stays saved.\n'+(step==='ready'?readyText(m,draft,c.language):promptFor(m,step,draft,c.language,c.style)));
 }
 const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':(d.data.edit&&stepsFor(m).includes(d.data.edit)?d.data.edit:stepsFor(m).find(s=>!filled(d,s))||'ready');
 function draftIssue(m:Mission,d:Draft){for(const f of m.practical?.fields||[]){const value=d.data.fields[f.id];if(value&&f.type!=='choice'){const issue=chatPartIssue(m,value,f);if(issue)return {step:'f:'+f.id,message:issue}}}if(d.data.reasoning){const issue=chatPartIssue(m,d.data.reasoning);if(issue)return {step:'reasoning',message:issue}}return null;}
@@ -133,15 +136,15 @@ function optionList(options:string[]){return options.map((o,i)=>`${letters[i]}) 
 function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='casual',followUp=''):string{
  const lm=localizeMission(m,language);
  if(step==='quiz')return interactionPrompt(lm,currentStyleState(style,d.data.styleState));
- if(step==='reasoning')return '*Show your work ⚡*\n'+(followUp||'Made → tested → result → fixed. Send the work + one real result.');
- if(step==='link')return '*Got a link?* Drop an https link or *SKIP*.\nGitHub source goes to AI on SAVE; code is never run.';
- const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
+ if(step==='reasoning')return '*'+messageCopy(language).reasoning+'*\n'+(followUp||messageCopy(language).placeholder);
+ if(step==='link')return messageCopy(language).linkHint+'\nSKIP';
+ const f=lm.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'';
  const kind=learningStyle(style),heading=kind==='game'?`🎮 BUILD CHECKPOINT ${n}/${m.practical!.fields.length}`:kind==='story'?`📖 SCENE ${n+2}`:kind==='facts'?`⚡ APPLY ${n}/${m.practical!.fields.length}`:`💬 ${n}/${m.practical!.fields.length}`;
  return `*${heading}${f.prompt?'':' · '+shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
 }
-function readyText(m:Mission,d:Draft){
- return `Your draft is filled in—not yet approved.\nReply *SAVE* for the final review, or *EDIT* to change it.`;
+function readyText(m:Mission,d:Draft,language='en'){
+ return messageCopy(language).ready;
 }
 /** Applies one learner message to the part being asked for. Returns the reply. */
 async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string):Promise<Out>{
@@ -185,7 +188,7 @@ async function takeAnswer(userId:string,c:Contact,m:Mission,d:Draft,text:string)
  }
  delete d.data.edit;d.pending_clue=null;const oldIssue=draftIssue(m,d);if(oldIssue){d.data.edit=oldIssue.step;followUp=''}await putDraft(userId,d);
  const next=currentStep(m,d);
- return reply(reaction+'\n\n'+(next==='ready'?readyText(m,d):promptFor(m,next,d,c.language,c.style,followUp)));
+ return reply(reaction+'\n\n'+(next==='ready'?readyText(m,d,c.language):promptFor(m,next,d,c.language,c.style,followUp)));
 }
 
 // ---------- messages ----------
@@ -204,7 +207,7 @@ async function today(c:Contact):Promise<Out>{
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
  const syncNote=(synced||c.journeySynced)?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
- if(open&&open.mission_id){const fromWebsite=open._web;const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');if(fromWebsite)await putDraft(userId,open);const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:fromWebsite?'Your website draft is here. Text synced; final review is still required.':'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}`)}
+ if(open&&open.mission_id){const fromWebsite=open._web;const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');if(fromWebsite)await putDraft(userId,open);const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:fromWebsite?'Your website draft is here. Text synced; final review is still required.':'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open,c.language):promptFor(m,step,open,c.language,c.style)}`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
   if(fin&&!cleared.has(checkpointKey(track,10)))return reply(`You finished every mission in ${courseName(track)}.\n\n${checkpointText(fin)}`);
@@ -278,7 +281,8 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  let newerDraft=false;try{await dropDraft(c.user_id,d)}catch(e){if(e instanceof DraftError&&e.status===409)newerDraft=true;else throw e}
  const performance=await learnerPerformance(c.user_id);
  const nextPath=(await loadLearning(c.user_id)).path;
- return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${performance.count}/10 creations saved\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\n${newerDraft?'Your newer draft edits are kept separately.\n':''}Next challenge: ${nextPath.challenge.title}\n${briefFocus(nextPath.reason,14)}\n\n*TODAY* → next move · *POINTS* → optional rewards`);
+ const copy=messageCopy(c.language),nextTitle=localizeMission(getMission(nextPath.nextMissionId,c.level),c.language).title;
+ return reply(`${feedbackText}✅ ${r.status==='awarded'?copy.saved:copy.revision}\n${performance.count}/10 ${copy.savedCount}\n${performance.star.earned?'🌟 '+copy.star+'\n':''}${copy.synced}\n${newerDraft?copy.kept+'\n':''}${copy.next}: ${nextTitle}\n\n${copy.continue} · ${copy.rewards}`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -336,7 +340,7 @@ async function tutor(c:Contact,text:string,followup?:{question:string;answer?:st
  const {path}=await loadLearning(c.user_id);const d=await getDraft(c.user_id);
  const id=d?.mission_id||path.nextMissionId;
  const body=d?composeAnswer(getMission(id,c.level).practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}):'';
- if(aiProvider())try{const answer=(await mentorReply(c.user_id,text,id,body,followup)).answer;return reply(answer)}catch{/* Let the n8n tutor try with the same fresh context; never return a dead end or mutate the draft. */}
+ if(aiProvider())try{const answer=(await mentorReply(c.user_id,text,id,body,followup,'whatsapp')).answer;return reply(answer)}catch{/* Let the n8n tutor try with the same fresh context; never return a dead end or mutate the draft. */}
  const context=await mentorContext(c.user_id,id,body,followup);
  if(!followup)await rememberMentorQuestion(c.user_id,'whatsapp',id,text);
  return {action:'tutor',question:text.trim().slice(0,500),language:feedbackLanguage(c.language,text),maxWords:45,fallback:'I couldn’t reach the mentor just now. Please ask again in a moment—your task is safe.',material:context};
@@ -381,6 +385,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const linkMatch=text.match(/^\s*link\s+([A-Za-z0-9-]{6,12})\s*$/i);
  if(linkMatch)return confirmLink(from,linkMatch[1].replace(/-/g,''),at);
  const c=await db.prepare('SELECT * FROM whatsapp_contacts WHERE phone=? AND verified_at IS NOT NULL').bind(from).first<Contact>();
+ if(c&&!STOP_WORDS.includes(word)&&await guestOnlyLearner(c.user_id))return reply('Account learning is currently for ages 18 and over. Continue as a guest: '+site()+'/age-policy');
  if(!c){
   if(STOP_WORDS.includes(word)){await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',updated_at=? WHERE phone=?").bind(at.toISOString(),from),db.prepare('DELETE FROM whatsapp_link_codes WHERE phone=?').bind(from)]);return reply('You will not get more WhatsLearn messages here.')}
   return reply(`Welcome to WhatsLearn. To learn here, link this number to your account first: open ${site()}/settings, turn on WhatsApp lessons, then send the code you see as *LINK CODE* from this number.`);
@@ -471,7 +476,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  }
  const d=await getDraft(c.user_id);
  const m=d?getMission(d.mission_id,c.level):null,step=m&&d?currentStep(m,d):null;
- if(d&&m&&step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d));
+ if(d&&m&&step==='ready'&&/^[1-5](?:\s+[1-5])*$/.test(text))return reply(readyText(m,d,c.language));
  if(d&&m&&step!=='ready'&&/^[a-f1-6][).]?$/i.test(text))return takeAnswer(c.user_id,c,m,d,text);
  if(d&&m&&step==='quiz'&&learningStyle(c.style)==='facts'&&/^(?:true|false)[.!]?$/i.test(text))return takeAnswer(c.user_id,c,m,d,text);
  if(!d&&/^[a-f1-6]$/i.test(text))return reply('Reply TODAY first to get a mission, then answer with a letter.');

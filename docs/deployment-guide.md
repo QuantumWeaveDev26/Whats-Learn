@@ -1,6 +1,10 @@
+# Historical deployment guide
+
+This is the original Cloudflare/Sites setup reference. Current production runs on Hostinger from GitHub main. Use [the current runbook](production-runbook.md) for releases and acceptance status.
+
 # WhatsLearn deployment guide: a regular website with email accounts (v40, updated v41)
 
-Nothing here has been done for you. No deploy, publish, DNS change, live-database migration or real payment was made from this project, and none should be made without the owner's own go-ahead. Every secret goes into the host's secret settings, never into the code, the ZIP, the browser or chat.
+This historical guide predates the current Hostinger deployment. Every secret goes into the host's secret settings, never into the code, the ZIP, the browser or chat.
 
 ## 1. Recommended host and why
 **Cloudflare Workers (with D1 and, optionally, R2), plus Supabase Auth for sign-in.**

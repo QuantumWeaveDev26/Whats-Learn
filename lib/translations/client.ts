@@ -1,3 +1,4 @@
+import {ensureQuestionPack} from '../question-translations';
 import type {LanguagePack} from './types';
 export const languagePacks:Record<string,LanguagePack>={};
 const loaders:Record<string,()=>Promise<{default:LanguagePack}>>={
@@ -23,9 +24,11 @@ const loaders:Record<string,()=>Promise<{default:LanguagePack}>>={
  ur:()=>import('./ur'),
 };
 const pending=new Map<string,Promise<boolean>>();
-export function ensureLanguagePack(language:string):Promise<boolean>{
+async function ensureLessonPack(language:string):Promise<boolean>{
  if(languagePacks[language]||['en','kn','hi'].includes(language))return Promise.resolve(true);
  const load=loaders[language];if(!load)return Promise.resolve(false);
  const old=pending.get(language);if(old)return old;
  const task=load().then(pack=>{languagePacks[language]=pack.default;return true}).finally(()=>pending.delete(language));pending.set(language,task);return task;
 }
+
+export async function ensureLanguagePack(language:string){const [lesson,questions]=await Promise.all([ensureLessonPack(language),ensureQuestionPack(language)]);return lesson&&questions;}

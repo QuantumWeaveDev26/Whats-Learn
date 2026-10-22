@@ -1,0 +1,3 @@
+import AccountShell from '@/components/whatslearn/account-shell';
+export const metadata={title:'Guest Learning | WhatsLearn',robots:{index:false,follow:false}};
+export default function AgePolicy(){return <AccountShell auth><section className="account-card"><h1>Keep learning as a guest</h1><p>Account learning is currently for ages 18 and over. Until guardian consent is available, younger learners can explore the free lessons and keep drafts on their device.</p><a className="primary" href="/signout?return_to=%2Flearn">Continue as guest</a><p className="small">If you chose the wrong age range, <a href="mailto:connect@brandmintai.io?subject=Age%20range%20correction">email support</a> for help. Do not send identity documents in chat.</p></section></AccountShell>}

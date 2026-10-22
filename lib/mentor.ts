@@ -1,3 +1,4 @@
+import {recentMentorTurn,rememberMentorTurn} from './mentor-conversation';
 import {readPracticalDraft,type DraftLevel} from './practical-draft-store';
 import {learnerName} from './learner-name';
 import {loadLearning} from './learning-service';
@@ -36,10 +37,13 @@ export async function mentorContext(userId:string,missionId?:string,draft='',rec
  return {snapshotAt:new Date().toISOString(),name,addressAs:name,profile,course:programmeNames[profile.track],courses,personalSetup:{completed:!!personal,skipped:personal?.skipped||false},progress:{savedMissions:courses.find(c=>c.selected)!.savedMissions,totalSavedMissions:saved.size,nextMissionId:allowed?path.nextMissionId:undefined,balance:scores.balance,streak:scores.streak.current,todayPoints:scores.scores.find(s=>s.day===scores.today)?.points||0,todayMissionCompleted:scores.todayUsed},learning:{nextTask:{...path.nextTask,reason:allowed?path.nextTask.reason:'More course missions need an active plan.'},firstChallengeWhy:allowed?path.firstChallengeWhy:'',focus:allowed?path.focus:null,feedback:allowed?path.lastFeedback?{summary:path.lastFeedback.summary,strengths:path.lastFeedback.strengths,checks:path.lastFeedback.checks,nextStep:path.lastFeedback.nextStep}:null:null},observedPractice:{source:'Saved practice and evaluated work only; not inferred personality or mood.',style:profile.style||'casual',skills:path.skills,practiceDays:scores.scores.map(s=>s.day),lastSavedAt:work[0]?.updated_at||null},access:{plan:allowance.plan,reviewLimit:allowance.limit,reviewsRemaining:Math.max(0,allowance.limit-allowance.used),ordinaryQuestions:'no daily limit'},whatsapp:{linked:!!contact?.verified_at,active:!!contact?.verified_at&&contact.state==='opted_in',remindersEnabled:!!contact?.verified_at&&contact.remind_state==='on',reminderHour:contact?.remind_hour,reminderFrequency:contact?.remind_freq,timezone:'Asia/Kolkata',draft:draftStatus,sync:'Journey, accepted work and signed-in practical draft text are shared. Draft conflicts require a choice; syncing never grants approval or points.'},preferences:personal?JSON.parse(coachContext(personal.answers)):null,currentTask:m?{id:m.id,title:m.title,situation:m.brief,idea:m.lesson,task:m.task}:null,draft:currentDraft,recentConversation:recentConversation?{question:recentConversation.question.slice(0,500),answer:(recentConversation.answer||'').slice(0,1800)}:null,accountActions:{progress:'Ask for my progress',course:'Change my course',continue:'TODAY',draft:'Show my draft',pause:'Pause my task',save:'SAVE: checks the whole submission; only accepted work is completed',reminders:'REMIND 7pm daily'}};
 }
 /** Normal questions have no daily counter and never consume a practical-review credit. */
-export async function mentorReply(userId:string,question:string,missionId?:string,draft='',recentConversation?:{question:string;answer?:string}|null){
- const context=await mentorContext(userId,missionId,draft,recentConversation);
+export async function mentorReply(userId:string,question:string,missionId?:string,draft='',recentConversation?:{question:string;answer?:string}|null,channel:'web'|'whatsapp'='web'){
+ const id=missionId||(await loadLearning(userId)).path.nextMissionId;
+ const recent=recentConversation===undefined?await recentMentorTurn(userId,channel,id):recentConversation;
+ const context=await mentorContext(userId,missionId,draft,recent);
  // General teaching must not become a second, unvalidated review of a stored draft.
  context.draft='';context.learning.feedback=null;
  const result=await answerMentor(question,context.profile.language,context);
+ await rememberMentorTurn(userId,channel,id,question,result.answer);
  return result;
 }

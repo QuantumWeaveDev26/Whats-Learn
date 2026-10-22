@@ -1,3 +1,4 @@
+import {guestOnlyLearner} from '@/lib/learner-eligibility';
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { emailAuthConfigured, hostIdentityTrusted } from "@/lib/auth/config";
@@ -29,7 +30,7 @@ const CALLBACK_PATH = "/callback";
  *  - host mode (no provider configured): the learner is the one the OpenAI Sites host reports in its sign-in headers, as before. Only use this mode on Sites.
  * The function keeps its old name because every account API already calls it.
  */
-export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
+export async function getAuthenticatedUser(): Promise<ChatGPTUser | null> {
   if (emailAuthConfigured()) {
     const { currentEmailUser } = await import("@/lib/auth/session");
     return currentEmailUser();
@@ -55,10 +56,15 @@ export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   };
 }
 
+export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
+ const user=await getAuthenticatedUser();return user&&await guestOnlyLearner(user.userId)?null:user;
+}
+
 export async function requireChatGPTUser(
   returnTo: string,
 ): Promise<ChatGPTUser> {
-  const user = await getChatGPTUser();
+  const user = await getAuthenticatedUser();
+  if(user&&await guestOnlyLearner(user.userId))redirect('/age-policy');
   if (user) return user;
 
   redirect(chatGPTSignInPath(returnTo));

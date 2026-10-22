@@ -10,10 +10,10 @@ export async function alertStatus(){const db=database(),c=config();const rows=(a
 export async function dispatchAlerts(at=new Date()){
  const c=config();if(!c.url||c.token.length<32)return {configured:false,accepted:0};const db=database(),now=Math.floor(at.getTime()/1000);
  await db.prepare("UPDATE quality_alerts SET state='failed',lease_until=NULL WHERE state='sending' AND lease_until<=? AND attempts>=5").bind(now).run();
- const rows=(await db.prepare("SELECT id,kind,item_id FROM quality_alerts WHERE (state IN ('queued','failed') OR (state='sending' AND lease_until<=?)) AND attempts<5 AND next_at<=? ORDER BY created_at LIMIT 1").bind(now,now).all<{id:string;kind:string;item_id:string}>()).results;let accepted=0;
- for(const row of rows){const token=randomUUID();const claim=await db.prepare("UPDATE quality_alerts SET state='sending',attempts=attempts+1,lease_token=?,lease_until=? WHERE id=? AND (state IN ('queued','failed') OR (state='sending' AND lease_until<=?)) AND attempts<5 AND next_at<=?").bind(token,now+60,row.id,now,now).run();if(!claim.meta.changes)continue;
+ const rows=(await db.prepare("SELECT id,kind,item_id FROM quality_alerts WHERE (state IN ('queued','failed') OR (state='sending' AND lease_until<=?)) AND attempts<5 AND next_at<=? ORDER BY created_at LIMIT 5").bind(now,now).all<{id:string;kind:string;item_id:string}>()).results;let accepted=0;
+ await Promise.all(rows.map(async row=>{const token=randomUUID();const claim=await db.prepare("UPDATE quality_alerts SET state='sending',attempts=attempts+1,lease_token=?,lease_until=? WHERE id=? AND (state IN ('queued','failed') OR (state='sending' AND lease_until<=?)) AND attempts<5 AND next_at<=?").bind(token,now+60,row.id,now,now).run();if(!claim.meta.changes)return;
   let ok=false;try{const r=await fetch(c.url,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json',Authorization:'Bearer '+c.token,'Idempotency-Key':row.id},body:JSON.stringify({eventId:row.id,type:'whatslearn_support',kind:row.kind,reference:row.item_id,url:c.site.replace(/\/$/,'')+'/admin/quality'}),signal:AbortSignal.timeout(3000)});ok=r.ok;await r.body?.cancel()}catch{}
   await db.prepare("UPDATE quality_alerts SET state=?,accepted_at=?,lease_until=NULL,next_at=? WHERE id=? AND lease_token=?").bind(ok?'accepted':'failed',ok?at.toISOString():null,now+300,row.id,token).run();if(ok)accepted++;
- }
+ }));
  return {configured:true,accepted};
 }

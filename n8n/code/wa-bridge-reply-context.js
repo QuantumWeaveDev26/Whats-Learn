@@ -4,10 +4,10 @@ return $input.all().map((it,i)=>{
  const response=it.json||{},request=$("Sign Request To WhatsLearn").itemMatching(i).json,snapshot=String(request.profileSnapshot||"");
  if(response.action==="none"||!/(?:^|\n)Course:/.test(snapshot))return {json:response,pairedItem:{item:i}};
  const kind=request.mentorIntent;
- if(kind==="journey"&&response.action==="reply")return {json:{...response,text:String(response.text||"")+"\n\nOpen your journey: https://whatslearn.in/learn"},pairedItem:{item:i}};
+ if(kind==="journey"&&response.action==="reply"&&!String(response.text||"").includes("https://whatslearn.in/learn"))return {json:{...response,text:String(response.text||"")+"\n\nOpen your journey: https://whatslearn.in/learn"},pairedItem:{item:i}};
  if(kind==="keep-draft")return {json:{action:"reply",text:"Accepted chat answers are kept automatically. Take your time—we can pick up when you’re ready."},pairedItem:{item:i}};
  const deadEnd=response.action==="reply"&&/^I (?:couldn.t|could not) (?:finish|keep|reach).*(?:reply|mentor|clear)/i.test(String(response.text||""));
- if(!["question","preference","clarify","profile","learn"].includes(kind)&&!deadEnd)return {json:response,pairedItem:{item:i}};
+ if(!deadEnd&&response.action!=="tutor")return {json:response,pairedItem:{item:i}};
  const nameMatch=snapshot.match(/^Hey\s+([^!\n]+)!/),name=(request.profileContext?.name||nameMatch?.[1]||"").replace(/[\r\n*_~`<>]/g," ").trim().slice(0,60);
  const language=snapshot.match(/(?:^|\n)Language:\s*([^·\n]+)/)?.[1]?.trim()||"en";
  const material={...(request.profileContext||{}),...(response.material||{})};

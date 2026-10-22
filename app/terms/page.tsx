@@ -7,7 +7,7 @@ export default function Terms(){return <LegalPage kicker="THE GROUND RULES." tit
 <h2>1. What WhatsLearn is</h2>
 <p>WhatsLearn offers short practice missions in AI digital marketing, AI full-stack development, AI filmmaking and AI-powered visual storytelling. Missions include prepared guidance, knowledge checks and self-review. Some features, including WhatsApp lessons and reminders, paid plans and live AI review of your writing, work only when we have switched them on; until then they are labelled on the site.</p>
 <h2>2. Who can use it</h2>
-<p>You should be 16 or older. If you are under 18, a parent or guardian should agree to these terms with you.</p>
+<p>Account learning is currently for learners aged 18 or older. If you are under 18, use guest practice until a guardian-consent process is available. Guest work stays on your device.</p>
 <h2>3. Your work</h2>
 <p>You own the creations you make. You give us permission to store and show them back to you so the service can work. Only submit content you have the right to use. Do not submit anything unlawful, hateful, misleading or that shares someone else’s personal information without permission.</p>
 <h2>4. Using AI responsibly</h2>

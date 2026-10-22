@@ -19,7 +19,8 @@ const grams=(words:string[],n=5)=>{const out:string[]=[];for(let i=0;i+n<=words.
 /** Keywords from the mission in every language it exists in, so the check works whatever language the learner writes in. */
 export function keywords(m:Mission){
  const hit=cache.get(m.id);if(hit)return hit;
- const versions=lessonLanguages.map(l=>localizeMission(m,l));
+ // Display-only draft translations must not broaden the evidence gate or change its canonical task vocabulary.
+ const versions=lessonLanguages.map(l=>({...localizeMission(m,l),task:m.task,options:m.options,explanation:m.explanation}));
  const all=new Set<string>(),example:Set<string>[]=[],course=new Set<string>();
  for(const v of versions){for(const w of tokens([v.title,v.brief,v.task,v.lesson,...v.checks].join(' ')))if(meaningful(w))all.add(stem(w));example.push(new Set(tokens(v.example).map(stem)));for(const g of grams(tokens([v.brief,v.lesson,v.example,v.task,...v.checks,...v.options,v.explanation].join(' '))))course.add(g)}
  for(const lang of Object.values(courseTerms))for(const w of lang[m.id]||[])for(const t of tokens(w))if(meaningful(t))all.add(stem(t));

@@ -1,0 +1,204 @@
+{
+  "version": "2026-10-22-canonical-v1",
+  "note": "Machine drafts need native review. Listed fallback missions use canonical English questions and task fields; grading is unchanged.",
+  "languages": {
+    "kn": {
+      "translated": 37,
+      "fallback": [
+        "f3",
+        "v6",
+        "v7"
+      ]
+    },
+    "hi": {
+      "translated": 40,
+      "fallback": []
+    },
+    "te": {
+      "translated": 39,
+      "fallback": [
+        "m1"
+      ]
+    },
+    "ta": {
+      "translated": 39,
+      "fallback": [
+        "v8"
+      ]
+    },
+    "ml": {
+      "translated": 38,
+      "fallback": [
+        "f1",
+        "v4"
+      ]
+    },
+    "mr": {
+      "translated": 40,
+      "fallback": []
+    },
+    "gu": {
+      "translated": 35,
+      "fallback": [
+        "f3",
+        "v1",
+        "v10",
+        "m1",
+        "d6"
+      ]
+    },
+    "bn": {
+      "translated": 40,
+      "fallback": []
+    },
+    "as": {
+      "translated": 40,
+      "fallback": []
+    },
+    "pa": {
+      "translated": 39,
+      "fallback": [
+        "f4"
+      ]
+    },
+    "or": {
+      "translated": 40,
+      "fallback": []
+    },
+    "ur": {
+      "translated": 40,
+      "fallback": []
+    },
+    "ne": {
+      "translated": 40,
+      "fallback": []
+    },
+    "sa": {
+      "translated": 40,
+      "fallback": []
+    },
+    "kok": {
+      "translated": 40,
+      "fallback": []
+    },
+    "mai": {
+      "translated": 40,
+      "fallback": []
+    },
+    "doi": {
+      "translated": 39,
+      "fallback": [
+        "d10"
+      ]
+    },
+    "brx": {
+      "translated": 38,
+      "fallback": [
+        "f8",
+        "f10"
+      ]
+    },
+    "ks": {
+      "translated": 40,
+      "fallback": []
+    },
+    "sd": {
+      "translated": 40,
+      "fallback": []
+    },
+    "sat": {
+      "translated": 0,
+      "fallback": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "f5",
+        "f6",
+        "f7",
+        "f8",
+        "f9",
+        "f10",
+        "v1",
+        "v2",
+        "v3",
+        "v4",
+        "v5",
+        "v6",
+        "v7",
+        "v8",
+        "v9",
+        "v10",
+        "m1",
+        "m2",
+        "m3",
+        "m4",
+        "m5",
+        "m6",
+        "m7",
+        "m8",
+        "m9",
+        "m10",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "d8",
+        "d9",
+        "d10"
+      ]
+    },
+    "mni": {
+      "translated": 0,
+      "fallback": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "f5",
+        "f6",
+        "f7",
+        "f8",
+        "f9",
+        "f10",
+        "v1",
+        "v2",
+        "v3",
+        "v4",
+        "v5",
+        "v6",
+        "v7",
+        "v8",
+        "v9",
+        "v10",
+        "m1",
+        "m2",
+        "m3",
+        "m4",
+        "m5",
+        "m6",
+        "m7",
+        "m8",
+        "m9",
+        "m10",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "d6",
+        "d7",
+        "d8",
+        "d9",
+        "d10"
+      ]
+    }
+  },
+  "messageFallback": [
+    "mni",
+    "sat"
+  ]
+}

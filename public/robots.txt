@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /learn
+Disallow: /settings
+Disallow: /age-policy
+Disallow: /welcome
+Disallow: /signin
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /forgot-password
+
+Sitemap: https://whatslearn.in/sitemap.xml

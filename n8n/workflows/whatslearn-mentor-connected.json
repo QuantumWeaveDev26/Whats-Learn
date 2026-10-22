@@ -75,13 +75,13 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "7 * * * *"
+              "expression": "*/2 * * * *"
             }
           ]
         }
       },
       "id": "1224e8dc-5c76-45ca-939b-4f8ad61f4be2",
-      "name": "Hourly At 7 Past",
+      "name": "Due Reminders Every 2 Minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
@@ -407,7 +407,7 @@
         "rawContentType": "application/json",
         "body": "={{ $json.body }}",
         "options": {
-          "timeout": 30000
+          "timeout": 180000
         }
       },
       "id": "085b2db0-a58e-43ac-8ed8-de633fcd9857",
@@ -419,8 +419,8 @@
         608
       ],
       "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
       "onError": "continueErrorOutput"
     },
     {
@@ -1224,7 +1224,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Interpret the model's bounded intent; only the website may execute account actions.\n\nreturn $input.all().map((it,i)=>{\n const m=$(\"One Item Per Message\").itemMatching(i).json,profile=$(\"Read Mentor Profile\").itemMatching(i).json;\n let choice={};try{choice=JSON.parse(String(it.json.output||\"\").replace(/^```(?:json)?\\s*|\\s*```$/g,\"\"))}catch{}\n const kinds=[\"question\",\"preference\",\"clarify\",\"learn\",\"continue\",\"edit\",\"task-question\",\"save\",\"keep-draft\",\"draft\",\"progress\",\"points\",\"journey\",\"course\",\"roadmap\",\"profile\",\"answer\"];\n let kind=kinds.includes(choice.kind)?choice.kind:\"question\";\n const raw=String(m.text||\"\");\n const control=raw.trim().toLowerCase().replace(/\\s+/g,\" \").replace(/[\\s.!?,;:…]+$/u,\"\");\n if([\"stop\",\"unsubscribe\",\"end\",\"optout\",\"opt out\",\"pause\",\"रुको\",\"बंद\",\"ನಿಲ್ಲಿಸಿ\",\"support\"].includes(control))return {json:{...m,bridgeText:raw,mentorIntent:\"answer\"},pairedItem:{item:i}};\n const natural=raw.trim().toLowerCase().replace(/[’‘]/g,\"'\").replace(/[?!.]+$/g,'');\n if(natural.length<160&&!/[{};\\n]/.test(natural)&&(/^(?:(?:please )?(?:add|use|include|remove|fewer|less|more|no|keep).*(?:emojis?|casual|formal).*|i.*(?:learn|teach|talk|style).*gen.?z.*|(?:but )?(?:u|you(?:'re| are)?)? ?rushing|slow down|go slower|less formal|more casual|not too many(?: just (?:a )?few)?(?: is enough)?|just (?:a )?few(?: is enough)?)$/.test(natural)||/^(?:not too many just few|keep it short|shorter please|don't rush|do not rush)$/.test(natural)))kind=\"preference\";\n if(/^(?:(?:i )?(?:need|want) to |(?:can you |please )?)edit(?: (?:my|the|this|that)(?: (?:task|draft|answer|part))?)?$/.test(natural))kind=\"edit\";\n if(/^(?:tell|show|give)(?: me)? (?:the |my )?(?:qns?|questions?|current question|next question)$/.test(natural))kind=\"task-question\";\n if(/^(?:can|could) i (?:do|complete) (?:the |my )?task here$/.test(natural))kind=\"task-question\";\n // Safety backstops for account questions and completion permission; the model still handles paraphrases.\n if(/^(?:what(?:'s| is)|show(?: me)?|tell me|how many) (?:my |the )?(?:point|points|score|balance)(?: do i have)?$/.test(natural))kind=\"points\";\n if(/^(?:where(?:'s| is)|show(?: me)?) (?:my |the )?journey(?: in whatslearn)?$/.test(natural))kind=\"journey\";\n if(/^(?:i (?:want|wanna) (?:to )?learn|teach me(?: first)?|first explain(?: (?:me|the task))?)$/.test(natural))kind=\"learn\";\n if(/^(?:ok(?:ay)? now )?(?:i (?:want to|wanna)|can i) finish (?:my |the )?(?:task|mission)(?: now)?$/.test(natural))kind=\"continue\";\n // Existing explicit commands stay exact, including STOP and the account-link proof.\n if(/^(?:please |can you |could you )?(?:report|flag)\\b/i.test(raw.trim())&&/\\b(?:reply|answer|response)\\b/i.test(raw)){return {json:{...m,bridgeText:'REPORT '+raw.slice(0,500),mentorIntent:'report',profileSnapshot:profile.action==='reply'?String(profile.text||'').slice(0,5000):'',profileContext:profile.context||{}},pairedItem:{item:i}};}\n const exact=/^(?:stop|start|unsubscribe|end|pause|optout|opt out|today|lesson|next|menu|drafts|performance|stats|roadmap(?: all)?|profile|info|plan|style|learn|course|hint(?: example)?|yes|save|submit|help|cancel|edit|check|points|score|balance|remind|reminders|रुको|बंद|ನಿಲ್ಲಿಸಿ)[.!]?$/i;\n const arguments=/^(?:link\\s+[a-z0-9-]{6,12}|(?:ask|answer|practice)\\s+.+|edit\\s+\\d+|style\\s+(?:[1-4]|casual|game|story|facts)|course\\s+(?:[1-4]|marketing|development|filmmaking|storytelling)|resume\\s+[mdfv]\\d+|check\\s+[a-f1-6]\\s+[a-f1-6]|remind\\s+(?:on|off|quiet|\\d).*)$/i;\n if(exact.test(raw.trim())||arguments.test(raw.trim()))kind=\"answer\";\n const track=[\"marketing\",\"development\",\"filmmaking\",\"storytelling\"].includes(choice.track)?choice.track:\"\";\n const commands={question:\"PROFILE\",preference:\"PROFILE\",clarify:\"PROFILE\",learn:\"LEARN\",continue:\"TODAY\",edit:\"EDIT\",\"task-question\":\"QUESTION\",save:\"SAVE\",\"keep-draft\":\"PROFILE\",draft:\"DRAFT\",progress:\"PERFORMANCE\",points:\"POINTS\",journey:\"ROADMAP\",course:\"COURSE\"+(track?\" \"+track:\"\"),roadmap:\"ROADMAP\",profile:\"PROFILE\"};\n return {json:{...m,bridgeText:commands[kind]||raw,mentorIntent:kind,profileSnapshot:profile.action===\"reply\"?String(profile.text||\"\").slice(0,5000):\"\",profileContext:profile.action===\"reply\"&&profile.context&&typeof profile.context===\"object\"?profile.context:{}},pairedItem:{item:i}};\n});\n"
+        "jsCode": "// Interpret the model's bounded intent; only the website may execute account actions.\n\nreturn $input.all().map((it,i)=>{\n const m=$(\"One Item Per Message\").itemMatching(i).json,profile=$(\"Read Mentor Profile\").itemMatching(i).json;\n let choice={};try{choice=JSON.parse(String(it.json.output||\"\").replace(/^```(?:json)?\\s*|\\s*```$/g,\"\"))}catch{}\n const kinds=[\"question\",\"preference\",\"clarify\",\"learn\",\"continue\",\"edit\",\"task-question\",\"save\",\"keep-draft\",\"draft\",\"progress\",\"points\",\"journey\",\"course\",\"roadmap\",\"profile\",\"answer\"];\n let kind=kinds.includes(choice.kind)?choice.kind:\"question\";\n const raw=String(m.text||\"\");\n const control=raw.trim().toLowerCase().replace(/\\s+/g,\" \").replace(/[\\s.!?,;:…]+$/u,\"\");\n if([\"stop\",\"unsubscribe\",\"end\",\"optout\",\"opt out\",\"pause\",\"रुको\",\"बंद\",\"ನಿಲ್ಲಿಸಿ\",\"support\"].includes(control))return {json:{...m,bridgeText:raw,mentorIntent:\"answer\"},pairedItem:{item:i}};\n const natural=raw.trim().toLowerCase().replace(/[’‘]/g,\"'\").replace(/[?!.]+$/g,'');\n if(natural.length<160&&!/[{};\\n]/.test(natural)&&(/^(?:(?:please )?(?:add|use|include|remove|fewer|less|more|no|keep).*(?:emojis?|casual|formal).*|i.*(?:learn|teach|talk|style).*gen.?z.*|(?:but )?(?:u|you(?:'re| are)?)? ?rushing|slow down|go slower|less formal|more casual|not too many(?: just (?:a )?few)?(?: is enough)?|just (?:a )?few(?: is enough)?)$/.test(natural)||/^(?:not too many just few|keep it short|shorter please|don't rush|do not rush)$/.test(natural)))kind=\"preference\";\n if(/^(?:(?:i )?(?:need|want) to |(?:can you |please )?)edit(?: (?:my|the|this|that)(?: (?:task|draft|answer|part))?)?$/.test(natural))kind=\"edit\";\n if(/^(?:tell|show|give)(?: me)? (?:the |my )?(?:qns?|questions?|current question|next question)$/.test(natural))kind=\"task-question\";\n if(/^(?:can|could) i (?:do|complete) (?:the |my )?task here$/.test(natural))kind=\"task-question\";\n // Safety backstops for account questions and completion permission; the model still handles paraphrases.\n if(/^(?:what(?:'s| is)|show(?: me)?|tell me|how many) (?:my |the )?(?:point|points|score|balance)(?: do i have)?$/.test(natural))kind=\"points\";\n if(/^(?:where(?:'s| is)|show(?: me)?) (?:my |the )?journey(?: in whatslearn)?$/.test(natural))kind=\"journey\";\n if(/^(?:i (?:want|wanna) (?:to )?learn|teach me(?: first)?|first explain(?: (?:me|the task))?)$/.test(natural))kind=\"learn\";\n if(/^(?:ok(?:ay)? now )?(?:i (?:want to|wanna)|can i) finish (?:my |the )?(?:task|mission)(?: now)?$/.test(natural))kind=\"continue\";\n // Existing explicit commands stay exact, including STOP and the account-link proof.\n if(/^(?:please |can you |could you )?(?:report|flag)\\b/i.test(raw.trim())&&/\\b(?:reply|answer|response)\\b/i.test(raw)){return {json:{...m,bridgeText:'REPORT '+raw.slice(0,500),mentorIntent:'report',profileSnapshot:profile.action==='reply'?String(profile.text||'').slice(0,5000):'',profileContext:profile.context||{}},pairedItem:{item:i}};}\n const exact=/^(?:stop|start|unsubscribe|end|pause|optout|opt out|today|lesson|next|menu|drafts|performance|stats|roadmap(?: all)?|profile|info|plan|style|learn|course|hint(?: example)?|yes|save|submit|help|cancel|edit|check|points|score|balance|remind|reminders|रुको|बंद|ನಿಲ್ಲಿಸಿ)[.!]?$/i;\n const arguments=/^(?:link\\s+[a-z0-9-]{6,12}|(?:ask|answer|practice)\\s+.+|edit\\s+\\d+|style\\s+(?:[1-4]|casual|game|story|facts)|course\\s+(?:[1-4]|marketing|development|filmmaking|storytelling)|resume\\s+[mdfv]\\d+|check\\s+[a-f1-6]\\s+[a-f1-6]|remind\\s+(?:on|off|quiet|\\d).*)$/i;\n if(exact.test(raw.trim())||arguments.test(raw.trim()))kind=\"answer\";\n const track=[\"marketing\",\"development\",\"filmmaking\",\"storytelling\"].includes(choice.track)?choice.track:\"\";\n const commands={question:\"ASK \"+raw,preference:\"ASK \"+raw,clarify:\"ASK \"+raw,learn:\"ASK \"+raw,continue:\"TODAY\",edit:\"EDIT\",\"task-question\":\"QUESTION\",save:\"SAVE\",\"keep-draft\":\"PROFILE\",draft:\"DRAFT\",progress:\"PERFORMANCE\",points:\"POINTS\",journey:\"ROADMAP\",course:\"COURSE\"+(track?\" \"+track:\"\"),roadmap:\"ROADMAP\",profile:\"ASK \"+raw};\n return {json:{...m,bridgeText:commands[kind]||raw,mentorIntent:kind,profileSnapshot:profile.action===\"reply\"?String(profile.text||\"\").slice(0,5000):\"\",profileContext:profile.action===\"reply\"&&profile.context&&typeof profile.context===\"object\"?profile.context:{}},pairedItem:{item:i}};\n});\n"
       }
     },
     {
@@ -1238,7 +1238,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Read-only account facts come from a signed website response, never model memory.\n\nreturn $input.all().map((it,i)=>{\n const response=it.json||{},request=$(\"Sign Request To WhatsLearn\").itemMatching(i).json,snapshot=String(request.profileSnapshot||\"\");\n if(response.action===\"none\"||!/(?:^|\\n)Course:/.test(snapshot))return {json:response,pairedItem:{item:i}};\n const kind=request.mentorIntent;\n if(kind===\"journey\"&&response.action===\"reply\")return {json:{...response,text:String(response.text||\"\")+\"\\n\\nOpen your journey: https://whatslearn.in/learn\"},pairedItem:{item:i}};\n if(kind===\"keep-draft\")return {json:{action:\"reply\",text:\"Accepted chat answers are kept automatically. Take your time—we can pick up when you’re ready.\"},pairedItem:{item:i}};\n const deadEnd=response.action===\"reply\"&&/^I (?:couldn.t|could not) (?:finish|keep|reach).*(?:reply|mentor|clear)/i.test(String(response.text||\"\"));\n if(![\"question\",\"preference\",\"clarify\",\"profile\",\"learn\"].includes(kind)&&!deadEnd)return {json:response,pairedItem:{item:i}};\n const nameMatch=snapshot.match(/^Hey\\s+([^!\\n]+)!/),name=(request.profileContext?.name||nameMatch?.[1]||\"\").replace(/[\\r\\n*_~`<>]/g,\" \").trim().slice(0,60);\n const language=snapshot.match(/(?:^|\\n)Language:\\s*([^·\\n]+)/)?.[1]?.trim()||\"en\";\n const material={...(request.profileContext||{}),...(response.material||{})};\n // Old assessments must never masquerade as a current review or a fact about today's draft.\n if(material.learning)material.learning={...material.learning,feedback:null};\n delete material.draft;\n if(kind===\"question\"||kind===\"preference\"){delete material.currentTask;delete material.currentPrompt;delete material.learning;}\n if(kind!==\"clarify\")delete material.recentConversation;\n const question=String(request.learnerQuestion||\"\").replace(/^ASK\\s+/i,\"\").slice(0,500);\n const detail=/how (?:to|do|can)|step.by.step|in detail|explain.*(?:build|create|make)/i.test(question);\n return {json:{action:\"tutor\",question,language,maxWords:kind===\"preference\"?25:detail?80:35,fallback:\"I’m having trouble connecting. Your saved work is kept; try your question again in a moment.\",material:{...material,name,mentorIntent:kind,verifiedProfile:kind===\"preference\"?\"\":snapshot,currentServerReply:deadEnd||[\"question\",\"preference\",\"clarify\"].includes(kind)?\"\":String(response.text||\"\").slice(0,6000),snapshotAt:new Date().toISOString(),source:\"Current signed replies from the learner’s own WhatsLearn account. Completed work and drafts are different. Do not infer missing preferences or claim any action beyond this server response.\"}},pairedItem:{item:i}};\n});\n"
+        "jsCode": "// Read-only account facts come from a signed website response, never model memory.\n\nreturn $input.all().map((it,i)=>{\n const response=it.json||{},request=$(\"Sign Request To WhatsLearn\").itemMatching(i).json,snapshot=String(request.profileSnapshot||\"\");\n if(response.action===\"none\"||!/(?:^|\\n)Course:/.test(snapshot))return {json:response,pairedItem:{item:i}};\n const kind=request.mentorIntent;\n if(kind===\"journey\"&&response.action===\"reply\"&&!String(response.text||\"\").includes(\"https://whatslearn.in/learn\"))return {json:{...response,text:String(response.text||\"\")+\"\\n\\nOpen your journey: https://whatslearn.in/learn\"},pairedItem:{item:i}};\n if(kind===\"keep-draft\")return {json:{action:\"reply\",text:\"Accepted chat answers are kept automatically. Take your time—we can pick up when you’re ready.\"},pairedItem:{item:i}};\n const deadEnd=response.action===\"reply\"&&/^I (?:couldn.t|could not) (?:finish|keep|reach).*(?:reply|mentor|clear)/i.test(String(response.text||\"\"));\n if(!deadEnd&&response.action!==\"tutor\")return {json:response,pairedItem:{item:i}};\n const nameMatch=snapshot.match(/^Hey\\s+([^!\\n]+)!/),name=(request.profileContext?.name||nameMatch?.[1]||\"\").replace(/[\\r\\n*_~`<>]/g,\" \").trim().slice(0,60);\n const language=snapshot.match(/(?:^|\\n)Language:\\s*([^·\\n]+)/)?.[1]?.trim()||\"en\";\n const material={...(request.profileContext||{}),...(response.material||{})};\n // Old assessments must never masquerade as a current review or a fact about today's draft.\n if(material.learning)material.learning={...material.learning,feedback:null};\n delete material.draft;\n if(kind===\"question\"||kind===\"preference\"){delete material.currentTask;delete material.currentPrompt;delete material.learning;}\n if(kind!==\"clarify\")delete material.recentConversation;\n const question=String(request.learnerQuestion||\"\").replace(/^ASK\\s+/i,\"\").slice(0,500);\n const detail=/how (?:to|do|can)|step.by.step|in detail|explain.*(?:build|create|make)/i.test(question);\n return {json:{action:\"tutor\",question,language,maxWords:kind===\"preference\"?25:detail?80:35,fallback:\"I’m having trouble connecting. Your saved work is kept; try your question again in a moment.\",material:{...material,name,mentorIntent:kind,verifiedProfile:kind===\"preference\"?\"\":snapshot,currentServerReply:deadEnd||[\"question\",\"preference\",\"clarify\"].includes(kind)?\"\":String(response.text||\"\").slice(0,6000),snapshotAt:new Date().toISOString(),source:\"Current signed replies from the learner’s own WhatsLearn account. Completed work and drafts are different. Do not infer missing preferences or claim any action beyond this server response.\"}},pairedItem:{item:i}};\n});\n"
       }
     },
     {
@@ -1704,17 +1704,6 @@
         ]
       ]
     },
-    "Hourly At 7 Past": {
-      "main": [
-        [
-          {
-            "node": "My Settings (edit here)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Resolve Settings": {
       "main": [
         [
@@ -2158,13 +2147,7 @@
     },
     "WhatsLearn Learner Memory": {
       "ai_memory": [
-        [
-          {
-            "node": "WhatsLearn Chat Agent",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Standalone Mentor": {
@@ -2468,6 +2451,17 @@
         [
           {
             "node": "Record Delivery Statuses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due Reminders Every 2 Minutes": {
+      "main": [
+        [
+          {
+            "node": "My Settings (edit here)",
             "type": "main",
             "index": 0
           }

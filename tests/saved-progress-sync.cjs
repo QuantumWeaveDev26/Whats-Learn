@@ -12,11 +12,11 @@ test('saved progress polls serially, pauses hidden tabs, backs off and cleans up
  const flush=()=>new Promise(resolve=>setImmediate(resolve));
  const tick=async()=>{const [id,t]=[...timers][0];timers.delete(id);await t.fn();await flush()};
  try{
-  const stop=startSavedProgressSync(async()=>{changes++});await flush();assert.equal(calls,1);assert.equal(changes,0);assert.equal([...timers.values()][0].ms,1000);
+  const stop=startSavedProgressSync(async()=>{changes++});await flush();assert.equal(calls,1);assert.equal(changes,0);assert.equal([...timers.values()][0].ms,5000);
   await tick();assert.equal(changes,0);revision='two';await tick();assert.equal(changes,1);
   document.visibilityState='hidden';await tick();assert.equal(calls,3);assert.equal(timers.size,0);
   document.visibilityState='visible';events.visibilitychange();events.focus();await flush();assert.equal(calls,4);
-  status=503;await tick();assert.equal([...timers.values()][0].ms,2000);
+  status=503;await tick();assert.equal([...timers.values()][0].ms,10000);
   stop();assert.equal(timers.size,0);assert.deepEqual(Object.keys(events),[]);
  }finally{for(const k of ['fetch','document','window','setTimeout','clearTimeout'])global[k]=original[k];Object.defineProperty(global,'navigator',original.navigator)}
 });

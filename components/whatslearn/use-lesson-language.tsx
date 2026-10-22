@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {ensureLanguagePack} from '@/lib/translations';
 export function useLessonLanguage(language:string){
- const [state,setState]=useState({language:'',status:'loading'}),[attempt,setAttempt]=useState(0);const inline=['en','kn','hi'].includes(language);
+ const [state,setState]=useState({language:'',status:'loading'}),[attempt,setAttempt]=useState(0);const inline=language==='en';
  useEffect(()=>{let live=true;if(inline)return;setState({language,status:'loading'});ensureLanguagePack(language).then(ok=>{if(live)setState({language,status:ok?'ready':'error'})}).catch(()=>{if(live)setState({language,status:'error'})});return()=>{live=false}},[language,attempt,inline]);
  return {ready:inline||state.language===language&&state.status==='ready',error:!inline&&state.language===language&&state.status==='error',retry:()=>setAttempt(n=>n+1)};
 }

@@ -1,0 +1,2546 @@
+{
+  "version": "2026-10-22-canonical-v1",
+  "missions": {
+    "d1": {
+      "steps": [
+        "लोकल test server जां अस्थायी memory store दे नाल इक छोटा trial-class booking demo बनाओ।",
+        "इक सफल save ते इक जबरदस्ती failure अजमाओ। save confirm होन दे बाद ही success दिखाओ।",
+        "कोड, असली output, तुहाडा fix, ते थल्ले मंगियां booking details साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "story",
+          "prompt": "किसै नूं booking page दी लोड ऐ, ओह् की चाहंदे न, ते क्यूं?",
+          "hint": "इक वाक्य: इक parent trial class मांगी सकदा ऐ तां जे ओ tutor चुन सकै।"
+        },
+        {
+          "id": "inputs",
+          "prompt": "मां-बाप कोन-कौन सी details दर्ज करन?",
+          "hint": "सिर्फ जरूरी details लिखो, जियां इक नाम ते class time। हर इक दे कन्नै कारण दियो।"
+        },
+        {
+          "id": "accept",
+          "prompt": "तीन test स्थितियें च की होना चाहिदा?",
+          "hint": "इक successful save, जानकारी दी कमी, ते ओह् समय जेड़ा पह्लें गै लिया होए। हर इक च की होना चाहिदा, दस्सो।"
+        },
+        {
+          "id": "failure",
+          "prompt": "save fail होन ते मां-बाप नूं की दिखाना चाहिदा?",
+          "hint": "message ते अगला कदम लिखो। fail save दे नाल Booking saved भी न दिखाओ।"
+        },
+        {
+          "id": "private",
+          "prompt": "कौन जी detail नूं सबनूं चोें ज्यादा बचाना चाहिदा?",
+          "hint": "थल्ले दित्ती इक detail चुनो ते समझाओ कि होर parents नूं इह् क्यूं नेईं दिखणी चाहिदी।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "मां-बाप दी booking request हून save होई दी ऐ। page Booking saved कदों कहे?",
+          "options": [
+            "ज्यों ही Book button दबाया जावे।",
+            "नवां booking reference लेई तुरंत retry करो।",
+            "server दे booking store होन दी पुष्टि करन दे बाद।",
+            "मान लो booking जरूर save नेईं होई।"
+          ],
+          "explanation": "server दे booking store होन दी पुष्टि करन दे बाद.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "इक्क-इक्क कदम फॉलो करो। लिखो असल च की होया ते इक चीज़ जित्थे तुसीं सुधार कीता।"
+        },
+        "practising": {
+          "question": "मां-बाप Book दबांदे न, पर save fail हो जांदा ऐ। page “Booking saved” कदों दिखाए?",
+          "options": [
+            "ज्यों ही मां-बाप Book दबान।",
+            "request भेजे जाण दे बाद, भले जवाब ना आवै।",
+            "सिर्फ server booking save होन दी पुष्टि करै; save fail होवे तां retry message दिखाओ।",
+            "लोडिंग animation रुकने पर।"
+          ],
+          "explanation": "इक tap सिर्फ request शुरू करदा ऐ। success दिखाण तो पह्लें server दी पुष्टि दा इंतजार करो।",
+          "levelTask": "इक input जां design choice बदल के फिर कोशिश करो। असल च की होया, तुलना करो।"
+        },
+        "experienced": {
+          "question": "booking हो सकदी ऐ, पर reply गुम हो गेआ। retry करन बारे तुहाडे plan च की होना चाहिदा?",
+          "options": [
+            "नवां booking reference लेई तुरंत retry करो।",
+            "मान लो booking जरूर save नेईं होई।",
+            "नतीजा अनिश्चित ऐ, ते दूसरा booking बनाए बगैर retry करो।",
+            "ज्यों ही Book button दबाया जावे।"
+          ],
+          "explanation": "नतीजा अनिश्चित ऐ, ते दूसरा booking बनाए बगैर retry करो.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "अपने local booking demo नूं reply गुम कराओ। retry करो ते दिखाओ कि दूसरा booking save नेईं हुंदा।"
+        }
+      }
+    },
+    "d2": {
+      "steps": [
+        "booking code दा ऐसा fix करो कि server signed-in user ते सही price check करै।",
+        "तीन tests चलाओ: fake user ID, बदली होई price, ते ओह् same request दूआरी भेजी।",
+        "कोड ते असली outputs साझा करो। fail होई case fix करके फिर चलाओ; सिर्फ expected results काफ़ी नेईं।"
+      ],
+      "fields": [
+        {
+          "id": "flaws",
+          "prompt": "कोई इस booking form नूं cheat करन लई की दो चीज़ां बदल सकदा ऐ?",
+          "hint": "fake user ID ते बदली होई price समझाओ, ते हर इक नाल होन वाला नुकसान दस्सो।"
+        },
+        {
+          "id": "fixed",
+          "prompt": "तुहाडा fixed server code केह् जियां दिखदा ऐ?",
+          "hint": "identity लई verified sign-in दा इस्तेमाल करो ते price लई database दा। safe database query इस्तमाल करो।"
+        },
+        {
+          "id": "negtests",
+          "prompt": "कौन-कौन से तीन tests fake IDs, बदली prices ते repeat requests check करदे न?",
+          "hint": "किसै होर दे ID, बदली होई price, ते same request दूआरी भेजन दे runnable tests लिखो। expect जां assert वरगे checks शामल करो।"
+        },
+        {
+          "id": "price_src",
+          "prompt": "server असली price किथ्थों लैवे?",
+          "hint": "इक भरोसेमंद source चुनो। छुपी form field नूं भी बदला जा सकदा ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "browser server नूं इक user ID भेजदा ऐ। की server उस ID नूं अकेले भरोसे लए?",
+          "options": [
+            "हां। browser form check करन नाल ID भरोसेमंद बन जंदी ऐ।",
+            "discount ते भरोसा करो जेकर उस दा button छुप्या होए।",
+            "discount field दा नां बदलो।",
+            "ना। ओह् verified sign-in details नाल user दी पहचान करे।"
+          ],
+          "explanation": "ना। ओह् verified sign-in details नाल user दी पहचान करे.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "इक्क-इक्क कदम फॉलो करो। लिखो असल च की होया ते इक चीज़ जित्थे तुसीं सुधार कीता।"
+        },
+        "practising": {
+          "question": "booking page server नूं user ID ते price भेजदी ऐ। कोई भेजन तो पह्लें दूनों बदल दिंदा ऐ। server नूं की करना चाहिदा?",
+          "options": [
+            "values नूं भरोसेमंद मानो क्योंकि form check होई सी।",
+            "कोई price 0 तो वध स्वीकार करो।",
+            "सिर्फ ई check करो कि user ID number ऐ।",
+            "verified sign-in नाल user दी पहचान करो ते अपने records नाल price लब्भो।"
+          ],
+          "explanation": "लोको browser द्वारा भेजे data नूं बदल सकदे न। server नूं check करना चाहिदा कि कौन signed in ऐ ते भरोसेमंद price चुननी चाहिदी ऐ।",
+          "levelTask": "इक input जां design choice बदल के फिर कोशिश करो। असल च की होया, तुलना करो।"
+        },
+        "experienced": {
+          "question": "तुहाडा server signed in होने नूं check करदा ऐ पर browser द्वारा भेजी discount स्वीकार करदा ऐ। अजैं की ठीक करना बाकी ऐ?",
+          "options": [
+            "discount ते भरोसा करो जेकर उस दा button छुप्या होए।",
+            "discount field दा नां बदलो।",
+            "हां। browser form check करन नाल ID भरोसेमंद बन जंदी ऐ।",
+            "server ते allowed price ते discount calculate करो।"
+          ],
+          "explanation": "server ते allowed price ते discount calculate करो.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "test request च discount बदलो। अपना server code चलाओ ते दिखाओ कि सही price हून वी इस्तेमाल हो रही ऐ।"
+        }
+      }
+    },
+    "d3": {
+      "steps": [
+        "अपनी booking tables throwaway local database च बनाओ, जिवें SQLite।",
+        "इक valid booking save करो, same seat दूआरी अजमाओ, ते private details उजागर किए बिना record पढ़ो।",
+        "SQL, असली नतीजे ते duplicate-seat error, ते table rule दा सुधार साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "schema",
+          "prompt": "हर database table च केह् जानकारी जानी चाहिदी ऐ?",
+          "hint": "tables बनाण लई SQL निर्देश लिखो—stored records दी list—ते हर booking नूं सही person जां class नाल जोड़ो।"
+        },
+        {
+          "id": "unique_rule",
+          "prompt": "कौन booking details कदें वी दूआरी save नेईं होनी चाहिदी?",
+          "hint": "class ते seat दे pair लई database rule जोड़ो जेड़ा unique होए—सिर्फ इक वारी save होए।"
+        },
+        {
+          "id": "private_cols",
+          "prompt": "कौन सी जानकारी private ऐ, ते ओह् कौन देख सकदा ऐ?",
+          "hint": "दोन निजी data columns दा नां लिखो ते हर इक नूं कौन पढ़ सकदा ऐ: parent, tutor, जां होर कोई नेईं। ऐसा query दिखाओ जेड़ा एह् सम्मान करे।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक customer कई classes book कर सकदा ऐ। customers ते bookings नूं linked tables च क्यूं रक्खना?",
+          "options": [
+            "हर booking लई new customer-name column जोड़ण लई।",
+            "सिर्फ browser च दिखाया warning।",
+            "हर booking नूं ग्राहक नाल जोड़ण लई बिना सारे customer details दोहराए।",
+            "लोकां नूं double-book नेईं करन दी टिप्पणी।"
+          ],
+          "explanation": "हर booking नूं ग्राहक नाल जोड़ण लई बिना सारे customer details दोहराए.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "इक्क-इक्क कदम फॉलो करो। लिखो असल च की होया ते इक चीज़ जित्थे तुसीं सुधार कीता।"
+        },
+        "practising": {
+          "question": "दो माता-पिता एक्को seat एक्के समय book करन दी कोशिश करदे न। double booking भरोसेमंद तरीके नाल केह् रोकदा ऐ?",
+          "options": [
+            "इक click दे बाद Book button छुपाओ।",
+            "माता-पिताओं नूं इकट्ठे बुक ना करन लई कहो।",
+            "इक database rule जेड़ा हर class-ते-seat pair नूं सिर्फ इक वारी save करन दिंदा ऐ।",
+            "browser दी पुरानी seats दी list check करो।"
+          ],
+          "explanation": "database नूं दूई booking नूं reject करना चाहिदा ऐ, भले दो request इक्को वेले आवन।",
+          "levelTask": "इक input जां design choice बदल के फिर कोशिश करो। असल च की होया, तुलना करो।"
+        },
+        "experienced": {
+          "question": "दो माता-पिता एक्को seat एक्के समय reserve करदे न। केह् database protection चाहिदी ऐ?",
+          "options": [
+            "सिर्फ browser च दिखाया warning।",
+            "माता-पिताओं नूं double-book ना करन दी टिप्पणी।",
+            "इक database rule जेड़ा same seat ते class लई दूसरा save रोक दे।",
+            "हर booking लई new customer-name column जोड़ना।"
+          ],
+          "explanation": "इक database rule जेड़ा same seat ते class लई दूसरा save रोक दे.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "अपने local database च same class slot दूआरी save कर के अजमाओ। दूसरा save रोकन वाली असली reply साझा करो।"
+        }
+      }
+    },
+    "d4": {
+      "steps": [
+        "इक छोटा local registration API बनाओ—page दा data server नूं भेजन दा तरीका।",
+        "curl जां local test tool नाल इक valid ते दूई invalid requests भेजो।",
+        "कोड ते हर असली reply, status number समेत, साझा करो। साफ़ ना होई जां असंगत reply ठीक करो।"
+      ],
+      "fields": [
+        {
+          "id": "endpoint",
+          "prompt": "पेज registration भेजन लई कोन सी URL ते action इस्तेमाल करग?",
+          "hint": "HTTP action, जियां POST, ते server URL, जियां /api/register, दा नां लो।"
+        },
+        {
+          "id": "req_json",
+          "prompt": "page केह् data भेजग?",
+          "hint": "data JSON च लिखो, field names ते example values नाल। सुरक्षित बनावटी details इस्तेमाल करो।"
+        },
+        {
+          "id": "ok_json",
+          "prompt": "save होन तो बाद server की भेजग?",
+          "hint": "saved registration reference ते साफ़ result नाल JSON reply लिखो।"
+        },
+        {
+          "id": "dup_status",
+          "prompt": "कौन status number दस्सदा ऐ कि एह् student पह्लें ही registered ऐ?",
+          "hint": "existing registration नाल conflict करदे request लई status code चुनो।"
+        },
+        {
+          "id": "errors",
+          "prompt": "server दो अलग errors लई की reply करग?",
+          "hint": "दो अलग errors status number, JSON reply, ते ओह् हालत जेड़ी हर इक पैदा करदी ऐ, लिखो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "page server नूं booking request भेजदी ऐ। data भेजन बारे page ते server नूं किस गलै ते सहमत होना चाहिदा?",
+          "options": [
+            "data किधर ते किवें भेजना, ते success ते error replies।",
+            "सिर्फ button दा रंग।",
+            "हर retry ते random message लौटाओ।",
+            "user नूं never double-click करन लई कहो।"
+          ],
+          "explanation": "data किधर ते किवें भेजना, ते success ते error replies.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "इक्क-इक्क कदम फॉलो करो। लिखो असल च की होया ते इक चीज़ जित्थे तुसीं सुधार कीता।"
+        },
+        "practising": {
+          "question": "इक student वही email नाल workshop दो वारी register करदा ऐ। कौन server reply साफ़ तौर ते page नूं दस्सदा ऐ कि की होया?",
+          "options": [
+            "Status 409 नाल already_registered message।",
+            "Status 200 कि नई registration save होई ऐ।",
+            "जदूं तक student हार ना मन्ने, कोई reply नहीं।",
+            "हर वारी अलग random error।"
+          ],
+          "explanation": "409 status दा मतलब ऐ कि एह् request existing record नाल conflict करदी ऐ। साफ़ message page नूं समझाण दिंदा ऐ कि registration पह्लें ही मौजूद ऐ।",
+          "levelTask": "इक input जां design choice बदल के फिर कोशिश करो। असल च की होया, तुलना करो।"
+        },
+        "experienced": {
+          "question": "page reply गुम होन तो बाद booking request retry करदी ऐ। server नूं दूसरा booking बनने तो रोकन च केह् मदद करदा ऐ?",
+          "options": [
+            "इक request key दोबारा इस्तेमाल करो ते define करो कि उसी key भेजी जावे तां की होवे।",
+            "हर retry ते random message लौटाओ।",
+            "user नूं कभी double-click ना करन लई कहो।",
+            "सिर्फ button दा रंग।"
+          ],
+          "explanation": "इक request key दोबारा इस्तेमाल करो ते define करो कि उसी key भेजी जावे तां की होवे.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "अपने local API नूं repeated request भेजो ते verify करो कि सिर्फ इक booking बनदी ऐ।"
+        }
+      }
+    },
+    "d5": {
+      "steps": [
+        "अपना order-checking function locally चलाओ।",
+        "इक valid order, इक गलत phone number, ते जरूरत तो वध items अजमाओ।",
+        "कोड ते असली नतीजे साझा करो। miss होई limit ठीक करो ते ओह् test फिर चलाओ।"
+      ],
+      "fields": [
+        {
+          "id": "where_stock",
+          "prompt": "app नूं बाकी stock किथ्थे check करना चाहिदा ऐ?",
+          "hint": "ओह् थां चुनो जित्थे order save करण तो पह्लें आखिरी stock check होवे।"
+        },
+        {
+          "id": "validator",
+          "prompt": "कौन सा code चेक करदा ऐ कि order मंजूर ऐ जां नेईं?",
+          "hint": "नाम, 10-अंकीय Indian phone number, known item, ते 1 तो available stock तक पूरी quantity चेक करो।"
+        },
+        {
+          "id": "msg_phone",
+          "prompt": "जेक्कर phone number गलत होए तां तुसीं की दस्सोगे?",
+          "hint": "इक मददगार वाक्य लिखो जेड़ा phone number ठीक करन दा तरीका दस्से।"
+        },
+        {
+          "id": "msg_qty",
+          "prompt": "जदूं ओह् available तो वध order करन तां तुसीं की कहोगे?",
+          "hint": "available amount समझाओ ते उस बन्दे नूं order घटाने लई कहो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "online shop नूं order मिलदा ऐ। बाकी stock किथ्थे check होना चाहिदा ऐ?",
+          "options": [
+            "सिर्फ browser च, भेजन तो पह्लें।",
+            "browser दी पुरानी stock count भरोसेमंद मानो।",
+            "success दिखाओ ते missing item छुपाओ।",
+            "server ते order संभालन समय।"
+          ],
+          "explanation": "server ते order संभालन समय.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "इक्क-इक्क कदम फॉलो करो। लिखो असल च की होया ते इक चीज़ जित्थे तुसीं सुधार कीता।"
+        },
+        "practising": {
+          "question": "browser 20 items ही दिंदे ऐ, पर कोई सीधा 5,000 order भेजदा ऐ। stock च सिर्फ 12 न। केह् एह् रोकदा ऐ?",
+          "options": [
+            "सिर्फ browser दी quantity limit।",
+            "click दे बाद order button छुपाणा।",
+            "order स्वीकार करो ते stock कल check करो।",
+            "server order save करन तो पह्लें stock ते quantity check करदा ऐ।"
+          ],
+          "explanation": "browser controls नूं बायपास कीता जा सकदा ऐ। order save करदे समय server ते उपलब्ध stock दूआरी check करो।",
+          "levelTask": "इक input जां design choice बदल के फिर कोशिश करो। असल च की होया, तुलना करो।"
+        },
+        "experienced": {
+          "question": "shop page stock दिखांदी ऐ, पर user order करने तो पह्लें आखिरी item बिक जंदा ऐ। केह् होना चाहिदा ऐ?",
+          "options": [
+            "browser दी पुरानी stock count स्वीकार करो।",
+            "success दिखाओ ते missing item छुपाओ।",
+            "सिर्फ browser च, भेजन तो पह्लें।",
+            "server stock दूआरी check करदा ऐ ते जेक्कर stock खत्म हो गेआ होए तां साफ़ unavailable reply दिंदा ऐ।"
+          ],
+          "explanation": "server stock दूआरी check करदा ऐ ते जेक्कर stock खत्म हो गेआ होए तां साफ़ unavailable reply दिंदा ऐ.. अपने काम च एह् फैसला अजमाओ।",
+          "levelTask": "local test च page load ते submit दे बीच stock बदलो; server response दर्ज करो।"
+        }
+      }
+    },
+    "v6": {
+      "steps": [
+        "दित्ते गेदे अंकीयें कन्नै स्प्रेडशीट जां चार्ट टूल च चार्ट बनाओ।",
+        "इक नंबर बदलो ते जांचो जे चार्ट अपडेट होंदा ऐ।",
+        "अंक, चार्ट लेबल, कैप्शन, ते इक भटकाऊ विकल्प जेड़ा तुस ठीक कीता, सांझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "chart",
+          "prompt": "इह अंकों गी दिखाने लेई तुस कीह्ड़ा चार्ट इस्तेमाल करो गे?",
+          "hint": "सब तों सादा चार्ट चुनो जेड़ा तीन दित्ते गेदे महीनेयें च होई रहे बदलाव गी साफ दिखावे।"
+        },
+        {
+          "id": "headline",
+          "prompt": "चार्ट किह्ड़ा इक निष्कर्ष दिखांदा ऐ?",
+          "hint": "असल अंकीयें कन्नै समर्थित इक निष्कर्ष लिखो, बिना वधाई-चढ़ाई दे।"
+        },
+        {
+          "id": "caption",
+          "prompt": "तुसारा चार्ट कैप्शन की समझावेगा?",
+          "hint": "25 शब्दें तों कट लिखो। सिर्फ ओह लिखो जे अंक दिखांदे न, जरूरत होऐ ते समय ते इकाइयां बी दसो।"
+        },
+        {
+          "id": "unproven",
+          "prompt": "एह अंक कीह्दे नह़ीं दसा सकदे?",
+          "hint": "इक नतीजा समझाओ जेड़ा डेटा साबित नह़ीं कर सकदा, जियां के विज़िट्स क्यों बदले।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस इक दुकान दे मालिक आस्ते चार्ट बनांदे ओ। निष्पक्ष कीह्दे कन्नै होई जंदा ऐ?",
+          "options": [
+            "इक कटी-छंटी स्केल जेड़ा सिर्फ फर्क गी बहुत वड्डा दिखाने आस्ते चुनी गेई होवे।",
+            "नंबर दे लेबल हटाओ।",
+            "दावा वड्डा दिखाने आस्ते बारें गी होर चौड़े करो।",
+            "साफ लेबल ते स्केल जेड़ा असली मूल्यों गी ईमानदारी कन्नै दिखावे।"
+          ],
+          "explanation": "साफ लेबल ते स्केल जेड़ा असली मूल्यों गी ईमानदारी कन्नै दिखावे.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "एक-एक कदम अनसार करो। लिखो असल च की हुआ ते तुस इक की सुधार कीता।"
+        },
+        "practising": {
+          "question": "लाइब्रेरी दे विज़िट 420 तों 640 होई जंदे न। इक बार चार्ट 400 तों शुरू होंदा ऐ ते बढ़ोतरी गी बहुत बड़ी दिखांदा ऐ। इथें की भटकाऊ ऐ?",
+          "options": [
+            "लेबल असली विज़िट गिनती दिखांदे न।",
+            "चार्ट च दोएं महीने शामिल न।",
+            "चार्ट च शीर्षक ऐ।",
+            "बार बढ़ोतरी गी वधा चढ़ा के दिखांदे न क्योंकि स्केल शून्य तों शुरू नह़ीं होंदा।"
+          ],
+          "explanation": "बार दी लंबाई अंकीयें गी निष्पक्ष तरीके कन्नै दिखानी चाहिदी ऐ। शून्य तों शुरू करने कन्नै छोटी बढ़ोतरी कई गुना वड्डी नह़ीं लगदी।",
+          "levelTask": "कोई इक इनपुट जां डिजाइन फैसला बदलियै दोबारा कोशिश करो। असल च की हुआ उह्दे कन्नै तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक चार्ट कहिंदा ऐ जे बढ़ोतरी बहुत वड्डी ऐ, पर ओह्दी स्केल छोटे नंबर तों थोह्ड़ी हेठ शुरू होंदी ऐ। तुस कीह् सुधारोगे?",
+          "options": [
+            "नंबर दे लेबल हटाओ।",
+            "दावा वड्डा दिखाने आस्ते बारें गी होर चौड़े करो।",
+            "इक कटी-छंटी स्केल जेड़ा सिर्फ फर्क गी बहुत वड्डा दिखाने आस्ते चुनी गेई होवे।",
+            "इक निष्पक्ष स्केल ते ऐसी headline इस्तेमाल करो जेड़ी असली बदलाव कन्नै मेल खावे।"
+          ],
+          "explanation": "इक निष्पक्ष स्केल ते ऐसी headline इस्तेमाल करो जेड़ी असली बदलाव कन्नै मेल खावे.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "असली आंकड़ें कन्नै दोनों स्केल विकल्प बनाओ ते सुधारे तों पैह्लें तुलना च की बदलाव आंदा ऐ, लिखो।"
+        }
+      }
+    },
+    "v7": {
+      "steps": [
+        "पंज स्लाइडां बनाओ ते export करो जेड़ियां इक साफ कहानी दस्सन।",
+        "उहनें गी फोन पर पढ़ो। कोई दोहराई गेई सोच जां आख़िरी हिदायत साफ न होने ते ध्यान दो।",
+        "स्लाइड टेक्स्ट ते क्रम सांझा करो, फिर दोहराव हटाओ ते आख़िरी कदम सुधरो।"
+      ],
+      "fields": [
+        {
+          "id": "s1",
+          "prompt": "पैह्ल़ी स्लाइड ध्यान केह्दा त्रीके कन्नै खींचेगी?",
+          "hint": "इक लाइन ते इक तस्वीर नोट जेड़ा स्क्रोल रोक दे। सवाल जां चौंकाने वाली गल्ल लोगो ते ज्यादा चंगी चलदी ऐ।"
+        },
+        {
+          "id": "s2",
+          "prompt": "दूई स्लाइड केह्ड़ा इक विचार होर जोड़गी?",
+          "hint": "इक लाइन ते इक तस्वीर नोट: पैह्ले विचार गी आगे बढ़ाने आह्ली पहली गल्ल।"
+        },
+        {
+          "id": "s3",
+          "prompt": "तीसरी स्लाइड केह्ड़ा नवा विचार जोड़गी?",
+          "hint": "इक लाइन ते इक तस्वीर नोट: दूआ, अलग विचार।"
+        },
+        {
+          "id": "s4",
+          "prompt": "कौणसा तथ्य जां असली मिसाल तुहाडे संदेश गी सहारा दिंदी ऐ?",
+          "hint": "इक लाइन ते इक तस्वीर नोट जेड़ा दावे गी भरोसेमंद बनावे।"
+        },
+        {
+          "id": "s5",
+          "prompt": "आख़िरी स्लाइड तों बाद दर्शक की करें?",
+          "hint": "इक लाइन ते इक तस्वीर नोट, इक ही कम्म कन्नै, जिवें ₹240 आह्ला छे-कुकी बॉक्स मंगाना।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस इक बेकरी आस्ते पंज स्लाइडां बनांदे ओ। हर स्लाइड की करना चाहिदा?",
+          "options": [
+            "इक ही मुद्दा थोह्ड़ी बदली पृष्ठभूमि कन्नै दोहराओ।",
+            "आख़िरी कदम तों पैह्लें होर स्लाइड जोड़ो।",
+            "अंतिम कार्रवाई वाल इक साफ कदम जोड़ो।",
+            "अंतिम हिदायत गी होर छोटी करो।"
+          ],
+          "explanation": "अंतिम कार्रवाई वाल इक साफ कदम जोड़ो.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "एक-एक कदम अनसार करो। लिखो असल च की हुआ ते तुस इक की सुधार कीता।"
+        },
+        "practising": {
+          "question": "इक बेकरी स्लाइड च सामग्री, डिलिवरी, छूट ते सेहत दे दावे लिखे न। पढ़ना मुश्किल ऐ। केह् मदद करदा ऐ?",
+          "options": [
+            "होरे शब्द छोटे अक्षरें च जोड़ो।",
+            "हर स्लाइड पर सारे विवरण दोहराओ।",
+            "इस स्लाइड च इक मुख्य विचार रखो ते होर विचार अलग स्लाइडां पर ले जाओ।",
+            "पूरी श्रृंखला तों अंतिम ऑर्डर हिदायत हटाओ।"
+          ],
+          "explanation": "हर स्लाइड गी इक साफ कम्म देओ। पाठक संदेश ते अगले कदम गी पालन कर सकन।",
+          "levelTask": "कोई इक इनपुट जां डिजाइन फैसला बदलियै दोबारा कोशिश करो। असल च की हुआ उह्दे कन्नै तुलना करो।"
+        },
+        "experienced": {
+          "question": "पढ़न आह्लें आख़िरी स्लाइड तों पैह्लें रुक जंदे न क्योंकि बीचलियां त्रीं स्लाइडां इक ही मुद्दा दोहरांदियां न। तुस कीह् टेस्ट करोगे?",
+          "options": [
+            "आख़िरी कदम तों पैह्लें होर स्लाइड जोड़ो।",
+            "अंतिम हिदायत गी होर छोटी करो।",
+            "दोहराए गेदे मुद्दे जोड़ो ते देखो के छोटो कहानी साफ रेंदी ऐ जां नह़ीं।",
+            "इक ही मुद्दा थोह्ड़ी बदली पृष्ठभूमि कन्नै दोहराओ।"
+          ],
+          "explanation": "दोहराए गेदे मुद्दे जोड़ो ते देखो के छोटो कहानी साफ रेंदी ऐ जां नह़ीं.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "इक असली export कीती गेई carousel ते इक छोटी editing पाठक गी दिखाओ; लिखो किथें कहानी जां कम्म होर साफ होंदा ऐ।"
+        }
+      }
+    },
+    "v8": {
+      "steps": [
+        "कोई असली तस्वीर खोलो जेड़ी तुस बनाई ऐ जां इस्तेमाल करने दी इजाज़त ऐ।",
+        "गलतियां, गुम लोक जां ब्योरे, ते नां जां चेहरे जेड़े तुस नह़ीं इस्तेमाल कर सकदे, उह्दे लेई देखो।",
+        "इक सुधारी गेई तस्वीर बनाओ जां अपनी तस्वीर नाल बदलो। अपने जांच नतीजें ते असली बदलाव सांझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "defects",
+          "prompt": "हथें जां शब्दें च केह्ड़ियां गलतियां दिखदियां न?",
+          "hint": "असल तस्वीर देखो। साफ दिक्खण आह्लियां मुश्किलां नोट करो, जिवें वधु उंगलियां जां पढ़ण योग्य न होने आह्ले शब्द।"
+        },
+        {
+          "id": "bias",
+          "prompt": "कौण जां कीह् गायब ऐ जां अनुचित तरीके कन्नै दिखाया गेआ ऐ?",
+          "hint": "देखो जे लोक गायब न, stereotype कीते गे न, जां अनुचित तरीके कन्नै दिखाए गे न। जेह्ड़ा दिक्खै ओह दसो।"
+        },
+        {
+          "id": "rights",
+          "prompt": "की तुहाडे कोल इथें दिक्खदे लोक ते सामग्री इस्तेमाल करने दी इजाज़त ऐ?",
+          "hint": "चेहरे, लोगो ते स्रोत सामग्री जांचो। AI output नूं इजाज़त मिली दसम्बे न समझो।"
+        },
+        {
+          "id": "verdict",
+          "prompt": "की तस्वीर इस्तेमाल करने लायक ऐ, जां बदलनी चाहिदी ऐ?",
+          "hint": "जांच दे अधार पर use, revise जां replace चुनो।"
+        },
+        {
+          "id": "revision",
+          "prompt": "अगली version च खास तौर पर कीह् ठीक होना चाहिदा?",
+          "hint": "दिखाई देन आह्लियां समस्याएं दे साफ बदलाव मांगो। फिर नवा तस्वीर बी जांचो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस इक AI- बनाई दुकान दी तस्वीर इस्तेमाल करना चांहदे ओ। तुस कीह् जांचोगे?",
+          "options": [
+            "सिर्फ एह कि ओह ध्यान खींचदी ऐ जां नह़ीं।",
+            "दिखाई देन आह्लियां गलतियां, की ओह मकसद आस्ते ठीक ऐ, ते संगत सामग्री आस्ते इजाज़त।",
+            "सिर्फ छोटे न पढ़े जाण आह्ले शब्द काटो।",
+            "मान लो AI तस्वीरें च इजाज़त दी समस्या नह़ीं होंदी।"
+          ],
+          "explanation": "दिखाई देन आह्लियां गलतियां, की ओह मकसद आस्ते ठीक ऐ, ते संगत सामग्री आस्ते इजाज़त.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "एक-एक कदम अनसार करो। लिखो असल च की हुआ ते तुस इक की सुधार कीता।"
+        },
+        "practising": {
+          "question": "इक चाय ठेले आह्ले AI बैनर च बगैर इजाज़त इक मशहूर अभिनेता दा चेहरा नकल करके लैनदा ऐ। छापण तों पैह्लें की होना चाहिदा?",
+          "options": [
+            "क्योंकि AI ने बनाई, छापो।",
+            "चेहरा बदलो जां हटा दो तां जो ओह उस शख्स दी नकल न करे, फिर तस्वीर दोबारा जांचो।",
+            "इक छोटा कोना लुकाओ पर पहचाण योग्य चेहरा रखो।",
+            "कहो के अभिनेता चाय ठेले दा समर्थन करदा ऐ।"
+          ],
+          "explanation": "AI- बनाई तस्वीरें गी बी सावधानी कन्नै जांच चाहिदी ऐ। जदूं तुहाडे कोल नह़ीं ऐ ते असली शख्स दी भागीदारी जां इजाज़त दा इशारा न करो।",
+          "levelTask": "कोई इक इनपुट जां डिजाइन फैसला बदलियै दोबारा कोशिश करो। असल च की हुआ उह्दे कन्नै तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक चमकीली तस्वीर च पढ़ण योग्य न होने आह्ले उत्पाद शब्द ते इक logo ऐ जेड़ा इस्तेमाल करने दी इजाज़त तुहाडे कोल नह़ीं। की होना चाहिदा?",
+          "options": [
+            "सिर्फ छोटे न पढ़े जाण आह्ले शब्द काटो।",
+            "तस्वीर ठीक करो जां बदलो, ते इस्तेमाल तों पैह्लें इजाज़त निपटाओ।",
+            "मान लो AI तस्वीरें च इजाज़त दी समस्या नह़ीं होंदी।",
+            "सिर्फ एह कि ओह ध्यान खींचदी ऐ जां नह़ीं।"
+          ],
+          "explanation": "तस्वीर ठीक करो जां बदलो, ते इस्तेमाल तों पैह्लें इजाज़त निपटाओ.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "export size पर असली तस्वीर जांचो, इक दिखाई देन आह्ली कमी ठीक करो ते इस्तेमाल दा फैसला लिखो।"
+        }
+      }
+    },
+    "v9": {
+      "steps": [
+        "तीन स्लाइडां बनाओ ते export करो जेड़ियां समस्या, तुहाडा विचार, ते तुस केह्ड़ी मदद चाहंदी ऐ, एह समझावन।",
+        "इक मिनट दी प्रस्तुति रिकॉर्ड करो ते वापस सुनो।",
+        "बिना सहारे दावे जां स्लाइडां विच गडबड़ी आह्ले बदलाव ठीक करो। स्लाइड, वीडियो समय ते सुधार सांझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "problem",
+          "prompt": "पैह्ली स्लाइड किह्ड़ी समस्या दिखावेगी?",
+          "hint": "दिखाओ केह्ड़े लोकें कोल समस्या ऐ ते उह्दे आस्ते की मुश्किल ऐ।"
+        },
+        {
+          "id": "insight",
+          "prompt": "तुस की सीख्या ऐ जेड़ी समस्या समझाने च मदद करदी ऐ?",
+          "hint": "ओह उपयोगी विचार दसो जेड़ा तुसनूं देखी-भाली तों मिला।"
+        },
+        {
+          "id": "proof",
+          "prompt": "कौणसा तथ्य जां मिसाल उस विचार दा समर्थन करदी ऐ?",
+          "hint": "असली तथ्य, अवलोकन जां मिसाल इस्तेमाल करो। सबूत घड़ो मत।"
+        },
+        {
+          "id": "ask",
+          "prompt": "आख़िरी स्लाइड पर तुस केह्ड़ी मदद जां कम्म मांगोगे?",
+          "hint": "दसो तुसनूं केह्ड़ी मदद चाहिदी ऐ, ओह किस कम्म आस्ते इस्तेमाल होनी ऐ, ते अगला कदम की ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस तीन स्लाइडां च इक प्रोजेक्ट समझांदे ओ। उह् केह्ड़ी गल्ल नाल जुड़ियां होणियां चाहिदियां?",
+          "options": [
+            "इक समस्या, तथ्यें कन्नै समर्थित इक विचार, ते इक साफ अगला कदम।",
+            "तीन बे-संबंध विषय जेह्दे कन्नै सबनूं हैरान कर दित्ता जावे।",
+            "वादा होर वड्डा बनाओ।",
+            "सवाल-जवाब दे दौरान facts वाली स्लाइड छुपाओ।"
+          ],
+          "explanation": "इक समस्या, तथ्यें कन्नै समर्थित इक विचार, ते इक साफ अगला कदम.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "एक-एक कदम अनसार करो। लिखो असल च की हुआ ते तुस इक की सुधार कीता।"
+        },
+        "practising": {
+          "question": "विद्यार्थी ₹12,000 मांगन कन्नै pitch शुरू करदे न। सुनन आह्ले पूछदे न प्रोजेक्ट दी जरूरत क्यों ऐ। विद्यार्थियां नूं पैह्लें की समझाना चाहिदा?",
+          "options": [
+            "समस्या, उहनें की सीख्या, ते क्योँ उह्दा विचार मदद करोगा।",
+            "बिना व्याख्या होर वड्डी रक़म।",
+            "सिर्फ slide च इस्तेमाल होए रंग।",
+            "इक वादा के विचार कदें फेल नह़ीं होएगा।"
+          ],
+          "explanation": "मदद मांगण तों पैह्लें जरूरत ते सहायक तथ्य दिखाओ। फिर अनुरोध दा साफ कारण होंदा ऐ।",
+          "levelTask": "कोई इक इनपुट जां डिजाइन फैसला बदलियै दोबारा कोशिश करो। असल च की हुआ उह्दे कन्नै तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक pitch ओह नतीजा वादा करदी ऐ जेड़ा उह्दे तथ्य समर्थन नह़ीं करदे। अगला version होर मजबूत किउं ऐ?",
+          "options": [
+            "वादा गी ओह्दे तक सीमित करो जेड़ा तथ्य समर्थन करदे न ते इक यथार्थवादी अगला कदम दसो।",
+            "वादा होर वड्डा बनाओ।",
+            "सवाल-जवाब दे दौरान facts वाली स्लाइड छुपाओ।",
+            "तीन बे-संबंध विषय जेह्दे कन्नै सबनूं हैरान कर दित्ता जावे।"
+          ],
+          "explanation": "वादा गी ओह्दे तक सीमित करो जेड़ा तथ्य समर्थन करदे न ते इक यथार्थवादी अगला कदम दसो.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "अपनी pitch रिकॉर्ड करो। इक वादा लब्भो जेड़ा तुस समर्थन नह़ीं कर सकदे ते सुधारी गेई version दिखाओ।"
+        }
+      }
+    },
+    "v10": {
+      "steps": [
+        "अपनी पैह्लां दी कम्म तों पांच जुड़े होए campaign pictures बनाओ ते export करो।",
+        "पूरी श्रृंखला फोन पर देखो। किथें संदेश दा मतलब नह़ीं बनदा, ओह लब्भो।",
+        "उह् तस्वीर सुधरो। असली तस्वीर दा मजमून ते पैह्लें-तो-बाद सुधार सांझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "setup",
+          "prompt": "तस्वीरां किस आस्ते न, ते किह्ड़ी विशेषता उहनें गी जोड़दी ऐ?",
+          "hint": "campaign किस नूं संबोधित करदी ऐ, ते ओह इक वस्तु जां रंग जेड़ा हर frame च दोहरांदा ऐ।"
+        },
+        {
+          "id": "frames_a",
+          "prompt": "पैह्ल़ी त्रीं तस्वीरां की दिखाओंगियां?",
+          "hint": "हर इक आस्ते इक लाइन: असां की देखदे आं, ते इक छोटा caption। समस्या तों शुरू करो ते बदलाव तक बनाओ।"
+        },
+        {
+          "id": "frames_b",
+          "prompt": "आख़िरी दो तस्वीरां की दिखाओंगियां?",
+          "hint": "हर इक आस्ते इक लाइन: असां की देखदे आं ते caption। frame 5 volunteer करन दे निमंत्रण कन्नै खत्म होंदा ऐ।"
+        },
+        {
+          "id": "risk",
+          "prompt": "दर्शक कीह् उलझा सकदा ऐ, ते तुस किवें ठीक करोगे?",
+          "hint": "उह् जोड़ी चुनो जिस पर तुस इस campaign आस्ते कार्रवाई करोगे।"
+        },
+        {
+          "id": "disclosure",
+          "prompt": "तुस दर्शकां नूं किवें दसो गे जेह्ड़े हिस्से AI कन्नै बने न?",
+          "hint": "इक छोटा साफ वाक्य जेड़ा दर्शकां गी दसे के कुछ तस्वीरां AI कन्नै बनी न।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस पांच campaign तस्वीरां बनांदे ओ। केह्ड़ी गल्ल उहनें गी इक संदेश जियां बनांदी ऐ?",
+          "options": [
+            "हर तस्वीर च अलग दर्शक ते अलग लक्ष्य।",
+            "दोनें दर्शकां नूं बिना कुछ बदले जोड़ो।",
+            "इक बे-संबंध अंत जोड़ो।",
+            "उही दर्शक, जुड़े होए विचार, ते इक आख़िरी कार्रवाई।"
+          ],
+          "explanation": "उही दर्शक, जुड़े होए विचार, ते इक आख़िरी कार्रवाई.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "एक-एक कदम अनसार करो। लिखो असल च की हुआ ते तुस इक की सुधार कीता।"
+        },
+        "practising": {
+          "question": "इक campaign च पांच तस्वीरां च अलग-अलग पात्र ते रंग न। लोक कड़ी नज़र नह़ीं मारदे। केह् समान रहना चाहिदा?",
+          "options": [
+            "हर तस्वीर च नया दर्शक ते नया लक्ष्य।",
+            "बिना जोड़ दे बे-संबंध पात्र।",
+            "ऐसे अलग-अलग संदेश जेड़े बे-संबंध कार्रवाईयां वाल इशारा करदे न।",
+            "इक दोहराया गेआ विवरण ते सारे पांच तस्वीरां च साझी रंग योजना।"
+          ],
+          "explanation": "दोहराए गेदे विवरण लोकें नूं इक जुड़े होए campaign दी पहचान करन च मदद करदे न। ओह्दा दर्शक ते अगला कदम बी एक जैसा रखो।",
+          "levelTask": "कोई इक इनपुट जां डिजाइन फैसला बदलियै दोबारा कोशिश करो। असल च की हुआ उह्दे कन्नै तुलना करो।"
+        },
+        "experienced": {
+          "question": "पैह्ल़ी तस्वीरां इक दर्शक नूं गल्ल करदियां न, पर आख़िरी हिदायत दूए दर्शक आस्ते ऐ। तुस की बदलोगे?",
+          "options": [
+            "दोनें दर्शकां नूं बिना कुछ बदले जोड़ो।",
+            "इक बे-संबंध अंत जोड़ो।",
+            "हर तस्वीर च अलग दर्शक ते अलग लक्ष्य।",
+            "पूरी श्रृंखला गी इक दर्शक ते इक इच्छित कार्रवाई आस्ते बनाओ।"
+          ],
+          "explanation": "पूरी श्रृंखला गी इक दर्शक ते इक इच्छित कार्रवाई आस्ते बनाओ.. एह फैसला अपने कम्म च अजमाओ।",
+          "levelTask": "बिना व्याख्या दे exported पांच-फ्रेम sequence दा टेस्ट करो ते ओह frame सुधरो जित्थें इच्छित कार्रवाई दिक्खण छोड़ दी ऐ।"
+        }
+      }
+    },
+    "f6": {
+      "steps": [
+        "Ik surakshit thahra, camera, te roshni jo tainū pahilan toṃ hi milī hovai, istemal karo.",
+        "Ik lighting test film karo. Roshni badlo te ik backup setup film karo.",
+        "Dasso ki camera te roshni kithe si, video de time ki si, te kehṛā badlav madadgar sabit hoya."
+      ],
+      "fields": [
+        {
+          "id": "time_window",
+          "prompt": "Tū eh scene kadōṃ film kareṅgā?",
+          "hint": "Five students te ik clip-on light de hisāb naal, jadōṃ tainū shoot karna hove oh samā chuno."
+        },
+        {
+          "id": "light",
+          "prompt": "Roshni kithōṃ āvengi?",
+          "hint": "Akas, stall bulbs te shop lights da nām lo jo tusi vartde ho, te samjhao ki clip-on light kiveṃ madad kardi hai."
+        },
+        {
+          "id": "permission",
+          "prompt": "Tū ijaazat kiveṃ laiṅgā te shoot nu safe kiveṃ rakheṅgā?",
+          "hint": "Kehṛā vyakti likhit vich haan kehnda hai, busy lane vich ik safety risk te usda hal."
+        },
+        {
+          "id": "backup",
+          "prompt": "Je roshni ya jagah badal jāve taṃ tū ki karenga?",
+          "hint": "Je baarish ya bheṛ shoot rok lave taṃ dooji jagah ya dooja samā."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Tū ik scene film karan layi jagah chundā hai. Us di roshni baare ki check karna chaahida?",
+          "options": [
+            "Oh roshni asal vich planned filming time te kiven dikhdi hai.",
+            "Sirf eh ki jagah photo vich vadiya lagdi hai ya nahi.",
+            "Isnu ignore kar do kyunki room tan ohi hai.",
+            "Eh vaada karo ki AI har lighting badlav nu theek kar devegi."
+          ],
+          "explanation": "Oh roshni asal vich planned filming time te kiven dikhdi hai.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Steps ik-ek karke follow karo. Likho ki asal vich ki hoya te ik cheez jo tusi sudhāri."
+        },
+        "practising": {
+          "question": "Tusi noon te rooftop vekhi, par 6 pm te film karni hai. Eh chon karan ton pahilan ki check karna chaahida?",
+          "options": [
+            "6 pm de naal jaa ke roshni, safety te permission check karo.",
+            "Mann lo ki noon wali roshni ohi rahegi.",
+            "Ik sohṇi photo ton hi isnu chun lo.",
+            "Shoot shuru hon tak permission puchhan layi ruk jao."
+          ],
+          "explanation": "Roshni te access samay naal badal sakde han. Jado tusi asal vich film karni hai, oh jagah check karo.",
+          "levelTask": "Ik input ya design choice badal ke fer try karo. Jo asal vich hoya usdi tulna karo."
+        },
+        "experienced": {
+          "question": "Filming de beech window light badal jandi hai. Ki karan naal shots phir vi match karde han?",
+          "options": [
+            "Order badlo ya roshni nu control karo, fer matching test shots check karo.",
+            "Isnu ignore karo kyunki room tan ohi hai.",
+            "Eh vaada karo ki AI har lighting badlav nu theek kar devegi.",
+            "Sirf eh ki jagah photo vich vadiya lagdi hai ya nahi."
+          ],
+          "explanation": "Order badlo ya roshni nu control karo, fer matching test shots check karo.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Do waqtan te asli test frames lo te vekhe hoye badlav de aadhar te apni lighting ya shot order revise karo."
+        }
+      }
+    },
+    "f7": {
+      "steps": [
+        "Apni ya ijazat naal mili footage te sounds naal ik chhoti sound edit banao.",
+        "Ikko sound cue layi do vaar try karo. Export karo te dono nu suno.",
+        "Cue times, mood kiveṃ badlia, te apni sudhri hoyi sound plan share karo."
+      ],
+      "fields": [
+        {
+          "id": "ambience",
+          "prompt": "Is jagah da background sound ki hunda hai?",
+          "hint": "Is location di steady background awaz da nām lo, jiveṃ fan ya door di traffic."
+        },
+        {
+          "id": "key_effect",
+          "prompt": "Sab ton zaroori sound effect kehṛā hai?",
+          "hint": "Oh sound chuno jo viewer ki notice karde ne ya kiven mehsoos karde ne, isnu badalda hai."
+        },
+        {
+          "id": "music",
+          "prompt": "Tusi music ya silence kithē vartoge?",
+          "hint": "Dasso music ya silence scene nu kithē madad kardi hai, te kyun."
+        },
+        {
+          "id": "cues",
+          "prompt": "Har sound kadōṃ shuru te khatam hovegi?",
+          "hint": "Kam ton kam chaar rows time order vich likho: time, sound, te loud ya soft. Is timing list nu cue sheet kehnde han."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Tusi ikko room vich do dialogue clips edit karde ho. Room da background sound kyoṃ record karna?",
+          "options": [
+            "Har character di voice nu replace karan layi.",
+            "Sirf title music volume layi.",
+            "Ki camera bahut tez hila si ya nahi.",
+            "Dono clips vich background sound nu ek-jaisa rakhan layi."
+          ],
+          "explanation": "Dono clips vich background sound nu ek-jaisa rakhan layi.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Steps ik-ek karke follow karo. Likho ki asal vich ki hoya te ik cheez jo tusi sudhāri."
+        },
+        "practising": {
+          "question": "Ik chupp scene vich shots de vich fan di awaz kabhi aundi kabhi nahi. Sound nu ek-jaisa kis naal lagda hai?",
+          "options": [
+            "Dialogue nu bahut dheema kar do.",
+            "Har cut te alag gaana la do.",
+            "Jump nu ignore karo kyunki picture theek lagdi hai.",
+            "Fan chalu rakhe hoye room di steady awaz record karo te cuts de thalle use karo."
+          ],
+          "explanation": "Room di background awaz di recording nu room tone kehnde han. Eh recorded clips de beech badlav nu smooth banaundi hai.",
+          "levelTask": "Ik input ya design choice badal ke fer try karo. Jo asal vich hoya usdi tulna karo."
+        },
+        "experienced": {
+          "question": "Dialogue edits alag rooms varge lagde han, halanki scene ikko jagah hai. Tainū ki check karna chaahida?",
+          "options": [
+            "Sirf title music volume.",
+            "Ki camera bahut tez hila si ya nahi.",
+            "Har character di voice nu replace karna.",
+            "Dialogue clips de vichkari background room sound te joins."
+          ],
+          "explanation": "Dialogue clips de vichkari background room sound te joins.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Room tone de naal te bina room tone de do real dialogue clips edit karo; sunan jog farak te apna fix report karo."
+        }
+      }
+    },
+    "f8": {
+      "steps": [
+        "Apni footage ton do chhote edits banao te export karo.",
+        "Dono vekho te note karo kithē ik bahut dheema, bahut tez, ya uljhan bhara lagda hai.",
+        "Duration, cut times, te tusi jo sudhri edit chunia, usda reason naal share karo."
+      ],
+      "fields": [
+        {
+          "id": "edl",
+          "prompt": "Shots kehṛe order vich aunge, te kinne seconds layi?",
+          "hint": "Har rakhe hoye shot nu usde number, framing te seconds naal likho, jiveṃ 1 | wide road | 5s. Total lagbhag 30 seconds."
+        },
+        {
+          "id": "pace",
+          "prompt": "Edit di speed kiveṃ badlegi?",
+          "hint": "Chuno ki shots story de badlan naal kiveṃ tez ya dheeme hunde ne."
+        },
+        {
+          "id": "action_cut",
+          "prompt": "Kehṛi movement cut de across jari rahegi?",
+          "hint": "Oh movement da nām lo jo edit de badlan de bawajood smoothly jari rahe."
+        },
+        {
+          "id": "dropped",
+          "prompt": "Kehṛa shot tusi hataoge ya chhota karoge?",
+          "hint": "Ik shot da nām lo jo tusi chhota kita ya hata ditta, te dasso story hor saaf kyoṃ hai."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Tusi ik surprise ending wala scene edit karde ho. Ki tension build kar sakda hai?",
+          "options": [
+            "Har shot nu ohde filmed order vich hi varto.",
+            "Har shot nu hor chhota kar do.",
+            "Dasso viewers ki sikhde ne te kadōṃ sikhde ne.",
+            "Har shot de vich ik transition pao."
+          ],
+          "explanation": "Dasso viewers ki sikhde ne te kadōṃ sikhde ne.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Steps ik-ek karke follow karo. Likho ki asal vich ki hoya te ik cheez jo tusi sudhāri."
+        },
+        "practising": {
+          "question": "Barabar lambe chhe shots final reveal nu suhaṇa kar dinde han. Action nu saaf rakhde hoye tension kis edit naal ban sakdi hai?",
+          "options": [
+            "Har shot nu length te distance vich ikko jeha rakho.",
+            "Reveal ton pahilan unrelated shots jodo.",
+            "Dheere-dheere shots nu chhota karo te important detail de nede jao.",
+            "Important action nu chhupa do taan jo koi follow hi na kar sake."
+          ],
+          "explanation": "Timing te distance vich badlav reveal wal dhyaan lai ja sakde han. Viewer nu phir vi action follow karna chahida hai.",
+          "levelTask": "Ik input ya design choice badal ke fer try karo. Jo asal vich hoya usdi tulna karo."
+        },
+        "experienced": {
+          "question": "Tuhada fast edit tension di bajaye uljhan paida kar reha hai. Agle version vich ki saaf rehna zaroori hai?",
+          "options": [
+            "Har shot nu hor chhota kar do.",
+            "Har shot de vich ik transition pao.",
+            "Lok kithē han te ik action agle action tak kiveṃ jaandi hai.",
+            "Har shot nu ohde filmed order vich hi varto."
+          ],
+          "explanation": "Lok kithē han te ik action agle action tak kiveṃ jaandi hai.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Alag timing wale do cuts export karo te revise karan ton pahilan ik willing viewer ki samajhda hai, oh record karo."
+        }
+      }
+    },
+    "f9": {
+      "steps": [
+        "Ik chhota shoot setup karo. Setup, recording te packing away da samā naap lo.",
+        "Apne schedule te spreadsheet budget vich formulas de naal eh asal time varto.",
+        "Apne timings, calculations, te jo plan bahut der lainda si oh tusi kiveṃ badalia, share karo."
+      ],
+      "fields": [
+        {
+          "id": "call",
+          "prompt": "Har koi kis time aave?",
+          "hint": "Ik time, jiveṃ 7:30 am, te crew kithe mildi hai."
+        },
+        {
+          "id": "schedule",
+          "prompt": "Tusi setup, travel, film te pack away kadōṃ karoge?",
+          "hint": "Rows vich time, scene, place te do breaks, sensible location order vich."
+        },
+        {
+          "id": "top_spend",
+          "prompt": "Sab ton zyada kharch kis te hovega?",
+          "hint": "Oh line chuno jide te sab ton zyada rupees lagde han, te reasoning vich isnu justify karo."
+        },
+        {
+          "id": "budget",
+          "prompt": "Budget nu tusi kiveṃ vando ge?",
+          "hint": "Rows jiveṃ “item: ₹amount”, naal lagbhag 10 per cent contingency. Total ₹6,000 ya is ton ghatt."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Tusi kai thāvan te ik din da shoot plan karde ho. Schedule practical kiveṃ hunda hai?",
+          "options": [
+            "Mann lo har shot nu ikko sama lagda hai.",
+            "Asli roshni, lok, travel te setup time layi jagah chhaddo.",
+            "Hamesha script order vich film karo.",
+            "Saara setup te travel time hata do."
+          ],
+          "explanation": "Asli roshni, lok, travel te setup time layi jagah chhaddo.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Steps ik-ek karke follow karo. Likho ki asal vich ki hoya te ik cheez jo tusi sudhāri."
+        },
+        "practising": {
+          "question": "Do filming places nede ne. Tisri shehar de duje pasare hai te sunset light mangdi hai. Din nu kiveṃ plan karna chaahida?",
+          "options": [
+            "Tināṃ thāvāṃ vich vapas auna-jana karo.",
+            "Nede wale thāvaṃ nu din ch film karo, fer sunset location val ik vaar travel karo.",
+            "Travel ya light di parvah kite bina story order vich film karo.",
+            "Travel ya setup layi koi samā na chhaddo."
+          ],
+          "explanation": "Nede wale kaam nu ikkathe karo te oh shot bachao jo khaas roshni mangda hai. Asal travel te setup time zaroor shamil karo.",
+          "levelTask": "Ik input ya design choice badal ke fer try karo. Jo asal vich hoya usdi tulna karo."
+        },
+        "experienced": {
+          "question": "Sunset shot te indoor shot akhri ghante layi mukabla kar rahe han. Schedule nu kis cheez ne guide karna chaahida?",
+          "options": [
+            "Hamesha script order vich film karo.",
+            "Chhoti sunset light nu bachao te flexible indoor kaam nu ohde around ghumao.",
+            "Saara setup te travel time hata do.",
+            "Mann lo har shot nu ikko sama lagda hai."
+          ],
+          "explanation": "Chhoti sunset light nu bachao te flexible indoor kaam nu ohde around ghumao.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Ik actual setup da time lo te buffer naal te light-dependent priority naal apna schedule revise karo."
+        }
+      }
+    },
+    "f10": {
+      "steps": [
+        "Apni footage, jodi hoyi image, edit te sound naal ik chhota film sample banao te export karo.",
+        "Ik ik-minute da pitch record karo jo film samjhaave. Isnu vekh ke ik unclear promise nu sudharo.",
+        "Film te pitch times, tusi ki badalia, te kehṛe parts ch AI vartia gayi si, share karo."
+      ],
+      "fields": [
+        {
+          "id": "logline",
+          "prompt": "Tuhadi kahani ik sentence vich ki hai?",
+          "hint": "Ik sentence vich character, usdi ik chaah, te ik rukavat hove."
+        },
+        {
+          "id": "audience",
+          "prompt": "Film kis layi hai?",
+          "hint": "Ik khaas group, jiveṃ tuhade shehar de college students, na ki “har koi”."
+        },
+        {
+          "id": "mix",
+          "prompt": "Kehṛe parts asli footage han te kehṛe AI naal?",
+          "hint": "Oh mix chuno jo tusi honestly is budget te deliver kar sakde ho."
+        },
+        {
+          "id": "disclosure",
+          "prompt": "Tusi viewers nu kiveṃ dasoge ki AI kithē vartia gayi?",
+          "hint": "Ik seedhi gall jismeṃ daso AI ne ki kita te sab filmed lok sehmat san."
+        },
+        {
+          "id": "risk",
+          "prompt": "Ki kharab ho sakda hai, te tusi isnu kiveṃ handle karoge?",
+          "hint": "Ik imaandar risk te ik practical fix jo tusi de sakde ho, guarantee nahi."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Tusi apni film di soch kise nu samjhaunde ho jo madad kar sakda hai. Ki saaf hona chaahida?",
+          "options": [
+            "Sirf eh ki eh kinni impressive lagegi.",
+            "Location nu hi rakho te access problem chhupa do.",
+            "Bina saboot de wadda budget da dava karo.",
+            "Story, eh kis layi hai, te isnu banan da realistic tareeka."
+          ],
+          "explanation": "Story, eh kis layi hai, te isnu banan da realistic tareeka.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Steps ik-ek karke follow karo. Likho ki asal vich ki hoya te ik cheez jo tusi sudhāri."
+        },
+        "practising": {
+          "question": "Tuhadi film vich real performers te ik AI-made sky shot hai. Kehṛa bayan imaandar hai?",
+          "options": [
+            "Har shot bina AI de live film hoya si.",
+            "AI ne film di har performance banayi.",
+            "Generated images kithē vartian gayian, eh dasan di lod nahi.",
+            "Real performances; AI ne ik sky shot banaya; cast ne hissā lain layi haan keeti."
+          ],
+          "explanation": "Dasso kehṛe hissa vich AI vartia gayi te kehṛe filmed han. Consent te oh material jenu tusi vart sakde ho, us bare saaf raho.",
+          "levelTask": "Ik input ya design choice badal ke fer try karo. Jo asal vich hoya usdi tulna karo."
+        },
+        "experienced": {
+          "question": "Tuhade film pitch nu ik location di lod hai jithe tusi pahunch nahi sakde. Plan believable kis naal lagda hai?",
+          "options": [
+            "Location nu hi rakho te access problem chhupa do.",
+            "Bina saboot de wadda budget da dava karo.",
+            "Sirf eh ki eh kinni impressive lagegi.",
+            "Ik available alternative dikhao te chhote test shoot ton jo tusi sikhya, oh dasso."
+          ],
+          "explanation": "Ik available alternative dikhao te chhote test shoot ton jo tusi sikhya, oh dasso.. Eh faisla apne kaam vich aazmao.",
+          "levelTask": "Ik chhota pitch record karo, limited scene nu lokali test karo te asli nateeje de aadhar te pitch revise karo."
+        }
+      }
+    },
+    "f1": {
+      "steps": [
+        "अपणे फ़ोन उप्पर 30 सेकंड दी कहानी तिन्नें पलें च उनहें चीज़ें जां लोकां दे नाल फिल्म करो जेड़े हिस्सा लैण ते रज़ामंद हून।",
+        "बिना बयान देखीओ। नोट करो कौन-जी छनण जां नतीजा साफ निं ऐ ते ओह हिस्सा फिर फिल्म करो।",
+        "हर पल च की दिसदा ऐ, वीडियो दे समय, ते तुसाडा पह्लें-तो बाद च बदला दसो।"
+      ],
+      "fields": [
+        {
+          "id": "logline",
+          "prompt": "फिल्म किस बारे च ऐ, ओह् की चाहंदे न, ते रुकावट की ऐ?",
+          "hint": "इक वाक्य दी कहानी-सार नूं लॉगलाइन आखदे न। बन्दा, समस्या ते चोन दा नाम लो।"
+        },
+        {
+          "id": "feeling",
+          "prompt": "अंत च दर्शक नूं की महसूस होणा चाहिदा?",
+          "hint": "ओह मुख्य एहसास चुनो जेड़ा तुस अंतिम हिस्से च छोड़ना चाहंदे ओ।"
+        },
+        {
+          "id": "setup",
+          "prompt": "शुरुआत च की होंदा ऐ?",
+          "hint": "समस्या आवण तो पैह्लें दर्शक असल च की देखदा ऐ, ओह दसो।"
+        },
+        {
+          "id": "choice_beat",
+          "prompt": "चरित्र कौण जिही मुश्कल चोन करदा ऐ?",
+          "hint": "चरित्र नूं दो अहम चीज़ां दे वचकारे फ़ैसला करदे दिखाओ।"
+        },
+        {
+          "id": "payoff",
+          "prompt": "उस चोन दे कारण की होंदा ऐ?",
+          "hint": "चोन दा नतीजा दिखाओ। बयान बिना समझ आवण जित्थे काबिल होए, उते रखो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक छोटी फिल्म इक खोए होए बटुए नूं वापस करन दी कोशिश करदे किसे बंदे दे पिछे चलदी ऐ। कहानी किस चीज़ नाल बनदी ऐ?",
+          "options": [
+            "सिर्फ़ उसके कपड़ें दी विस्तार नाल.",
+            "कुज्ह जेड़ी ओह चाहंदे न, इक समस्या, ते इक एहो ज्ही चोन जेड़ी अहम होवे।",
+            "कैमरा उपकरण दी लंबी सूची नाल.",
+            "राइडर दे बीते हर घटनाक्रम दी व्याख्या नाल."
+          ],
+          "explanation": "कुज्ह जेड़ी ओह चाहंदे न, इक समस्या, ते इक एहो ज्ही चोन जेड़ी अहम होवे.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "इक-इक कदम करके पालन करो। लिखो असल च की होंदा ते इक चीज़ जेहड़ी तुस सुधारियै।"
+        },
+        "practising": {
+          "question": "इक राइडर बटुआ लैंदा ऐ ते आसानी नाल वापस कर दिंदा ऐ। फिल्म सपाट लगदी ऐ। कहानी नूं मज़बूत की करैगा?",
+          "options": [
+            "राइडर दे कपड़े होर लंबे समय तक बयान करो।",
+            "वापसी दा मोल राइडर नूं कुज्ह पावै, जिवें डिलीवरी बोनस।",
+            "ट्रैफ़िक दे असंबंधित दृश्य जोड़ो।",
+            "हर मुश्किल चोन हटा दो।"
+          ],
+          "explanation": "अहम चोन दा इक मोल जां असर हुंदा ऐ। एह दर्शक नूं फ़िक्र करन दा कारण दिंदा ऐ.",
+          "levelTask": "इक इनपुट जां डिज़ाइन चोन बदलियै फिर कोशिश करो। असल च की होंदा, तुलना करो।"
+        },
+        "experienced": {
+          "question": "तुहाडी कहानी-सार च इक राइडर ते खोई होई कार्ड दा नाम ऐ, पर राइडर नूं कोई चोन निं दिंदे। की जोड़णा चाहिदा?",
+          "options": [
+            "कैमरा उपकरण दी लंबी सूची।",
+            "इक एहो जिही फ़ैसला, जि'हदा नतीजा दर्शक देख सकै।",
+            "राइडर दे बीते हर घटनाक्रम दी व्याख्या।",
+            "सिर्फ़ कपड़ें दा विस्तार नाल वर्णन।"
+          ],
+          "explanation": "इक एहो जिही फ़ैसला, जि'हदा नतीजा दर्शक देख सकै.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "चरित्र दे फ़ैसले दे दो रूप रिकॉर्ड करो ते तुलना करो कि केहड़ा नतीजा दर्शक पहचान सकदा ऐ।"
+        }
+      }
+    },
+    "f2": {
+      "steps": [
+        "30 सेकंड दे दृश्य लेई छह शॉट रिकॉर्ड करो। हर शॉट दी फ़्रेमिंग, हरकत, सेकंड ते एहसास लिखो।",
+        "इक बंदे दे अचानके दिशा बदलन, मेल न खांदे दृश्य, जां अस्पष्ट आख़िरी खुलासे दा ध्यान रखो।",
+        "शॉट दे समय, तुहानूं जेड़ा मसला दिखा, ते दुरुस्त किता शॉट दसो।"
+      ],
+      "fields": [
+        {
+          "id": "shots",
+          "prompt": "तुस दे छह शॉटां च हर इक च की होग?",
+          "hint": "हर शॉट लेई नंबर, नज़र (wide जां close-up), हरकत, सेकंड ते एहसास लिखो। सेकंडां दा जोड़ 30 होणा चाहिदा।"
+        },
+        {
+          "id": "last_size",
+          "prompt": "आख़िरी शॉट च कैमरा किन्ना नेड़ा होग?",
+          "hint": "ओह आकार चुनो जेड़ा भावनात्मक असर नूं सबसे चंगा नाल पूरा करदा होवे।"
+        },
+        {
+          "id": "cut_into",
+          "prompt": "चरित्र दी चोन उप्पर कट तुस किस पल करोगे?",
+          "hint": "चुनो फिल्म मुश्कल फ़ैसले च कि'में मुकदी ऐ।"
+        },
+        {
+          "id": "continuity",
+          "prompt": "दो शॉट जोड़दे वक्त की-की मेल खाना चाहिदा?",
+          "hint": "जैकेट, बैग, स्क्रीन दिशा जां दिन दा वक्त बारे साफ नियम।"
+        },
+        {
+          "id": "sound_cue",
+          "prompt": "कौन-जी आवाज़ कहानी दसीगी?",
+          "hint": "बिना शब्दां दी आवाज़ जेड़ी कहानी नूं मदद करदी ऐ, ते ओह जित्थे आवदी ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस बिना संवाद दे कहानी फिल्म करदे ओ। हर शॉट च की जोड़णा चाहिदा?",
+          "options": [
+            "इक होर सुंदर कोण, पर कहानी च कोई बदलाव निं।",
+            "थां दे होर असंबंधित शॉट।",
+            "हर शॉट दा समय इक््को जिंना करो।",
+            "कहानी बारे दर्शक नूं कुछ नया समझ आवे।"
+          ],
+          "explanation": "कहानी बारे दर्शक नूं कुछ नया समझ आवे.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "इक-इक कदम करके पालन करो। लिखो असल च की होंदा ते इक चीज़ जेहड़ी तुस सुधारियै।"
+        },
+        "practising": {
+          "question": "इक राइडर इक शॉट च बांएं तो दाए चलदा ऐ, अगले च दाए तो बांए। दर्शक सोचदे न ओह मुड़ गया। की मदद करदी ऐ?",
+          "options": [
+            "हर शॉट च दिशा बदलो।",
+            "होर असंबंधित close-up जोड़ो।",
+            "दूएं शॉट नूं होर अंधेरा करो।",
+            "राइडर नूं शॉटां च इक्को स्क्रीन दिशा च चलन देओ।"
+          ],
+          "explanation": "शॉटां बीच चाल दा मेल दर्शकां नूं समझण च मदद करदा ऐ कि चरित्र किधर जंदा ऐ.",
+          "levelTask": "इक इनपुट जां डिज़ाइन चोन बदलियै फिर कोशिश करो। असल च की होंदा, तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक दर्शक समझदा ऐ कि आख़िरी शॉट कहानी दे पैह्लें हुआ सी। तुस सब तो पैह्लें की बदलोगे?",
+          "options": [
+            "थां दे होर असंबंधित शॉट।",
+            "हर शॉट दा समय इक््को जिंना करो।",
+            "इक होर सुंदर कोण, पर कहानी च कोई बदलाव निं।",
+            "ओह दृश्य जोड़ जेड़े हर क्रिया दा क्रम ते नतीजा दसमन।"
+          ],
+          "explanation": "ओह दृश्य जोड़ जेड़े हर क्रिया दा क्रम ते नतीजा दसमन.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "अपनी चुप फिल्म इक इच्छुक दर्शक नूं दिखाओ, ओह्दे सोचे क्रम नूं नोट करो ते गलत समुझी गै ट्रांज़िशन दुरुस्त करो।"
+        }
+      }
+    },
+    "f3": {
+      "steps": [
+        "असल फुटेज ते इक animated जां जोड़ियै बनाइयै तस्वीर नाल इक छोटी श्रृंखला बनाओ।",
+        "तैयार वीडियो देखो। चेक करो कि रोशनी, कोण ते जोड़ी तस्वीर दृश्य नाल ठीक बैठदे न।",
+        "वीडियो दे समय ते जेड़ा मेल निं बैठदा सी, ओह दसो। तुहानूं paid AI tools दी लोड निं ऐ।"
+      ],
+      "fields": [
+        {
+          "id": "live_ai",
+          "prompt": "कौन-हिस्से तुस फिल्म करोगे, ते कौन-हिस्से तुस बनाओगे जां जोड़ोगे?",
+          "hint": "दो छोटी सूचीआं, live ते AI-assisted, हर आइटम नाल कारण।"
+        },
+        {
+          "id": "budget",
+          "prompt": "तुस ₹5,000 बजट केह्‌दां बंटोगे?",
+          "hint": "ऐसें पंक्तियां जिवें “item: ₹amount” जेड़ियां ₹5,000 जां उस तो कट योग होण।"
+        },
+        {
+          "id": "checks",
+          "prompt": "जोड़ियै शॉटां नूं ठीक दिसण दा तुस केह्‌ड़ा चेक करोगे?",
+          "hint": "शेयर करन तो पैह्लें चलाण लई कुछ picture, sound ते continuity checks।"
+        },
+        {
+          "id": "rights",
+          "prompt": "फिल्म च लोकां जां सामग्री लेई किन्नी इजाज़त चाहिदी ऐ?",
+          "hint": "ओह चेक चुनो जेड़ा तुस असली च करोगे ते अपने कारण च समझाओ।"
+        },
+        {
+          "id": "no_generate",
+          "prompt": "AI नाल तुस की हिस्सा बनाणे तो बचोगे, ते क्यों?",
+          "hint": "इक हिस्सा जेड़ा तुस हम्मेशां असल च शूट करोगे, चंद शब्दां च।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस असल फुटेज नूं जोड़ी तस्वीरां नाल मिलांदे ओ। किसी दृश्य नूं फिल्म करणा खास तौर पर कदों उपयोगी ऐ?",
+          "options": [
+            "जदूं तुहानूं खास इंसानी प्रदर्शन जां मेल खांदी शारीरिक हरकत चाहिदी होवे।",
+            "जदूं AI दा जिक्र असुविधाजनक होवे।",
+            "क्योंकि एह महंगी फिल्म वरगा लगदा ऐ, इस करिए रखो।",
+            "दर्शक दा ध्यान भटकाण लई असंबंधित शॉट जोड़ो।"
+          ],
+          "explanation": "जदूं तुहानूं खास इंसानी प्रदर्शन जां मेल खांदी शारीरिक हरकत चाहिदी होवे.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "इक-इक कदम करके पालन करो। लिखो असल च की होंदा ते इक चीज़ जेहड़ी तुस सुधारियै।"
+        },
+        "practising": {
+          "question": "इक close-up दस मिनट च मुफ्त दोबारा फिल्म हो सकदा ऐ। AI नाल बनाण ते ₹1,500 लगदे न। तुहाडा बजट ₹5,000 ऐ। केह्‌ड़ा चंगा बैठदा ऐ?",
+          "options": [
+            "close-up फिर ओह् परफ़ॉर्मर नाल फिल्म करो।",
+            "सिर्फ़ AI इस्तेमाल करो क्योंकि एह होर नया ऐ।",
+            "सारा बजट असंबंधित AI शॉटां उते खर्च करो।",
+            "ज़रूरी close-up बिना कहानी जांचे छोड़ दो।"
+          ],
+          "explanation": "मुफ्त ते जल्दी दोबारा शूट असली प्रदर्शन बचांदा ऐ ते होर जरूरतां लेई पैसा छोड़दा ऐ.",
+          "levelTask": "इक इनपुट जां डिज़ाइन चोन बदलियै फिर कोशिश करो। असल च की होंदा, तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक जोड़िया AI शॉट असल शॉटां दे बीच अभिनेता दा चेहरा ते हरकत बदल दिंदा ऐ। बदली किस चीज़ दा बचाव करनै?",
+          "options": [
+            "उही बंदा, प्रदर्शन ते हरकत; दोबारा शूट करो जां जोड़ा शॉट फिर बनाओ।",
+            "क्योंकि एह महंगी फिल्म वरगा लगदा ऐ, इस करिए रखो।",
+            "दर्शक दा ध्यान भटकाण लई असंबंधित शॉट जोड़ो।",
+            "जदूं AI दा जिक्र असुविधाजनक होवे।"
+          ],
+          "explanation": "उही बंदा, प्रदर्शन ते हरकत; दोबारा शूट करो जां जोड़ा शॉट फिर बनाओ.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "अपनी श्रृंखला च इक फिल्माया शॉट ते इक बनाई तस्वीर दी तुलना करो। जेड़ा मेल निं बैठदा, ओह नोट करो।"
+        }
+      }
+    },
+    "f4": {
+      "steps": [
+        "दृश्य खुद पढ़ो ते रिकॉर्ड करो, जां किसे नाल जेड़ा शामिल होण लेई रज़ामंद होवे।",
+        "फिर सुनो। इक पंक्ति फेर लिखो जेड़ी छिपी एहसास नूं सीधे निं आख़दी, फेर ओह्हे फिर रिकॉर्ड करो।",
+        "दोनें संवाद रूपां ते की फर्क सी, ओह दसो।"
+      ],
+      "fields": [
+        {
+          "id": "surface",
+          "prompt": "चरित्र सतह उप्पर किस बारे च गल्ल करदे न?",
+          "hint": "रोज़मर्रा दे मुद्दे दा नाम लो, जिवें बैग पैक करना।"
+        },
+        {
+          "id": "hidden",
+          "prompt": "चरित्र अंदरखाते की चाहंदा ऐ?",
+          "hint": "ओह्ही दसो जेहड़ा चरित्र चाहंदा ऐ पर सीधे निं आख्दा।"
+        },
+        {
+          "id": "carrier",
+          "prompt": "कौन-जे शब्द जां हरकत एह एहसास नूं अप्रत्यक्ष तौर ते दिखांदे न?",
+          "hint": "ओह छोटी हरकत जां चीज़ चुनो जेहड़ी अनकहे एहसास नूं दिखाण च मदद करदी ऐ।"
+        },
+        {
+          "id": "dialogue",
+          "prompt": "चरित्र असल च की आखणगे?",
+          "hint": "चार तो छह छोटी पंक्तियां लिखो, A ते B लेबल नाल। छिपे एहसास दा नाम सीधे निं लो; शब्द ते हरकत नूं इशारा करन देओ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक चरित्र बैग पैक करन दी गल्ल करदा ऐ पर चाहंदा ऐ कि कोई रुके। अनकहे एहसास नूं की दिखांदा ऐ?",
+          "options": [
+            "उन्हां दे शब्द ते हरकतें असली इच्छा दा इशारा करदे न।",
+            "ओह हर एहसास सीधे समझांदे न।",
+            "दृश्य तो पैह्लें लंबा वर्णन जोड़ो।",
+            "हर पंक्ति नूं कहावत नाल बदलो।"
+          ],
+          "explanation": "उन्हां दे शब्द ते हरकतें असली इच्छा दा इशारा करदे न.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "इक-इक कदम करके पालन करो। लिखो असल च की होंदा ते इक चीज़ जेहड़ी तुस सुधारियै।"
+        },
+        "practising": {
+          "question": "काव्या चाहंदी ऐ कि रोहन रुके, पर ओह कल पुणे रवाना हो जंदा ऐ। कौन-जी पंक्ति सीधे रुके बिना care दिखांदी ऐ?",
+          "options": [
+            "मोटी कम्बल लै जा। पुणे दी रात ठंडी होंदी ऐ।",
+            "मैं तैनूं बिल्कुल दसोना चाहंदा हां मैं किन्ना उदास हां।",
+            "एह दृश्य मेरी छुपी भावनां बारे ऐ।",
+            "मैनूं इस गल्ल च कोई दिलचस्पी निं कि तूं जांदा ऐ जां निं।"
+          ],
+          "explanation": "इक व्यावहारिक पंक्ति ओह एहसास दिखा सकदी ऐ जेड़ा चरित्र सीधे निं आख्दा। इस नूं subtext आखदे न.",
+          "levelTask": "इक इनपुट जां डिज़ाइन चोन बदलियै फिर कोशिश करो। असल च की होंदा, तुलना करो।"
+        },
+        "experienced": {
+          "question": "दो चरित्र अपने सारे एहसास सीधे समझा दिंदे न। उन्हां दी गल्लबात अपने कहे तो होर की सुझाव दे सकदी ऐ?",
+          "options": [
+            "उन्हां नूं अलग-अलग मकसद देओ ते हरकतां जां टालिदे जवाबां नाल तनाव दिखण देओ।",
+            "दृश्य तो पैह्लें लंबा वर्णन जोड़ो।",
+            "हर पंक्ति नूं कहावत नाल बदलो।",
+            "ओह हर एहसास सीधे समझांदे न।"
+          ],
+          "explanation": "उन्हां नूं अलग-अलग मकसद देओ ते हरकतां जां टालिदे जवाबां नाल तनाव दिखण देओ.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "गल्लबात दो वारी अलग-अलग अनकहे मकसदां नाल रिकॉर्ड करो। नोट करो केह्‌ड़ी हरकत मतलब बदलदी ऐ।"
+        }
+      }
+    },
+    "f5": {
+      "steps": [
+        "दोहरे टेक रिकॉर्ड करो, अलग-अलग साफ हरकतां नाल, जिवें किसे नूं रुके रहने लेई मनाना।",
+        "देखो असल च की बदलदा ऐ। इक तरीका चुनो ते सुधारिया टेक रिकॉर्ड करो।",
+        "वीडियो दे समय ते दिखण वाले बदलाव दसो। खुद जां इक अदा करन वाला जेड़ा रज़ामंद होवे, उस नूं इस्तेमाल करो।"
+      ],
+      "fields": [
+        {
+          "id": "intention",
+          "prompt": "दूजे बंदे कोल तो चरित्र की चाहंदा ऐ?",
+          "hint": "ओह इकलौती नीयत चुनो जेड़ी पूरे take नूं चलांदी ऐ।"
+        },
+        {
+          "id": "directions",
+          "prompt": "अदाकार नूं अजमाण लई तुस तीन साफ हरकतां की देओगे?",
+          "hint": "तीन छोटी पंक्तियां, हर इक क्रिया नाल शुरू। sad जां angry जियां भाव-शब्द निं।"
+        },
+        {
+          "id": "prop",
+          "prompt": "अदाकार अपने हत्थां जां किसे object नाल की कर सकदा ऐ?",
+          "hint": "किसे टिकट, फोन जां बैग नाल take दौरान कीता जान वाला कम्म।"
+        },
+        {
+          "id": "retake",
+          "prompt": "जे पहला प्रदर्शन कठोर लगदा होवे त तुस की बदलोगे?",
+          "hint": "पहले take तो बाद तुस केह्‌ड़े तरीके नाल बदलाव करोगे, चुनो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस इक अदा करन वाले नूं निर्देश दे रहे ओ जेड़ा एहो जिहा बंदा निभा रिहा ऐ जेह्दा दोस्त नूं रुकना चाहिदा ऐ। केह्‌ड़ा निर्देश ओह्नूं हरकत दिंदा ऐ?",
+          "options": [
+            "होर भावुक बनो।",
+            "दोगुनी उदासी मांगो।",
+            "अपने दोस्त नूं रुके रहने लई मनाओ।",
+            "अंतिम रंग-संस्कार दा वर्णन करो।"
+          ],
+          "explanation": "अपने दोस्त नूं रुके रहने लई मनाओ.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "इक-इक कदम करके पालन करो। लिखो असल च की होंदा ते इक चीज़ जेहड़ी तुस सुधारियै।"
+        },
+        "practising": {
+          "question": "जदूं “घबराए लगो” आख्या जंदा ऐ, अदा करन वाला कठोर लगदा ऐ। ओहदा चरित्र ट्रेन चलन तो पैह्लें बटुआ गवा बैठा ऐ। केह्‌ड़ा निर्देश मदद करदा ऐ?",
+          "options": [
+            "दोगुनी घबराहट दिखाओ।",
+            "कुछ न करदे होए होर भावुक दिखो।",
+            "ट्रेन चलन तो पैह्लें हर जेब चेक करो।",
+            "आख़िरी music किन्नी dramatic होग, उस बारे सोचो।"
+          ],
+          "explanation": "अदा करन वाले नूं साफ हरकत देओ। हरकत एहसास नूं नैसर्गिक तौर ते आवण च मदद करदी ऐ.",
+          "levelTask": "इक इनपुट जां डिज़ाइन चोन बदलियै फिर कोशिश करो। असल च की होंदा, तुलना करो।"
+        },
+        "experienced": {
+          "question": "हर हिदायत तो बाद अदा करन वाला ओह्ही उदास चेहरा दोहरांदा ऐ। तुस अग्गे की अजमाओगे?",
+          "options": [
+            "दोगुनी उदासी मांगो।",
+            "अंतिम रंग-संस्कार दा वर्णन करो।",
+            "दूएं चरित्र वाल साफ हरकत देओ ते असर देखो।",
+            "होर भावुक बनो।"
+          ],
+          "explanation": "दूएं चरित्र वाल साफ हरकत देओ ते असर देखो.. एह फ़ैसला अपने काम च अजमाओ.",
+          "levelTask": "दोहरे टेक अलग-अलग साफ हरकतां नाल रिकॉर्ड करो ते असल बदलाव दा तुलना करो।"
+        }
+      }
+    },
+    "d6": {
+      "steps": [
+        "अपणे कंप्यूटर पर बुकिंग बग दोबारा बनाओ। साझा लॉग्स च’ नाम, फोन नंबर ते राज़ां नूं बाहर रक्खो।",
+        "कोड ठीक करो ते ओही असफल रिक्वेस्ट फिरी चलाओ।",
+        "कोड ते बदलां तों पैहले ते बाद दे नतीजे साझा करो, जेह्ड़े दिखाओ कि की बदल्या।"
+      ],
+      "fields": [
+        {
+          "id": "first_step",
+          "prompt": "इस बुकिंग बग नूं लब्भण लेई तुस्सी पहिला की करोगे?",
+          "hint": "कोड बदले बिना समस्या दोबारा दोहराण दा तरीका चुनो।"
+        },
+        {
+          "id": "evidence",
+          "prompt": "कौन-सै असली त्रुटि ब्यौरा तुस्सी AI नूं सुरक्षित ढंग नै साझा करी सकदे ओ?",
+          "hint": "कदम, उम्मीद कीता ते असली नतीजा, ते संबंधित त्रुटि शामल करो। राज़ ते फोन नंबर सुरक्षित मिसालें नै बदलो।"
+        },
+        {
+          "id": "fix",
+          "prompt": "तुसाड्डा ठीक कीता बुकिंग कोड केह्ा दिखदा ऐ?",
+          "hint": "असली कोड नूं इस तरह अपडेट करो कि सर्वर दे जवाब दे बाद सिर्फ सही सफलता जां ग़लती संदेश आवे।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक बुकिंग सेव नीं हो रही। बग लब्भण दा चंगा पैहला कदम केह्ा ऐ?",
+          "options": [
+            "समस्या दोबारा करो ते असली त्रुटि ते सेव होए नतीजे नूं जाँचो।",
+            "फौरन कई बेकार दे फाइलां बदलो।",
+            "पहिले पूरा पृष्ठ दोबारा लिखो.",
+            "दूजी रिक्वेस्ट सफल होई, इसलै इसनूं ठीक ऐ कहो।"
+          ],
+          "explanation": "समस्या दोबारा करो ते असली त्रुटि ते सेव होए नतीजे नूं जाँचो। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "कदम इक-इक करके फॉलो करो। लिखो कि सचमुच की होया ते इक चीज़ केह्ी सुधारी।"
+        },
+        "practising": {
+          "question": "इक पन्ना कहिंदा ऐ बुकिंग पुष्टि होई, पर कोई बुकिंग स्टोर नीं होई। AI दी मदद लैण लई तुस्सी की साझा करो?",
+          "options": [
+            "कदम, उम्मीद कीते ते असली नतीजे, ते त्रुटि ब्यौरा, निजी डेटा हटाके।",
+            "असली पासवर्ड ते ग्राहक दे फोन नंबर।",
+            "सिर्फ ऐ शब्द “इह खराब ऐ”.",
+            "बिना समस्या समझाए हर बेकार फाइल।"
+          ],
+          "explanation": "साफ कदम ते असली नतीजे कारण लब्भन च मदद करदे न। राज़ हटाओ ते निजी जानकारी सुरक्षित मिसालें नै बदलो।",
+          "levelTask": "इक इनपुट जां डिजाइन चोन बदलके फिर कोशिश करो। जो सचमुच होया उसदी तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक फिक्स सामान्य बुकिंग लेई कम्म करदा ऐ, पर असली असफल रिक्वेस्ट अज्ज वी फेल होंदी ऐ। अगली बदल नूं केह् चीज़ दिशा देणी चाहिदी?",
+          "options": [
+            "ओह रिक्वेस्ट दोबारा करो ते असली नतीजा जाँचो तां कि कारण मिले।",
+            "पहिले पूरा पृष्ठ दोबारा लिखो.",
+            "दूजी रिक्वेस्ट सफल होई, इसलै इसनूं ठीक ऐ कहो।",
+            "फौरन कई बेकार दे फाइलां बदलो।"
+          ],
+          "explanation": "ओह रिक्वेस्ट दोबारा करो ते असली नतीजा जाँचो तां कि कारण मिले। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "असली असफल रिक्वेस्ट दा इक टेस्ट बनाए रक्खो। फिक्स तों पैहले ते बाद च इसनूं चलाओ ते फर्क दिखाओ।"
+        }
+      }
+    },
+    "d7": {
+      "steps": [
+        "अपणा बुकिंग पहुँच-जाँच कोड लोकली चलाओ।",
+        "बुकिंग मालिक, दूजा सिक्खन आळा, ते इक प्रशासक नूं उसी रिकार्ड दे खिलाफ आज़माओ।",
+        "कोड ते किन्ना नूं इजाज़त मिली जां रोका गेआ, इह साझा करो। जेड़ा मामला ग़लत बंदे नूं अंदर जाण देवे, उसनूं ठीक करो ते फिरी चलाओ।"
+      ],
+      "fields": [
+        {
+          "id": "roles",
+          "prompt": "कौन-कौन जियां दे यूज़र्स नूं अलग-अलग पहुँच दी लोड ऐ?",
+          "hint": "यूज़र रोल्स दा नाम लो, जिवें मापे, शिक्षक ते प्रशासक। दस्सो कि हर इक की कर सकदा ऐ।"
+        },
+        {
+          "id": "deny_status",
+          "prompt": "जे कोई दूजे बंदे दी बुकिंग खोलदा ऐ, तां सर्वर की जवाब देवे?",
+          "hint": "इसे रिकार्ड लेई बिना इजाज़त वाले साइन-इन यूज़र लई जवाब चुनो।"
+        },
+        {
+          "id": "can_access",
+          "prompt": "कौन-सै कोड निश्चत करदा ऐ कि कौन बुकिंग खोल सकदा ऐ?",
+          "hint": "ऐसी function लिखो ते चलाओ जेड़ा साइन-इन यूज़र, रिकार्ड मालिक ते इजाज़तशुदा रोल जाँचे।"
+        },
+        {
+          "id": "where",
+          "prompt": "इह इजाज़त-जाँच किथे चलनी चाहिदी ऐ?",
+          "hint": "ऐसी जगह चुनो जेड़ी पन्ना जां बटन बदलके टाली नीं जा सकदी।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक सिक्खन आळा किसी दूजे दी बुकिंग खोलदा ऐ। सर्वर नूं की जाँचणा चाहिदा?",
+          "options": [
+            "सिर्फ इह कि यूज़र साइन इन ऐ कि नीं।",
+            "इह यूज़र इस ख़ास बुकिंग नूं देख सकदा ऐ कि नीं।",
+            "सिर्फ इह कि एडिट बटन लुक्का ऐ।",
+            "सिर्फ प्रशासक खाता टेस्ट करो।"
+          ],
+          "explanation": "इह यूज़र इस ख़ास बुकिंग नूं देख सकदा ऐ कि नीं। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "कदम इक-इक करके फॉलो करो। लिखो कि सचमुच की होया ते इक चीज़ केह्ी सुधारी।"
+        },
+        "practising": {
+          "question": "मीरा पता बदलके किसी दूजे परिवार दा फोन नंबर देख लैंदी ऐ। इसदा ठीक की ऐ?",
+          "options": [
+            "दूजी बुकिंग दा लिंक लुक्काओ।",
+            "सर्वर जाँचे कि बुकिंग मीरा दी ऐ या उसनूं शिक्षक रोल हासिल ऐ।",
+            "सिर्फ इह जाँचो कि मीरा साइन इन ऐ।",
+            "बुकिंग नंबर दा रंग बदलो।"
+          ],
+          "explanation": "साइन इन होना हर रिकार्ड दा पहुँच अधिकार नीं दिंदे। सर्वर ते ख़ास बुकिंग दी इजाज़त जाँचो।",
+          "levelTask": "इक इनपुट जां डिजाइन चोन बदलके फिर कोशिश करो। जो सचमुच होया उसदी तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक सिक्खन आळा बुकिंग नंबर बदलके किसी दूजे दा रिकार्ड खोलदा ऐ। केह् टेस्ट असली खतरा जाँचदा ऐ?",
+          "options": [
+            "सिर्फ इह जाँचो कि एडिट बटन लुक्क्या ऐ।",
+            "ओह रिकार्ड सिक्खन आळे कोल मांगो ते जाँचो कि सर्वर मना करदा ऐ।",
+            "सिर्फ प्रशासक खाता टेस्ट करो।",
+            "सिर्फ इह कि यूज़र साइन इन ऐ कि नीं।"
+          ],
+          "explanation": "ओह रिकार्ड सिक्खन आळे कोल मांगो ते जाँचो कि सर्वर मना करदा ऐ। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "इसी लोकल रिकार्ड ते मालिक, गैर-मालिक ते प्रशासक मामले चलाओ ते नतीजे दिखाओ।"
+        }
+      }
+    },
+    "d8": {
+      "steps": [
+        "तीन बुकिंग टेस्ट लिखो ते चलाओ, जिस च आखिरी उपलब्ध सीट भी शामिल होवे।",
+        "पुराना बग अपनी लोकल कॉपी च फिरी रखो ते इक टेस्ट फेल होण दखाओ। फिक्स लागू करो ते फिरी चलाओ।",
+        "टेस्ट कोड, ठीक कीता कोड, ते असली फेल ते पास नतीजे साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "first_test",
+          "prompt": "तुस्सी पहला कौन-सा बुकिंग टेस्ट लिखोगे?",
+          "hint": "इक जरूरी बुकिंग व्यवहार चुनो जिसनूं स्वचालित टेस्ट नाल बचाणा ऐ।"
+        },
+        {
+          "id": "tests",
+          "prompt": "तुस्हाड्डे तीन टेस्ट केस की जाँचदे न?",
+          "hint": "चलने योग्य टेस्ट लिखो जिंदे च इनपुट ते उम्मीद कीते नतीजे होण। सामान्य, अवैध ते पूरी क्षमता वाले मामले शामल करो।"
+        },
+        {
+          "id": "boundary_name",
+          "prompt": "पूरा क्लास वाले टेस्ट दा नाम तुस्सी की रखोगे?",
+          "hint": "पूरा-क्लास टेस्ट दा साफ नाम रखो जेड़ा उम्मीद कीता नतीजा दस्से।"
+        },
+        {
+          "id": "fix_seat",
+          "prompt": "सीट खाली ऐ कि नीं जाँचण आळी ठीक कीती कोड केह्ी ऐ?",
+          "hint": "कोड ऐसा ठीक करो कि दसवीं सीट बुक हो सकै पर ग्यारहवीं नीं। सटीक हद टेस्ट करो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सी बुकिंग function लेई टेस्ट लिखदे ओ। इसनूं किसदी तुलना करनी चाहिदी?",
+          "options": [
+            "कोड किन्ना सुथरा format ऐ।",
+            "पुराना बग नुकसानदेह नीं ऐ।",
+            "इक पास होया टेस्ट हर बुकिंग दा सबूत ऐ।",
+            "असली नतीजा जिसदी तुस्सी उम्मीद कीती सी, ओह् केह् होया।"
+          ],
+          "explanation": "असली नतीजा जिसदी तुस्सी उम्मीद कीती सी, ओह् केह् होया। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "कदम इक-इक करके फॉलो करो। लिखो कि सचमुच की होया ते इक चीज़ केह्ी सुधारी।"
+        },
+        "practising": {
+          "question": "इक क्लास च 10 सीटां न, ते सारे 10 भर गे न। केह् टेस्ट उह् कोड पकड़दा ऐ जेड़ा हले वी इक बुकिंग देण देवे?",
+          "options": [
+            "test taken = 0 ते capacity = 10; उम्मीद कि बुकिंग मंजूर होवे।",
+            "सिर्फ इह जाँचो कि बटन ते लेबल ऐ कि नीं।",
+            "पूरे क्लास दा टेस्ट बिना एक खाली सीट टेस्ट कीते।",
+            "test taken = 10 ते capacity = 10; उम्मीद कि बुकिंग मना होवे।"
+          ],
+          "explanation": "सटीक हद टेस्ट करो। जदूं taken क्षमता दे बराबर होवे, क्लास पूरी ऐ ते होर बुकिंग मना होनी चाहिदी।",
+          "levelTask": "इक इनपुट जां डिजाइन चोन बदलके फिर कोशिश करो। जो सचमुच होया उसदी तुलना करो।"
+        },
+        "experienced": {
+          "question": "पुराना बुकिंग बग वापस रखण ते वी टेस्ट पास हो जंदा ऐ। इसतो की संकेत मिलदा ऐ?",
+          "options": [
+            "पुराना बग नुकसानदेह नीं ऐ।",
+            "इक पास होया टेस्ट हर बुकिंग दा सबूत ऐ।",
+            "कोड किन्ना सुथरा format ऐ।",
+            "टेस्ट शायद ओह व्यवहार नीं जाँचदा जेड़ा बचाणा चाहिदा ऐ।"
+          ],
+          "explanation": "टेस्ट शायद ओह व्यवहार नीं जाँचदा जेड़ा बचाणा चाहिदा ऐ। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "जाण-बूझ के बग लोकली फिरी रखो ते अपना regression test फेल, ते फिक्स बाद पास दिखाओ।"
+        }
+      }
+    },
+    "d9": {
+      "steps": [
+        "इक फेंकण लायक लोकल Git project इस्तेमाल करो। इक branch बनाओ ते तीन छोटे commits करो—बदलां दे सहेज-समूह।",
+        "बदलां नूं merge करो, फिरी सुरक्षित ढंग नाल कम करदे संस्करण पर वापस जाओ।",
+        "कमांड ते असली git log/status आउटपुट पैहले ते बाद साझा करो। सुझाई कमांड सूची काफी नीं ऐ।"
+      ],
+      "fields": [
+        {
+          "id": "branch",
+          "prompt": "अपणे अलग Git branch दा नाम की रखोगे?",
+          "hint": "इक छोटा branch नाम इस्तेमाल करो जेड़ा बदलाव दा वर्णन करे, जिवें fix-booking-message."
+        },
+        {
+          "id": "commits",
+          "prompt": "तुस्हाड्डे तीन छोटे commits केह् बदलीं नूं सहेजणगे?",
+          "hint": "branch बनाण ते तीन add/commit कदम साफ संदेशां नाल दिखाओ। हर commit इक छोटी बदल सहेजदा ऐ।"
+        },
+        {
+          "id": "rollback",
+          "prompt": "जे बदलाव फेल हो जावे तां तुस्सी कम करदे संस्करण पर वापस केह् करोगे?",
+          "hint": "सुरक्षित undo commands ते checks दो। सिर्फ फेंकण लायक लोकल project इस्तेमाल करो।"
+        },
+        {
+          "id": "merge_way",
+          "prompt": "तुस्सी जांच कीती बदलां नूं मुख्य संस्करण च किस तरह जोड़ोगे?",
+          "hint": "बदलां दा review ते test करण तों बाद merge तरीका चुनो। Merging branch नूं main version च जोड़दा ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सी बुकिंग app बदलीणा चाहंदे ओ। Git च अलग branch ते कम्म क्यों करो?",
+          "options": [
+            "बदलाव नूं अलग रक्खण लेई जदूं तक ओह जांच के main version नाल जोड़्या नां जावे।",
+            "बदलाव दा test टालन लेई।",
+            "सिर्फ आखिरी code change वापस लैण लई।",
+            "database फौरन हटाण लई।"
+          ],
+          "explanation": "बदलाव नूं अलग रक्खण लेई जदूं तक ओह जांच के main version नाल जोड़्या नां जावे। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "कदम इक-इक करके फॉलो करो। लिखो कि सचमुच की होया ते इक चीज़ केह्ी सुधारी।"
+        },
+        "practising": {
+          "question": "नवां website release बुकिंगां तोड़ दिंदा ऐ। पुराना code स्टोर किए डेटा नाल अज्ज वी कम्म करदा ऐ। पैहला सुरक्षित recovery केह् ऐ?",
+          "options": [
+            "ओह release वापस लो, काम करदे संस्करण नूं बहाल करो, फिरी बदलाव अलग तौर ते ठीक करो।",
+            "टूटी होई version जिंदा रक्खो ते शिकायतां दा इंतज़ार करो।",
+            "बुकिंग database मिटाओ।",
+            "live site ते सीधे कई अनटेस्टेड बदल करो।"
+          ],
+          "explanation": "डेटा नाल संगत होवे तां पैहले ज्ञात काम करदा संस्करण बहाल करो। फिरी repair टेस्ट करके ही जारी करो।",
+          "levelTask": "इक इनपुट जां डिजाइन चोन बदलके फिर कोशिश करो। जो सचमुच होया उसदी तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक टूटी release च code ते स्टोर डेटा दोवें बदल गे। पुरानी version पर सुरक्षित वापसी नूं की चीज़ां विचारनियां न?",
+          "options": [
+            "की पुराना code डेटा पढ़ सकदा ऐ ते डेटा किवें बचाया जा सकदा ऐ।",
+            "सिर्फ आखिरी code change वापस लैण लई।",
+            "database फौरन हटाण लई।",
+            "बदलाव दा test टालन लई।"
+          ],
+          "explanation": "की पुराना code डेटा पढ़ सकदा ऐ ते डेटा किवें बचाया जा सकदा ऐ। अपने कम्म च इस फैसले नूं अजमाओ।",
+          "levelTask": "अपणे फेंकण लायक लोकल project नूं पुरानी code पर वापस लेआओ। जाँचो कि की ओह हले डेटा पढ़ सकदा ऐ।"
+        }
+      }
+    },
+    "m1": {
+      "steps": [
+        "40–80 शब्दां च अपना दोपहर दे पेशकश लिखो। दस्सो कि एह किसदी मदद करदी ऐ अते अग्गे की करना ऐ।",
+        "इसे पंज सेकेण्ड लेई पढ़ो। फाइदा अते अगला कदम नोट करो जेड़ा तुसेंनु दिखेआ।",
+        "अपना पहला रूप, सुधारेआ होएआ रूप, अते ओह दावा साझा करो जेड़ा तुसेंनु अजें जांचना बाकी ऐ।"
+      ],
+      "fields": [
+        {
+          "id": "customer",
+          "prompt": "तुस एह पेशकश किसलेई लिखदे हो?",
+          "hint": "ओह एक ग्राहक चुन्नो जिसदे नाल तुआडी पेशकश गल करदी ऐ। तुहाडा कारण एहो दस्से कि एह समूह नूं समस्या सबनें कोला जादा क्यों महसूस होंदी ऐ।"
+        },
+        {
+          "id": "offer",
+          "prompt": "तुआडी 40–80 शब्दां दी दोपहर दी पेशकश की कहेगी?",
+          "hint": "ग्राहक, समस्या, भरोसेमंद नतीजा दस्सो अते अंत विच अगले कदम लेई इक करवाई रखो।"
+        },
+        {
+          "id": "verify",
+          "prompt": "इहे पेशकश इस्तेमाल करने तो पैह्लां तुस किहड़ी वादा जांचोगे?",
+          "hint": "तुआडी पेशकश दा इक दावा जेहड़ा तुसनूं पैह्लां पक्का करना ऐ, जिवें डिलिवरी समय जां मेनू दी कोई गल्ल।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक दोपहर दी सेवा हफ्ते दे कमकाजी दिनां च ऑफिसें दे नेड़े डिलिवरी करदी ऐ। उनदी पैह्ली पेशकश किसनूं संबोधित होनी चाहिदी ऐ?",
+          "options": [
+            "ओह लोक जेड़े कदे-कदे सप्ताहांत रेस्तरां दे दौरे दी योजना बनांदे न।",
+            "उह ऑफिस कम्मचारी जिन्नां नूं कमकाजी दिनां च दोपहर दा खाना चाहिदा ऐ।",
+            "जवाबां दी गिनती मनाओ अते होर वड्डे पैमाने ते प्रचार करो।",
+            "जादा लोकां नूं खिच्चण लेई डिलिवरी इलाका लुकाओ।"
+          ],
+          "explanation": "उह ऑफिस कम्मचारी जिन्नां नूं कमकाजी दिनां च दोपहर दा खाना चाहिदा ऐ.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "कदम एक-एक करके फॉलो करो। लिखो कि असल च की होइआ अते इक गल्ल तुस सुधारि।"
+        },
+        "practising": {
+          "question": "इक दोपहर दा इश्तिहार कन्ने दृश्य नें पर ग्राहक संदेश घणे नीं। दूजा दृश्य घणें घणे संदेशां दे नाल पर नेड़े दे ऑफिस कम्मचारियां कोला जादा संदेश लेंदे ऐ। सेवा किहनूं रखे?",
+          "options": [
+            "पैह्ला इश्तिहार: दृश्य संदेशां कोला वड्डे नें।",
+            "दूजा इश्तिहार: एह उनां लोकां तक पहुंचदा ऐ जे दोपहर दा खाना मंगा सकदे नें।",
+            "पैह्ला इश्तिहार: इक आम संदेश सब्बनें लेई ठीक ऐ।",
+            "दोएं इश्तिहारां बगैर 10,000 दृश्यां दे कदो।"
+          ],
+          "explanation": "काम दे ग्राहक संदेश दिखांदे नें कि लोक रुचि ले रए नें। सिर्फ दृश्य एह नीं दस्सदे कि कोई मंगाएगा जां नीं।",
+          "levelTask": "कोई इक इनपुट जां डिज़ाइन फैसला बदलियै फेर कोशिश करो। तुलना करो कि असल च की होइआ।"
+        },
+        "experienced": {
+          "question": "तुआडे दोपहर दे इश्तिहार नूं जवाब मिलदे नें, पर जादातर उन ठिकाणें कोला नें जिथ्थें तुस डिलिवरी नीं कर सकदे। पहिला की बदलना चाहिदा?",
+          "options": [
+            "जवाबां दी गिनती मनाओ अते होर वड्डे पैमाने ते प्रचार करो।",
+            "डिलिवरी इलाका अते कौन आर्डर कर सकदा ऐ साफ-साफ दस्सो।",
+            "डिलिवरी इलाका लुकाओ तां जे होर लोक आकर्षित होण।",
+            "ओह लोक जेड़े कदे-कदे सप्ताहांत रेस्तरां दे दौरे दी योजना बनांदे न।"
+          ],
+          "explanation": "डिलिवरी इलाका अते कौन आर्डर कर सकदा ऐ साफ-साफ दस्सो.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "डिलिवरी-इलाके दी इक लाइन जोड़ो। इक पढ़न वाले नूं पूछो कि कौन आर्डर कर सकदा ऐ अते उनदी असली जवाब लिखो।"
+        }
+      }
+    },
+    "m2": {
+      "steps": [
+        "AI टूल लेई हिदायतां लिखो तां जो ओह केवल तुहाडे दिए तथ्यां दे आधार ते तीन दोपहर दे इश्तिहार बनाए।",
+        "एह हिदायतां इक टूल च चलाओ। ओहदी असली जवाब च गढ़ी होई जां अनपुष्ट गल्लां जांचो।",
+        "अपनी हिदायतां, AI दा जवाब, अते तुस की बदलाव कीते साझा करो। AI जवाब घड़ि के नीं बनाओ।"
+      ],
+      "fields": [
+        {
+          "id": "goal",
+          "prompt": "इश्तिहार बिजनेस नूं की हासिल करान च मदद करे?",
+          "hint": "ओह इक नतीजा चुनो जिसनूं तीन इश्तिहार ख्यालां दा निशाना बनाना चाहिदा ऐ। तुहाडा कारण दस्से कि एह पेशकश नाल किउँ जंचदा ऐ।"
+        },
+        {
+          "id": "tone",
+          "prompt": "इश्तिहार किवें लगना चाहिदा ऐ?",
+          "hint": "ओह आवाज़ चुनो जिस च AI लिखे तां जो इश्तिहार दर्शकां लेई ठीक लगन।"
+        },
+        {
+          "id": "prompt",
+          "prompt": "तुस AI नूं की हिदायत दोगे?",
+          "hint": "दर्शक, मकसद, परखे होए सबूत, पाबंदियां अते वापस चाहिदा आउटपुट रूप दस्सो।"
+        },
+        {
+          "id": "review",
+          "prompt": "AI जवाब इस्तेमाल करने तो पैह्लां तुस की जांचोगे?",
+          "hint": "जवाब ते 3-5 जांचां लिखो, जिवें घड़ंत तथ्य, इक साफ करवाई अते लहजा ठीक ऐ जां नीं।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस अपने दुकाण लेई AI कोला इश्तिहार लिखवाना चाहंदे ओ। सब तो पैह्लां की देना चाहिदा?",
+          "options": [
+            "ग्राहक, मकसद, असली तथ्य अते मानने जोग नियम।",
+            "सिर्फ शब्द जेड़े वायरल हो जां।",
+            "होर भरोसेमंद लहजे दी मांग करो।",
+            "गारंटी नूं छोटे अक्षरां च रखो।"
+          ],
+          "explanation": "ग्राहक, मकसद, असली तथ्य अते मानने जोग नियम.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "कदम एक-एक करके फॉलो करो। लिखो कि असल च की होइआ अते इक गल्ल तुस सुधारि।"
+        },
+        "practising": {
+          "question": "इक AI इश्तिहार कहंदा ऐ कि दोपहर दी सेवा दे कोल पंज तारे दी रेटिंग ऐ, पर किसे ने रेट नीं कीते। AI नूं फेर पूछण तो पैह्लां तुस की बदलोगे?",
+          "options": [
+            "AI नूं असली तथ्य दयो अते दसो कि दावे नीं घड़ने।",
+            "AI कोला होर भरोसेमंद लहजा मांगो।",
+            "AI कोला होर भरोसेमंद रेटिंग घड़न दी मांग करो।",
+            "छोटी घड़ी होई रेटिंग इस्तेमाल करो।"
+          ],
+          "explanation": "जदो तथ्य नीं होंदे तां AI विवरण घड़ सकदा ऐ। जांचे जा सकने तथ्य दयो अते बिना आधार दे दावे हटा दयो।",
+          "levelTask": "कोई इक इनपुट जां डिज़ाइन फैसला बदलियै फेर कोशिश करो। तुलना करो कि असल च की होइआ।"
+        },
+        "experienced": {
+          "question": "AI बराबर इक डिलिवरी गारंटी जोड़दा ऐ जेहड़ी तुहाडी दुकाण कदे नीं दित्ती। अगली हिदायतां तुस किस तरह बदलोगे?",
+          "options": [
+            "मंजूर तथ्य दयो अते AI नूं कहो कि जेहड़ी गल्ल एह समर्थन नीं कर सकदा, ओह चिन्हित करे।",
+            "होरे भरोसेमंद लहजे दी मांग करो।",
+            "गारंटी नूं छोटे अक्षरां च रखो।",
+            "सिर्फ शब्द जेड़े वायरल हो जां।"
+          ],
+          "explanation": "मंजूर तथ्य दयो अते AI नूं कहो कि जेहड़ी गल्ल एह समर्थन नीं कर सकदा, ओह चिन्हित करे.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "प्रॉम्प्ट नूं इक लापता तथ्य नाल फिर चलाओ; दिखाओ कि तुहाडा सुधारेआ होइआ प्रॉम्प्ट कमी नूं किस तरह संभालदा ऐ।"
+        }
+      }
+    },
+    "m3": {
+      "steps": [
+        "मेनू जवाब, इक बादली संदेश, अते संदेश रोकण दा तरीका लिखो।",
+        "इच्छुक दोस्त नूं ग्राहक बनाके संदेश अजमाओ। STOP जवाब शामल करो।",
+        "जिद्दा की होइआ अते तुहाडे सुधारे होए संदेश साझा करो। इह अभ्यास लेई असल ग्राहकां नाल संपर्क नीं करो।"
+      ],
+      "fields": [
+        {
+          "id": "reply",
+          "prompt": "जदों ग्राहक पैह्ले मेनू मांगे तां तुस की कहोगे?",
+          "hint": "संभावित सवाल दा जवाब दयो, इक मददगार गल्ल जोड़ो अते लहजा दोस्ताना रखो, बिना दबाव दे।"
+        },
+        {
+          "id": "followup",
+          "prompt": "अगर ओह जवाब नीं देन तां तुस इक होर संदेश की भेजोगे?",
+          "hint": "इक आसान अगला कदम सवाल पूछो। झूठी कमी जां अपराधबोध नीं। इह इन्ना छोटा होवे जे इक नजर च पढ़िए जा सके।"
+        },
+        {
+          "id": "optout",
+          "prompt": "ग्राहक तुसनूं संदेश रोकण लेई किस तरह कह सकदा ऐ?",
+          "hint": "इक सादी लाइन जेहड़ी दस्से कि संदेश किवें रोकने नें, जिवें STOP जवाब दे के।"
+        },
+        {
+          "id": "measure",
+          "prompt": "कुनडा नतीजा दिखाएगा कि तुहाडे संदेश मददगार सान?",
+          "hint": "ओह इक गिनती चुनो जेहड़ी दिखावे कि फॉलो-अप कम्म करियै। तुहाडा कारण दस्से कि किउँ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक ग्राहक तुहाडा दोपहर दा मेनू मांगे। इक काम दा पहला जवाब की ऐ?",
+          "options": [
+            "कइयां असंबद्ध पेशकशां इकठ्ठियां भेजो।",
+            "इसे इक वार भेजो किउंकि एह पैह्लां शेड्यूल होइआ सि।",
+            "मेनू साझा करो अते इक आसान अगला कदम सवाल पूछो।",
+            "रुकण तो पैह्लां अंतिम छूट भेजो।"
+          ],
+          "explanation": "मेनू साझा करो अते इक आसान अगला कदम सवाल पूछो.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "कदम एक-एक करके फॉलो करो। लिखो कि असल च की होइआ अते इक गल्ल तुस सुधारि।"
+        },
+        "practising": {
+          "question": "इक ग्राहक संदेशां लेई राजी होइआ सि अते पिछ्ले कल तुआडा दोपहर दा मेनू मांगिया सि। उसनूं जवाब नीं आया। इक मददगार फॉलो-अप की ऐ?",
+          "options": [
+            "कइयां असंबद्ध पेशकशां भेजो।",
+            "कहो कि आखरी खाना बेच दित्ता जागा जदों तक ओह हून जवाब नीं दिंदे।",
+            "की तुस सब्जी वाला जां मिली-जुली मेनू चाहंदे ओ? संदेश रोकण लेई STOP जवाब दयो।",
+            "जदों तक जवाब नीं आंदा, संदेश भेजदे रहो।"
+          ],
+          "explanation": "दबाव बिना इक उपयोगी विकल्प दयो। ग्राहक लेई संदेश रोकना आसान बनाओ।",
+          "levelTask": "कोई इक इनपुट जां डिज़ाइन फैसला बदलियै फेर कोशिश करो। तुलना करो कि असल च की होइआ।"
+        },
+        "experienced": {
+          "question": "जदों अगला संदेश भेजण लाई तैयार होवे तां ग्राहक STOP भेज दे। की होना चाहिदा?",
+          "options": [
+            "इसे इक वार भेजो किउंकि एह पैह्लां शेड्यूल होइआ सि।",
+            "रुकण तो पैह्लां अंतिम छूट भेजो।",
+            "इंतज़ार कर रहे संदेश नूं रद्द करो अते संबंधित संदेश रोक दो।",
+            "कइयां असंबद्ध पेशकशां इकठ्ठियां भेजो।"
+          ],
+          "explanation": "इंतज़ार कर रहे संदेश नूं रद्द करो अते संबंधित संदेश रोक दो.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "दो संदेशां दे बीच STOP जवाब अजमाओ अते दिखाओ कि अगला संदेश रद्द हो जंदा ऐ।"
+        }
+      }
+    },
+    "m4": {
+      "steps": [
+        "लोक किवें हफ्ते दा दोपहर दा खाना चुनदे न, इस बारे पंज सवाल लिखो।",
+        "इच्छुक इक बंदे कोला पूछो। बिना नां जां निजी जानकारी दे असली जवाब नोट करो।",
+        "जवाब अते इक सवाल साझा करो जिसनूं तुस कम सुझाव वाला बनाइआ—जेडा जवाब सुझावे नीं।"
+      ],
+      "fields": [
+        {
+          "id": "group",
+          "prompt": "तुस किसनूं उनदे लंच चुनावां बारे पूछोगे?",
+          "hint": "इच्छुक लोक चुनो जेड़े दोपहर दे खाने दी समस्या झेलदे न। निजी जानकारी इकट्ठी नीं करो।"
+        },
+        {
+          "id": "rewrite",
+          "prompt": "जवाब सुझाए बिना तुस सवाल किवें पूछ सकते हो?",
+          "hint": "ऐस प्रश्न बदलिए जेड़ा किसे नूं हां कहन दी धक्के मारदा होवे, इक तटस्थ सवाल नाल जेड़ा उनदे पिछ्ले अनुभव बारे होवे।"
+        },
+        {
+          "id": "questions",
+          "prompt": "तुस पंज सवाल की पूछोगे?",
+          "hint": "पिछ्ले दोपहर दे खाने दे अनुभवां बारे पंज गिनती वाले सवाल लिखो। खुले अते तटस्थ रखो—जवाब सुझावो नीं।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस जानना चाहंदे ओ कि आफिस कम्मचारी दोपहर दे खाने च क्यों मुश्किल महसूस करदे न। कौनसा सवाल मददगार ऐ?",
+          "options": [
+            "मेनूं अपने आखरी मौके बारे दस्सो जदों दोपहर दा खाना मंगाणा मुश्किल सि।",
+            "तुस साडा शानदार दोपहर दा खाना सेवा खऱीदोगे?",
+            "उन्हांनूं वादा करने लेई कहो कि ओ सदस्य बननगे।",
+            "फायदे होर समझाओ जदों तक ओ मान न जां।"
+          ],
+          "explanation": "मेनूं अपने आखरी मौके बारे दस्सो जदों दोपहर दा खाना मंगाणा मुश्किल सि.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "कदम एक-एक करके फॉलो करो। लिखो कि असल च की होइआ अते इक गल्ल तुस सुधारि।"
+        },
+        "practising": {
+          "question": "लोक कहदे न कि उन्हांनूं रवि दे दोपहर दे खाने दा ख्याल पसंद ऐ, पर घणे ऑर्डर नीं करदे। असली जरूरतां समझण लेई ओह की पूछे?",
+          "options": [
+            "कल्ल दोपहर तुस की खाइआ सि, अते तुस ओह किवें चुन्नेआ?",
+            "तुस साडा शानदार दोपहर दा खाना हर दिन खरीदोगे?",
+            "तुस सहमत ओ कि साडा खाना सबतो अच्छा ऐ?",
+            "की तुस वादा करोगे कि सदस्य बनोगे?"
+          ],
+          "explanation": "असल पिछ्ले चुनावां बारे सवाल जरूरतां दा पता लांदे न, बजाय उन सवालां दे जे लोकां नूं किसे ख्याल दी प्रशंसा करन लाई कहंदे न।",
+          "levelTask": "कोई इक इनपुट जां डिज़ाइन फैसला बदलियै फेर कोशिश करो। तुलना करो कि असल च की होइआ।"
+        },
+        "experienced": {
+          "question": "लोक तुहाडी दोपहर दी सोच दी तारीफ करदे न पर जरूरत दे कोई उदाहरण नीं दिंदे। अग्गे की पूछना चाहिदा?",
+          "options": [
+            "पुछो कि आखरी वार उन्हां इस समस्या दा सामना कदों कीता सि अते ओह की करदे सान।",
+            "उन्हांनूं वादा करन लई कहो कि ओ सदस्य बननगे।",
+            "फायदे होर समझाओ जदों तक ओ मान न जां।",
+            "तुस साडा शानदार दोपहर दा खाना सेवा खऱीदोगे?"
+          ],
+          "explanation": "पुछो कि आखरी वार उन्हां इस समस्या दा सामना कदों कीता सि अते ओह की करदे सान.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "अपनी असली इंटरव्यू च इक तटस्थ फॉलो-अप पूछो अते नोट करो कि की एह असली पिछला बरताव उजागर करदा ऐ।"
+        }
+      }
+    },
+    "m5": {
+      "steps": [
+        "दो संदेश लिखो जेड़े सिर्फ इक गल्ल च फरक हों, जिवें शीर्षक।",
+        "दोएं नूं इक इच्छुक पाठक नूं इक्के निर्देशां अते पढ़न दे समय नाल दिखाओ।",
+        "उनदी असली पसंद अते कारण लिखो। इक संदेश सुधारो; इक पाठक बिक्री दे नतीजे साबित नीं करदा।"
+      ],
+      "fields": [
+        {
+          "id": "variable",
+          "prompt": "दो संदेशां दे विच इक की बदलोगे?",
+          "hint": "इक गल्ल चुनो, जिवें शीर्षक। ग्राहक समूह अते हालात मिलदे-जुलदे रखो।"
+        },
+        {
+          "id": "version_a",
+          "prompt": "तुआडा पैह्ला संदेश की कहदा ऐ?",
+          "hint": "पहला पूरा संदेश लिखो, इक साफ अगला कदम नाल।"
+        },
+        {
+          "id": "version_b",
+          "prompt": "तुआडा दूजा संदेश की कहदा ऐ?",
+          "hint": "सिर्फ चुनी होई गल्ल बदलो। बाकि सब कुछ इन्ना संभव हो सके उन्ना मिलदा-जुलदा रखो।"
+        },
+        {
+          "id": "metric",
+          "prompt": "तुस किहड़ा नतीजा गिनोगे?",
+          "hint": "शुरू करने तो पैह्लां इक नतीजा चुनो जिसनूं गिणना ऐ, जिवें उपयुक्त ग्राहक पूछताछां जां रजिस्ट्रेशन।"
+        },
+        {
+          "id": "rule",
+          "prompt": "तुस कदों फैसला करोगे कि किहड़ा संदेश रखना ऐ?",
+          "hint": "दसो कि तुस किन्ना समय तुलना करोगे, तुसनूं किहड़ा नतीजा चाहिदा ऐ, अते जे नतीजा अस्पष्ट होवे तां तुस की करोगे।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस दो दुकान संदेशां दी न्यायपूर्ण तुलना करना चाहंदे ओ। तुस की बदलो?",
+          "options": [
+            "संदेश, ग्राहक, कीमत अते मंच सब इकठ्ठे बदलो।",
+            "B बेहतर साबित होइआ किउंकि उसनूं होर क्लिक मिले।",
+            "इक गल्ल, जिवें शीर्षक, बदलो अते बाकी समान रखो।",
+            "A कदे दोबारा इस्तेमाल नीं होणा चाहिदा।"
+          ],
+          "explanation": "इक गल्ल, जिवें शीर्षक, बदलो अते बाकी समान रखो.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "कदम एक-एक करके फॉलो करो। लिखो कि असल च की होइआ अते इक गल्ल तुस सुधारि।"
+        },
+        "practising": {
+          "question": "इक क्लब अपना पोस्टर, शीर्षक अते पोस्ट करन दा दिन बदलदा ऐ। होर लोक रजिस्टर करदे न। शीर्षक बारे ईमानदारी नाल की कहे सकदा ऐ?",
+          "options": [
+            "नवा शीर्षक जरूर बढ़ोतरी दा कारण सि।",
+            "पुराना शीर्षक कदे इस्तेमाल नीं होना चाहिदा।",
+            "इह नीं दसेआ जा सकदा कि शीर्षक मददगार सि किउंकि कई गल्लां बदलीयां।",
+            "शुक्रवार पोस्ट करन नाल हमेशा होर रजिस्ट्रेशन आंदे न।"
+          ],
+          "explanation": "की मदद कीता, एह जानन लेई इक गल्ल बदलो अते मिलदे-जुलदे हालात च तुलना करो।",
+          "levelTask": "कोई इक इनपुट जां डिज़ाइन फैसला बदलियै फेर कोशिश करो। तुलना करो कि असल च की होइआ।"
+        },
+        "experienced": {
+          "question": "संदेश A सोमवार नूं चलिया। B छुट्टी दे दिन अलग लोकां लेई चलिया अते उसनूं होर क्लिक मिले। तुस की निष्कर्ष कढ सकदे ओ?",
+          "options": [
+            "B बेहतर साबित होइआ किउंकि उसनूं होर क्लिक मिले।",
+            "A कदे दोबारा इस्तेमाल नीं होणा चाहिदा।",
+            "कई गल्लां बदलीयां, इस कारण समान हालात नाल परीक्षण दोहराओ।",
+            "संदेश, ग्राहक, कीमत अते मंच सब इकठ्ठे बदलो।"
+          ],
+          "explanation": "कई गल्लां बदलीयां, इस कारण समान हालात नाल परीक्षण दोहराओ.. अपनी कम्म च इह फैसला अजमाओ।",
+          "levelTask": "इक्के निर्देशां अते इक्के जिेह्गे पढ़न समय नाल अपना पाठक तुलना दोहराओ; पाबंदियां लिखो।"
+        }
+      }
+    },
+    "m6": {
+      "steps": [
+        "इक मुकम्मल पोस्ट बनाओ ते उस पन्ने जां संदेश दी ड्राफ्ट बनाओ जिसदे तक ऐ।",
+        "अपने डिवाइस ते लिंक जां अगला कदम खोलो। कोई बी ऐसी चीज़ दिक्खो जेह्ड़ी पूछ-गिछ्च नूं रोकदी होवे।",
+        "पोस्ट, मंज़िल, मिली समस्या, ते अपने ठीक कीते हल बारे शेयर करो। जेकर तुसे प्रकाशित करी सकदे ओ तां इसे निजी रखो।"
+      ],
+      "fields": [
+        {
+          "id": "channel",
+          "prompt": "तुस एह् ग्राहकां तक किस जगह पहुंचोगे?",
+          "hint": "शुरू करन लेई इक चैनल चुनो। अपने कारण में दस्सो कि एह् परिवारां तक किस तरां पहुंचदा ऐ ते बजट नूं किस तरां ठीक बैठदा ऐ।"
+        },
+        {
+          "id": "rejected",
+          "prompt": "अह् होर केह्ड़ी जगह तुसीं हूनें लेई टालोगे, ते क्यों?",
+          "hint": "इक चैनल चुनो जिसनूं तुसीं पहले इस्तेमाल निं करोगे। अपने कारण में दस्सो कि हून केह्ड़ी गलत ऐ।"
+        },
+        {
+          "id": "tracking",
+          "prompt": "तुस केह्‌डे तरीके नाल जानोगे कि हर पूछ-गिछ्च किथ्थूं आई?",
+          "hint": "तुस एह् चैनल दे ऑर्डर केह्‌डे तरीके नाल गिनोगे, मिसाल दे तौर ते इक कोड शब्द जां वखरी नंबर?"
+        },
+        {
+          "id": "action",
+          "prompt": "पहले हफ्ते तुस ठीक-ठीक केह् बनाओगे ते आजमाओगे?",
+          "hint": "दस्सो कि पहले हफ्ते तुस केह् करोगे, इक रुपया रक्खम ते कोन करदा ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक लोकल दुकान शुरुआत च सिर्फ इक जगह विज्ञापन दे सकदी ऐ। उसनूं केह् तरीके नाल चुनना चाहिदा?",
+          "options": [
+            "सारे मंच इकठ्ठे इस्तेमाल करो.",
+            "टूटे फॉर्म दी भरपाई लेई होर पोस्ट करो.",
+            "होर चमकदार तस्वीर चुनो.",
+            "ओह् जगह चुनो जिसनूं असली ग्राहक इस्तेमाल करदे न."
+          ],
+          "explanation": "ओह् जगह चुनो जिसनूं असली ग्राहक इस्तेमाल करदे न.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "कदम इक-इक करियै फालो करो। लिखो कि असल च की होआ ते इक चीज़ केह् सुधारी।"
+        },
+        "practising": {
+          "question": "इक बेकरी दे कोल पैसा ते वक्त थोड़ा ऐ। पुराने ग्राहक WhatsApp ऑफरां लेई रज़ामंद न, ते बक्ख-बक्ख जादातर नेड़े रहंदे न। उसनूं किथ्थों शुरू करना चाहिदा?",
+          "options": [
+            "सारे देश च लोकां तक पहुंचन लेई पैसा खर्च करो.",
+            "हर सोशल मंच ते इकठ्ठे पोस्ट करो.",
+            "फोन नंबरां ते ऑफर भेजो जिंदे लोकां ने कदे रज़ामंदी निं दित्ती.",
+            "ओह्ना ग्राहकां नूं साफ़ WhatsApp ऑफर भेजो, ते ऑर्डर ट्रैक करने दा तरीका होवे."
+          ],
+          "explanation": "जिथ्थे ग्राहक पहले थ्ही न ते सुनन दी रज़ामंदी दित्ती होवे, उत्थूं शुरू करो। सिरफ ध्यान निं, असली ऑर्डर ट्रैक करो.",
+          "levelTask": "इक इनपुट जां डिजाइन चुनाव बदलियै दुबारा ट्राई करो। जेह् असल च होआ उसदी तुलना करो."
+        },
+        "experienced": {
+          "question": "तुहाडा दुकान पोस्ट ध्यान खींचदी ऐ, पर उसदा लिंक टूटे ऑर्डर फॉर्म ते खोलदा ऐ। सबसे पहला की ठीक करना चाहिदा?",
+          "options": [
+            "टूटे फॉर्म दी भरपाई लेई होर पोस्ट करो.",
+            "होरी चमकदार तस्वीर चुनो.",
+            "सारे मंच इकठ्ठे इस्तेमाल करो.",
+            "पोस्ट तो पूछ-गिछ्च तक पूरे रस्ते नूं ठीक करो ते परखो."
+          ],
+          "explanation": "पोस्ट तो पूछ-गिछ्च तक पूरे रस्ते नूं ठीक करो ते परखो.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "लिंक जां अगला कदम फोन ते होर इक डिवाइस ते चलाओ। जेह्ड़ा कदम फेल होवे उसनूं ठीक करो ते की बदला, एह् लिखो."
+        }
+      }
+    },
+    "m7": {
+      "steps": [
+        "दित्ती हुई विज्ञापन लागत ते ग्राहक पूछ-गिछ्च स्प्रेडशीट च भरो। गणना दे सूत्र जोड़ो.",
+        "इक इनपुट बदलो ते जांचो कि स्प्रेडशीट नया नतीजा दिन्दी ऐ.",
+        "अपने सूत्र, दूनो नतीजे, ते किस विज्ञापन ते तुसीं होर खर्च करोगे, शेयर करो."
+      ],
+      "fields": [
+        {
+          "id": "cost",
+          "prompt": "इक ठीक ग्राहक पूछ-गिछ्च दी लागत केह् ऐ?",
+          "hint": "हरेक विज्ञापन लेई खर्च कीते पैसे नूं ठीक पूछ-गिछ्च नाल भागो। रुपया रक्खम दिखाओ."
+        },
+        {
+          "id": "working",
+          "prompt": "तुस एह् लागत केह् तरां गिनी?",
+          "hint": "दित्ते गए नंबरां इस्तेमाल करदे होए स्प्रेडशीट दे सूत्र ते गणनाएं दिखाओ."
+        },
+        {
+          "id": "step",
+          "prompt": "तुस सबसे पहले केह् सुधारेओगे?",
+          "hint": "इक कदम चुनो जेह्दा नाल ठीक ग्राहक पूछ-गिछ्च सुधर सकदी ऐ, ते फ्हेर समझाओ क्यों."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक दुकान विज्ञापन ते पैसे खर्च करदी ऐ। इक ठीक ग्राहक पूछ-गिछ्च दी लागत ओह् केह् तरां लभदी ऐ?",
+          "options": [
+            "विज्ञापन खर्च नूं ठीक ग्राहक पूछ-गिछ्च नाल भागो.",
+            "पसंदां नूं दृश्यां नाल भागो.",
+            "पहला, कियूंकि ₹20 ₹60 तो कट्ट ऐ.",
+            "दूनो दी ठीक पूछ-गिछ्च लागत इक्को ऐ."
+          ],
+          "explanation": "विज्ञापन खर्च नूं ठीक ग्राहक पूछ-गिछ्च नाल भागो.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "कदम इक-इक करियै फालो करो। लिखो कि असल च की होआ ते इक चीज़ केह् सुधारी।"
+        },
+        "practising": {
+          "question": "दो विज्ञापनां दी लागत इक-इक ₹3,000 ऐ। विज्ञापन X 6 ठीक ग्राहक पूछ-गिछ्च लैंदा ऐ। विज्ञापन Y 10 लैंदा ऐ। केह्ड़ा प्रति ठीक पूछ-गिछ्च कट्ट लागत करदा ऐ?",
+          "options": [
+            "विज्ञापन Y: प्रति पूछ-गिछ्च ₹300, मुकाबले X दे ₹500 दे।",
+            "विज्ञापन X: घटी पूछ-गिछ्च हमेशा कट्ट लागत करदी ऐ.",
+            "दूनो: कुल खर्च इक्को ऐ.",
+            "उह् विज्ञापन चुनो जिस च क्लिक होर न, पूछ-गिछ्च नूं नज़रअंदाज़ करदे होए."
+          ],
+          "explanation": "खर्च नूं ठीक पूछ-गिछ्च नाल भागो: 3,000 ÷ 10 = 300; 3,000 ÷ 6 = 500.",
+          "levelTask": "इक इनपुट जां डिजाइन चुनाव बदलियै दुबारा ट्राई करो। जेह् असल च होआ उसदी तुलना करो."
+        },
+        "experienced": {
+          "question": "इक विज्ञापन दी लागत प्रति पूछ-गिछ्च ₹20 ऐ, ते 2% ठीक ग्राहक न। दूए दी लागत ₹60 ऐ, ते 50% ठीक ग्राहक न। ठीक पूछ-गिछ्च प्रति केह् कट्टा ऐ?",
+          "options": [
+            "दूजा: प्रति ठीक पूछ-गिछ्च ₹120, मुकाबले ₹1,000 दे।",
+            "पहला, कियूंकि ₹20 ₹60 तो कट्ट ऐ.",
+            "दूनो दी ठीक पूछ-गिछ्च लागत इक्को ऐ.",
+            "पसंदां नूं दृश्यां नाल भागो."
+          ],
+          "explanation": "दूजा: प्रति ठीक पूछ-गिछ्च ₹120, मुकाबले ₹1,000 दे.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "अपनी स्प्रेडशीट च ठीक पूछ-गिछ्च दा प्रतिशत जोड़ो। दो अलग-अलग प्रतिशतां नाल लागत गणना परीखशो."
+        }
+      }
+    },
+    "m8": {
+      "steps": [
+        "14 दिनां दे पोस्टां दी योजना बनाओ ते उनां चों दो पोस्ट बनाओ।",
+        "दूनो पोस्ट फोन ते दिक्खो। पढ़न च मुश्किल लिखत जां दोहराए गे विचारां दी जांच करो।",
+        "कैलेंडर, मुकम्मल पोस्ट, ते जेह् बदला तुसीं कीता उह् शेयर करो।"
+      ],
+      "fields": [
+        {
+          "id": "theme",
+          "prompt": "तुहाडे पोस्ट किस बारे होङे?",
+          "hint": "इक थीम, जिसनूं हर पोस्ट सहारा देवै, जियां “साडे घर च हाथ नाल बनाए”."
+        },
+        {
+          "id": "format",
+          "prompt": "तुसीं मुख्य तौर ते किह्ड़ी किस्म दी पोस्ट बनाओगे?",
+          "hint": "उह् फॉर्मेट चुनो जिसनूं तुसीं सब तो ज्यादा बनाओगे। अपने कारण च दस्सो कि एह् तुहाडे कोल मौजूद वक्त नाल क्यों फिट बैठदा ऐ."
+        },
+        {
+          "id": "reuse",
+          "prompt": "किह्ड़ा विचार जां सामग्री तुसीं फ्हेर इस्तेमाल कर सकदे हो?",
+          "hint": "उह् इक मूल विचार, जिसनूं तुसीं इक वार बनाके कम से कम तीन जगहां इस्तेमाल करोगे."
+        },
+        {
+          "id": "calendar",
+          "prompt": "14 दिनां दे हर दिन तुसीं केह् पोस्ट करोगे?",
+          "hint": "हर दिन लेई इक पंक्ति: दिन, फॉर्मेट ते की बाहर जांदा ऐ। आराम दे दिन साफ़ तौर ते निशान लगाओ."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुहाडे कोल दुकान दे पोस्ट बनान लेई थ्होड़ा समय ऐ। इक उपयोगी पोस्टिंग योजना केह् बनांदी ऐ?",
+          "options": [
+            "हर दिन जित्थे हो सकै ओह् जित्ते पोस्ट.",
+            "योजना नूं संभालो ते छूटे दिनां लेई निर्माता नूं दोष दो.",
+            "हर पोस्ट लेई कारण ते अगला कदम वाली असली समय-सारणी.",
+            "हर दिन इक्को संदेश पोस्ट करो."
+          ],
+          "explanation": "हर पोस्ट लेई कारण ते अगला कदम वाली असली समय-सारणी.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "कदम इक-इक करियै फालो करो। लिखो कि असल च की होआ ते इक चीज़ केह् सुधारी।"
+        },
+        "practising": {
+          "question": "काव्या दियां दिय़ां बनांदी ऐ ते हफ्ते च पोस्टां लेई चार घंटें न। केह्ड़ी योजना असली ऐ?",
+          "options": [
+            "हर दिन इक नया लंबा वीडियो बनाओ.",
+            "अपनियां परीक्षाएं दौरान हर घण्टे पोस्ट करो.",
+            "इक वीडियो बनाओ ते हफ्ते च तीन दिनां दी पोस्टां च हिस्से फिर इस्तेमाल करो.",
+            "रोज़ पोस्ट दा वादा करो ते बाद च बनाना तय करो."
+          ],
+          "explanation": "जिन्ना वक्त सचमुच तुहाडे कोल ऐ, ओह्दे मुताबिक योजना बनाओ। जेह्ड़ा काम मुकम्मल निं कर सकदे, ओह्दा वादा न करो.",
+          "levelTask": "इक इनपुट जां डिजाइन चुनाव बदलियै दुबारा ट्राई करो। जेह् असल च होआ उसदी तुलना करो."
+        },
+        "experienced": {
+          "question": "योजना नूं हर रोज़ नए वीडियो दी लोड़ ऐ, पर निर्माता दे कोल हफ्ते च दो घंटें न। केह् बदलना चाहिदा?",
+          "options": [
+            "योजना जियों दी त्यों रखो ते छूटे दिनां लेई निर्माता नूं दोष दो.",
+            "हर दिन इक्को संदेश पोस्ट करो.",
+            "कट्ट पोस्ट बनाओ ते ओह्नां ते ध्यान देवो जेह्ड़े मकसद पूरा करदे न.",
+            "हर दिन जित्ते हो सकै ओह् जित्ते पोस्ट."
+          ],
+          "explanation": "कट्ट पोस्ट बनाओ ते ओह्नां ते ध्यान देवो जेह्ड़े मकसद पूरा करदे न.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "इक नियोजित पोस्ट बनाने दा समय नोट करो ते असली लोड़ दे समय अनुसार कैलेंडर फेर बनाओ."
+        }
+      }
+    },
+    "m9": {
+      "steps": [
+        "विज्ञापन नूं एहो जियां लिखो कि हर वादा जांच सकियै। मानन, नकारन, ते STOP लेई संदेश लिखो।",
+        "चाहवान दोस्त नाल एह् चुनाव आज़माओ ते कोई बी उलझन वाला कदम नोट करो।",
+        "पहला ते सुधारे होए विज्ञापन ते संदेश शेयर करो। जेह्ड़ा वादा तुसीं साबित निं कर सकदे, उसनूं हटाओ।"
+      ],
+      "fields": [
+        {
+          "id": "risk",
+          "prompt": "केह्ड़ी समस्या ग्राहकां नूं सबसे ज्यादा नुकसान पहुंचा सकदी ऐ?",
+          "hint": "ओह् समस्या चुनो जेह्ड़ी लोकां नूं सबसे ज्यादा चोट पहुंचा सकदी ऐ। अपने कारण च दस्सो क्यों."
+        },
+        {
+          "id": "problems",
+          "prompt": "किह्ड़े वादे जां संदेश चुनाव समस्या न?",
+          "hint": "विज्ञापन ते सूची योजना चों तीन अलग-अलग समस्याएं लखो, हर इक छोट्टे वाक्य च."
+        },
+        {
+          "id": "rewrite",
+          "prompt": "तुहाडा ठीक कीता विज्ञापन केह् कहंदा ऐ?",
+          "hint": "विज्ञापन लेई इक जां दो ईमानदार वाक्य, जेह्ड़े सिर्फ ओह् वादा करन जेह् कोर्स दे सकदा ऐ."
+        },
+        {
+          "id": "consent",
+          "prompt": "कोई संदेशां नाल केह् तरां रज़ामंद होई सकदा ऐ ते बाद च केह् तरां रोक सकदा ऐ?",
+          "hint": "दसो कि तुसीं अनुमति केह् तरां मांगोगे, की भेजोगे, ते इक बंदा संदेश केह् तरां रोक सकदा ऐ."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "इक विज्ञापन ऐसे नतीजे वादे करदा ऐ जिह्नें दा बिज़नेस सबूत निं दे सकदा। तुहानूं केह् करना चाहिदा?",
+          "options": [
+            "वादा होर बड़ा करो तां जे होर लोक ध्यान देन.",
+            "डिब्बा टिक्ड़ा रखो पर छोट्टे अक्षरां च लिखो.",
+            "पन्ने दा दौरा अनुमति समझो.",
+            "इस्तेमाल करने तो पहले बिना-समर्थन वादे नूं हटाओ जां घटाओ."
+          ],
+          "explanation": "इस्तेमाल करने तो पहले बिना-समर्थन वादे नूं हटाओ जां घटाओ.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "कदम इक-इक करियै फालो करो। लिखो कि असल च की होआ ते इक चीज़ केह् सुधारी।"
+        },
+        "practising": {
+          "question": "इक resume कोर्स दी कीमत ₹1,499 ऐ ते कुसै नूं नौकरी दा वादा निं कर सकदा। केह्ड़ा विज्ञापन ईमानदार ऐ?",
+          "options": [
+            "₹1,499 भरो ते पक्की नौकरी पाओ.",
+            "हरेक विद्यार्थी चार हफ्तें च नौकरी पांदा ऐ.",
+            "साडा resume हर होर आवेदक तो बेहतर ऐ.",
+            "चार हफ्तें च feedback नाल अपना resume सुधारेओ। ₹1,499. नौकरी दी गारंटी निं."
+          ],
+          "explanation": "कोर्स की प्रदान करदा ऐ ते उसदी कीमत दस्सो। ओह् नतीजा वादा न करो जिह्दा तुसीं समर्थन निं कर सकदे.",
+          "levelTask": "इक इनपुट जां डिजाइन चुनाव बदलियै दुबारा ट्राई करो। जेह् असल च होआ उसदी तुलना करो."
+        },
+        "experienced": {
+          "question": "इक फॉर्म च marketing संदेश पहले ही टिक्ड़े होए न ते इह् छुपा दंदा ऐ कि ओह्नां नूं केह् तरां रोकना ऐ। चुनाव नूं न्यायी केह् बनांदा ऐ?",
+          "options": [
+            "डिब्बा टिक्ड़ा रखो पर छोट्टे अक्षरां च लिखो.",
+            "पन्ने दा दौरा अनुमति समझो.",
+            "वादा होर बड़ा करो तां जे होर लोक ध्यान देन.",
+            "संदेश वैकल्पिक बनाओ ते रोकन दा साफ़ तरीका दिखाओ."
+          ],
+          "explanation": "संदेश वैकल्पिक बनाओ ते रोकन दा साफ़ तरीका दिखाओ.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "साथी नाल जुड़ना, नकारना, ते रोकना अभ्यास करो; कोई बी उलझन वाला कदम रिपोर्ट करो जिसनूं तुसीं ठीक कीता."
+        }
+      }
+    },
+    "m10": {
+      "steps": [
+        "अपना प्रस्ताव, मुकम्मल पोस्ट, मंज़िल, ते पूछ-गिछ्च दर्ज करने लेई स्प्रेडशीट इकठ्ठी करो।",
+        "इक पोस्ट नूं उसदे अगले कदम तक फालो करो। अपनी स्प्रेडशीट च साफ़ लेबल वाली टेस्ट पूछ-गिछ्च जोड़ो।",
+        "कम्म, असली टेस्ट नतीजा, ते जेह्ड़ा टूटा कदम तुसीं ठीक कीता, शेयर करो।"
+      ],
+      "fields": [
+        {
+          "id": "segment",
+          "prompt": "तुहाडा दुपहरै दा ऑफर किस लेई ऐ?",
+          "hint": "शुरू च ओह् समूह चुनो जिसनूं तुसीं सेवा देवोगे। अपने कारण च ओह्नां नूं चैनल नाल जोड़ो."
+        },
+        {
+          "id": "channel",
+          "prompt": "तुसीं ओह्नां तक किथ्थूं पहुंचोगे?",
+          "hint": "इक चैनल चुनो जेह्ड़ा उस समूह तक पहुंचे ते ₹5,000 ते इक मालिक नाल फिट बैठे."
+        },
+        {
+          "id": "metric",
+          "prompt": "तुस केह् नतीजा गिनोगे?",
+          "hint": "अपने चुने होए चैनल ते चार हफ्तें च जिस नंबर नूं तुसीं गिन सकदे हो, ओह् इक चुनो."
+        },
+        {
+          "id": "offer",
+          "prompt": "इक वाक्य च तुहाडा ऑफर केह् ऐ?",
+          "hint": "इक लाइन, जिस च ग्राहक, फायदा, ते इक कार्रवाई होवे."
+        },
+        {
+          "id": "plan",
+          "prompt": "तुहाडा ऑफर, पोस्टां, अगला कदम, ते ट्रैकिंग इक-दूए नाल केह् तरां जुड़नगे?",
+          "hint": "ग्राहक समस्या, तुहाडा इक टेस्ट (इक चीज़ बदलके), ते इक खतरा लिखो ते किवें तुसीं उसनूं घटाओगे."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस लंच अभियान इक दुकान मालिक नूं देई दे रहे हो। पैक च केह् होना चाहिदा?",
+          "options": [
+            "गैर-सम्बंधित सुंदर तस्वीरां दा फोल्डर.",
+            "ग्राहक, ऑफर, मुकम्मल पोस्ट, ते अगले कदम नूं ट्रैक करने दा तरीका.",
+            "होर पोस्ट डिज़ाइन बनाओ.",
+            "दृश्यां नूं पक्की बिक्री दे तौर ते रिपोर्ट करो."
+          ],
+          "explanation": "ग्राहक, ऑफर, मुकम्मल पोस्ट, ते अगले कदम नूं ट्रैक करने दा तरीका.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "कदम इक-इक करियै फालो करो। लिखो कि असल च की होआ ते इक चीज़ केह् सुधारी।"
+        },
+        "practising": {
+          "question": "इक tiffin service नूं नेड़े दे दो hostel च लोकां कन्ने ऑर्डर चाहिदे न। केह्ड़ी योजना ग्राहक, ऑफर ते नतीजे नूं जोड़दी ऐ?",
+          "options": [
+            "हर जगह विज्ञापन करो ते हर दृश्य नूं ऑर्डर समझो.",
+            "होस्टल दे notice board ते lunch offer दिखाओ; code नाल trial orders गिनो.",
+            "बिना ऑर्डर कदम दे गैर-सम्बंधित तस्वीरां इस्तेमाल करो.",
+            "दूर दे शहरां नूं target करो जित्थे service डिलीवर निं कर सकदी."
+          ],
+          "explanation": "इक उपयोगी योजना सही लोकां तक पहुंचदी ऐ, ओह्नां नूं साफ़ अगला कदम दिन्दी ऐ, ते उस कदम दा नतीजा दर्ज करदी ऐ.",
+          "levelTask": "इक इनपुट जां डिजाइन चुनाव बदलियै दुबारा ट्राई करो। जेह् असल च होआ उसदी तुलना करो."
+        },
+        "experienced": {
+          "question": "तुहाडे अभियान दे पोस्ट मुकम्मल लगदे न, पर पूछ-गिछ्च दा कोई रेकॉर्ड निं कि ओह् किस पोस्ट तो आई। तुहानूं की ठीक करना चाहिदा?",
+          "options": [
+            "होर पोस्ट डिज़ाइन बनाओ.",
+            "source labels जोड़ो ते इन्हांनूं labelled enquiry नाल test करो.",
+            "दृश्यां नूं पक्की बिक्री दे तौर ते रिपोर्ट करो.",
+            "गैर-सम्बंधित सुंदर तस्वीरां दा फोल्डर."
+          ],
+          "explanation": "source labels जोड़ो ते इन्हांनूं labelled enquiry नाल test करो.. एह् फैसला अपने कम्म च आज़माओ.",
+          "levelTask": "दो अलग-अलग assets कोला दो labelled test enquiries चलाओ ते पक्का करो कि तुहाडा tracker उनां दे sources नूं अलग करदा ऐ."
+        }
+      }
+    },
+    "v1": {
+      "steps": [
+        "काग़ज़ उप्पर जां तुहाड़े कोल जेह्ड़े औज़ार नें उ'हदे च तिन्न रफ तस्वीरां बनाओ।",
+        "कैप्शन लुकाओ। चे़क करो कि क'यां तस्वीरां अकल्ले इक साफ़ तब्दीली दिक्खांदी नें।",
+        "कोई अस्पष्ट तस्वीर दुबारा बनाओ जां ओह्दे क्रम नूं बदलो। असल तस्वीरां जां उ'नेंदी सामग्री ते की बदला, ओह्दे बारे च साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "audience",
+          "prompt": "कौन इन तस्वीरां नूं समझे?",
+          "hint": "कोई इक खास समूह लिखो, जियां पुस्तकालय दे नेड़े कॉलेज दे विद्यार्थी, ना कि सब लोक।"
+        },
+        {
+          "id": "frame_1",
+          "prompt": "पहली तस्वीर च असें की देखदे आं?",
+          "hint": "जो असें देखदे आं, ओह्दा एहसास, ते इक छोटा कैप्शन। रिलेटेबल समस्या दिखाओ।"
+        },
+        {
+          "id": "frame_2",
+          "prompt": "दूजी तस्वीर च की बदला?",
+          "hint": "जो असें देखदे आं, ओह्दा एहसास, ते इक छोटा कैप्शन। बदली नूं दिखाओ।"
+        },
+        {
+          "id": "frame_3",
+          "prompt": "आख़री तस्वीर च असें की देखदे जां करदे आं?",
+          "hint": "जो असें देखदे आं, ओह्दा एहसास, ते इक कैप्शन जेह्दा इक साफ़ बुलाहट नाल मुक्के।"
+        },
+        {
+          "id": "thread",
+          "prompt": "कौन भाई, चीज़ जां बारीकी तिन्नें तस्वीरां नूं जोड़दी ऐ?",
+          "hint": "इक चीज़, रंग जां थाह् जेह्ड़ी तिन्नें फ्रेमां च होंदी ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सीं इक कहानी आस्तै तिन्न तस्वीरां बनांदे ओ। दर्शक नूं उनें दा पीछा करन च की मदद करदा ऐ?",
+          "options": [
+            "तिन्न अलहदा सुन्दर तस्वीरां।",
+            "सिर्फ तस्वीरां दी resolution वधाओ।",
+            "इक साफ़ बदला जेह्ड़ा ओह् तस्वीरां दे बीच समझ सकन।",
+            "होरे अलहदा तस्वीरां जोड़ो।"
+          ],
+          "explanation": "इक साफ़ बदला जेह्ड़ा ओह् तस्वीरां दे बीच समझ सकन.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "कदम दर कदम चलो। लिखो कि असल च की होया ते तुस्सीं इक की बेहतर कित्ता।"
+        },
+        "practising": {
+          "question": "तीन पुस्तकालय तस्वीरां च इक परीक्षा हॉल, इक क्रिकेट मैच ते इक आलमारी ऐ। एह् अलहदा लगदियां नें। इक साफ़ कहानी बनान आस्तै की जरूरी ऐ?",
+          "options": [
+            "होरे अलहदा सुन्दर तस्वीरां जोड़ो।",
+            "हर तस्वीर च अलहदा दर्शक रखो।",
+            "समस्या, बदला ते बुलाहट दिखाओ, जेह्दा इक दोहराए गेदे बारीकी नाल जुड़ा होए।",
+            "क्रम नूं रैंडम रखो ते बाद च सब किछ समझाओ।"
+          ],
+          "explanation": "दर्शकां नूं दिखना चाहिदा कि इक तस्वीर अगली नूं किवें लैंदी ऐ। दोहराए गेदे भाई जां चीज़ कनेक्शन बनाने च मदद करदी ऐ।",
+          "levelTask": "इक इनपुट जां डीज़ाइन फैसला बदलके दुबारा कोशिश करो। असल च की होया, ओह्दी तुलना करो।"
+        },
+        "experienced": {
+          "question": "दर्शक हर तस्वीर समझदा ऐ पर तिन्नें नूं जोड़ नही पांदा। तुस्सीं सब तो पैहले की बदलो?",
+          "options": [
+            "सिर्फ तस्वीरां दी resolution वधाओ।",
+            "होरे अलहदा तस्वीरां जोड़ो।",
+            "उ'नेंदा क्रम ते ओह् बारीकियां जेह्ड़ियां इक जुड़े हुए बदला नूं दिखांदियां नें।",
+            "तिन्न अलहदा सुन्दर तस्वीरां।"
+          ],
+          "explanation": "उ'नेंदा क्रम ते ओह् बारीकियां जेह्ड़ियां इक जुड़े हुए बदला नूं दिखांदियां नें.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "बोले बगैर क्रम दिखाओ ते नोट करो कि दर्शक किथे मन चाहिदे बदला नूं खो बैठदा ऐ।"
+        }
+      }
+    },
+    "v2": {
+      "steps": [
+        "अपनी हिदायतां इस्तेमाल करके तुहाड़े कोल जेह्ड़े औज़ार नें उ'नें नाल दो तस्वीरां बनाओ जां बनवाओ।",
+        "तस्वीरां च भाई, थाह् जां दोहराए दे चीज़ च बदलाव दे वास्ते तुलना करो।",
+        "हिदायतां नूं बेहतर बनाओ ते ठीक कित्ती तस्वीर बनाओ। कंम ते जेह्दा फासला तुस्सीं ठीक कित्ता, ओह् साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "subject",
+          "prompt": "कौन जां की दिखदी ऐ, ते ओह् किथे नें?",
+          "hint": "तस्वीर च कौन ऐ ते किथे, आसान शब्दां च। इंसान ते थां बारे साफ़ होओ।"
+        },
+        {
+          "id": "composition",
+          "prompt": "तस्वीर च मुख्य चीज़ किथे बैठनी चाहिदी ऐ?",
+          "hint": "ओह् फ्रेमिंग चुनो जेह्ड़ी तुस्सीं AI गी तिन्नें तस्वीरां आस्तै कहोगे।"
+        },
+        {
+          "id": "mood",
+          "prompt": "माहौल ते रौशनी किवें लगनी चाहिदी ऐ?",
+          "hint": "ओह् मूड चुनो जेह्ड़ा पहिली वार आन आले नूं महसूस होए।"
+        },
+        {
+          "id": "continuity",
+          "prompt": "कौन सी बारीकी हर तस्वीर च वही रहनी चाहिदी ऐ?",
+          "hint": "इक चीज़ जां रंग जेह्ड़ा तिन्नें तस्वीरां च दोहराया जावे तांजो ओह् इक सेट लगन।"
+        },
+        {
+          "id": "avoid",
+          "prompt": "मेकर नूं केह्ड़ियां दो चीज़ां छोड़ देनी चाहिदियां नें?",
+          "hint": "दो बहिष्कारां दे नां लिखो, जियां तस्वीर अंदर टेक्स्ट जां बनावटी प्रशंसा, ते हर इक दा कारण दसो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सीं किसे नूं जां image tool नूं पुस्तकालय poster बनान आस्तै कहदे ओ। उ'नेंदी मदद करन आस्तै की चाहिदा?",
+          "options": [
+            "सिर्फ शब्दां नाल सुंदर होजंदा ऐ।",
+            "शैली दे शब्दां दी लंबी सूची।",
+            "तस्वीर दे हर हिस्से च होर बारीकी।",
+            "विषय, थां, दर्शक ते मकसद बारे साफ़ बारीकियां।"
+          ],
+          "explanation": "विषय, थां, दर्शक ते मकसद बारे साफ़ बारीकियां.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "कदम दर कदम चलो। लिखो कि असल च की होया ते तुस्सीं इक की बेहतर कित्ता।"
+        },
+        "practising": {
+          "question": "AI हर तस्वीर च अलग पुस्तकालय आगंतुक ते अनपढ़ने योग्य संकेत दिंदा ऐ। तुहाड़ी हिदायतां की साफ़ करना चाहिदा?",
+          "options": [
+            "सिर्फ होर सुंदर तस्वीरां दा आख़ो।",
+            "हर तस्वीर च अलहदा इंसान मांगो।",
+            "अनपढ़ने योग्य संकेत रखो क्योंकि ओह् बारीक लगदा ऐ।",
+            "उसी इंसान ते दोहराई चीज़ हर वार लिखो, ते पढ़ने योग्य टेक्स्ट अलग टूल च जोड़ो।"
+          ],
+          "explanation": "जो चीज़ वही रहनी चाहिदी ऐ ओह् साफ़ लिखो। असल तस्वीरां चेक करो; जरूरी शब्द ओह् टूल च जोड़ो जित्थे तुस्सीं उनेंगी पढ़ ते संपादित कर सकदे हो।",
+          "levelTask": "इक इनपुट जां डीज़ाइन फैसला बदलके दुबारा कोशिश करो। असल च की होया, ओह्दी तुलना करो।"
+        },
+        "experienced": {
+          "question": "AI ओह् style बनांदा ऐ जेह्दा तुस्सीं मांगेया सी, पर दर्शक गलत मतलब लेंदे नें। अगली हिदायतां किस उप्पर ध्यान देण?",
+          "options": [
+            "शैली दे शब्दां दी लंबी सूची।",
+            "तस्वीर दे हर हिस्से च होर बारीकी।",
+            "सिर्फ शब्दां नाल सुंदर होजंदा ऐ।",
+            "इरादे वाला संदेश ते एह् जाचण आस्तै साफ़ जांच कि तस्वीर ओह् संदेश देदी ऐ जां ना।"
+          ],
+          "explanation": "इरादे वाला संदेश ते एह् जाचण आस्तै साफ़ जांच कि तस्वीर ओह् संदेश देदी ऐ जां ना.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "अपनी हिदायतां कन्नै दो तस्वीरां बनाओ। उ'नें दा संदेश तुलना करो ते इक जांच बेहतर करो कि ओह् संदेश देंदियां नें जां नहीं।"
+        }
+      }
+    },
+    "v3": {
+      "steps": [
+        "एक headline ते मोटा-मोटी visual बनाओ उन लोकां आस्तै जिन्नें तक तुस्सीं पहुंचना चांहदे ओ।",
+        "इ'क्क रज़ामंद देखने आह्ले नूं दिखाओ। पुच्छो ओह् इसदा की मतलब लैंदे नें ते अग्गे की करंगन।",
+        "उ'नेंदा असली जवाब ते ओह् बारीकी साझा करो जेह्दी तुस्सीं संदेश नूं होर साफ़ बनान आस्तै बदल्ली।"
+      ],
+      "fields": [
+        {
+          "id": "audience",
+          "prompt": "कौण इस संदेश नूं नोटिस करन?",
+          "hint": "कॉलेज दे सब नां, पर इक खास विद्यार्थी समूह।"
+        },
+        {
+          "id": "feeling",
+          "prompt": "ओह् की महसूस करन?",
+          "hint": "ओह् मुख्य एहसास जेह्दा poster उस दर्शक च पैदा करना चाहिदा ऐ।"
+        },
+        {
+          "id": "action",
+          "prompt": "ओह् अग्गे की करन?",
+          "hint": "उह् इक्ला अगला कदम जेह्दा तुस्सीं poster उप्पर मांगेओ।"
+        },
+        {
+          "id": "line",
+          "prompt": "तुहाड़ा संदेश इक वाक्य च की ऐ?",
+          "hint": "इक लाइन जेह्दी अजनबी दोहरा सकै। इस च दर्शक, एहसास ते action होणा चाहिदा ऐ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सीं poster invitation लिखदे ओ। main line कन्नै की जुड़ना चाहिदा?",
+          "options": [
+            "बुद्धिमान slogan बिना साफ़ पढ़ने आह्ले जां अग्गे दा कदम।",
+            "किस आस्तै ऐ, ओह् की महसूस करन ते अग्गे की करना ऐ।",
+            "headline नूं होर abstract बनाओ।",
+            "भिड़ घटान आस्तै हर हिदायत हटाओ।"
+          ],
+          "explanation": "किस आस्तै ऐ, ओह् की महसूस करन ते अग्गे की करना ऐ.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "कदम दर कदम चलो। लिखो कि असल च की होया ते तुस्सीं इक की बेहतर कित्ता।"
+        },
+        "practising": {
+          "question": "फोटोग्राफी क्लब पहिली साल दे विद्यार्थियां नूं शनिवार दे walk आस्तै जोड़ना चाहंदा ऐ। केह्ड़ी line एह् निमंत्रण साफ़ बनांदी ऐ?",
+          "options": [
+            "कैमरे, दोस्त, मुकाबले, workshop ते सब कुछ सब आस्तै।",
+            "First year? Saturday’s photo walk च जुड़ो। कैमरा skill दी जरूरत नहीं।",
+            "इतिहास दा सब तो वड्डा creative experience।",
+            "फोटोग्राफी क्लब किथेंकू मौजूद ऐ।"
+          ],
+          "explanation": "इंसान, गतिविधि ते अग्गे दा कदम दसो। दसो कि beginners welcome नें जां नहीं।",
+          "levelTask": "इक input जां डीज़ाइन फैसला बदलके दुबारा कोशिश करो। असल च की होया, ओह्दी तुलना करो।"
+        },
+        "experienced": {
+          "question": "recycling poster ध्यान तां खीचदा ऐ, पर लोकां नूं पता नहीं लगदा कौनसी bin इस्तेमाल करनी ऐ। की बदलना चाहिदा?",
+          "options": [
+            "headline नूं होर abstract बनाओ।",
+            "ओह् खास sorting action दिखाओ जेह्दा viewer नूं करना चाहिदा ऐ।",
+            "भिड़ घटान आस्तै हर हिदायत हटाओ।",
+            "बुद्धिमान slogan बिना साफ़ पढ़ने आह्ले जां अग्गे दा कदम।"
+          ],
+          "explanation": "ओह् खास sorting action दिखाओ जेह्दा viewer नूं करना चाहिदा ऐ.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "अपना असली design इक reader नूं दिखाओ ते नोट करो कि ओह् ठीक अग्गे दा कदम पहचान सकदा ऐ जां नहीं।"
+        }
+      }
+    },
+    "v4": {
+      "steps": [
+        "इक event poster बनाओ ते export करो।",
+        "इसे phone size च पंज सेकंड आस्तै देखो। पैह्ले की नोट कित्ता, ओह् लिखो।",
+        "sizes जां layout बदलके key message होर साफ़ बनाओ। दोन्हें versions ते की बदला, ओह् साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "focal",
+          "prompt": "poster उप्पर लोकां नूं पैह्ले की नोटिस करना चाहिदा ऐ?",
+          "hint": "मुख्य संदेश, इंसान जां चीज़ चुनो जेह्दी viewer नूं पैह्ले नोटिस करनी चाहिदी ऐ।"
+        },
+        {
+          "id": "contrast",
+          "prompt": "आकार जां रोशनी-अंधेरा किवें इसनूं उभरन देग?",
+          "hint": "मुख्य size, रंग जां चमक दा फर्क चुनो जेह्दा इसनूं उभारदा ऐ।"
+        },
+        {
+          "id": "headline",
+          "prompt": "मुख्य poster headline की ऐ?",
+          "hint": "छोटा headline लिखो जेह्दा event साफ़ करे।"
+        },
+        {
+          "id": "path",
+          "prompt": "viewer नूं पहिलें, दूजें ते तीजें की पढ़ना चाहिदा ऐ?",
+          "hint": "तीन पढ़ने दे कदम दसो: viewer की पैह्ले देखदा, दूजे, ते तीजे, ते हर बारीकी किथे ऐ।"
+        },
+        {
+          "id": "left_out",
+          "prompt": "poster साफ़ राखन आस्तै तुस्सीं की बाहर छोड़ोगे?",
+          "hint": "इक बारीकी दसो जेह्ड़ी तुस्सीं हटाई तांजो जरूरी संदेश आस्तै जगह होए।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सीं event poster बनांदे ओ। की पैह्ले उभरना चाहिदा ऐ?",
+          "options": [
+            "हर बारीकी बराबर।",
+            "होरा सजावटी तस्वीर जोड़ो।",
+            "सब तो जरूरी संदेश जां अग्गे दा action।",
+            "हर line नूं बराबर महत्तव दा बनाओ।"
+          ],
+          "explanation": "सब तो जरूरी संदेश जां अग्गे दा action.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "कदम दर कदम चलो। लिखो कि असल च की होया ते तुस्सीं इक की बेहतर कित्ता।"
+        },
+        "practising": {
+          "question": "इक event poster च हर photo, date ते logo इकसार size च ऐ। लोकां नूं समझ नहीं आंदा एह् किस आस्तै ऐ। की बदलना चाहिदा?",
+          "options": [
+            "हर detail होर बड़ी करो।",
+            "होरे photo ते sponsor names जोड़ो।",
+            "मुख्य event message नूं उभारो ते घैन जरूरी details घटाओ।",
+            "event name ते date हटाओ।"
+          ],
+          "explanation": "size ते space दा इस्तेमाल करो तांजो पैह्ले की महत्तवपूर्ण ऐ ओह् दिखे। मुख्य details नूं ढूंढना आसान राखो।",
+          "levelTask": "इक input जां design फैसला बदलके दुबारा कोशिश करो। असल च की होया, ओह्दी तुलना करो।"
+        },
+        "experienced": {
+          "question": "लोक poster दी सजावट नोटिस करदे नें पर event date ते अग्गे दा कदम मिस करदे नें। तुस्सीं केह्ड़ा बदलाब test करोगे?",
+          "options": [
+            "होरी सजावटी तस्वीर जोड़ो।",
+            "हर line नूं बराबर महत्तव दा बनाओ।",
+            "size, स्थान जां light-dark contrast इस्तेमाल करके उ'नेंगी मुख्य details कन्नै ले जाओ।",
+            "हर बारीकी बराबर।"
+          ],
+          "explanation": "size, स्थान जां light-dark contrast इस्तेमाल करके उ'नेंगी मुख्य details कन्नै ले जाओ.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "layout बदलने तो पैह्लें ते बाद design पांच सेकंड आस्तै दिखाओ। नोट करो कि reader नूं की याद रहंदा ऐ।"
+        }
+      }
+    },
+    "v5": {
+      "steps": [
+        "अपनी चुनी हुई text sizes ते colours कन्नै sample slide बनाओ।",
+        "इसे export करो ते phone ते black and white च देखो।",
+        "जुड़ी पढ़ी ना जाण आह्ली text जां सिरफ colour उप्पर निर्भर मतलब ठीक करो। settings, result ते correction साझा करो।"
+      ],
+      "fields": [
+        {
+          "id": "contrast",
+          "prompt": "कौन text ते background रंग शब्दां नूं पढ़ने लायक राखणगे?",
+          "hint": "ऐसे text ते background रंग चुनो जिन्नां च साफ़ light-dark फर्क होए।"
+        },
+        {
+          "id": "size",
+          "prompt": "A4 page उप्पर headline किन्नी बड़ी होनी चाहिदी ऐ?",
+          "hint": "ओह् headline size चुनो जेह्दा असल A4 print जां export च पढ़ी सकी।"
+        },
+        {
+          "id": "palette",
+          "prompt": "हर रंग दा काम की ऐ?",
+          "hint": "अपना रंग ते ओह् की दिखांदा ऐ, लिखो जियां headings जां warnings।"
+        },
+        {
+          "id": "cue",
+          "prompt": "colour उप्पर निर्भर होए बिना date किवें साफ़ दिखाओगे?",
+          "hint": "शब्द, आकार जां जगह इस्तेमाल करो तांजो date black and white च साफ़ रवे।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "तुस्सीं flyer बनांदे ओ जेह्ड़ा लोकां नूं फटाफट पढ़ना पवै। केह्ड़ी text choice मदद करदी ऐ?",
+          "options": [
+            "पढ़ने लायक text size ते background कन्नै साफ़ light-dark फर्क।",
+            "छोटी फीकी text क्योंकि ओह् subtle लगदी ऐ।",
+            "होरी समान रंग shade।",
+            "viewer नूं बेहतर screen खरीदन दा नोट।"
+          ],
+          "explanation": "पढ़ने लायक text size ते background कन्नै साफ़ light-dark फर्क.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "कदम दर कदम चलो। लिखो कि असल च की होया ते तुस्सीं इक की बेहतर कित्ता।"
+        },
+        "practising": {
+          "question": "flyer दी orange headline pink उप्पर black and white print च लुप्त होजंदी ऐ। की मदद करदा ऐ?",
+          "options": [
+            "डार्क text साफ़ हल्के background उप्पर इस्तेमाल करो।",
+            "दोन्हें हल्के रंग चुनो।",
+            "text होर छोटी करो।",
+            "महत्तवपूर्ण जानकारी सिर्फ colour नाल दिखाओ।"
+          ],
+          "explanation": "text नूं colour बगैर भी पढ़ने लायक रहन आस्तै साफ़ light-dark फर्क चाहिदा ऐ।",
+          "levelTask": "इक input जां design फैसला बदलके दुबारा कोशिश करो। असल च की होया, ओह्दी तुलना करो।"
+        },
+        "experienced": {
+          "question": "इक design colour च चलदा ऐ पर black and white च मतलब खो बैठदा ऐ। तुस्सीं की जोड़ोगे?",
+          "options": [
+            "शब्द, आकार जां स्थान तांजो मतलब सिर्फ colour उप्पर निर्भर ना रहे।",
+            "होरी समान रंग shade।",
+            "viewer नूं बेहतर screen खरीदन दा नोट।",
+            "छोटी फीकी text क्योंकि ओह् subtle लगदी ऐ।"
+          ],
+          "explanation": "शब्द, आकार जां स्थान तांजो मतलब सिर्फ colour उप्पर निर्भर ना रहे.. अपनी कंम च एह् फैसला आजमाओ।",
+          "levelTask": "अपना saved design black and white ते phone उप्पर देखो। इक बारीकी ठीक करो जेह्ड़ी मतलब खो बैठदी ऐ।"
+        }
+      }
+    }
+  }
+}

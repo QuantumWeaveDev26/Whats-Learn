@@ -1,3 +1,4 @@
+import {messageCopy} from './question-translations';
 import {reminderCopy} from './reminder-copy';
 import {localizeMission} from './personalization';
 import {briefFocus} from './chat-copy';
@@ -15,7 +16,8 @@ export async function learnerPerformance(userId:string,at=new Date()){
  const count=mine.filter(m=>done.has(m.id)).length,star=starLearnerProgress(profile.track,done,scores.scores);
  const name=await learnerName(userId);
  const todayPoints=scores.scores.filter(s=>s.day===today).reduce((n,s)=>n+s.points,0),copy=reminderCopy(profile.language);
+ const text=messageCopy(profile.language);
  const nextTitle=localizeMission(missions.find(m=>m.id===path.nextMissionId)!,profile.language,profile.level).title;
  return {name,count,nextTitle,star,todayPoints,weekMissions:recent.length,weekPoints:recent.reduce((n,s)=>n+s.points,0),streak:scores.streak.current,balance:scores.balance,
- text:`${copy.fallback?copy.fallback+'\n':''}*${copy.progress}${name?', '+name:''}*\n${programmeNames[profile.track]} · ${count}/10 ${copy.saved}\n${count===10?'🌟 Star Learner — earned! Help and breaks welcome.':`${copy.next}: *${nextTitle}*\n${path.focus?'Focus: '+briefFocus(path.focus.instruction):briefFocus(path.reason)}`}\n\n${count===10?'*ROADMAP* → review your work':'*TODAY* → pick up where you left off'}\n*POINTS* → optional reward details`};
+ text:`*${copy.progress}${name?', '+name:''}*\n${programmeNames[profile.track]} · ${count}/10 ${copy.saved}\n${count===10?'🌟 '+text.star:`${copy.next}: *${nextTitle}*`}\n\n${count===10?text.review:text.continue}\n${text.rewards}`};
 }

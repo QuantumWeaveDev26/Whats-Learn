@@ -1,3 +1,4 @@
+import {guestOnlyLearner} from '../learner-eligibility';
 import {randomUUID} from 'node:crypto';
 import {database} from '../storage';
 import {recordQualityEvent} from '../quality/events';
@@ -23,7 +24,7 @@ export async function beginDelivery(kind:DeliveryKind,key:string|number,claimTok
  const t=target(kind,key),db=database(),n=seconds(at),row=await db.prepare(`SELECT user_id,state,claim_token,lease_expires_at FROM ${t.table} WHERE ${t.where}`).bind(...t.args).first<Row>();
  if(!row||row.state!=='claimed'||row.claim_token!==claimToken||Number(row.lease_expires_at)<=n)return {dispatch:false};
  const c=await db.prepare('SELECT state,remind_state,verified_at FROM whatsapp_contacts WHERE user_id=?').bind(row.user_id).first<{state:string;remind_state:string;verified_at:string|null}>();
- if(!c?.verified_at||c.state!=='opted_in'||(kind==='reminder'&&c.remind_state!=='on')){await db.prepare(`UPDATE ${t.table} SET state=? WHERE ${t.where} AND state='claimed' AND claim_token=?`).bind(c?.state==='opted_in'?'skipped_paused':'skipped_opted_out',...t.args,claimToken).run();return {dispatch:false}}
+ const ageRestricted=await guestOnlyLearner(row.user_id);if(ageRestricted||!c?.verified_at||c.state!=='opted_in'||(kind==='reminder'&&c.remind_state!=='on')){await db.prepare(`UPDATE ${t.table} SET state=? WHERE ${t.where} AND state='claimed' AND claim_token=?`).bind(ageRestricted?'skipped_age_restricted':c?.state==='opted_in'?'skipped_paused':'skipped_opted_out',...t.args,claimToken).run();return {dispatch:false}}
  const r=await db.prepare(`UPDATE ${t.table} SET state='sending',sending_at=? WHERE ${t.where} AND state='claimed' AND claim_token=? AND lease_expires_at>?`).bind(n,...t.args,claimToken,n).run();return {dispatch:!!r.meta.changes};
 }
 export async function reportDelivery(kind:DeliveryKind,input:DeliveryReport,at=new Date()){

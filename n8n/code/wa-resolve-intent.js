@@ -24,6 +24,6 @@ return $input.all().map((it,i)=>{
  const arguments=/^(?:link\s+[a-z0-9-]{6,12}|(?:ask|answer|practice)\s+.+|edit\s+\d+|style\s+(?:[1-4]|casual|game|story|facts)|course\s+(?:[1-4]|marketing|development|filmmaking|storytelling)|resume\s+[mdfv]\d+|check\s+[a-f1-6]\s+[a-f1-6]|remind\s+(?:on|off|quiet|\d).*)$/i;
  if(exact.test(raw.trim())||arguments.test(raw.trim()))kind="answer";
  const track=["marketing","development","filmmaking","storytelling"].includes(choice.track)?choice.track:"";
- const commands={question:"PROFILE",preference:"PROFILE",clarify:"PROFILE",learn:"LEARN",continue:"TODAY",edit:"EDIT","task-question":"QUESTION",save:"SAVE","keep-draft":"PROFILE",draft:"DRAFT",progress:"PERFORMANCE",points:"POINTS",journey:"ROADMAP",course:"COURSE"+(track?" "+track:""),roadmap:"ROADMAP",profile:"PROFILE"};
+ const commands={question:"ASK "+raw,preference:"ASK "+raw,clarify:"ASK "+raw,learn:"ASK "+raw,continue:"TODAY",edit:"EDIT","task-question":"QUESTION",save:"SAVE","keep-draft":"PROFILE",draft:"DRAFT",progress:"PERFORMANCE",points:"POINTS",journey:"ROADMAP",course:"COURSE"+(track?" "+track:""),roadmap:"ROADMAP",profile:"ASK "+raw};
  return {json:{...m,bridgeText:commands[kind]||raw,mentorIntent:kind,profileSnapshot:profile.action==="reply"?String(profile.text||"").slice(0,5000):"",profileContext:profile.action==="reply"&&profile.context&&typeof profile.context==="object"?profile.context:{}},pairedItem:{item:i}};
 });

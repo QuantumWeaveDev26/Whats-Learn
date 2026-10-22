@@ -27,7 +27,7 @@ test('daily recaps honour opt-in, quiet hours, completed days and template bound
  const stamp='2026-10-10T12:00:00Z';h.db.prepare("INSERT INTO whatsapp_contacts(user_id,phone,state,language,consent_at,updated_at,verified_at,last_inbound_at,remind_state,remind_hour,remind_freq,quiet_start,quiet_end) VALUES ('daily-recap','919000000099','opted_in','en',?,?,?,?,'on',19,'daily',22,7)").run(stamp,stamp,stamp,stamp);
  h.db.prepare("INSERT INTO mission_scores(user_id,mission_id,day,understanding,practical,clues,deduction,points,created_at) VALUES ('daily-recap','m1','2026-10-10',25,75,0,0,100,?)").run(stamp);
  const {claimReminders}=h.load('lib/bridge/whatsapp-jobs.ts');const at=new Date('2026-10-10T13:35:00Z');
- const first=await claimReminders(50,at);assert.equal(first.items.length,1);assert.match(first.items[0].text,/0\/10 creations saved/);assert.match(first.items[0].text,/Next:/);assert.match(first.items[0].text,/POINTS.*optional reward/);assert.doesNotMatch(first.items[0].text,/balance|streak|Last 7 days/);assert.match(first.items[0].text,/REMIND OFF/);
+ const first=await claimReminders(50,at);assert.equal(first.items.length,1);assert.match(first.items[0].text,/0\/10 missions saved/);assert.match(first.items[0].text,/Next:/);assert.match(first.items[0].text,/POINTS.*optional reward/);assert.doesNotMatch(first.items[0].text,/balance|streak|Last 7 days/);assert.match(first.items[0].text,/REMIND OFF/);
  assert.equal((await claimReminders(50,at)).items.length,0,'no duplicate recap');
  h.db.prepare("UPDATE whatsapp_contacts SET last_inbound_at='2026-10-01T00:00:00Z'").run();
  assert.equal((await claimReminders(50,new Date('2026-10-11T13:35:00Z'))).items.length,0,'no approved recap template: skip outside window');

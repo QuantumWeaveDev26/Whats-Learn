@@ -1,0 +1,2477 @@
+{
+  "version": "2026-10-22-canonical-v1",
+  "missions": {
+    "v6": {
+      "steps": [
+        "Dibor byabahornaa numbers-ko spreadsheet na chart tool ni.",
+        "Gote number bodlai aar chart khamfaijong jwng.",
+        "Numbers, chart labels, caption, ar gosa kharaibai ladithai gosa choichanna thangba khou."
+      ],
+      "fields": [
+        {
+          "id": "chart",
+          "prompt": "Baisor numbers-koa phailaa nogor chart khou nanai?",
+          "hint": "Bhinsiri boro chart khou chose korbo jao thangkaanmo saamphraipha thangba thangai thangsi."
+        },
+        {
+          "id": "headline",
+          "prompt": "Chart aaya gwi finding maosa?",
+          "hint": "Baro number-ao support jwn gwi finding likh. Boro phurjok nai."
+        },
+        {
+          "id": "caption",
+          "prompt": "Chart caption aaya mazaa sporo?",
+          "hint": "25 word nao khama. Number aaya maosa, period ar units jonkho dakhau."
+        },
+        {
+          "id": "unproven",
+          "prompt": "Numbers bise maosa khou houna nai?",
+          "hint": "Gote conclusion ja data support nabai, jethai visit change khoumaisa, bisesa dakhau."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Nang shop owner-oa chart nowa. Biswai kha?",
+          "options": [
+            "Cut-off scale jondai difference boro madoi dekhaibai.",
+            "Number labels khamfaibai.",
+            "Bars boro kothaai claim boro dekhaibai.",
+            "Clear labels ar scale jondai actual values honest naiphai."
+          ],
+          "explanation": "Clear labels ar scale jondai actual values honest naiphai.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Step-by-step follow kor. Baisor ghatai o gote improve koria likh."
+        },
+        "practising": {
+          "question": "Library visits 420 ni 640-a baray. Gote bar chart 400 na start khouo aar rise boro madoi dekhaibai. Maosa gosa?",
+          "options": [
+            "Labels actual visit counts dakhai.",
+            "Chart-a boro month duwai dakhai.",
+            "Chart-a title ase.",
+            "Bars-a scale zero na start noi besi change dekhaibai."
+          ],
+          "explanation": "Bar lengths numbers fair madoi dakhainai. Zero na start korile alpak rise dangor madoi dekhaibai.",
+          "levelTask": "Gote input nai design choice bodlai aar try kor. Baisor ghatai compare kor."
+        },
+        "experienced": {
+          "question": "Gote chart rise boro madoi koi, kintu scale choto number-naa thama start khou. Khou revise korbo?",
+          "options": [
+            "Number labels khamfaibai.",
+            "Bars boro kothaai claim boro dekhaibai.",
+            "Cut-off scale jondai difference boro madoi dekhaibai.",
+            "Fair scale ar actual change-ao match hoba headline use kor."
+          ],
+          "explanation": "Fair scale ar actual change-ao match hoba headline use kor.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Actual figures nao scale choice duwai create kor ar revise kori comparison keman bodlai thangfaizong record kor."
+        }
+      }
+    },
+    "v7": {
+      "steps": [
+        "Gote clear story kao five slides banaa ar export kor.",
+        "Phone nao read kor. Repeated idea nai unclear final instruction ase nai check kor.",
+        "Slide text ar order share kor, tar pisla repetition khamfaibai aar final step improve kor."
+      ],
+      "fields": [
+        {
+          "id": "s1",
+          "prompt": "First slide aaya manoa dangaiba?",
+          "hint": "Gote line ar picture note jondai scroll stop korai. Question nai surprise naa logo-ao basai."
+        },
+        {
+          "id": "s2",
+          "prompt": "Second slide aaya gote idea mazaa dakhau?",
+          "hint": "Gote line ar picture note: first idea jondai interest baibai."
+        },
+        {
+          "id": "s3",
+          "prompt": "Third slide aaya gote notun idea mazaa dakhau?",
+          "hint": "Gote line ar picture note: second, bhinnor idea."
+        },
+        {
+          "id": "s4",
+          "prompt": "Message support korbo fact nai real example maosa?",
+          "hint": "Gote line ar picture note jondai claim bishwas korai."
+        },
+        {
+          "id": "s5",
+          "prompt": "Last slide pisla viewer aaya mazaa korbo?",
+          "hint": "Gote line ar picture note ar gote action, jemon six-cookie box ₹240-naa order kor."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Bakery-a five slides banaa. Gote gote slide ki korbo?",
+          "options": [
+            "Same point bhinna background-naa repeat kor.",
+            "Last step agoi anika slide add kor.",
+            "Final action-naa gote clear step add kor.",
+            "Final instruction choto kor."
+          ],
+          "explanation": "Final action-naa gote clear step add kor.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Step-by-step follow kor. Baisor ghatai o gote improve koria likh."
+        },
+        "practising": {
+          "question": "Gote bakery slide ingredients, delivery, discount ar health claims dakhai. Read korna dukhia. Khoun help korbo?",
+          "options": [
+            "Small text-naa besi words add kor.",
+            "Sab detail gbogbo slide-naa repeat kor.",
+            "Eisai slide-naa gote main idea rakhi aar onya ideas separate slides-naa nei kor.",
+            "Whole sequence-naa final order instruction khamfaibai."
+          ],
+          "explanation": "Gote slide-naa gote clear job de. Reader message ar next step follow koribo lagibai.",
+          "levelTask": "Gote input nai design choice bodlai aar try kor. Baisor ghatai compare kor."
+        },
+        "experienced": {
+          "question": "Readers last slide age rokhi, karon middle slides tin gote point repeat kor. Ki test korbo?",
+          "options": [
+            "Last step agoi anika slide add kor.",
+            "Final instruction choto kor.",
+            "Repeated points combine kor aar shorter story clear ase nai check kor.",
+            "Same point bhinna background-naa repeat kor."
+          ],
+          "explanation": "Repeated points combine kor aar shorter story clear ase nai check kor.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Gote real exported carousel ar shorter edit reader-naa dakhau; story nai action kothai clear hoi note kor."
+        }
+      }
+    },
+    "v8": {
+      "steps": [
+        "Gote actual image jondai nang banaiwa nai use permission ase thangba khou.",
+        "Hands na words-naa mistake, missing people/details, ar names na faces jondai use nabaai khou.",
+        "Corrected image banaa nai own image-naa replace kor. Checks ar actual change share kor."
+      ],
+      "fields": [
+        {
+          "id": "defects",
+          "prompt": "Hands na words-naa ki mistake dekhi?",
+          "hint": "Actual image-naa no. Visible problems, jemon extra fingers nai unreadable words, note kor."
+        },
+        {
+          "id": "bias",
+          "prompt": "Khou missing ase nai unfair madoi dakhai?",
+          "hint": "People missing ase nai stereotyped ase nai unfair madoi dakhai check kor. Baisor dekhaisa likh."
+        },
+        {
+          "id": "rights",
+          "prompt": "Shown people ar material use korna permission ase na?",
+          "hint": "Faces, logos ar source material check kor. AI output-naa permission ase mone korna."
+        },
+        {
+          "id": "verdict",
+          "prompt": "Image use korba nai change korbo?",
+          "hint": "Use, revise nai replace choose kor, actual checks-naa base kori."
+        },
+        {
+          "id": "revision",
+          "prompt": "Next version-naa exactly ki fix korbo?",
+          "hint": "Visible problems-naa specific change mang. Tar pisla notun image-ao check kor."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "AI-made shop picture use korna mang. Ki check korbo?",
+          "options": [
+            "Bas eye catch korna ase nai.",
+            "Visible mistakes, purpose-ao fit ase nai, ar relevant material permission ase nai.",
+            "Small unreadable words matro crop kor.",
+            "AI images-naa permission issue ase nai mone kor."
+          ],
+          "explanation": "Visible mistakes, purpose-ao fit ase nai, ar relevant material permission ase nai.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Step-by-step follow kor. Baisor ghatai o gote improve koria likh."
+        },
+        "practising": {
+          "question": "Tea stall-ao AI banner famous actor face permission na copy korai. Print age ki hoba?",
+          "options": [
+            "AI banaise bole print kor.",
+            "Face change kor nai replace kor, tar pisla image khan check kor.",
+            "Small corner hide kor, kintu recognisable face rakhi.",
+            "Actor-a tea stall support korai kobo."
+          ],
+          "explanation": "AI-made images-ao careful checks lage. Permission na thaka avastha real person involvement mone korna.",
+          "levelTask": "Gote input nai design choice bodlai aar try kor. Baisor ghatai compare kor."
+        },
+        "experienced": {
+          "question": "Polished image-ao unreadable product words ar permission na thangba logo ase. Ki hoba?",
+          "options": [
+            "Small unreadable words matro crop kor.",
+            "Image fix nai replace kor ar permission clear kor tar pisla use kor.",
+            "AI images-naa permission issue ase nai mone kor.",
+            "Bas eye catch korna ase nai."
+          ],
+          "explanation": "Image fix nai replace kor ar permission clear kor tar pisla use kor.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Export size-naa actual image inspect kor, visible defect correct kor ar usage decision document kor."
+        }
+      }
+    },
+    "v9": {
+      "steps": [
+        "Gote problem, nang idea, ar ki help lage explain kori three slides banaa ar export kor.",
+        "One-minute presentation record kor ar tar pisla watch back kor.",
+        "Unsupported claim nai confusing change slides besi fix kor. Slides, video times ar fix share kor."
+      ],
+      "fields": [
+        {
+          "id": "problem",
+          "prompt": "First slide aaya ki problem dakhau?",
+          "hint": "Khoua problem ase nai jondai difficult ki ase dakhau."
+        },
+        {
+          "id": "insight",
+          "prompt": "Problem explain korna help korai ki learn korisa?",
+          "hint": "Observation nai learn koria gote useful idea state kor."
+        },
+        {
+          "id": "proof",
+          "prompt": "Idea support korbo fact nai example maosa?",
+          "hint": "Real fact, observation nai example use kor. Evidence invent korna."
+        },
+        {
+          "id": "ask",
+          "prompt": "Last slide-naa ki help nai action mangbo?",
+          "hint": "Ki help lage, ki-naa use hoba, ar next step ki dakhau."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Three slides-naa project explain kor. Ki connect hoba?",
+          "options": [
+            "Problem, facts-naa support kora idea, ar clear next step.",
+            "Three unrelated themes jondai sabai impress korbo.",
+            "Promise boro kor.",
+            "Question time-naa facts slide hide kor."
+          ],
+          "explanation": "Problem, facts-naa support kora idea, ar clear next step.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Step-by-step follow kor. Baisor ghatai o gote improve koria likh."
+        },
+        "practising": {
+          "question": "Students ₹12,000 mangi pitch start kor. Listeners project keno lage buli puchh. Student-ao first ki explain korbo?",
+          "options": [
+            "Problem, ki learn korisa, ar keno idea help korbo.",
+            "Boro amount without explanation.",
+            "Slides-naa use kora colour matro.",
+            "Idea never fail korbo buli promise."
+          ],
+          "explanation": "Help mangar age need ar supporting facts dakhau. Tarki request-naa clear reason thangba.",
+          "levelTask": "Gote input nai design choice bodlai aar try kor. Baisor ghatai compare kor."
+        },
+        "experienced": {
+          "question": "Pitch-a gote result promise korise, kintu facts support no kor. Next version stronger korna ki?",
+          "options": [
+            "Promise facts support korna matro rakh ar realistic next step de.",
+            "Promise boro kor.",
+            "Questions time-naa facts slide hide kor.",
+            "Three unrelated themes jondai impress korbo."
+          ],
+          "explanation": "Promise facts support korna matro rakh ar realistic next step de.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Pitch record kor. Gote promise jondai support korna no able nai corrected version dakhau."
+        }
+      }
+    },
+    "v10": {
+      "steps": [
+        "Earlier work use kori five connected campaign pictures banaa ar export kor.",
+        "Full sequence phone-naa view kor. Message khoua thaa stop hoi khoj kor.",
+        "Eisa picture improve kor. Actual picture content ar before-and-after correction share kor."
+      ],
+      "fields": [
+        {
+          "id": "setup",
+          "prompt": "Pictures khoua karna ar ki detail jondai link kor?",
+          "hint": "Campaign kimkha khao audience, ar gote object nai colour jondai saba frame-naa repeat kor."
+        },
+        {
+          "id": "frames_a",
+          "prompt": "First three pictures ki dakhau?",
+          "hint": "Gote line each: ki dekha, plus short caption. Problem-naa start kor ar change-naa build kor."
+        },
+        {
+          "id": "frames_b",
+          "prompt": "Last two pictures ki dakhau?",
+          "hint": "Gote line each: ki dekha ar caption. Frame 5 volunteer korna invitation na end kor."
+        },
+        {
+          "id": "risk",
+          "prompt": "Khou viewers confuse koribo, ar keman fix korbo?",
+          "hint": "Campaign-naa act korna pair choose kor."
+        },
+        {
+          "id": "disclosure",
+          "prompt": "Viewers-a AI use kora parts keman dakhabo?",
+          "hint": "Short plain line jondai viewer-ao some images AI-naa banaise buli dakhau."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Five campaign pictures banaa. Ki korile gote message madoi lagbo?",
+          "options": [
+            "Gote picture-naa different audience ar goal.",
+            "Both audiences rakh, kisu bodlai no kor.",
+            "Unrelated ending add kor.",
+            "Same audience, connected ideas ar gote final action."
+          ],
+          "explanation": "Same audience, connected ideas ar gote final action.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Step-by-step follow kor. Baisor ghatai o gote improve koria likh."
+        },
+        "practising": {
+          "question": "Gote campaign-naa five pictures different characters ar colours use kor. People connection no dekhe. Khou same thangbo?",
+          "options": [
+            "New audience ar goal har picture-naa.",
+            "Unrelated characters without connection.",
+            "Unrelated actions-naa different messages.",
+            "Gote repeated detail ar shared colour scheme saba five pictures-naa."
+          ],
+          "explanation": "Repeated details people-a one connected campaign recognise korna help kor. Audience ar next step eo consistent rakh.",
+          "levelTask": "Gote input nai design choice bodlai aar try kor. Baisor ghatai compare kor."
+        },
+        "experienced": {
+          "question": "First pictures gote audience-naa koi, kintu last instruction onya audience-naa. Ki change korbo?",
+          "options": [
+            "Both audiences rakh, kisu bodlai no kor.",
+            "Unrelated ending add kor.",
+            "Gote picture-naa different audience ar goal.",
+            "Whole sequence gote audience ar gote intended action-naa serve kor."
+          ],
+          "explanation": "Whole sequence gote audience ar gote intended action-naa serve kor.. Nai work-a gosa decision try korbo.",
+          "levelTask": "Exported five-frame sequence explanation naatha test kor ar jekhane intended action unclear hoi frame revise kor."
+        }
+      }
+    },
+    "v3": {
+      "steps": [
+        "Reach korba manuh-fwr jonne headline aru rough visual make kor.",
+        "Willing viewer-e dekha. Aru ki bukhai aru pachi ma korbo ask kor.",
+        "Oinor asla response aru detail ta share kor, message aro clear korba jonne badlailo."
+      ],
+      "fields": [
+        {
+          "id": "audience",
+          "prompt": "Ma message-da kun-e notice koribo?",
+          "hint": "College-ni sobai nai, ekta specific student group."
+        },
+        {
+          "id": "feeling",
+          "prompt": "Oinai ma feel koribo?",
+          "hint": "Audience-ni modai poster-e jor ta main feeling."
+        },
+        {
+          "id": "action",
+          "prompt": "Pachi ma ki koribo?",
+          "hint": "Poster-da ask korba single next step."
+        },
+        {
+          "id": "line",
+          "prompt": "Nangou message ek sentence-da ma?",
+          "hint": "Stranger-e repeat koribo para ekta line. Ta audience, feeling, aru action ni logot thakibo."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Nangou poster invitation likh. Main line-da ma jodibo?",
+          "options": [
+            "Clear reader ba next step nai clever slogan.",
+            "Kar jonne ase, ki feel koribo, aru pachi ma korbo.",
+            "Headline aro abstract kor.",
+            "Clutter kom korba jonne sob instruction hatai de."
+          ],
+          "explanation": "Kar jonne ase, ki feel koribo, aru pachi ma korbo.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Step-fwr ek-ekkorai follow kor. Ma asla hoise aru ma one thing improve koro hali likh."
+        },
+        "practising": {
+          "question": "Photography club-e first-year student-fwr Saturday walk-ni jonne join koribo bore. Kun poster line invitation-ta clear kore?",
+          "options": [
+            "Camera, friend, contest, workshop aru sobar jonne sob kichu.",
+            "First year? Saturday photo walk-ni join kor. Camera skill dorkar nai.",
+            "History-ni greatest creative experience.",
+            "Photography club ekhon kothao ase."
+          ],
+          "explanation": "Manuh, activity aru next step-ni naam dio. Beginner welcome ase ne nai ta kobo.",
+          "levelTask": "Ek input ba design choice badalni pachi abar try kor. Asla hoise ma compare kor."
+        },
+        "experienced": {
+          "question": "Recycling poster-e attention pai, kintu manuh-e kun bin use koribo janai. Ma ki badlabo?",
+          "options": [
+            "Headline aro abstract kor.",
+            "Viewer-e ki specific sorting action koribo ta dekha.",
+            "Clutter kom korba jonne sob instruction hatai de.",
+            "Clear reader ba next step nai clever slogan."
+          ],
+          "explanation": "Viewer-e ki specific sorting action koribo ta dekha.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Nangou design reader-ni dekha arui likh, arou oinai exact next action chinibo para ne nai record kor."
+        }
+      }
+    },
+    "v4": {
+      "steps": [
+        "Event poster make aru export kor.",
+        "Phone size-da five seconds dekha. Prothom ki notice korilo note kor.",
+        "Sizes ba layout badlai key message aro clear kor. Duita version aru ki badlao share kor."
+      ],
+      "fields": [
+        {
+          "id": "focal",
+          "prompt": "Poster-da prothom ma notice koribo?",
+          "hint": "Main message, person, ba object jita viewer-e prothom notice koribo."
+        },
+        {
+          "id": "contrast",
+          "prompt": "Size ba light-dark kaina prominent koribo?",
+          "hint": "Main size, rong, ba brightness difference choose korba jita prominent kore."
+        },
+        {
+          "id": "headline",
+          "prompt": "Main poster headline ma?",
+          "hint": "Event clear kore asey emon short headline likh."
+        },
+        {
+          "id": "path",
+          "prompt": "Viewer-e prothom, duitiya, aru tetiya ki porhibo?",
+          "hint": "Three reading step describe kor: viewer-e prothom, duitiya, aru tetiya ki dekhe, aru prottek detail kotha ase."
+        },
+        {
+          "id": "left_out",
+          "prompt": "Poster clear rakhba jonne ma chhadai diyaba?",
+          "hint": "Important message-ni jonne room dibo laga ekta detail name kor."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Nangou event poster make kor. Ma prothom prominent hobom?",
+          "options": [
+            "Sob detail ekhe.",
+            "Aro decorative image add kor.",
+            "Most important message ba next action.",
+            "Prottek line ekhe important dekha."
+          ],
+          "explanation": "Most important message ba next action.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Step-fwr ek-ekkorai follow kor. Ma asla hoise aru ma one thing improve koro hali likh."
+        },
+        "practising": {
+          "question": "Event poster-da prottek photo, date, aru logo same size diye. Manuh-e ki jonne ase bujha nai. Ma ki badlabo?",
+          "options": [
+            "Sob detail aro boro kor.",
+            "Aro photo aru sponsor name add kor.",
+            "Main event message prominent kor arui less important detail kom kor.",
+            "Event name aru date hatai de."
+          ],
+          "explanation": "Size aru space use korai ma ki important prothom ta dekha. Key detail-fwr easy to find rakh.",
+          "levelTask": "Ek input ba design choice badalni pachi abar try kor. Asla hoise ma compare kor."
+        },
+        "experienced": {
+          "question": "Manuh poster-ni decoration notice kore, kintu event date aru next step miss kore. Kun badlao test koribo?",
+          "options": [
+            "Aro decorative image add kor.",
+            "Prottek line ekhe important dekha.",
+            "Size, position ba light-dark contrast use korai key detail-ni logot loi ja.",
+            "Sob detail ekhe."
+          ],
+          "explanation": "Size, position ba light-dark contrast use korai key detail-ni logot loi ja.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Layout badlao-ragoi aru pachi five seconds dekha. Reader-e ki mone rakhe record kor."
+        }
+      }
+    },
+    "v5": {
+      "steps": [
+        "Nangou text size aru color use korai sample slide make kor.",
+        "Ta export korai phone aru black and white-da dekha.",
+        "Hard-to-read text ba color-di nai meaning fix kor. Settings, result, aru correction share kor."
+      ],
+      "fields": [
+        {
+          "id": "contrast",
+          "prompt": "Text aru background rong ma houa lagibo jate words readable hoi?",
+          "hint": "Clear light-dark difference thaka text aru background color choose kor."
+        },
+        {
+          "id": "size",
+          "prompt": "A4 page-da headline koto boro hobo?",
+          "hint": "Actual A4 print ba export-da porhibo para headline size choose kor."
+        },
+        {
+          "id": "palette",
+          "prompt": "Prottek color-ni ki kaam?",
+          "hint": "Nangou colors aru oinai ki mark kore likh, jastoi heading ba warning."
+        },
+        {
+          "id": "cue",
+          "prompt": "Color-ni upar depend na kori date ma clear dekhaibo?",
+          "hint": "Words, shape, ba placement use korai date black and white-da clear thakibo."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Nangou flyer make kor jita manuh-e joldi porhibo lage. Text choice ma help kore?",
+          "options": [
+            "Readable text size aru background-ni logot clear light-dark difference.",
+            "Small pale text karon ta subtle lage.",
+            "Aro similar color shade.",
+            "Viewer-ni better screen kinibo kobo note."
+          ],
+          "explanation": "Readable text size aru background-ni logot clear light-dark difference.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Step-fwr ek-ekkorai follow kor. Ma asla hoise aru ma one thing improve koro hali likh."
+        },
+        "practising": {
+          "question": "Flyer-ni orange headline pink-ni upor black and white-da na dekha. Ma ki help kore?",
+          "options": [
+            "Dark text use korai clearly lighter background-ni upor.",
+            "Duita equally light color choose kor.",
+            "Text aro chhoto kor.",
+            "Important information color-di ekela dekhaor upor depend kor."
+          ],
+          "explanation": "Text-lai clear light-dark difference dorkar thake jate color-na bina readable thakibo.",
+          "levelTask": "Ek input ba design choice badalni pachi abar try kor. Asla hoise ma compare kor."
+        },
+        "experienced": {
+          "question": "Design color-da kaam kore, kintu black and white-da meaning harai. Ma ki add koribo?",
+          "options": [
+            "Words, shapes, ba positions jate meaning color-ekela-upar depend na kore.",
+            "Aro similar color shade.",
+            "Viewer-ni better screen kinibo kobo note.",
+            "Small pale text karon ta subtle lage."
+          ],
+          "explanation": "Words, shapes, ba positions jate meaning color-ekela-upar depend na kore.. Nijni kham-da ia decision try kor.",
+          "levelTask": "Saved design black and white aru phone-da dekha. Meaning harai asey detail ekta fix kor."
+        }
+      }
+    },
+    "f6": {
+      "steps": [
+        "सुरक्षित जागा, क्यामेरा, आरो उपलब्ध प्रकाश सानैनि बाहेर ल'ई।",
+        "प्रकाशर टेस्ट विडिअ' रेक'र्ड खालाम। प्रकाश सोलाय' आरो बैकअप सेटअप रेक'र्ड खालाम।",
+        "क्यामेरा आरो प्रकाश बेनायथ' थानो, विडिअ'र समय, आरो मदद खालामब्ला जाबाय सोरबायआखौ शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "time_window",
+          "prompt": "बे सीनआखौ क'बाद फिल्म खालाम?",
+          "hint": "दंथि, पा छात्रा आरो खालप-आन लाइट मोननोब्ला, जायनि समावगोन दिहुन।"
+        },
+        {
+          "id": "light",
+          "prompt": "प्रकाशआ वाय'आबो थां?",
+          "hint": "तआरा, स्टलर बल्ब आरो दुकानर लाइट, नोंथाङा बाहायनायखौ मोनाइ, आरो क्लिप-अन लाइटआ माब्लाबा मोनफै।"
+        },
+        {
+          "id": "permission",
+          "prompt": "अनुमति माब्लाबा मोनगोन आरो शूटआखौ माबायदि सुरक्षिथ खालामगोन?",
+          "hint": "सोरआ लेखा जायो, गाज्रि लेनायाव एक सुरक्षा जोखिम आरो बेनि सुधार।"
+        },
+        {
+          "id": "backup",
+          "prompt": "जदि प्रकाश बा जायगा सोलायखै, नोंथाङा माबायदि खालामगोन?",
+          "hint": "माव/बिहां बा भीडायि गोनांखैब्ला मोनसे दोसर जायगा न'ङा समय।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथाङा सीनआखौ फिल्म खालामनो जायगा बासायनो। बेनि प्रकाशनि बायदि थिरांगोन?",
+          "options": [
+            "योजना खालामनाय फिल्म समायाव प्रकाशआ असल माबायदि नुथाया।",
+            "मात्र फोटोआव जायगा माबायदि जोंनो मानो।",
+            "इयाक मन्दारि, रूमआ खालामग्रि नङा।",
+            "AI आ प्रकाशनि मोनफैनि गासैबो सोलायनायखौ सुधारगोन।"
+          ],
+          "explanation": "योजना खालामनाय फिल्म समायाव प्रकाशआ असल माबायदि नुथाया.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "चरणआखौ मोनसे-मोनसे खालाम। असलि जेबो जाबाय आरो मोनसे जेरै सुधारगोनबे लिख।"
+        },
+        "practising": {
+          "question": "नोंथाङा दा'वरीएव 12 बजे जायगा नुथायो, मुदा 6 बजे बिथांनो थानाय। बासायनायनि सिगां माबायदि थिरांगोन?",
+          "options": [
+            "6 बजेनि गेजेराव जायगा न'रि, प्रकाश, सुरक्षा आरो अनुमति जाँच खालाम।",
+            "12 बजेनि प्रकाशआ सेबांगै दंमानो नाज।",
+            "मोदोनै आकर्षक फोटोएव बेखौ बासाय।",
+            "शूटआ थांनायखौ गोजा अनुमति स'वनो हागौ।"
+          ],
+          "explanation": "समावांतो प्रकाश आरो प्रवेशआ सोलायनो हागौ। नोंथाङा असलि फिल्म खालामनाय समायाव जायगाखौ जाँच खालाम।",
+          "levelTask": "मोनसे इनपुट बा डिजाईन बासायनायनि बादि फिन नाजानो। असलि जेबो जाबाय बेखौ सापडा।"
+        },
+        "experienced": {
+          "question": "खिड़कि प्रकाशआ फिल्म खालामनायनि गेजेराव सोलायो। बासाब्ला श'टआखौ माबायदि मेलखावनो मदत खालामगोन?",
+          "options": [
+            "क्रमआ सोलाय बा प्रकाशआखौ नियन्त्रण खालाम, नोंजोर मिलान टेस्ट श'ट जांच खालाम।",
+            "इयाक मन्दारि, रूमआ खालामग्रि नङा।",
+            "AI आ प्रकाशनि गासैबो सोलायनायखौ सुधारगोन।",
+            "मात्र फोटोआव जायगा माबायदि जोंनो मानो।"
+          ],
+          "explanation": "क्रमआ सोलाय बा प्रकाशआखौ नियन्त्रण खालाम, नोंजोर मिलान टेस्ट श'ट जांच खालाम.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "दुइ समायाव असलि टेस्ट फ्रेम खालाम आरो नुथायनाय सोलायनायनि आधारआव नोंथाङा प्रकाश बा श'ट क्रमनि सुधार खालाम।"
+        }
+      }
+    },
+    "f7": {
+      "steps": [
+        "नोंथाङा बा अनुमति मोननाय फुटेज आरो आवाजाव मोनसे गोजान ध्वनि संपादन खालाम।",
+        "मोनसे सेम ध्वनि cue-आव दुइ समायाव नाजानो। Export खालाम आरो दुवैआखौ स'नो।",
+        "cue समाय, mood माबायदि सोलायो, आरो नोंथाङा सुधारथाय ध्वनि योजना शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "ambience",
+          "prompt": "बे जायगायाव बेकग्राउन ध्वनि माबाइ थांगोन?",
+          "hint": "जायगानि थिरं बेकग्राउन आवाजनि नाम, जेनजों पंखा बा दूराव ट्राफिक।"
+        },
+        {
+          "id": "key_effect",
+          "prompt": "कुन ध्वनि प्रभावआ गाहायबो गोनां?",
+          "hint": "दर्शकआ माबायदि नुथायो बा मेथाइयो बेखौ सोलायनाय ध्वनि बास।"
+        },
+        {
+          "id": "music",
+          "prompt": "क'बाद संगीत बा मौन बाहायगोन?",
+          "hint": "संगीत बा मौनआ सीनआखौ माबायदि मदत खालामो, आरो माबानायनि बास।"
+        },
+        {
+          "id": "cues",
+          "prompt": "प्रत्येक साव आरो थांनाय समय माबाय?",
+          "hint": "समय, ध्वनि, आरो जोर बा मुवाव, नोंथाङा मोनसे कम्प र' खालाम। बे timing list-आखौ cue sheet बोला।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथाङा दुइ dialogue क्लिप मोनसे रूमआव संपादन खालामो। रूमनि बेकग्राउन ध्वनि क'बाद रेक'र्ड खालाम?",
+          "options": [
+            "गासै पात्रनि आवाजआखौ सोलायनो।",
+            "मात्र title musicनि जोर।",
+            "क्यामेरा मोनफैबो बारानो।",
+            "क्लिप-दोसायनि गेजेराव बेकग्राउन ध्वनि एकसेन खालामनो।"
+          ],
+          "explanation": "क्लिप-दोसायनि गेजेराव बेकग्राउन ध्वनि एकसेन खालामनो.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "चरणआखौ मोनसे-मोनसे खालाम। असलि जेबो जाबाय आरो मोनसे जेरै सुधारगोनबे लिख।"
+        },
+        "practising": {
+          "question": "शांत सीनआव श'टनि गेजेराव पंखानि गुँजादो सोलायो आरो थागो। ध्वनि क'बाद एकसेन नुयो?",
+          "options": [
+            "Dialogue-आखौ एकदम मन्द खालाम।",
+            "प्रत्येक cut-आव भिननै song बाहाय।",
+            "चित्रआखौ ठीक नुयो मनोला jump-आखौ मन्दारि।",
+            "पंखा अननानै steady room sound रेक'र्ड खालाम आरो कटनि गाहायाव बाहाय।"
+          ],
+          "explanation": "रूमनि बेकग्राउन ध्वनि रेक'र्डआखौ room tone बोला। बेयाव रेक'र्डनाय क्लिप-दोसायनि गेजेराव सोलायनायखौ सुचारु खालामनो मदत खालाम।",
+          "levelTask": "मोनसे इनपुट बा डिजाईन बासायनायनि बादि फिन नाजानो। असलि जेबो जाबाय बेखौ सापडा।"
+        },
+        "experienced": {
+          "question": "डायल'ग संपादनआ अलग रूमसम जोंनि लानायनि बादि नुयो, जोंनि सीनआ मोनसे जायगायाव दं। माबायदि जाँच खालामगोन?",
+          "options": [
+            "मात्र title musicनि जोर।",
+            "क्यामेरा मोनफैबो बारानो।",
+            "गासै पात्रनि आवाजआखौ सोलायनो।",
+            "बेकग्राउन रूम ध्वनि आरो dialogue क्लिप-दोसायनि ज'इनआखौ।"
+          ],
+          "explanation": "बेकग्राउन रूम ध्वनि आरो dialogue क्लिप-दोसायनि ज'इनआखौ.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "रूम tone जों आरो बिनाय बगराव दुइ असलि dialogue क्लिप संपादन खालाम; सुनायनाय फरक आरो नोंथाङा खालामनाय सुधार र' खालाम।"
+        }
+      }
+    },
+    "f9": {
+      "steps": [
+        "मोनसे साननि shoot setup खालाम। setup, recording, आरो pack away-नि time मोजां खालाम।",
+        "बे असलि समयआखौ schedule आरो formula जों spreadsheet budget-आव बाहाय।",
+        "नोंथाङा timing, calculation, आरो ज'बायनाय योजना जेनजों बेशी समय लागो बेखौ शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "call",
+          "prompt": "सोरबा क'बाद arrive खालामगोन?",
+          "hint": "मोनसे सम, जेरै 7:30 am, आरो crew क'तायाव मोनगोन।"
+        },
+        {
+          "id": "schedule",
+          "prompt": "नोंथाङा क'बाद setup, travel, film आरो pack away खालामगोन?",
+          "hint": "सम, scene, जायगा, आरो दुइवटा break जों row, मोजां location order-आव।"
+        },
+        {
+          "id": "top_spend",
+          "prompt": "क'बादआ सबसे गोबर खचागोन?",
+          "hint": "गासैबो रुपिया मोननाय line बास, आरो reasoning-आव justification दिहुन।"
+        },
+        {
+          "id": "budget",
+          "prompt": "बजेटआखौ माबायदि भाग खालामगोन?",
+          "hint": "“item: ₹amount” सनाय row, contingency 10 प्रतिशतनि सेबां। Total ₹6,000 बा से कम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथाङा मोनसे साननि shoot मोनसेरैबाय जायगायाव योजना खालामो। schedule practical खालामो माबायदि?",
+          "options": [
+            "गासै श'टआखौ मोनसे समय लागो मनोला।",
+            "असलि प्रकाश, मानिस, travel, आरो setup time-नि गिनान।",
+            "सधै script क्रमआव film खालाम।",
+            "गासै setup आरो travel time हटाय।"
+          ],
+          "explanation": "असलि प्रकाश, मानिस, travel, आरो setup time-नि गिनान.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "चरणआखौ मोनसे-मोनसे खालाम। असलि जेबो जाबाय आरो मोनसे जेरै सुधारगोनबे लिख।"
+        },
+        "practising": {
+          "question": "दुइ filming जायगा नजैया। मोनसे तेस्रो जायगा town-नि गाज्रि और sunset प्रकाश गोनां। सानआखौ माबायदि योजना खालामगोन?",
+          "options": [
+            "गासै तीन जायगायाव इखोनि-इखोनि थां।",
+            "दावे जोङो ठानै थानाय जागाह दिनानै, बेनिफ्राय सायखां ठानै माव।",
+            "travel वा प्रकाशनि नजर नदंनानै story क्रमआव film खालाम।",
+            "travel वा setup-नि सान नखाह।"
+          ],
+          "explanation": "नजैया कामआखौ group खालाम आरो खास प्रकाश गोनां shot-आखौ सुरक्षा दिहुन। असलि travel आरो setup time बाहाय।",
+          "levelTask": "मोनसे इनपुट बा डिजाईन बासायनायनि बादि फिन नाजानो। असलि जेबो जाबाय बेखौ सापडा।"
+        },
+        "experienced": {
+          "question": "sunset shot आरो indoor shot-आ अंतिम मोनसे घण्टा competition खालामो। क'बादआ schedule-आखौ दिशा दिहुनगोन?",
+          "options": [
+            "सधै script क्रमआव film खालाम।",
+            "छोटो sunset प्रकाशआखौ रक्षा खालाम आरो बेनि गेजेराव flexible indoor काम घुमाइ।",
+            "setup आरो travel time हटाय।",
+            "गासै श'टआखौ मोनसे समय लागो मनोला।"
+          ],
+          "explanation": "छोटो sunset प्रकाशआखौ रक्षा खालाम आरो बेनि गेजेराव flexible indoor काम घुमाइ.. नोंथाङा नि कामाव बे निर्णयआखौ नाजानो।",
+          "levelTask": "मोनसे असलि setup-नि समय मोजां खालाम आरो buffer आरो प्रकाश-निर्भर priority जों schedule सुधार खालाम।"
+        }
+      }
+    },
+    "f1": {
+      "steps": [
+        "नि फोनाव 30 सेकेन्द-आव गथिया समयाव थांफोर आरो मोनसेबो मोनसेबो मावलि जोंबाय।",
+        "Narration बिनानै नाय। जाय बासि वा रिजल्ट साफ नङा मानेबो, बे जागा फिन फिल्म खालाम।",
+        "मोनफ्रोमाव जेबो दं, वीडियो टाइमफोर आरो नोंथांनि सिमावि बादल-आरो बादल-आव सोलायनाय नोंथांनि बेवतोंखौ शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "logline",
+          "prompt": "फिल्म जोंनि ओं, बाइ जोंनो होनां, आरो मा जानाय नाजानाय?",
+          "hint": "मोनसे वाक्याव गाथा रेजुमेआव logline बोला। मिहोगोरो, समस्या आरो बासि-नि बिसोराव लाय।"
+        },
+        {
+          "id": "feeling",
+          "prompt": "नायग्राफोराव नोङो आथों माबा-खौ दंनो लानांगौ?",
+          "hint": "अन्तिमाव जाहोनाय मोनसे मुख्य अनुभूति बाछ।"
+        },
+        {
+          "id": "setup",
+          "prompt": "सुरूआव मा जाबाय?",
+          "hint": "समस्या फैयाखौफोरै नायग्राफोर खि-खि बायदि बिखायखौ बिथानाव बयान खालाम।"
+        },
+        {
+          "id": "choice_beat",
+          "prompt": "कथा-मुखारि मा गोरखाबा बासिनो गोजोन खालाम?",
+          "hint": "दुइ थाखो फरायजायनायव गोनां मोनसे बासि बिखायनायखौ देखाओ।"
+        },
+        {
+          "id": "payoff",
+          "prompt": "बे बासि-नि जाहोनाय मोनसे मा जाबाय?",
+          "hint": "बासि-नि रिजल्टखौ देखाओ। Narration बिनानै फुंफुंनै नाजानाय लानांगौ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "मोनसे छोट फिल्माव मोनसेयाव गोजोननो लैगोन। माबा बेखौ गाथा होयो?",
+          "options": [
+            "ओनै मिहोगोरखौ बिख्रि बयान खालामनानै।",
+            "जायफोर मोननो गोनां, समस्या, आरो गोनां बासि।",
+            "थियेननि कैमरा-औजारनि लिस्ट बिसार।",
+            "रायजोनानि सोमोन्द्राव बायदि जाबाय गोसोखौ फुंफुंनाय।"
+          ],
+          "explanation": "जायफोर मोननो गोनां, समस्या, आरो गोनां बासि.. नोंथांनि खालामनायाव बे गोरखाबा फिन खालाम।",
+          "levelTask": "स्टेपफोरखौ मोनसे मोनसेनै फालांगौ। मोनफ्रोमाव मा जाबाय आरो माबा फायदाखौ रेजुमे खालाम।"
+        },
+        "practising": {
+          "question": "मोनसे राइडार मोनसे वॉलेट आ फिन मोनदां। फिल्मआ फ्लैट दं। मा बेखौ गाथा फुङो?",
+          "options": [
+            "राइडारनि गाताखौ बेराव-नानै लम्बा बयान खालाम।",
+            "फिन होनायखौ राइडारनो गोदाननै आरनाइ लानांगौ, जेरै डिलिवरी बोनस।",
+            "ट्राफिकनि असंबंधित शॉटफोर दाजाब।",
+            "सिराया बोरायनाय गोनां बासि होमाखौ हटाय।"
+          ],
+          "explanation": "मोनसे अर्थपूर्ण बासिया लागत वा परिणाम दं। बेयो नायग्राफोरखौ मनोखौ गोनां होयो।",
+          "levelTask": "मोनसे इनपुट एबा डिजाइन बासि सोलायनानै फिन प्रयत्न खालाम। मोनफ्रोमाव मा जाबाय बेखौ compare खालाम।"
+        },
+        "experienced": {
+          "question": "नोंथांनि story summary-आव मोनसे rider आरो मोनसे lost card दं, नाथाय rider-नो बासि नङा। मा दाजाबगोन?",
+          "options": [
+            "थियेननि कैमरा-औजारनि लिस्ट बिसार।",
+            "नायग्राफोरनि मोननो मने मोनसे परिणाम दं बासि।",
+            "रायजोनानि सोमोन्द्राव बायदि जाबाय गोसोखौ फुंफुंनाय।",
+            "ओनै मिहोगोरखौ बिख्रि बयान खालामनानै।"
+          ],
+          "explanation": "नायग्राफोरनि मोननो मने मोनसे परिणाम दं बासि.. नोंथांनि खालामनायाव बे गोरखाबा फिन खालाम।",
+          "levelTask": "Characterनि decision-नि मोनबो version रेकर्ड खालाम आरो नायग्राफोरआ माबा परिणामखौ चिननाय खालामनांगोन बेखौ compare खालाम।"
+        }
+      }
+    },
+    "f2": {
+      "steps": [
+        "30 सेकेन्दनि scene-नो six shot रेकर्ड खालाम। शोटफोरनि framing, action, seconds आरो feeling लिस्ट खालाम।",
+        "मिहोगोर मोनसेनियाव direction सोलायनाय, mismatch look, एबा साफ नङा final reveal खौ check खालाम।",
+        "Shot time, नोंथांनि नायदाङा समस्या, आरो सही खालामनाय shot शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "shots",
+          "prompt": "नोंथांनि six shot-फोराव मा जाबाय?",
+          "hint": "मोनसे shot-नो, view (wide एबा close-up), action, seconds आरो feeling लिस्ट खालाम। Seconds 30 आव add up खालामनांगोन।"
+        },
+        {
+          "id": "last_size",
+          "prompt": "अन्तिम shot-आव camera माबा जोंनानै नांगौ?",
+          "hint": "Emotional payoff खमनो मोनसे size बाछ।"
+        },
+        {
+          "id": "cut_into",
+          "prompt": "कुन समायाव नोंथां characterनि choice-आव cut खालामगोन?",
+          "hint": "फिल्मआ कठिन choice-आव माबा बायदीनै गोजोन जानाय।"
+        },
+        {
+          "id": "continuity",
+          "prompt": "दुइ shot खालामनायाव मा-मा मिलान खालामनांगोन?",
+          "hint": "Jacket, bag, screen direction एबा time of day-नि मोनसे साफ rule।"
+        },
+        {
+          "id": "sound_cue",
+          "prompt": "कुन sound-आ गाथाखौ मदद खालामगोन?",
+          "hint": "बिना बायदिनो गाथाखौ मदद खालामनाय sound, आरो जेबो दं।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथां dialogue बिनानै film खालाम। मोनसे shot-आ मा दाजाबगोन?",
+          "options": [
+            "गाथा सोलायनाय बिनानै आरोङै view।",
+            "Location-नि अराय-नङै shot बिसार।",
+            "Shot जोंबो समान length।",
+            "नायग्राफोरनो बुझायनो मोनसे गोदान विषय।"
+          ],
+          "explanation": "नायग्राफोरनो बुझायनो मोनसे गोदान विषय.. नोंथांनि खालामनायाव बे बासि फिन खालाम।",
+          "levelTask": "स्टेपफोरखौ मोनसे मोनसेनै फालांगौ। मोनफ्रोमाव मा जाबाय आरो माबा फायदाखौ रेजुमे खालाम।"
+        },
+        "practising": {
+          "question": "मोनसे shot-आव rider बायसोनि मोनसे direction नाय, अनलि next shot-आव बायसोनि उल्टो। नायग्राफोरआ राइडारआ फिन सोलायबाय होन्ना गोसोखौ बोराय। माबा मदद खालाम?",
+          "options": [
+            "जोंबो shot-आव direction सोलाय।",
+            "आरोङै close-up दाजाब।",
+            "दोस्रो shot-आव अन्धार खालाम।",
+            "Shot-फोराव rider-आ same screen direction-आव थांथो।"
+          ],
+          "explanation": "Shot-फोरनि माझाव movement मिलान खालामनायआ नायग्राफोरखौ character-आ मोननो माबा बायदीनो थांगोनो बेखौ फालांगौ।",
+          "levelTask": "मोनसे इनपुट एबा design बासि सोलायनानै फिन प्रयत्न खालाम। मोनफ्रोमाव मा जाबाय बेखौ compare खालाम।"
+        },
+        "experienced": {
+          "question": "मोनसे नायग्राफोरआ final shot story-नि आथोराव जाबाय होननो गोजोङा। गोगोन माबा सोलायगोन?",
+          "options": [
+            "Location-नि आरोङै shot बिसार।",
+            "Shot जोंबो समान length।",
+            "गाथा सोलायनाय बिनानै आरोङै view।",
+            "Visual link-फोर जेरै order आरो result दखायो।"
+          ],
+          "explanation": "Visual link-फोर जेरै order आरो result दखायो.. नोंथांनि खालामनायाव बे गोरखाबा फिन खालाम।",
+          "levelTask": "नोंथांनि silent cut-खौ मोनसे willing viewer-नो दखाओ, बिखोनि inferred order रेकर्ड खालाम आरो बुझायनाय transition सुधार खालाम।"
+        }
+      }
+    },
+    "f3": {
+      "steps": [
+        "Real footage आरो नोंथांनि दैना एबा संयुक्त image-आव मोनसे छोट sequence खालाम।",
+        "Finished video नाय। Light, angle आरो दाजाबनाय image scene-नो मिलायनायखौ check खालाम।",
+        "Video time आरो नोंथांनि सुधारनाय mismatch शेयर खालाम। Paid AI tools लाजोन्नो गोनां नङा।"
+      ],
+      "fields": [
+        {
+          "id": "live_ai",
+          "prompt": "माबा भागफोर film खालामगोन, आरो माबा भागफोर नोंथां create एबा add खालामगोन?",
+          "hint": "Live आरो AI-assisted-नो मोनसे-नो मोनसे short list, मोनफ्रोमाव reason दं।"
+        },
+        {
+          "id": "budget",
+          "prompt": "₹5,000 budget-खौ माबा बायदिनै राओगोन?",
+          "hint": "“item: ₹amount” जेरै rows, जेबो ₹5,000 एबा बेयाव कम add up खालाम।"
+        },
+        {
+          "id": "checks",
+          "prompt": "Joined shot-फोर सही नायनांगोन होननो माबा check खालामगोन?",
+          "hint": "Share खालामनो फोरावर picture, sound आरो continuity check-फोर।"
+        },
+        {
+          "id": "rights",
+          "prompt": "Film-आव मिहोगोर एबा material-नो असोराव अनुमति मावबाय?",
+          "hint": "नोंथांनि असली do खालामगोन check-खौ बाछ आरो reasons-आव explain खालाम।"
+        },
+        {
+          "id": "no_generate",
+          "prompt": "AI-नो माबा भाग generate खालामनानै बसायगोन, आरो माबेनो?",
+          "hint": "मोनसे element जोंबो real-आव शूट खालामगोन, मोनसे-2 words-आव।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथां real footage आरो added image mix खालाम। शूट खालामनायाव सबासे useful कदा?",
+          "options": [
+            "मोनसे human performance एबा physical action-आव matching गोनां समायाव।",
+            "AI-नो जोंनि नाम फुंसारनो गोरखाबा नङा।",
+            "बेखौ लानाङोन माने expensive film-जेरै दिसे।",
+            "Viewer-खौ distract खालामनो unrelated shot दाजाब।"
+          ],
+          "explanation": "मोनसे human performance एबा matching physical action गोनां समायाव.. नोंथांनि खालामनायाव बे बासि फिन खालाम।",
+          "levelTask": "स्टेपफोरखौ मोनसे मोनसेनै फालांगौ। मोनफ्रोमाव मा जाबाय आरो माबा फायदाखौ रेजुमे खालाम।"
+        },
+        "practising": {
+          "question": "मोनसे close-up-खौ free-आव ten minutes-आव फिन shoot खालामनो हायो। AI-आव खालामनो ₹1,500 लागो। नोंथांनि budget ₹5,000। माबा सबासे मेलाय?",
+          "options": [
+            "Close-up-खौ performer-आव फिन film खालाम।",
+            "AI-नोखौमात्रो खालाम, बेकौ new होननानै।",
+            "आरोङै AI shot-फोराव budget जोंबो खालाम।",
+            "Story check नङा नोंथांनि missing close-up बसाय।"
+          ],
+          "explanation": "Free, quick reshoot-आ असली performance राखाय आरो आरो मोनसे कामनो नाकौ होयो।",
+          "levelTask": "Mone input एबा design choice सोलायनानै फिन प्रयत्न खालाम। मा जाबाय बेखौ compare खालाम।"
+        },
+        "experienced": {
+          "question": "Added AI shot-आ real shot-फोरनि माझाव actor-नि face आरो movement सोलाय। Replacement-आ मा protection खालामगोन?",
+          "options": [
+            "Same person, performance आरो movement; reshoot एबा added shot-खौ redesign खालाम।",
+            "बेखौ लानाङोन माने expensive film-जेरै दिसे।",
+            "Viewer-खौ distract खालामनो unrelated shot दाजाब।",
+            "AI-नो जोंनि नाम फुंसारनो गोरखाबा नङा।"
+          ],
+          "explanation": "Same person, performance आरो movement; reshoot एबा added shot-खौ redesign खालाम.. नोंथांनि खालामनायाव बे बासि फिन खालाम।",
+          "levelTask": "नोंथांनि sequence-आव film shot आरो image-खौ compare खालाम। नोंथांनि सुधारनाय mismatch रेकर्ड खालाम।"
+        }
+      }
+    },
+    "f4": {
+      "steps": [
+        "Scene-खौ नोंथांखौ एबा यारजोंबो जोंनायनै record खालाम।",
+        "फिन नाय। Hidden feeling-खौ too directly फुंनाय line-खौ rewrite खालाम, अचु फिन record खालाम।",
+        "Dialogue-नि दोन version आरो मा फरक सुनायो बेखौ शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "surface",
+          "prompt": "Characters-फोर surface-आव माबा गासे?",
+          "hint": "जेबो everyday topic, जेरै bag pack खालामनाय।"
+        },
+        {
+          "id": "hidden",
+          "prompt": "Character-आ secret-आव मा मोननो हानाय?",
+          "hint": "Character-आ जोंनायनै नङा, नाथाय मोननो हानायखौ फुं।"
+        },
+        {
+          "id": "carrier",
+          "prompt": "कुन words एबा action-आ बे feeling-खौ indirect-आव दखायो?",
+          "hint": "Small action एबा object-खौ बाछ जेरै unspoken feeling-खौ दखायो।"
+        },
+        {
+          "id": "dialogue",
+          "prompt": "Characters-फोर असलाव मा फुंगोन?",
+          "hint": "A आरो B लेबल दै थानानै four to six छोट line लिख। Hidden feeling-खौ direct फुंनांगोन नङा; words आरो actions-आव suggest खालामबो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "मोनसे character bag pack खालामनायनि कथा फुंयो, नाथाय मोनसे जनथाइआ जायो मोननि। मा बे unspoken feeling-खौ दखायो?",
+          "options": [
+            "बोरैनि words आरो actions-आ बाङाइ मोननो हानायखौ hint खालामो।",
+            "मोननो हानायखौ direct-आव पूरा explain खालामो।",
+            "Scene-नि मोगोनै explanation दाजाब।",
+            "थियेर line-खौ proverb-आव बदल।"
+          ],
+          "explanation": "बोरैनि words आरो actions-आ बाङाइ मोननो हानायखौ hint खालामो.. नोंथांनि खालामनायाव बे बासि फिन खालाम।",
+          "levelTask": "स्टेपफोरखौ मोनसे मोनसेनै फालांगौ। मोनफ्रोमाव मा जाबाय आरो माबा फायदाखौ रेजुमे खालाम।"
+        },
+        "practising": {
+          "question": "Kavya-आ Rohan-खौ थाननो मोनगोन, नाथाय बिहोरोङा पुणे-आव tomorrow थांगोन। कुन line-आ direct नङा बोला care दखायो?",
+          "options": [
+            "गानै चादर लओ। पुणेनि र'खा रान्थि थांनायाव गोखां हो।",
+            "माबा बायदि दुखी जाबाय बेखौ aomoŋa फुंयो।",
+            "बे scene-आ about hidden emotions.",
+            "थांनायाव नोंथां-नि interest नङा।"
+          ],
+          "explanation": "Practical line-आ मोनसे feeling-खौ बोरायनो हायो जेरै character-आ direct-आव नङा फुंयो। बेखौ subtext बोला।",
+          "levelTask": "मोनसे input एबा design choice सोलायनानै फिन प्रयत्न खालाम। मा जाबाय बेखौ compare खालाम।"
+        },
+        "experienced": {
+          "question": "Character-फोर जोंबो feeling direct-आव explain खालामो। संवादआ maba बायदि मोनसेमात्रो concern नङा होन्ना?",
+          "options": [
+            "बोरै goal-फोर हो, आरो action एबा avoided answer-फोर tension दखायो।",
+            "Scene-नि मोगोनै explanation दाजाब।",
+            "थियेर line-खौ proverb-आव बदल।",
+            "Borfai feeling direct-आव explain खालामो।"
+          ],
+          "explanation": "बोरै goal-फोर हो, आरो action एबा avoided answer-फोर tension दखायो.. नोंथांनि खालामनायाव बे गोरखाबा फिन खालाम।",
+          "levelTask": "दुइव version-आव conversation record खालाम, भिन-भिन unspoken goal-फोरजों। कुन action-आ meaning सोलायो बेखौ नोट खालाम।"
+        }
+      }
+    },
+    "f5": {
+      "steps": [
+        "Different clear action-फोरजों two take रेकर्ड खालाम, जेरै मोनसेजनो थाननो persuading.",
+        "मा सोलायो बेखौ नाय। मोनसे approach बाछ आरो सुधारनाय take-खौ record खालाम।",
+        "Video time आरो दृश्य changes शेयर खालाम। Self एबा agree खालामनाय performer-खौ जों।"
+      ],
+      "fields": [
+        {
+          "id": "intention",
+          "prompt": "Character-आ दाबाइ मिहोगोरनो मा मोननो हानाय?",
+          "hint": "Whole take-खौ drive खालामनाय single intention बाछ।"
+        },
+        {
+          "id": "directions",
+          "prompt": "Actor-नो tria clear action-फोर माबा?",
+          "hint": "Mone three short line, प्रत्येक verb-आव सुरू। Sad एबा angry जेरै emotion words नङा।"
+        },
+        {
+          "id": "prop",
+          "prompt": "Hand एबा object-आव actor-आ माबा खालामो?",
+          "hint": "Ticket, phone एबा bag-आव take-नि माजाव actor-आ मा खालामो।"
+        },
+        {
+          "id": "retake",
+          "prompt": "First performance stiff दं बायनिखै माबा सोलायगोन?",
+          "hint": "Take one-नि बादाव माबा adjust खालामगोन, बेखौ बाछ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथां actor-खौ direct खालामो, मोनसे friend-खौ थाननो मोननो हानायमोन। कुन instruction-आ action दा?",
+          "options": [
+            "More emotional हो।",
+            "Twice as much sadness मोन।",
+            "नोङोनि friend-खौ stay kham.",
+            "Final colour treatment-खौ बयान खालाम।"
+          ],
+          "explanation": "Noŋoनि friend-खौ stay kham.. नोंथांनि खालामनायाव बे बासि फिन खालाम।",
+          "levelTask": "स्टेपफोरखौ मोनसे मोनसेनै फालांगौ। मोनफ्रोमाव मा जाबाय आरो माबा फायदाखौ रेजुमे खालाम।"
+        },
+        "practising": {
+          "question": "“look panicked” होननायाव actor stiff नायो। बिखोन character-आ train थांनो आगो wallet खोयो। कुन direction मदद खालाम?",
+          "options": [
+            "Twice as panicked हो।",
+            "More emotional हो, नथाय तोबो जेबो नङा।",
+            "Train थांनायनि आगो pocket-फोर खोद।",
+            "Final music-आ काबायनो माबा dramatic आ होनखौ गोसोखौ थांनो।"
+          ],
+          "explanation": "Actor-नो clear action दा। Action-आ feeling-खौ natural दखायो।",
+          "levelTask": "मोनसे input एबा design choice सोलायनानै फिन प्रयत्न खालाम। मा जाबाय बेखौ compare खालाम।"
+        },
+        "experienced": {
+          "question": "Actor-आ instruction-फोरनि बादाव same sad face फिन फिन खालामो। माबा next खालामगोन?",
+          "options": [
+            "Twice as much sadness हो।",
+            "Final colour treatment-खौ बयान खालाम।",
+            "आरो character-आव specific action दा, आरो बेनि effect नाय।",
+            "More emotional हो।"
+          ],
+          "explanation": "आरो character-आव specific action दा, आरो बेनि effect नाय.. नोंथांनि खालामनायाव बे गोरखाबा फिन खालाम।",
+          "levelTask": "Different clear action-फोरजों two take रेकर्ड खालाम आरो मा सोलायो बेखौ compare खालाम।"
+        }
+      }
+    },
+    "m6": {
+      "steps": [
+        "एक सायं होनाय पोस्ट आरो पेज भा मेसेजनि ड्राफ्ट खालाम।",
+        "नोंथांनि डिभाइसआव लिंक भा नोंथांनि गेजेरनि स्टेपआव थां। जेबो जेनो enquiry खालामनायखौ बन्द खालामोबाय नामा नाय।",
+        "पोस्ट, जाया, दिक्दार आरो नोंथांनि सुधारबो शेयर खालाम। नोंथां पब्लिश खालामनो हागोन नङा बुङोब्ला बेखौ प्राइभेटै थाखो।"
+      ],
+      "fields": [
+        {
+          "id": "channel",
+          "prompt": "नोंथां गांसे ग्राहकफोरखौ जायगायाव नोंथां हाबगोन?",
+          "hint": "एखोन आरम्भखौ एखोन चैनलनि फारसेआव सायख'। बेलेखनायाव बेखौ गोरिबारि आरो जाबुंनै बजेटआव बायबाय, फोरमान्थि खालाम।"
+        },
+        {
+          "id": "rejected",
+          "prompt": "गोजामनि थाखाय नोंथां एसेनो गैयै जायगायखौ सायख'गोन आरो मानो?",
+          "hint": "जायगाय एखोन नोङा जोग्गा नङा थाखाय बायखां। नोंथांनि कारणआव ओमानो गोजाम सायख'।"
+        },
+        {
+          "id": "tracking",
+          "prompt": "प्रत्येक enquiry जायगायाव बिबांनांगौ नोंथां जाबायनो मेथायबो लानो?",
+          "hint": "बे चैनलजों आर्डारफोरखौ मानो गोनो, उधाहरणफोराव code word भा एखेनि अलग नम्बरजों?"
+        },
+        {
+          "id": "action",
+          "prompt": "गिबि सप्तायाव नोंथां माबा खालामगोन आरो आंनौ?",
+          "hint": "साप्ताह 1आव माबा खालामगोन बायनो, एखोन रूपी रकम आरो नोंथांनि थाखाय मानो खालामगोन, बेखौ फोरमान्थि खालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एखोन जौगानि दोकानआय एउटाय जायगायफोराव नुजाबाय। माबा सायख'नांगोन?",
+          "options": [
+            "गोबैबो प्लाटफर्मखौ एखोनसमाव बाराय।",
+            "भाङा फर्मखौ बानायनो थाखाय बारायनो।",
+            "एखोन फालां नुथांगौ फोटो सायख'।",
+            "जोनो ग्राहखौ लुबैनो नोजोरै जायगाय सायख'।"
+          ],
+          "explanation": "जोनो ग्राहखौ लुबैनो नोजोरै जायगाय सायख'.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "स्टेपफोरखौ एखोन-एखोन सायख'। माबा बाथ्रा जायगोन आरो एखोन मेख'नै सोलायगोन, बायनो लिर।"
+        },
+        "practising": {
+          "question": "एखोन bakery-नि मोजां रकम आरो सम कम। गैयै ग्राहखौ WhatsApp offers-आव समखौ फोरमान्थि थाखाय मोजाङै गोसोब, आरो बेफोर गोजानिफोरनि गेलेबाय। बेफोराव जायगाय जायनो?",
+          "options": [
+            "गोबोन्दै देश-फोङाव नोगोरफोरखौ बुहायनो रकम बाय।",
+            "गोबैबो social platform-आव एखेन्समाव पोस्ट खालाम।",
+            "फोन नम्बरफोराव मेसेज दाय जेबो मोनसेनो बुङा।",
+            "बे ग्राहखौ साफ WhatsApp offer दा, आर्डारखौ ट्रैक खालामनायखौ दै।"
+          ],
+          "explanation": "ग्राहखौ एन्टायालि जेनो आसे, आरो जायगायनो दा। वास्तविक order खालामखौ ट्रैक खालाम, attention नङा।",
+          "levelTask": "एखोन इनपुट भा डिजाइन निर्णय सोलायनानै बिसोरनो। माबा बाथ्रा जायगोन बेखौ तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "नोंथांनि दोकान पोस्टआ ध्यान लायो, नोंथांनि लिंकआ broken order form खौ खोला। फरायहोननो मानो अग्रा?",
+          "options": [
+            "भाङा फर्मखौ बानायनो थाखाय पोस्ट बाराय।",
+            "एखोन फालां नुथांगौ फोटो सायख'।",
+            "गोबैबो प्लेटफर्मखौ एखोनसमाव खालाम।",
+            "पोस्ट निफ्राय enquiry सिमां आलिया एखोन समग्र पथखौ रिबाय आरो test खालाम।"
+          ],
+          "explanation": "पोस्ट निफ्राय enquiry सिमां आलिया एखोन समग्र पथखौ रिबाय आरो test खालाम.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "फोनआव आरो एसेनो डिभाइसआव link भा next step टेस्ट खालाम। फेल होनाय स्टेप एखोन सुधार आरो माबा सोलायबाय लिर।"
+        }
+      }
+    },
+    "m7": {
+      "steps": [
+        "दियानाय ad cost आरो customer enquiryफोरखौ spreadsheet आव राखो। गणना formulaफोर जोगा।",
+        "एखोन input सोलाय आरो spreadsheet-आव गोजान result दावनायखौ नाय।",
+        "नोंथांनि formulaफोर, दाबाइफोर, आरो बिसोराव माबा ad-आव आरो रकम दावगोन बुङो शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "cost",
+          "prompt": "एखोन जोगा ग्राहक enquiry-नि खोरचि माबा?",
+          "hint": "प्रत्येक ad-नि थाखाय, खर्च खालामनाय रकमखौ जोगा enquiryफोरजों भाग खालाम। रुपी रकमखौ देखाय।"
+        },
+        {
+          "id": "working",
+          "prompt": "बे खोरचिखौ माबा हिसाब खालामबाय?",
+          "hint": "दियानाय नम्बरफोरजों spreadsheet formula आरो गणना देखाय।"
+        },
+        {
+          "id": "step",
+          "prompt": "नोंथां माबा अग्रा सुधारगोन?",
+          "hint": "जोगा customer enquiry सुधारनो हागोन एखोन स्टेप सायख' आरो मानो फोरमान्थि खालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एखोन दोकान ad आव रकम खर्च खालाम। माबा खोरचि लानो?",
+          "options": [
+            "ad खर्चखौ जोगा customer enquiry जों भाग खालाम।",
+            "likesखौ views जों भाग खालाम।",
+            "आंनौ, ₹20₹60 निफ्राय कम।",
+            "दुइफोराव खोरचि एखेनि।"
+          ],
+          "explanation": "ad खर्चखौ जोगा customer enquiry जों भाग खालाम.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "स्टेपफोरखौ एखोन-एखोन सायख'। माबा बाथ्रा जायगोन आरो एखोन मेख'नै सोलायगोन, बायनो लिर।"
+        },
+        "practising": {
+          "question": "दुइ ad एखोनो ₹3,000 खर्च खालाम। Ad X 6 जोगा customer enquiry लायो। Ad Y 10 लायो। बेफोराव कोन खोरचि कम?",
+          "options": [
+            "Ad Y: enquiry-आव ₹300, X-आव ₹500 जों तुलनाना।",
+            "Ad X: enquiry कम हैब्ला खोरचि कम सोमो।",
+            "बोथोर: total spend एखेनि।",
+            "enquiry नायनै क्लिक ज'बाय ad सायख'।"
+          ],
+          "explanation": "खर्चखौ जोगा enquiry जों भाग खालाम: 3,000 ÷ 10 = 300; 3,000 ÷ 6 = 500.",
+          "levelTask": "एखोन input भा design decision सोलायनानै बिसोरनो। माबा बाथ्रा जायगोन बेखौ तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "एखोन ad-आव enquiry-आव ₹20 खर्च, 2% जोगा ग्राहक। आरोए आव ₹60, 50% जोगा ग्राहक। बिसोराव जोगा enquiry-आव कोन कम?",
+          "options": [
+            "दूसरा: जोगा enquiry-आव ₹120, ₹1,000 जों तुलना।",
+            "आंनौ, ₹20 ₹60 निफ्राय कम।",
+            "बोथोराव जोगा enquiry-आव एखेनि।",
+            "likesखौ views जों भाग खालाम।"
+          ],
+          "explanation": "दूसरा: जोगा enquiry-आव ₹120, ₹1,000 जों तुलना.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "नोंथांनि spreadsheet-आव जोगा enquiry-नि percentage बाय। दुइ अलग percentage जों cost calculation टेस्ट खालाम।"
+        }
+      }
+    },
+    "m8": {
+      "steps": [
+        "14 दिननि post plan खालाम आरो बेफोराव दुइ पोस्ट बानाय।",
+        "फोनआव दुइ पोस्टखौ नाय। फरायनो गाहाय text भा सेम idea थाजा?",
+        "calendar, गोजान पोस्ट आरो नोंथां जों सोलायनायखौ शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "theme",
+          "prompt": "नोंथांनि पोस्टफोर माबा बिषयाव होगोन?",
+          "hint": "एखेनि theme, जेखौ हर पोस्ट सापोट खालाम, एसे "
+        },
+        {
+          "id": "format",
+          "prompt": "माबा प्रकारनि पोस्ट नोंथां जादो होनो?",
+          "hint": "नोंथां मोजाङै बानायगोन format सायख'। नोंथांनि कारणाव बे समनि जोगोआव मानो फिट खालामनो।"
+        },
+        {
+          "id": "reuse",
+          "prompt": "कुन धारणा भा सामग्रिखौ फेरायगोन?",
+          "hint": "एखे core idea, जेखौ एखोन बेरायो आरो कमसेकम माबा स्थानाव फेरायगोन।"
+        },
+        {
+          "id": "calendar",
+          "prompt": "14 दिननि फे दिन माबा पोस्ट खालामगोन?",
+          "hint": "दिन दा row: दिन, format आरो माबा बाहायगोन। आराम दिनफोरखौ फोरमान्थि खालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "दोकान पोस्ट बानायनो कम सम गैयै। माबा खालामगोन प्लान उपयोगी होनो?",
+          "options": [
+            "हर दिन गोजोनो पोस्टफोर संभवनो बाय।",
+            "प्लानखौ जोग्रोमानै राखो आरो miss होनाय दिनफोरनि थाखाय creator-खौ दोष दा।",
+            "हर पोस्टनि थाखाय यथार्थ schedule आरो कारण, next step दा।",
+            "हर दिन एखेनि message पोस्ट खालाम।"
+          ],
+          "explanation": "हर पोस्टनि थाखाय यथार्थ schedule आरो कारण, next step दा.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "स्टेपफोरखौ एखोन-एखोन सायख'। माबा बाथ्रा जायगोन आरो एखोन मेख'नै सोलायगोन, बायनो लिर।"
+        },
+        "practising": {
+          "question": "Kavya दिया बेचो आरो पोस्टनि थाखाय साप्ताह 4 घण्टा अछो। कोन प्लान यथार्थ?",
+          "options": [
+            "हर दिन एखोन new long video बानाय।",
+            "तारिखाव exams समाव हर घण्टा पोस्ट खालाम।",
+            "एखोन video बानाय आरो प्रत्येक सप्तायाव तीन दिन पोस्टफोराव भागफोर फेराय।",
+            "दैनिक post-आव बाचा आरो बादाव माबा खालामगोन?"
+          ],
+          "explanation": "जेनो समय यथार्थ, बेखौ गोजोना। जादा काम खालामनो फोसारनाय जवनाय नङा, उपयोगी सामग्रिखौ फेराय।",
+          "levelTask": "एखोन input भा design decision सोलायनानै बिसोरनो। माबा बाथ्रा जायगोन बेखौ तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "एखोन plan-आव हर दिन new video नांगौ, आरो creator-आव सप्तायाव दुइ घण्टा। माबा सोलायनांगोन?",
+          "options": [
+            "प्लानखौ जोग्रोमानै राखो आरो miss होनाय दिनफोरनि थाखाय creator-खौ दोष दा।",
+            "हर दिन एखेनि message पोस्ट खालाम।",
+            "पोस्ट कम खालाम आरो goal-खौ सापोट खालामनायफोरआव फोकस खालाम।",
+            "हर दिन गोजोनो पोस्टफोर संभवनो बाय।"
+          ],
+          "explanation": "पोस्ट कम खालाम आरो goal-खौ सापोट खालामनायफोरआव फोकस खालाम.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "एखोन planned post-एखनि creation time नाय आरो नोंथां जाखोर समय जोगौनि calendar revise खालाम।"
+        }
+      }
+    },
+    "m9": {
+      "steps": [
+        "ad-खौ फेरायनो जेखौ हर promise check खालामनो हागोन। Agree, decline, आरो STOP-नि message लिर।",
+        "एखोन choiceफोरखौ willing friend जों test खालाम आरो जेबो confusing step नोट खालाम।",
+        "गोजान आरो सुधारनाय ad आरो message शेयर खालाम। जे promise support खालामनो हागोन नङा बेखौ दुर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "risk",
+          "prompt": "कोन दिक्दारआ ग्राहकफोरखौ जेरैनै जादा हानी खालामो?",
+          "hint": "ग्राहकफोरखौ जादा हानी खालामनो हागोन जेनो दिक्दार सायख'। नोंथांनि कारणाव मानो बुङो।"
+        },
+        {
+          "id": "problems",
+          "prompt": "कोन promise भा message choice दिक्दार?",
+          "hint": "ad आरो list plan जों तीन भिन्न दिक्दार लिर, short line-आव।"
+        },
+        {
+          "id": "rewrite",
+          "prompt": "नोंथांनि सुधारनाय ad माबा बुङो?",
+          "hint": "ad-नि थाखाय एखोन वा दुइ honest sentence, जेफोर course-आव होनो हागोन मात्र promise खालामो।"
+        },
+        {
+          "id": "consent",
+          "prompt": "मोनसेया माबा message-आव agree खालामगोन आरो बादाव माबा बन्द खालामगोन?",
+          "hint": "permission माबा सायख'गोन, माबा send खालामगोन आरो माबा फराय message बन्द खालामनो हागोन, बेखौ दा।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एखोन ad-आव business-आय prove खालामनो हागोन नङा result promise खालामो। माबा खालामगोन?",
+          "options": [
+            "Promise-खौ मोनसेनो जादा बोरायो जेबो गोजोन खालाम।",
+            "Box tick खालामनानै राखो, मुदा कम लेखन जों।",
+            "Page visit-खौ permission मानो।",
+            "Unsupported promise-खौ use खालामनायनि आगाव हटाय भा सीमित खालाम।"
+          ],
+          "explanation": "Unsupported promise-खौ हटाय भा सीमित खालाम.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "स्टेपफोरखौ एखोन-एखोन सायख'। माबा बाथ्रा जायगोन आरो एखोन मेख'नै सोलायगोन, बायनो लिर।"
+        },
+        "practising": {
+          "question": "एखोन resume course-आव ₹1,499 खर्च, आरो मोनसेयाओ job promise खालामनो हागोन नङा। कोन ad honest?",
+          "options": [
+            "₹1,499 दा आरो guaranteed job मोनो।",
+            "बेबा छात्रआ बर' साप्ताहनि नांयाव नौकरी मोन।",
+            "आंनौ resume हर applicant निफ्राय बेहतर।",
+            "चार सप्ताहाव feedback जों नोंथांनि resume सुधारो। ₹1,499. Job guarantee नङा।"
+          ],
+          "explanation": "Course-आव माबा दैयो आरो price माबा, बेखौ बुङा। जे result support खालामनो हागोन नङा, बे promise खालामो नङा।",
+          "levelTask": "एखोन input भा design decision सोलायनानै बिसोरनो। माबा बाथ्रा जायगोन बेखौ तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "एखोन form-आव marketing message पहिले tick खालामो आरो बन्द खालामनायखौ लुफा। Choice-खौ मोजां खालामनो माबा?",
+          "options": [
+            "Box tick राखो, मुदा कम लेखन जों।",
+            "Page visit-खौ permission मानो।",
+            "Promise-खौ जादा बोरायो जेबो gajob notice खालाम।",
+            "Message optional खालाम आरो बन्द खालामनो साफ उपाय देखाय।"
+          ],
+          "explanation": "Message optional खालाम आरो बन्द खालामनो साफ उपाय देखाय.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "Partner जों opt in, decline, आरो stop rehearse खालाम; जे confusing step सुधारबाय बेखौ report खालाम।"
+        }
+      }
+    },
+    "m10": {
+      "steps": [
+        "नोंथांनि offer, गोजान पोस्ट, जाया, आरो enquiry record खालामनो spreadsheet एखोन बनाय।",
+        "एखोन पोस्टखौ next step सिमां follow खालाम। नोंथांनि own spreadsheet-आव clearly labelled test enquiry दा।",
+        "काम, actual test result, आरो repaired broken step शेयर खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "segment",
+          "prompt": "नोंथांनि lunch offer माबानिफोर?",
+          "hint": "जायगाय सायख' जेखौ serbe खालामनो अग्रा। नोंथांनि कारणाव बिसोरखौ channel जों जोडो।"
+        },
+        {
+          "id": "channel",
+          "prompt": "नोंथां बिसोरखौ जायगायाव पायो?",
+          "hint": "एखोन channel सायख' जेखौ बे group-खौ reach खालामो आरो ₹5,000 आरो एखोन owner-आव fit खालाम।"
+        },
+        {
+          "id": "metric",
+          "prompt": "माबा result नोंथां होजो?",
+          "hint": "एखोन number सायख' जेखौ नोंथां four weeks-आव chosen channel-आव count खालामनो हागोन।"
+        },
+        {
+          "id": "offer",
+          "prompt": "नोंथांनि offer एखोन sentence-आव माबा?",
+          "hint": "customer, benefit आरो एखोन action जों एखोन line।"
+        },
+        {
+          "id": "plan",
+          "prompt": "offer, post, next step आरो tracking माबा एखेनानै खामानि खालामगोन?",
+          "hint": "customer problem, nोंथांनि एखोन test (एखोन thing सोलायनानै) आरो एखोन risk जों बायनो, आरो नोंथां माबा कम खालामगोन बेखौ लिर।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथां lunch campaign-खौ shop owner-आव होगोन। Pack-आव माबा गोनो?",
+          "options": [
+            "unrelated attractive pictureनि folder.",
+            "customer, offer, finished posts आरो next step track खालामनो उपाय।",
+            "पोस्ट design आरो दें।",
+            "views-खौ confirmed sales मानि report।"
+          ],
+          "explanation": "customer, offer, finished posts आरो next step track खालामनो उपाय.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "स्टेपफोरखौ एखोन-एखोन सायख'। माबा बाथ्रा जायगोन आरो एखोन मेख'नै सोलायगोन, बायनो लिर।"
+        },
+        "practising": {
+          "question": "एखोन tiffin service-आव दोमोन नजेर hostel-नि गोजान निफ्राय order गोनां। कोन plan customer, offer आरो result जोडो?",
+          "options": [
+            "हर जायगायाव advertise खालाम आरो हर view-खौ order मानि count खालाम।",
+            "होस्टेल lunch offer notice board-आव देखाय; code जों trial order count खालाम।",
+            "unrelated picture use खालाम, order step बाय।",
+            "सेवा जखां deliver खालामनो हागोन नङा दुर city-target खालाम।"
+          ],
+          "explanation": "उपयोगी plan-आय सही मानिफोरखौ reach खालाम, साफ next step होय आरो बे step-नि result record खालाम।",
+          "levelTask": "एखोन input भा design decision सोलायनानै बिसोरनो। माबा बाथ्रा जायगोन बेखौ तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "नोंथांनि campaign पोस्टफोर finished नुयो, मुदा enquiry-फोरआव बिसोर माबा post निफ्राय बायबाय बेनि record नङा। माबा सुधारगोन?",
+          "options": [
+            "पोस्ट design आरो बाराय।",
+            "source label दा आरो labelled enquiry जों test खालाम।",
+            "views-खौ confirmed sales मानि report।",
+            "unrelated attractive picturesनि folder."
+          ],
+          "explanation": "source label दा आरो labelled enquiry जों test खालाम.. बे निर्णयखौ नोंथांनि निजि खामानिआव नाय।",
+          "levelTask": "अलग-अलग asset निफ्राय दोमोन labelled test enquiry run खालाम आरो nोंथां tracker-आय बिसोरनि source फरायथामो बुङो verify खालाम।"
+        }
+      }
+    },
+    "d6": {
+      "steps": [
+        "Booking bug केँ निज computer-आव देखाइ। साझा log-आव नाम, phone number आर secret नाफोरु।",
+        "Code fix खालाम आरो सेम fail जाथाव request फिन लाजो।",
+        "Code आरो before-and-after result share खालाम, जेनि बदलथि नांगौ दिखावनो।"
+      ],
+      "fields": [
+        {
+          "id": "first_step",
+          "prompt": "Booking bug मोननो थैनो गुसैयाव पहिला मावनाय माबा?",
+          "hint": "Code बदलायनायनि उनाव problem फिन repeat खालामनो एरै।"
+        },
+        {
+          "id": "evidence",
+          "prompt": "AI सायाव safe होबोनि किनै real error detail माबा share खालामनो नागिरनो?",
+          "hint": "Step, expected आरो actual result, आरो important error दों। Secret आरो phone number safe example-आव बदल।"
+        },
+        {
+          "id": "fix",
+          "prompt": "Ni fix खालाम booking code माब्ला माबा?",
+          "hint": "Actual code update खालाम जेब्ला server reply खालामनानै खालि सही success नङा error message दिखायो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Booking save नङा। Bug मोननो useful पहिला step माबा?",
+          "options": [
+            "Problem फिन repeat खालाम आरो actual error आरो saved result inspect खालाम।",
+            "Logउन्द' unrelated file फोगोनै बदला।",
+            "Page area near immediately rewrite खालाम।",
+            "Another request pass जानोनि कारण fixed नों समाद दै।"
+          ],
+          "explanation": "Problem फिन repeat खालाम आरो actual error आरो saved result inspect खालाम।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Step फोर थाखाय-थाखाय follow खालाम। असलि माबा जादों आरो एकडां improve खालामनाय मावनाय दाजाबाय।"
+        },
+        "practising": {
+          "question": "Page आओं booking confirmed बुङो, नोंथां booking save नङा। AI help मागनायाव माबा share खालामनो गोरोन?",
+          "options": [
+            "Step फोर, expected आरो actual result, आरो error detail, private data हटायबाय।",
+            "Real password आरो customer phone number।",
+            "खालि “it is broken” बिबा।",
+            "Problem explain नङै every unrelated file।"
+          ],
+          "explanation": "Clear step आरो actual result नुजायो कारण मोननो मदद खालामो। Secret हटायबाय आरो personal detail safe example-आव बदल।",
+          "levelTask": "One input वा design choice बदलनायनि उनाव फिन try खालाम। असलि माबा जादों compare खालाम।"
+        },
+        "experienced": {
+          "question": "Fix though normal booking works, किन्तु original failing request अजों fail खालाम। Next change क'नि guide खालामनो नागिरनो?",
+          "options": [
+            "Request फिन repeat खालाम आरो actual result inspect खालाम जेनि कारण मोननो।",
+            "Page area near rewrite खालाम।",
+            "Another request pass जानोनि कारण fixed नों समाद दै।",
+            "Unrelated file गैयै बदल।"
+          ],
+          "explanation": "Request फिन repeat खालाम आरो actual result inspect खालाम जेनि कारण मोननो।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Original failing request नि test गैया दाजाबाय। Fix अघि आरो fix after run खालामनानै difference दिखायो।"
+        }
+      }
+    },
+    "d7": {
+      "steps": [
+        "Booking access-check code locally run खालाम।",
+        "Same record-आव booking owner, अर' learner, आरो administrator फोर check खालाम।",
+        "Code share खालाम आरो किनि access खालामनाय वा block खालामनाय दिखायो। Wrong person भीतर गेलायनाय case फिक्स खालाम आरो rerun खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "roles",
+          "prompt": "जौबनो access-आव फरक-gwza user role फोर माबा?",
+          "hint": "User role फोर नि नाम दों, जेरै parent, tutor आरो administrator। जोनो each माबा खालामो बताय।"
+        },
+        {
+          "id": "deny_status",
+          "prompt": "केर्हा bookmark opening बायदि आरो record outside जाबनायाव server reply माबा होनो दांगो?",
+          "hint": "Signed-in user तै permission गैया record-नि response choose खालाम।"
+        },
+        {
+          "id": "can_access",
+          "prompt": "Booking opening कौन code दं?",
+          "hint": "Signed-in user, record owner आरो permitted role check खालामनाय function लिखो आरो run खालाम।"
+        },
+        {
+          "id": "where",
+          "prompt": "इ permission check मावायनि थांनि थानाय माबा?",
+          "hint": "Page वा button change खालामनानै bypass नाङो जे थान select खालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Learner-ए अर' booking खोलो। Server-ए माबा check खालामनो नागिरो?",
+          "options": [
+            "खालि user signed in जोंनांगौ नङा।",
+            "इ user-ए इ booking खासै access खालामनो लाबोनो।",
+            "खालि edit button hidden नङा test खालाम।",
+            "खालि administrator account test खालाम।"
+          ],
+          "explanation": "इ user-ए इ booking खासै access खालामनो लाबोनो।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Step फोर थाखाय-थाखाय follow खालाम। असलि माबा जादों आरो एकडां improve खालामनाय मावनाय दाजाबाय।"
+        },
+        "practising": {
+          "question": "Meera-ए address-आव booking number बदलनानै अर' family phone number देखो। इयाव माबा fix खालाम?",
+          "options": [
+            "Ar' booking नि link hide खालाम।",
+            "Server-ए booking Meera-नि होनो किंवा she has tutor role check खालाम।",
+            "खालि Meera signed in गैया check खालाम।",
+            "Booking number नि colour change खालाम।"
+          ],
+          "explanation": "Sign in खालामनाय ने record गोरोबो access नोंथांनो नङा। Server-आव specific booking नि permission check खालाम।",
+          "levelTask": "One input वा design choice बदलनायनि उनाव फिन try खालाम। असलि माबा जादों compare खालाम।"
+        },
+        "experienced": {
+          "question": "Learner-ए booking number बदलनानै अर' record खोलो। कुन test-ए actual risk check खालाम?",
+          "options": [
+            "खालि edit button hidden नङा check खालाम।",
+            "Learner-नि record request खालाम आरो server-ए refuse खालामोनो check खालाम।",
+            "खालि administrator account test खालाम।",
+            "खालि user signed in जोंनांगौ नङा।"
+          ],
+          "explanation": "Learner-नि record request खालाम आरो server-ए refuse खालामोनो check खालाम।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Owner, non-owner आरो administrator case same local record-आव run खालाम आरो result दिखायो।"
+        }
+      }
+    },
+    "d8": {
+      "steps": [
+        "Three booking test लिखो आरो run खालाम, last available seat भी दागोरगौ।",
+        "Old bug local copy-आव फिन लाबो आरो test fail दिखायो। Fix apply खालाम आरो rerun खालाम।",
+        "Test code, fixed code, आरो actual failed तथा passed result share खालाम।"
+      ],
+      "fields": [
+        {
+          "id": "first_test",
+          "prompt": "कुन booking test पहिला लिखायो?",
+          "hint": "Automatic test-आव protect खालामनो important booking behaviour choose खालाम।"
+        },
+        {
+          "id": "tests",
+          "prompt": "तोर three test case फोर माबा check खालाम?",
+          "hint": "Run होनाय test लिखो, inputs आरो expected result जों। Normal, invalid आरो full-capacity case दाजाबाय।"
+        },
+        {
+          "id": "boundary_name",
+          "prompt": "Full class नि test-नि नाम माबा दा?",
+          "hint": "Expected result बतायनाय clear name full-class test-आव हो।"
+        },
+        {
+          "id": "fix_seat",
+          "prompt": "Seat free नङा check खालामनाय fixed code माबा?",
+          "hint": "Tenth seat book खालामनो होनो, किन्तु eleventh नङा। Exact limit test खालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Booking function थाखाय test लिखो। Mाबा compare खालामनो?",
+          "options": [
+            "Code neatly formatted जोंनांगौ नङा।",
+            "Old bug harmless।",
+            "One passing test-ए every booking काम खालामो।",
+            "Exact result जों, असलि माबा जादों।"
+          ],
+          "explanation": "Exact result जों असलि माबा जादों।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Step फोर थाखाय-थाखाय follow खालाम। असलि माबा जादों आरो एकडां improve खालामनाय मावनाय दाजाबाय।"
+        },
+        "practising": {
+          "question": "Class-आव 10 seat दं आरो 10 खालि। अर' booking allow खालामनाय code पकड़नो कुन test?",
+          "options": [
+            "Taken = 0 आरो capacity = 10 test खालाम; booking allow होनो expect खालाम।",
+            "Button label जोंनांगौ नङा खालि check खालाम।",
+            "Full class test खालामनाय बिना free seat thek खालाम।",
+            "Taken = 10 आरो capacity = 10 test खालाम; booking refuse होनो expect खालाम।"
+          ],
+          "explanation": "Exact limit test खालाम। Taken बराबर capacity होनायाव class full, आरो अर' booking refuse खालामनो लानांगौ।",
+          "levelTask": "One input वा design choice बदलनायनि उनाव फिन try खालाम। असलि माबा जादों compare खालाम।"
+        },
+        "experienced": {
+          "question": "Old booking bug फिन लाबोन्नो test still pass खालाम। इयाव माबा suggest खालाम?",
+          "options": [
+            "Old bug harmless।",
+            "One passing test-ए every booking काम खालामो।",
+            "Code neatly formatted जोंनांगौ नङा।",
+            "Test-ए protect खालामनो supposed behaviour check नङा हाग्रा।"
+          ],
+          "explanation": "Test-ए protect खालामनो supposed behaviour check नङा हाग्रा।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Locally bug deliberately restore खालाम आरो regression test fail दिखायो, अनायाननि fix after pass खालाम।"
+        }
+      }
+    },
+    "d9": {
+      "steps": [
+        "Throwaway local Git project use खालाम। Branch बनाओ आरो three small commits—saved change set फोर—खालाम।",
+        "Changes merge खालाम, अनायाननि safe गुदा working version-आव फिन फैयो।",
+        "Commands आरो real git log/status output before आरण after share खालाम। Proposed command list खालि enough नङा।"
+      ],
+      "fields": [
+        {
+          "id": "branch",
+          "prompt": "Separate Git branch-नि नाम माबा होबो?",
+          "hint": "Change बतायनाय short branch name use खालाम, जेरै fix-booking-message।"
+        },
+        {
+          "id": "commits",
+          "prompt": "Three small commits-ए माबा change save खालाम?",
+          "hint": "Branch बनायनाय आरो तीन add/commit step clear message जों Git commands दिखायो। Each commit-ए one small change save खालाम।"
+        },
+        {
+          "id": "rollback",
+          "prompt": "Change fail जाबाय खालामा working version-आव फिन रावनो माबा?",
+          "hint": "Safe undo command आरो check हो। Throwaway local project खालि use खालाम।"
+        },
+        {
+          "id": "merge_way",
+          "prompt": "Checked changes main version-आव माबा जोना?",
+          "hint": "Changes review आरो test after merge approach choose खालाम। Merging branch-आव main version-आव join खालामो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Booking app बदलनो नोंथांनो। Git-आव separate branch माबा?",
+          "options": [
+            "Change checked with main version join होनाव थाकाय अलग थांबो।",
+            "Change test नाङो।",
+            "Latest code change खालि undo खालामनो।",
+            "Database immediately delete खालाम।"
+          ],
+          "explanation": "Change checked with main version join होनाव थाकाय अलग थांबो।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Step फोर थाखाय-थाखाय follow खालाम। असलि माबा जादों आरो एकडां improve खालामनाय मावनाय दाजाबाय।"
+        },
+        "practising": {
+          "question": "New website release-ए bookings बिगाड़ो। Stored data जों previous code still काम खालामो। Safest first recovery माबा?",
+          "options": [
+            "That release undo खालाम, working version restore खालाम, अनायाननि change separately fix खालाम।",
+            "Broken version थानो आरो complaint इतायनो।",
+            "Booking database delete खालाम।",
+            "Live site-आव directly several untested change खालाम।"
+          ],
+          "explanation": "Data जों compatible होनायाव known working version पहिला restore खालाम। अनायाननि release बिफोर repair test खालाम।",
+          "levelTask": "One input वा design choice बदलनायनि उनाव फिन try खालाम। असलि माबा जादों compare खालाम।"
+        },
+        "experienced": {
+          "question": "Broken release-ए code आरो stored data जाबाय। Old version-आव safe return-ए माबा consider खालामनो गोरोन?",
+          "options": [
+            "Old code-ए data read खालामनो हराय नङा आरो data recover खालामनो मोनो नङा।",
+            "Latest code change खालि undo खालामनो।",
+            "Database immediately delete खालाम।",
+            "Change test नाङो।"
+          ],
+          "explanation": "Old code-ए data read खालामनो हराय नङा आरो data recover खालामनो मोनो नङा।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Throwaway local project-आव earlier code-आव return खालाम। Data still read खालामो नङा check खालाम।"
+        }
+      }
+    },
+    "d10": {
+      "steps": [
+        "Booking demo, input checks, access checks आरो tests local project-आव जोंखोम।",
+        "Successful booking, failed booking, आरो earlier local version-आव safe return run खालाम।",
+        "Code, real outputs, आरो most serious problem fixed share खालाम। Publish खालामनो नगिरो।"
+      ],
+      "fields": [
+        {
+          "id": "checklist",
+          "prompt": "App share खालामनायै पहिला माबा check खालामनो?",
+          "hint": "Five yes/no check लिखो: security, tests, privacy, errors, आरो failure notice। Each माबा क'नि check खालामो बताय।"
+        },
+        {
+          "id": "first_risk",
+          "prompt": "कुन risk पहिला fix खालामनो?",
+          "hint": "Greatest likely harm बायदि issue choose खालाम, खासै private record exposure।"
+        },
+        {
+          "id": "alert",
+          "prompt": "Failed save-एँ कौनो सुनो, आरो बायदि?",
+          "hint": "Responsible person वा role appoint खालाम आरो reach karibani way बताय। Alert-आव private data नाङो।"
+        },
+        {
+          "id": "why",
+          "prompt": "क'नि इ most important risk पहिला fix खालामनो?",
+          "hint": "Possible harm, who affected, आरो test-ए fix confirm खालामनाय बताय।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "Booking demo share खालामनो नोंथांनो। पहिला माबा check खालामनो?",
+          "options": [
+            "खालि homepage finished जोंनांगौ नङा।",
+            "Saved booking, invalid details, access permissions आरो failed saves।",
+            "Normal booking pass खालामबायनो share खालाम।",
+            "Server बदलनाय बिना retry button hide खालाम।"
+          ],
+          "explanation": "Saved booking, invalid details, access permissions आरो failed saves।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Step फोर थाखाय-थाखाय follow खालाम। असलि माबा जादों आरो एकडां improve खालामनाय मावनाय दाजाबाय।"
+        },
+        "practising": {
+          "question": "Booking app share बिफोर typo, slow loading, आरो अर' family private record खोलो way मोनाय। पहिला माबा?",
+          "options": [
+            "Private record check नाङो typo fix खालाम।",
+            "Ar' family record access block खालाम आरो fix test खालाम।",
+            "Homepage colour change खालाम।",
+            "People sign in thanai कारण problem ignore खालाम।"
+          ],
+          "explanation": "Exposed private record-ए family-आव harm खालामनो मोनो। App share ready होनानै बिफोर access check fix आरो test खालाम।",
+          "levelTask": "One input वा design choice बदलनायनि उनाव फिन try खालाम। असलि माबा जादों compare खालाम।"
+        },
+        "experienced": {
+          "question": "Normal booking काम खालामो, किन्तु retry-ए दो booking खालामो। Share खालामनो ready ना?",
+          "options": [
+            "Normal booking pass खालामबायनो share खालाम।",
+            "Ready क'नाय बिफोर duplicate-booking path fix आरो test खालाम।",
+            "Server बदलनाय बिना retry button hide खालाम।",
+            "खालि homepage finished जोंनांगौ नङा।"
+          ],
+          "explanation": "Ready क'नाय बिफोर duplicate-booking path fix आरो test खालाम।। नोंनि कामाव इयाव decision try खालाम।",
+          "levelTask": "Lost-response retry-आव पूरा local booking flow run खालाम आरो stored row count record खालाम।"
+        }
+      }
+    },
+    "d1": {
+      "steps": [
+        "थारैथानि सानल’ ट्रायल-क्लास बुकिं डेमो बनाओ, लोकल टेस्ट सर्भार न’ फाइजायी मेमोरी स्ट’र जों.",
+        "एक सुफल सेव आरो एक फोर्स फेलियर ट्राइ करा। सेव सुथिर होनोनि उनावबे सुफल देखाओ.",
+        "कोड, रियल आउटपुट, नोंथांनि फिक्स, आरो तल्ले मागा बुकिं डिटेल साझा करा."
+      ],
+      "fields": [
+        {
+          "id": "story",
+          "prompt": "बुकिं पेजखौ सारहोनो सोरजि, माब्लाबो आरो मानो?",
+          "hint": "एक वाक्य: एक आमैथिं टिचारखौ चिन्दा मुला ट्रायल क्लास रेक्वेस्ट खालामनो मन।"
+        },
+        {
+          "id": "inputs",
+          "prompt": "आमायथा मेनसि जे डिटेल एंप्रि करनाय जायो?",
+          "hint": "जायोमोनबाय जायोमोनबाय डिटेलखौमात्रा रा, जेरै मिंगाब आरो क्लास समय। बोहायफिनायनि थाखाय एखे कारण रा।"
+        },
+        {
+          "id": "accept",
+          "prompt": "थ्री टेस्ट सिनारिआव माबा बायो?",
+          "hint": "एक सुफल सेव, माब्लाबो डिटेल गोहो, आरो एखा समय जेनि खालि जायो, नोंथांनो फ्रा। गोबांथि माबा खालामनो हाबोफोम."
+        },
+        {
+          "id": "failure",
+          "prompt": "सेव फेल होनायाव आमायथा माबा नुनो?",
+          "hint": "मेसेज आरो एसेक नेक्स्ट स्टेप लिखो। फेल सेवआ Booking saved होनोहाय नुनो नालै।"
+        },
+        {
+          "id": "private",
+          "prompt": "सोर डिटेलआबो बेशी गोपनीयता मागोनो?",
+          "hint": "तलनि एक डिटेल नांगौ आरो मानोनि आलाय आमायथा फालांगो नुजांगोखौ फ्रा।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक आमैथिं बुकिं रिक्वेस्टआ गोसोसेव होनोनि। पेजआ आबा Booking saved नुंगो?",
+          "options": [
+            "Book बटन थाखाय सोराय जासिगोन नासिलै।",
+            "फेरि बुकिं रेफरेंस जों नोरैबो टाइ।",
+            "सर्भारआ बुकिं सुथिर मोनायखौ कन्फर्म खालामो बादाव।",
+            "बुकिं होनाय नालै होनाव धानगोन।"
+          ],
+          "explanation": "सर्भारआ बुकिं सुथिर मोनायखौ कन्फर्म खालामो बादाव। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "थालानै स्टेप्सखौ एक एक खालाम। माबा खरा जाथारआ आरो खालामगोन एक गोसोसेबो लिखो।"
+        },
+        "practising": {
+          "question": "एक आमैथिं Book थाबाय, नोंथां सेव फेल होयो। पेजआ “Booking saved” आबा नुनो?",
+          "options": [
+            "आमैथिं Book थाबायनै।",
+            "रिक्वेस्टखौ बाहायो, जवाब नलाबोबो।",
+            "सर्भारआ बुकिं सेव खालामो बादावहायमोन, सेव फेल होयोखो एक retry मेसेज देखाओ।",
+            "लोडिं एनिमेशन स्ट’प होयाव।"
+          ],
+          "explanation": "एक ट्यापआ सिरजासिगोन रिक्वेस्टखौमात्रा। सुफल देखोनि आगोवाव सेव कन्फर्म होनोखौ नागिरा।",
+          "levelTask": "एक इनपुट बा डिजाइन चेंज खालामनानै फेरि ट्राइ करा। वास्तवाव माबा जाथारखौ मिलाउ।"
+        },
+        "experienced": {
+          "question": "एक बुकिं सेव जाथावनो माबा हुनायो, दा जवाबआ फोथाङो। रिट्राइनि सान्दै माबा प्लानआ फ्रा?",
+          "options": [
+            "फेरि बुकिं रेफरेंस जों नोरैबो टाइ।",
+            "बुकिं होनाय नालै होनाव धानगोन।",
+            "परिणामआ अनिश्चित होनोखौ देखाओ आरो दोस्रो बुकिं सागोनोबोदाङै रिट्राइ करा।",
+            "Book बटन थाबायनाय सासे।"
+          ],
+          "explanation": "परिणामआ अनिश्चित होनोखौ देखाओ आरो दोस्रो बुकिं सागोनोबोदाङै रिट्राइ करा। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "लोकल बुकिं डेमोआव एक जवाब हराओ। रिट्राइ करा आरो देखाओ जे एने दोस्रो बुकिं सेव नुखाय।"
+        }
+      }
+    },
+    "d2": {
+      "steps": [
+        "बुकिं कोडखौ फिक्स करा जे सर्भारआ signed-in user आरो थिक price जाचि।",
+        "थ्री टेस्ट रन करा: fake user ID, changed price, आरो same request दा बार।",
+        "कोड आरो रियल आउटपुट साझा करा। फेल केस फिक्स खालामनानै फेरि रन करा; expected results मात्रबो enough नङा।"
+      ],
+      "fields": [
+        {
+          "id": "flaws",
+          "prompt": "बुकिं फर्मखौ cheat खालामनो सखोमोनखौ गोजानो माबा दा?",
+          "hint": "fake user ID आरो changed price फारसे, आरो माबा नुकसान जाथारनो सखोमोनखौ फ्रा।"
+        },
+        {
+          "id": "fixed",
+          "prompt": "नोंथांनि fixed server code माबा?",
+          "hint": "identity नि थाखाय verified sign-in बाहायो आरो price नि थाखाय database बाहायो। safe database query बाहायो।"
+        },
+        {
+          "id": "negtests",
+          "prompt": "fake ID, changed price आरो repeat request जाचि थ्री टेस्ट माबा?",
+          "hint": "सेरनि ID नि थाखाय, changed price नि थाखाय आरो same request दा बार नि थाखाय runnable tests लिखो। expect बा assert जेरै checks बाहायो।"
+        },
+        {
+          "id": "price_src",
+          "prompt": "serverआ real price खौ माबा सोरजिखौबो?",
+          "hint": "trusted source खौ सायखो। hidden form fieldखौबो चेंज खालामनो हाथाय।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक browserआ बुकिं serverनो user ID भेजो। serverआ ID मात्राव फोथांनो हाया?",
+          "options": [
+            "हें। browser form जाचि खालामनानै IDआ trusted होयो।",
+            "discount button लुयाव थालायमोनखो फोथांगौ।",
+            "discount field नि मोनसे नाम सोलाय।",
+            "नङा। verified sign-in details नुगोयाव userखौ चिननाय जायो।"
+          ],
+          "explanation": "नङा। verified sign-in details नुगोयाव userखौ चिननाय जायो। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "थालानै स्टेप्सखौ एक एक खालाम। माबा खरा जाथारआ आरो खालामगोन एक गोसोसेबो लिखो।"
+        },
+        "practising": {
+          "question": "एक बुकिं पेजआ serverनो user ID आरो price भेजो। खामानि बिखौ भेजोफोराव नोंथां दाहानानै दोंबो बदलि खालामो। serverआ माबा खालामनो?",
+          "options": [
+            "फर्म जाचि खालामखानायमानो values फोथाङौ।",
+            "शून्यरैगौ price थाबाय।",
+            "user ID गोजानो number होयोमोननो मात्राव जाचि खालाम।",
+            "verified sign-in बाहायनानै userखौ चिनो आरो price खोनोनि own records बाहायो।"
+          ],
+          "explanation": "browser जों दैतानाय dataखौ मानि खालामनो हाया। serverआ सोर signed in होयोखौ जाचि खालामनो आरो trusted price सायखो।",
+          "levelTask": "एक input बा design choice चेंज खालामनानै फेरि ट्राइ करा। वास्तवाव माबा जाथारखौ मिलाउ।"
+        },
+        "experienced": {
+          "question": "नोंथांनि serverआ सोर signed in होयोखौ जाचि खालामो, नालाय browser जों भेजाय discountखौ फोथाङो। माबा फिक्स खोनोबो गोनां?",
+          "options": [
+            "discount button लुयाव थालायमोनखो फोथांगौ।",
+            "discount field नि मोनसे नाम सोलाय।",
+            "हें। browser form जाचि खालामनानै IDआ trusted होयो।",
+            "serverआ allowable price आरो discount खयाय।"
+          ],
+          "explanation": "serverआ allowable price आरो discount खयाय। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "टेस्ट रिक्वेस्टआव discount सोलाय। नोंथांनि server code रन करा आरो थिक price एखनबो बाहायखोखौ देखाओ।"
+        }
+      }
+    },
+    "d3": {
+      "steps": [
+        "नोंथांनि booking tables खौ throwaway local database, जेरै SQLite, आव बनाओ।",
+        "एक valid booking सेव करा, same seat दा बार ट्राइ करा, आरो private details खुलोना बिनायना record पथाय।",
+        "SQL, actual results आरो duplicate-seat error, आरो नोंथांनि सुधारायबो table rule साझा करा।"
+      ],
+      "fields": [
+        {
+          "id": "schema",
+          "prompt": "प्रत्येक database tableआव माबा information जायो?",
+          "hint": "tables create खालामनो SQL instructions लिखो—stored recordsनि list—आरो प्रत्येक bookingखौ सही person बा class जों connect खालाम।"
+        },
+        {
+          "id": "unique_rule",
+          "prompt": "कुन booking details दा बार सेव खालामनो नाथाय?",
+          "hint": "class आरो seat pair नि थाखाय database rule दा, unique होनो गोनां—एखे बारबो सेव जायनो खोन।"
+        },
+        {
+          "id": "private_cols",
+          "prompt": "कुन informationआ private, आरो सोर सायखोबो?",
+          "hint": "दोसर private data columns नां, आरो सोरबो period सायखो: parent, tutor, बा others नङा। इखौ मानेखा query रा।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक customerआ बिसोर class book खालामनो मोनाय। customers आरो bookings linked tables आव मानो राखो?",
+          "options": [
+            "प्रत्येक booking नि थाखाय नय customer-name column add खालामनो।",
+            "browser आव मात्र देखायावनाय warning।",
+            "प्रत्येक bookingखौ customer जों connect खालामनो, customer details नोंथां copy खालामनो नालाय।",
+            "मानिस दा बार book खालामनो नांगौ होनो comment।"
+          ],
+          "explanation": "प्रत्येक bookingखौ customer जों connect खालामनो, customer details नोंथां copy खालामनो नालाय। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "थालानै स्टेप्सखौ एक एक खालाम। माबा खरा जाथारआ आरो खालामगोन एक गोसोसेबो लिखो।"
+        },
+        "practising": {
+          "question": "दुय जना आमैथिं दा समयाव same seat book खालामनो ट्राइ खालामो। double booking खालामनो माबा भरोसाथाव रोकायो?",
+          "options": [
+            "एक क्लिकनि बादाव Book button दाबू।",
+            "parent फोरजों book खालामनो नांगौ।",
+            "database rule जे class-and-seat pairखौ मोजां  दा बार सेव खालामनो मोनो।",
+            "browser नि old seat list check करा।"
+          ],
+          "explanation": "databaseआ second booking reject खालामनो गोनां, दोय request खामानि जाथावनाङाबो।",
+          "levelTask": "एक इनपुट बा design choice चेंज खालामनानै फेरि ट्राइ करा। वास्तवाव माबा जाथारखौ मिलाउ।"
+        },
+        "experienced": {
+          "question": "दुय जना आमैथिं same seat दा समयाव reserve खालामो। कुन database protection गोनां?",
+          "options": [
+            "browser आव मात्र देखायावनाय warning।",
+            "मानिस दा बार book खालामनो नांगौ होनो comment।",
+            "same seat आरो class नि थाखाय second save रोकाय database rule।",
+            "प्रत्येक booking नि थाखाय नय customer-name column add खालामनो।"
+          ],
+          "explanation": "same seat आरो class नि थाखाय second save रोकाय database rule। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "लोकल databaseआव same class slot दा बार सेव खालामनो ट्राइ करा। second save रोकाय actual reply साझा करा।"
+        }
+      }
+    },
+    "d4": {
+      "steps": [
+        "एक सानो local registration API बनाओ—pageआ serverनो data भेजनो माबा सान्दा।",
+        "curl बा local test tool जों एक valid आरो दुई invalid requests भेजो।",
+        "कोड आरो each real reply साझा करा, status number समेत। अस्पष्ट बा inconsistent reply फिक्स करा।"
+      ],
+      "fields": [
+        {
+          "id": "endpoint",
+          "prompt": "कुन URL आरो action जों pageआ registration भेजो?",
+          "hint": "HTTP action नां, जेरै POST, आरो server URL नां, जेरै /api/register."
+        },
+        {
+          "id": "req_json",
+          "prompt": "pageआ माबा data भेजनो?",
+          "hint": "dataखौ JSON रै लिखो, field names आरो example values जों। safe made-up details बाहायो।"
+        },
+        {
+          "id": "ok_json",
+          "prompt": "save खालामो बादाव serverआ माबा भेजो?",
+          "hint": "saved registration reference आरो clear result जों JSON reply लिखो।"
+        },
+        {
+          "id": "dup_status",
+          "prompt": "कुन status numberआ विद्यार्थीआआ already registered होयोखौ देखायो?",
+          "hint": "existing registration जों conflict होनो request नि status code सायखो।"
+        },
+        {
+          "id": "errors",
+          "prompt": "दुइ अलग errors नि थाखाय server reply माबा?",
+          "hint": "दुइ अलग error, status number, JSON reply, आरो local situation लिखो जे दानि each cause खालामो।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक pageआ serverनो booking request भेजो। data भेजनायनि थाखाय page आरो serverआ माबा agreement खालामनो गोनां?",
+          "options": [
+            "माबा path आरो how to send data, आरो success and error replies.",
+            "button नि colour मात्र।",
+            "प्रत्येक retryआ random message बिशोर।",
+            "userखौ double-click नङा होनो हांगौ।"
+          ],
+          "explanation": "माबा path आरो how to send data, आरो success and error replies। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "थालानै स्टेप्सखौ एक एक खालाम। माबा खरा जाथारआ आरो खालामगोन एक गोसोसेबो लिखो।"
+        },
+        "practising": {
+          "question": "एक विद्यार्थीआ एउटै email जों workshop दा बार register खालामो। कुन server replyआ pageनो साफ खालामो जे माबा जाथायो?",
+          "options": [
+            "Status 409 जों already_registered message।",
+            "Status 200 जों new registration सेव खालामनो।",
+            "Student hand देनायाव नलाबो reply।",
+            "प्रत्येक बार दिफरेंट random error।"
+          ],
+          "explanation": "409 statusआ इ request existing record जों conflict खालामोखौ देखायो। साफ messageआ pageनो registration already exists खो बुथायनो मानेखा।",
+          "levelTask": "एक input बा design choice चेंज खालामनानै फेरि ट्राइ करा। वास्तवाव माबा जाथारखौ मिलाउ।"
+        },
+        "experienced": {
+          "question": "एक pageआ reply हरोमानानै booking request फेरि retry खालामो। serverआ second booking खालामनो नालाय कुन thing help खालामो?",
+          "options": [
+            "एक request key reuse करा आरो key दा बार भेजानायाव माबा खालामोखौ define करा।",
+            "प्रत्येक retryआ random message फिन।",
+            "userखौ double-click नङा होनो हांगौ।",
+            "button नि colour मात्र।"
+          ],
+          "explanation": "एक request key reuse करा आरो key दा बार भेजानायाव माबा खालामोखौ define करा। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "लोकल APIआव repeated request भेजो आरो एकमात्र booking बनायोखौ verify करा।"
+        }
+      }
+    },
+    "d5": {
+      "steps": [
+        "नोंथांनि order-checking function लोकलाव रन करा।",
+        "एक valid order, bad phone number, आरो too many items ट्राइ करा।",
+        "कोड आरो actual result साझा करा। एक missed limit फिक्स खालामनानै वह test फेरि रन करा।"
+      ],
+      "fields": [
+        {
+          "id": "where_stock",
+          "prompt": "appआ remaining stock माबा जाचि खालामनो गोनां?",
+          "hint": "order सेव खालामोनि आगोव final stock check माबा जातो सायखो।"
+        },
+        {
+          "id": "validator",
+          "prompt": "कुन codeआ order allowed होयोखौ जाचि खालामो?",
+          "hint": "name, 10-digit Indian phone number, known item, आरो 1 to available stock hop whole quantity check करा।"
+        },
+        {
+          "id": "msg_phone",
+          "prompt": "phone number invalid होनोखो सोरनो माबा बुथायनो?",
+          "hint": "फोन number थिक खालामनो माबा खालामनो मानेखा helpful sentence बाहायो।"
+        },
+        {
+          "id": "msg_qty",
+          "prompt": "available नालाय दा चीज order खालामखो माबा खालामनो?",
+          "hint": "available amount फ्रा आरो personनो order कम खालामनो हांगौ।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक online shopआ order मोनो। remaining stock माबा जाचि खालामनो गोनां?",
+          "options": [
+            "browser आव मात्र, भेजानायनि आगोव।",
+            "browser नि old stock count फोथां।",
+            "success देखायो आरो missing item लुकायो।",
+            "server आव order handle खालामनायाव।"
+          ],
+          "explanation": "server आव order handle खालामनायाव। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "थालानै स्टेप्सखौ एक एक खालाम। माबा खरा जाथारआ आरो खालामगोन एक गोसोसेबो लिखो।"
+        },
+        "practising": {
+          "question": "browserआ 20 items मात्र allow खालामो, नालाय सासे direct order जों 5,000 भेजो। stockआ 12 मात्र दों। माबा रोकायो?",
+          "options": [
+            "browser नि quantity limit मात्र।",
+            "click बादाव order button लुकायो।",
+            "order accept खालामनानै stock tomorrow जाचि खालामो।",
+            "serverआ order सेव खालामोनि आगोव stock आरो quantity जाचि खालामो।"
+          ],
+          "explanation": "browser control नोंथां split खालामनो मोनो। order सेव खालामनायाव server आव available stock फेरि जाचि खालाम।",
+          "levelTask": "एक input बा design choice चेंज खालामनानै फेरि ट्राइ करा। वास्तवाव माबा जाथारखौ मिलाउ।"
+        },
+        "experienced": {
+          "question": "एक shop page stock देखायो, नालाय user order खालामोनि आगोव last item sell जाथो। माबा जाथायो?",
+          "options": [
+            "browser नि old stock count फोथां।",
+            "success देखायो आरो missing item लुकायो।",
+            "browser आव मात्र, भेजानायनि आगोव।",
+            "serverआ stock फेरि जाचि खालामो आरो run out होयोखो clear unavailable reply दै।"
+          ],
+          "explanation": "serverआ stock फेरि जाचि खालामो आरो run out होयोखो clear unavailable reply दै। नोंथांनि ओनसोरावबो इ सैद्धांतिको ट्राइ करा।",
+          "levelTask": "page load आरो submit नि माझाव stock बदलि करा local testआव; server response record करा।"
+        }
+      }
+    },
+    "m1": {
+      "steps": [
+        "40–80 साबादैजों जोंबा बेदिखौ रैखो। बे जाबोनो माबा गथायो आरो आगेनो थाखाय माबा खालामनो गोनां।",
+        "इखौ बुथवार 5 सेकेण्डनि थाखाय फोर। नोंथां दैखिया निफ्राय देखाखौ आरो आगेनो गोनांजोंबो फोरमाय।",
+        "नोंथांनि गोग्लाइबायाव, सुधारबायाव आरो नोंथांनि थाखाय आवसोर फोरमायखौ भायाव।"
+      ],
+      "fields": [
+        {
+          "id": "customer",
+          "prompt": "नोंथां माबा हेनायाव बेदिखौ रायजोबाय?",
+          "hint": "नोंथांनि बेदिखा माबा खामानि दं सोरखौ सायख'। नोंथांनि गुनथियैखौ फोरमायनो गोनां, बिसोरनि माबा बे समनि गाहायाव दैखिया जेरैयै गोमोरखौ नाय।"
+        },
+        {
+          "id": "offer",
+          "prompt": "नोंथांनि 40–80 साबादैजोंनि बेदिखा माबा होगोन?",
+          "hint": "ग्राहकनि मुङ, समसिया, मानोखौ दैथायखौ आरो नोंथांनि गोजोनायाव माबा खालामनो गोनां।"
+        },
+        {
+          "id": "verify",
+          "prompt": "बेदिखौ बाहायनाय निफ्राय माबा बे जाबोनखौ नोंथां गोसो होनाय दं?",
+          "hint": "नोंथांनि बेदिखा निफ्राय एकटि गोजोनायखौ गोसो होनाय, जेरै जाबिनि सम वा मेनु दिटेल।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक लंच सेवा अफिसनि नोंथांफोरनि गोजोनायाव कामाय समनि थाखाय दाबै होयो। माबा सोरनि थाखाय बेदिखा होगोन?",
+          "options": [
+            "खम समनि सोंलाइ बाथरुमाय थांनो गोरायगोन रायजोबायफोर।",
+            "कामनि थाखाय लंच गोनां अफिसनि मावखौ।",
+            "जवाफनि ल'खौ सोगोमाय आरो बायदियै फिनै।",
+            "आरोबि फादफोरखौ लांनो थाखाय जाबोनि एरिया बेंदाय।"
+          ],
+          "explanation": "कामनि थाखाय लंच गोनां अफिसनि मावखौ.. नोंथांनि खामानियाव बे बिथिंगखौ नाजा।",
+          "levelTask": "फार्स्ट गोनाय बिथिङखौ एक-एक दसेन। बियोन समनि गोर' आरो नोंथांनि सुधारबायाव एक बायदि लिख।"
+        },
+        "practising": {
+          "question": "एक लंच एड जेरै थाखाय मोननोयाव गुबुन मोनसे बिसोरनाय आङो, मोनसे टाका दं, आि मोनसे टाका नायनो गोनां। अफिसनि मावखौ मोनसे जिनिसनि थाखाय रैखो।",
+          "options": [
+            "फार्स्ट एड: नायनो गोनांनि गोनां थाखाय।",
+            "सेकण्ड एड: बेखौ गोरायगोन रायजोबायफोरनि थाखाय।",
+            "फार्स्ट एड: साधारण मेसेजखौ गोरायगोरोबो।",
+            "दोनो एडबो 10,000 नायनाव फोरमानो गोनांनिफ्राय।"
+          ],
+          "explanation": "खामानि मेसेजफोर बिसोरनि गोनांखौ नायफिनोय। नायनायजों मात्र मोननायखौ नायबो।",
+          "levelTask": "एक गोबायनि बा डिजाइन पायदानखौ सोलायफोरनायखौ बादेआव थाय। बायदि गोरायबायखौ नाय।"
+        },
+        "experienced": {
+          "question": "नोंथांनि लंच एडनि रिप्लाइ दं, मोनसे खालामबो नोंथांनो डिलिवरी खामानियाव नांनो मोनबाय। माबा फिन नोंथां सोलायगोन?",
+          "options": [
+            "जवाफनि ल'खौ सोगोमाय आरो जियावबो गुदान।",
+            "डिलिवरी एरियाखौ आरो सायख' सोरखौ दैथाय।",
+            "आरोबि फादफोरखौ लांनो थाखाय जाबोनि एरिया बेंदाय।",
+            "खम समनि सोंलाइ बाथरुमाय थांनो गोरायगोन रायजोबायफोर।"
+          ],
+          "explanation": "डिलिवरी एरिया आरो सोर ऑर्डर खालामनो हागौ बेखौ सुस्पष्ट ल'। नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "डिलिवरी-एरिया लाइन गासिनो दा। सायख' सोर ऑर्डर खालामनो हागौ मावफोरखौ सोमाव आरो बिसोरनि सोलायबाय जवाबखौ रेकर्ड खालाम।"
+        }
+      }
+    },
+    "m2": {
+      "steps": [
+        "एआई टुलनि थाखाय तीन लंच एड रैखोफिनो प्रोम्प्ट लिख, नोंथां दिहुनाय तथ्यफोरखौ मात्र बाहाय।",
+        "नोंथांनि दं टुलाव बे प्रोम्प्टखौ रन खालाम। बेनि गोजोनाय जवाबाव गोजोम नङा वा दाबी बायदि दं वा नोंथां जाँच।",
+        "नोंथांनि प्रोम्प्ट, एआई जवाब आरो नोंथां खालामफोरनाय सोलायनायखौ भायाव। एआई जवाबखौ नोंथां सानाय नङा।"
+      ],
+      "fields": [
+        {
+          "id": "goal",
+          "prompt": "एडनि बिसोरनो माबा साहाय्य खालामनो गोनां?",
+          "hint": "तीन एड धारणानि थाखाय एक्ला गोबांजोंनि परिणामखौ सायख'। नोंथांनि गुनथियैखौ फोरमायनो गोनां, बेखौ हजाबनायाव किनाय।"
+        },
+        {
+          "id": "tone",
+          "prompt": "एडनि माबा आवाज दं?",
+          "hint": "एआई ओंलाइं गोनांनि थाखाय आवाज सायख'। जेनाव एडफोरखौ पाठकनि थाखाय सही दंसिनो।"
+        },
+        {
+          "id": "prompt",
+          "prompt": "एआईनो माबा निर्देश होगोन?",
+          "hint": "Audience, goal, verified evidence, constraints आरो नोंथां बार' फर्मेटखौ दैथाय।"
+        },
+        {
+          "id": "review",
+          "prompt": "एआई जवाबखौ बाहायनाय निफ्राय माबा जाँच खालामगोन?",
+          "hint": "3-5 बिसोरो जाँच लिख, जेरै सानाय तथ्य, मोनसे साफ एक्शन आरो tone fit."
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथां shopनि थाखाय एआईएबो एड लिखनो गोनां। मोनसे जों थाखाय आगेयानाव दिहुनो गोनां?",
+          "options": [
+            "ग्राहक, goal, गोजोनाय तथ्य आरो नियमफोर।",
+            "केवल wordफोर viral खालामो।",
+            "आरोबि confident tone आयनो।",
+            "Guaranteeखौ सानो फुंलै print खालाम।"
+          ],
+          "explanation": "ग्राहक, goal, गोजोनाय तथ्य आरो नियमफोर.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "फार्स्ट गोनाय बिथिङखौ एक-एक दसेन। बियोन समनि गोर' आरो नोंथांनि सुधारबायाव एक बायदि लिख।"
+        },
+        "practising": {
+          "question": "एआई एडाव लंच सेवा पांच-स्टार rating दं बायदि खालामो, नोंथांलो rating नङा। एआईखौ फिनसिनाव माबा सोलायगोन?",
+          "options": [
+            "एआईनो गोजोनाय तथ्य हो आरो दाबीफोर सानाय नङा बोहोन।",
+            "एआईखौ आरोबि confident atmosphere होनो।",
+            "एआईखौ मावजाबै believable rating खालामनो।",
+            "सानाय बनावनि rating बाहाय।"
+          ],
+          "explanation": "फैक्ट नङा खालामो ब्लाव एआई दिटेलफोर बनायनो हायो। जाँचनो हागौ तथ्य दिहुन आरो unsupported दाबी हटाव।",
+          "levelTask": "एक गोबायनि बा डिजाइन पायदानखौ सोलायफोरनायखौ बादेआव थाय। बायदि गोरायबायखौ नाय।"
+        },
+        "experienced": {
+          "question": "एआई गोजोनाय खालामनो नङा बायदि नोंथांनि shop नङा दिय' guarantee दुरे होयो। अगले निर्देशफोरखौ माबा सोलायगोन?",
+          "options": [
+            "Approved facts दिहुन आरो एआईखौ माबा support न'होनगोन सानायखौ दिबोहो।",
+            "आरोबि confident tone आयनो।",
+            "Guaranteeखौ सानो फुंलै print खालाम।",
+            "केवल wordफोर viral खालामो।"
+          ],
+          "explanation": "Approved facts दिहुन आरो एआईखौ माबा support न'होनगोन सानायखौ दिबोहो.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "Missing factजों प्रोम्प्ट फिन रन खालाम; revised promptआव gapखौ बायदि हैंडल खालामो दिहुन।"
+        }
+      }
+    },
+    "m3": {
+      "steps": [
+        "एक मेनु जवाब, एक बादनि संदेश, आरो संदेश बन्ध खालामनो एक रास्ता लिख।",
+        "मेनु ल'खौ रेबा ग्राहक बायदि मोनसे मोनसेखौ दिहुन। STOP reply खालामनो थाखाय दिहुन।",
+        "बायदि दं आरो नोंथांनि सुधारनाय संदेशफोरखौ भायाव। बे अभ्यासनि थाखाय गोजोनाय ग्राहकखौ सम्पर्क खालामनो नङा।"
+      ],
+      "fields": [
+        {
+          "id": "reply",
+          "prompt": "ग्राहक फर्स्ट मेनुखौ दैथायोब्ला नोंथां माबा बुङो?",
+          "hint": "सम्भावित जिउपोनखौ जवाब दिहुन, एक साहाय्यकारी दिटेल द' आरो बे सानाय आरामदायी खालाम, दबाव नङा।"
+        },
+        {
+          "id": "followup",
+          "prompt": "बिसोर जवाब नाहांबोला नोंथां माबा एक संदेश दिहुनो?",
+          "hint": "एक आसान next-step सवाल आङो। झूठो scarcity नङा आरो guilt नङा। हेचाराय पढ़नो थिखाय छोट।"
+        },
+        {
+          "id": "optout",
+          "prompt": "ग्राहक माबा बायदि संदेशफोरखौ बन्द खालामनो हागौ?",
+          "hint": "एक साधा लाइन, जेरै STOP reply खालामनो।"
+        },
+        {
+          "id": "measure",
+          "prompt": "मेसेजफोर साहाय्य खालामाय नङा ना माबा परिणाम दिसाय?",
+          "hint": "एकटा गिनती सायख' जे follow-up कामायखौ दैथाय। नोंथांनि गुनथियैखौ बायदि किनाय।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "एक ग्राहक नोंथांनि lunch menu द'खौ खावलिया। माबा साहाय्यकारी फर्स्ट reply?",
+          "options": [
+            "थारै बिसोरजों मेलनि फोरमायनाय बायदि फोहर।",
+            "स्केजुल खालाम बायदि one time send खालाम।",
+            "मेनु share खालाम आरो एक easy next-step सवाल ग'।",
+            "Stop खालामनायाव final discount दिहुन।"
+          ],
+          "explanation": "मेनु share खालाम आरो एक easy next-step सवाल ग'.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "फार्स्ट गोनाय बिथिङखौ एक-एक दसेन। बियोन समनि गोर' आरो नोंथांनि सुधारबायाव एक बायदि लिख।"
+        },
+        "practising": {
+          "question": "एक ग्राहक संदेशफोरनि थाखाय allow खालामबाय आरो खेरी नोंथांनि lunch menu माग्र। बिसोर response नङा। helpful follow-up माबा?",
+          "options": [
+            "एकसार unrelated offers दिहुन।",
+            "नुइं सांग्रा meal until reply now.",
+            "Vegetarian वा mixed menu? Reply STOP to stop messages.",
+            "reply खालामनाव तकि message खालाम।"
+          ],
+          "explanation": "दबाव नङा, एक उपयुक्त विकल्प दिहुन। ग्राहकनो message बन्द खालामनो आसान खालाम।",
+          "levelTask": "एक गोबायनि बा डिजाइन पायदानखौ सोलायफोरनायखौ बादेआव थाय। बायदि गोरायबायखौ नाय।"
+        },
+        "experienced": {
+          "question": "नोंथांनि अगली message दिहुननायनि आगोवाव ग्राहक STOP लिखो। माबा जाथार?",
+          "options": [
+            "स्केजुल खालामबाय बायदि one time send खालाम।",
+            "Stop खालामनायाव final discount दिहुन।",
+            "Waiting message cancel खालाम आरो relevant messages बन्द खालाम।",
+            "एकसार unrelated offers खालाम।"
+          ],
+          "explanation": "Waiting message cancel खालाम आरो relevant messages बन्द खालाम.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "दोनो messageनि माझाव STOP reply अभ्यास खालाम आरो next message cancel जाथार दाखाव।"
+        }
+      }
+    },
+    "m4": {
+      "steps": [
+        "आबथि lunch सायख'नायनि थाखाय पांच सवाल लिख।",
+        "एक willing personखौ सवाल खालाम। नाम वा private details नङा, बिसोरनि सोलायनायथाखौ फिक्स।",
+        "उत्तरफोर भायाव आरो एक सवाल कम leading खालामनायखौ दाखाव—जे सवाल जवाब सुझाव नखालाम।"
+      ],
+      "fields": [
+        {
+          "id": "group",
+          "prompt": "सोरखौ बिसोरनि lunch choicesनि थाखाय सवाल खालामगोन?",
+          "hint": "Lunch problem सामना खालामनो willingness दं लोग सायख'। Private details ज'ना नङा।"
+        },
+        {
+          "id": "rewrite",
+          "prompt": "जेनाव सवाल response सुझाव नखालाम?",
+          "hint": "Yes बायदि nudging सवालखौ past experience-नि neutral सवालाव बदल।"
+        },
+        {
+          "id": "questions",
+          "prompt": "माबा पांच सवाल नोंथां दिहुनो?",
+          "hint": "Past lunch experiencesनि थाखाय पांच numbered सवाल लिख। Open आरो neutral खालाम—उत्तर सुझाव नखालाम।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "अफिसनि मावफोर lunchनि थाखाय माबा गाहायाव थाइ। सोर सवाल साहाय्य खालामो?",
+          "options": [
+            "निःसन्देह order खालामनो गोनांनि लास्ट timeनि थाखाय माबा खालामो?",
+            "नोंथांनि amazing lunch serviceखौ buy खालामनो?",
+            "Subscribe खालामनो promise खालामो।",
+            "आरोबि benefits explain खालाम नङा बायदि।"
+          ],
+          "explanation": "Last time order lunch difficult आङो नाय.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "फार्स्ट गोनाय बिथिङखौ एक-एक दसेन। बियोन समनि गोर' आरो नोंथांनि सुधारबायाव एक बायदि लिख।"
+        },
+        "practising": {
+          "question": "लोगोरा रवि lunch ideaखौ like खालामो, टुकुरै order नङा। बिसोरनि real needs बुझनो थाखाय माबा सवाल खालामगोन?",
+          "options": [
+            "नोनी ब'रोजिया लिब्राइ? आंनायाव जोंनो?",
+            "नोंथांनि amazing lunch आवा दिनै buy खालामो?",
+            "नोंथांनि food best बायदि सहमत न?",
+            "Subscribe खालामनो promise खालामो?"
+          ],
+          "explanation": "Real past choices-नि सवालफोर needs जेरैयै फोरफिनोय, praise खालामनो थाखाय सवालनिफ्राय बेहतर।",
+          "levelTask": "एखटु इनपुट एबा डिजाइन बावलायनायनि उनाव फेरि नै। बेकारिजा जोंनो? तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "लोगोरा नोंथांनि lunch ideaखौ praise खालामो, मोनसे example नङा need खौ। next माबा सवाल खालामगोन?",
+          "options": [
+            "Last time बिसोर बिधिनोयाय सम आरो माबा खालामो बेखौ खालाम।",
+            "Subscribe खालामनो promise खालामो।",
+            "आरोबि benefits explain खालाम नङा बायदि।",
+            "नोंथांनि amazing lunch serviceखौ buy खालामनो?"
+          ],
+          "explanation": "Last time बिसोर बे समस्या सामना खालामो आरो माबा खालामो बेखौ सवाल खालाम.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "Real interviewआव मोनसे neutral follow-up सवाल खालाम आरो actual past behaviour फोरफिनो ना थिखाय रेकर्ड खालाम।"
+        }
+      }
+    },
+    "m5": {
+      "steps": [
+        "दोनो message लिख जे एकटा बाताव मात्र फरक दं, जेरै headline।",
+        "विलिंग reader-नो द'नाय, same instructions आरो reading time जों दोनोखौ दिखाय।",
+        "बिसोरनि actual choice आरो कारण रेकर्ड खालाम। मोनसे message सुधार; एक reader sales resultखौ proof नङा।"
+      ],
+      "fields": [
+        {
+          "id": "variable",
+          "prompt": "दोनो messageनि माझाव माबा एकटि बिढाइ नोंथां सोलायगोन?",
+          "hint": "एकटा बात सायख', जेरै headline। Customer group आरो conditions same रहनो दिहुन।"
+        },
+        {
+          "id": "version_a",
+          "prompt": "नोंथांनि फर्स्ट message माबा बुङो?",
+          "hint": "एक clear next action जों first complete message लिख।"
+        },
+        {
+          "id": "version_b",
+          "prompt": "दोस्रि message माबा बुङो?",
+          "hint": "केवल सायख' बायदि बात सोलाय। बाकि माबा सम्भवजों same रखो।"
+        },
+        {
+          "id": "metric",
+          "prompt": "माबा result nोंथां count खालामगोन?",
+          "hint": "Start खालामनायनि आगोवाव एक result सायख', जेरै suitable customer enquiries वा registrations."
+        },
+        {
+          "id": "rule",
+          "prompt": "माबा समाव नोंथां decide खालामगोन जे message राखो?",
+          "hint": "Compare kinào सम, माबा result गोनां, आरो result अस्पष्ट नङा हांगा खालामनो माबा खालामगोन ब्योखौ द'।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "दोनो shop messages fair खालामनो थाखाय माबा सोलायगोन?",
+          "options": [
+            "मेमो, कस्टमर, दाम आरो प्लेटफर्म बावदोंफोर।",
+            "B proven better बायदि because clicks मोनबाय।",
+            "एकटा बात, जेरै headline, बाकि बोराय same रखो।",
+            "A फेरि बाहायनो नङा।"
+          ],
+          "explanation": "एकटा बात, जेरै headline, बाकि बोराय same रखो.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "फार्स्ट गोनाय बिथिङखौ एक-एक दसेन। बियोन समनि गोर' आरो नोंथांनि सुधारबायाव एक बायदि लिख।"
+        },
+        "practising": {
+          "question": "एक club headline, poster आरो posting day change खालामो। अधिक लोग register खालामो। headlineनि थाखाय माबा honesty जाबो?",
+          "options": [
+            "न्यू headline definitely increase khou कारण।",
+            "पुरानो headline फेरि बाहायनो नङा।",
+            "Several things change खालामो बायदि headline help खालामो नङा थाय।",
+            "Fridayाव posting always more registrations लायो।"
+          ],
+          "explanation": "माबा help खालामो नायनो, एकटा बात change खालामो आरो similar conditionsाव compare खालामो।",
+          "levelTask": "एक गोबायनि बा डिजाइन पायदानखौ सोलायफोरनायखौ बादेआव थाय। बायदि गोरायबायखौ नाय।"
+        },
+        "experienced": {
+          "question": "Message A Mondayाव run खालाम। B holidayाव गुदुना लोगनि थाखाय run खालाम आरो more clicks मोनबाय। माबा निष्कर्ष?",
+          "options": [
+            "B proven better because more clicks.",
+            "A फेरि बाहायनो नङा।",
+            "Several things change खालामो, so similar conditionsाव test repeat खालाम।",
+            "मेमो, कस्टमर, दाम आरो प्लेटफर्म बावदोंफोर।"
+          ],
+          "explanation": "Several things change खालामो, so similar conditionsाव test repeat खालाम.. नोंथांनि खामानियाव बे बिथिङखौ नाजा।",
+          "levelTask": "Same instructions आरो exposure time जों reader comparison repeat खालाम; limitations record खालाम।"
+        }
+      }
+    },
+    "v1": {
+      "steps": [
+        "गथांआव एबा नोंथांनि थावनाय टुलआव थं टैकलियो दा ओमफोर बाव।",
+        "क्याप्सनफोर लों। बिसोरनि थाखाय माबा दा एकदि साफाय परिवर्तन फोरबोथायोना पायखो।",
+        "साफाय न'खौ फेरि थं एबा फेरि थाखो। जेंना फारियै खालामनाय तस्वीर एबा बिसोरनि बिसि आरो माबा बदले।"
+      ],
+      "fields": [
+        {
+          "id": "audience",
+          "prompt": "बे फोटुफोरखौ मा होनो नोंसार?",
+          "hint": "एखोन साफाय दसे समूहनि मुङ, जेरै लाइब्रेरीनि गेजेरनि कलेज छात्र, गोसोआव, माबोरैखौबा नोङा।"
+        },
+        {
+          "id": "frame_1",
+          "prompt": "गेनसाय तस्वीरआव माबा नोंनो?",
+          "hint": "जोंनो होनाया, अनुभूति, आरो छोटा क्याप्सन। जेंना गोखां द्रोहाव बोसोराखौ देखाओ।"
+        },
+        {
+          "id": "frame_2",
+          "prompt": "बिसोरनि नोंथाङै गा'या मा?",
+          "hint": "जोंनो होनाया, अनुभूति, आरो छोटा क्याप्सन। जेंना फदलै लागोसेबा दिखायनायखौ देखाओ।"
+        },
+        {
+          "id": "frame_3",
+          "prompt": "शेष तस्वीरआव जोंनो एबा माबा खालामो?",
+          "hint": "जोंनो होनाया, अनुभूति, आरो बङै साफाय आमन्त्रनजों खालासायनाय क्याप्सन।"
+        },
+        {
+          "id": "thread",
+          "prompt": "माबा मानजों, बस्तु एबा बिसि बिसोरआनि सोमोन्दै फांगार?",
+          "hint": "एखोन बस्तु, गाब एबा थानाय ठेयाव सायनाय थाम फ्रेमखौव।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "जों एकथा दंनि थाखाय थाम तस्वीर थं। बिसोरखौ फेलायफिननायाव मा मदद खालामो?",
+          "options": [
+            "थारै सोमोन्दायै सुबिधा तस्वीरफोर।",
+            "खालि छबिखौ जोंनि रेसोल्युशन गोजान खालाम।",
+            "बिसोरनि गेजेराव बिसोरनि बुथुयै बुझेग्रा एकदि साफाय परिवर्तन।",
+            "बाहायनि सोमोन्दायै आरो तस्वीरफोर दाबो।"
+          ],
+          "explanation": "बिसोरनि गेजेराव बिसोरनि बुथुयै बुझेग्रा एकदि साफाय परिवर्तन.. नोंथांनि गोनोखाव बे फैसलाखौ बाहाय।",
+          "levelTask": "एखा एखा थांफोरनि उनाव फालो। जेंना बाइदि जायो आरो एकथि सुधार खालामो, बि लिख।"
+        },
+        "practising": {
+          "question": "थाम ल'ब्रेब'टफोरआव एग्जाम हल, क्रिकेट मैच आरो पुस्तक शेल्फ दं। बिसोरआनि सोमोन्दै नङा। बङोनि दगायनाय एकदि साफाय कथा खालामो?",
+          "options": [
+            "बाहायनि सोमोन्दायै आरो तस्वीरफोर दाबो।",
+            "हर एक तस्वीरआव भिन्दाव दर्शक बाहायोबाय।",
+            "एकहि दोराय गोनां फरोमायनायजों जोनाय दाजबाय, बदलायनाय आरो आमन्त्रन देखाओ।",
+            "थानायखौ यादै रहनाय आरो गासैबो बादमे बुजुं।"
+          ],
+          "explanation": "दर्शकआव नोंनो लागो जे एक तस्वीरफ्राय आरो तस्वीरआव फैनाय मोन। दोहरायनाय मानवा एबा बस्तुइ फेथायनो मदद खालामो।",
+          "levelTask": "एखटु इनपुट एबा डिजाइन बावलायनायनि उनाव फेरि नै। बेकारिजा जोंनो? तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "दर्शकआव हर एक तस्वीर बुजुं, नङा तीनखौ दाजबायनो थायो। माबायखौ आगसै फदलायनो?",
+          "options": [
+            "खालि छबिखौ जोंनि रेसोल्युशन गोजान खालाम।",
+            "बाहायनि सोमोन्दायै आरो तस्वीरफोर दाबो।",
+            "बिसोरनि थांखो आरो एक फेथायनाय बदलायनाय देखायनाय बिसि।",
+            "थारै सोमोन्दायै आरो तस्वीरफोर।"
+          ],
+          "explanation": "बिसोरनि थांखो आरो एक फेथायनाय बदलायनाय देखायनाय बिसि.. नोंथांनि गोनोखाव बे फैसलाखौ बाहाय।",
+          "levelTask": "लाइसराय बिनानै बिसोरनि थांखो देखाओ आरो दर्शकआव थांनाय बदलायनाय क'थायाव नोंनो बेखौ रेकर्ड खालाम।"
+        }
+      }
+    },
+    "v2": {
+      "steps": [
+        "नोंथांनि थावनाय टुलजों फालो बायदो तस्वीर बनाओ एबा खामानाय खालाम।",
+        "मानुस, ठेयाव एबा दोहरायनाय बस्तुआव बदलायनायनि थाखाय तस्वीरफोरखौ तुलना खालाम।",
+        "थांफोरखौ सुघार खालाम आरो सुधार खालामनाय तस्वीर बनाओ। खामानि आरो नोंथाङा सही खालामनाय गोजानखौ फोरमाय।"
+      ],
+      "fields": [
+        {
+          "id": "subject",
+          "prompt": "मानवा एबा मा दं, आरो बिसोर खावनो?",
+          "hint": "तस्वीरआव मानवा आरो ठेयाव, साफा बोबायाव थाखो। मानुस आरो ठेयावनि बबाद साफाय खालाम।"
+        },
+        {
+          "id": "composition",
+          "prompt": "मुख्य विषयआ तस्वीरनि बिसोराव बेठावनो मोन?",
+          "hint": "थाम तस्वीराव एखान AIखौ नोंथाङा जि फ्रेमिङ खालामो, बि सायखो।"
+        },
+        {
+          "id": "mood",
+          "prompt": "मुड आरो उजाला बिसोर मा बाइदि अनुभूति होनो लागो?",
+          "hint": "पहिलैबेला आगंतुकआ जि मुड मोननो गोनां, बि सायखो।"
+        },
+        {
+          "id": "continuity",
+          "prompt": "हर एक तस्वीराव जि दोरायनाय दिटेल बासायनाय थायो?",
+          "hint": "थाम तस्वीराव एकहिनि बस्तु एबा गाब दोहरायनाय, जेनाथाय बिसोर एक सेट बिसायो।"
+        },
+        {
+          "id": "avoid",
+          "prompt": "निर्माताआ जि बिदा बिफोर खालामनो गोनां?",
+          "hint": "तस्वीरनि गेजेराव लिखाइ एबा गोजान निंदि करनाय, बेरा खालामनाय सहीफोर जेरै दुईद' हो, आरो बेफोर गेबेंनो माबा महत्त्व दं बि बोखाव।"
+        }
+      ],
+      "levels": {
+        "beginner": {
+          "question": "नोंथाङा मानुस एबा तस्वीर टुलखौ ल'ब्रेब'ट पोस्टर खालामनो हो। बिसोरखौ मा मदद खालामो?",
+          "options": [
+            "खालि फोरमायनायफोरालाइ सुन्दर खालामो।",
+            "स्टाइल सोरबैनि गोबांनाय सुचि।",
+            "तस्वीरनि हर फॉराव गोबां बिबार।",
+            "विषय, ठेयाव, दर्शक आरो मनसायनि फारा साफाय बिबार।"
+          ],
+          "explanation": "विषय, ठेयाव, दर्शक आरो मनसायनि फारा साफाय बिबार.. नोंथांनि गोनोखाव बे फैसलाखौ बाहाय।",
+          "levelTask": "एखा एखा थांफोरनि उनाव फालो। जेंना बाइदि जायो आरो एकथि सुधार खालामो, बि लिख।"
+        },
+        "practising": {
+          "question": "AIआ नोंथाङा मोननो गोनां बाइदि हिनि-हिनि ल'ब्रेब'ट आगंतुक आरो फोरमायनाय नांगौ चिन्ह ददबो। नोंथांनि फोरमायनायफोरआ मा साफाय खालामनो गोनां?",
+          "options": [
+            "खालि मोरै तस्वीरफोरनि थाखाय ज'काओ।",
+            "हर एक तस्वीराव भिन्दाव मानुसखौ उन।",
+            "फोरमायनाय नांगौ चिन्हखौ ल'ङो, क्योंकि बि बिसि गोबां दं।",
+            "हर बेराव एखोनि मानुस आरो दोहरायनाय बस्तुखौ बिसाफोर, आरो पढ़नो मोननाय लिरबायनाय बादै हो।"
+          ],
+          "explanation": "मा एकै ज'थायोनो गोनां, बि बिसाफोर। वास्तविक तस्वीरखौ जाबाय; गोखां फोरमायनाय फोरमानाय टुलाव दारफोर दियै।",
+          "levelTask": "एखटु इनपुट एबा डिजाइन बावलायनायनि उनाव फेरि नै। बेकारिजा जोंनो? तुलना खालाम।"
+        },
+        "experienced": {
+          "question": "AIआ नोंथाङा मोननो गोनां स्टाइल तस्वीरखौ खालामो, मोनसेनो दर्शकआव गलत मेसेज जायो। बादनि फोरमायनायफोरआ माबा बुजावनो थाखाय फोकस खालामनो गोनां?",
+          "options": [
+            "स्टाइल सोरबैनि गोबांनाय सुचि।",
+            "तस्वीरनि हर फॉराव गोबां बिबार।",
+            "खालि फोरमायनायफोरालाइ सुन्दर खालामो।",
+            "मनसायनि मेसेज आरो बङै जाँच जेरै तस्वीरआ बि फोरमायोना मोन।"
+          ],
+          "explanation": "मनसायनि मेसेज आरो बङै जाँच जेरै तस्वीरआ बि फोरमायोना मोन.. नोंथांनि गोनोखाव बे फैसलाखौ बाहाय।",
+          "levelTask": "नोंथांनि फोरमायनायफोरजों नानै तस्वीर बनाओ। बिसोरनि मेसेज तुलना खालाम आरो बि फोरमायोना मोननायनि थाखाय एकथि जाँच सुधार खालाम।"
+        }
+      }
+    }
+  }
+}

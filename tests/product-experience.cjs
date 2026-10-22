@@ -84,7 +84,7 @@ test('WhatsApp submission shows specific formative feedback without completing w
  const draft=JSON.parse(original);draft.reasoning+=' Audience revised to MG Road office workers after the test.';
  const sharedStore=h.load('lib/practical-draft-store.ts'),shared=await sharedStore.readPracticalDraft(user,'m1','beginner');await sharedStore.writePracticalDraft(user,{missionId:'m1',level:'beginner',body:h.load('lib/practical.ts').composeAnswer(m.practical,{fields:draft.fields,reasoning:draft.reasoning,link:draft.link||''}),baseRevision:shared.revision,source:'whatsapp',data:draft,quiz:m.answer});strong=true;
  out=await handleBridgeMessage({wamid:'wa-formative-2',from:phone,text:'SUBMIT',type:'text'});
- assert.match(out.text,/Works:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
+ assert.match(out.text,/Works:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next:/);
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,1);
  assert.equal(calls,3,'save reuses the evaluated answer instead of charging twice');
 });

@@ -1,3 +1,4 @@
+export const metadata={title:'My Journey | WhatsLearn',description:'Continue your course, practise a real-world task and see your saved progress.',robots:{index:false,follow:false}};
 import {createHash} from 'node:crypto';
 import {readContext} from '@/lib/learner-context-store';
 import {getChatGPTUser} from '@/app/chatgpt-auth';

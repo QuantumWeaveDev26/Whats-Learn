@@ -6,7 +6,7 @@ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
 const Notice=require('../components/whatslearn/language-notice.tsx').default;
 test('English missions never show an English translation pending notice',()=>{
  assert.equal(renderToStaticMarkup(React.createElement(Notice,{language:'en',missionId:'d1'})),'');
- assert.match(renderToStaticMarkup(React.createElement(Notice,{language:'hi',missionId:'d1'})),/question and practical task are in English/);
+ assert.match(renderToStaticMarkup(React.createElement(Notice,{language:'hi',missionId:'d1'})),/draft translation/);
 });
 test('email-hosted learner actions do not advertise a ChatGPT-only sign-in',()=>{
  for(const file of ['components/whatslearn/practice-coach.tsx','components/whatslearn/whatsapp-optin.tsx','app/learn/workspace.tsx'])assert.doesNotMatch(fs.readFileSync(path.join(root,file),'utf8'),/>\s*Sign in with ChatGPT/);

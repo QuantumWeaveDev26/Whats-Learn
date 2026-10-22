@@ -290,13 +290,13 @@
         "rawContentType": "application/json",
         "body": "={{ $json.body }}",
         "options": {
-          "timeout": 30000
+          "timeout": 180000
         }
       },
       "onError": "continueErrorOutput",
       "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "id": "08dbadee-b58e-af1b-4a5f-be23a8ef6b87",
@@ -715,7 +715,7 @@
     },
     {
       "id": "d8271650-3311-b935-2051-bc58a6a6310d",
-      "name": "Hourly At 7 Past",
+      "name": "Due Reminders Every 2 Minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
@@ -727,7 +727,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "7 * * * *"
+              "expression": "*/2 * * * *"
             }
           ]
         }
@@ -1233,17 +1233,6 @@
         ]
       ]
     },
-    "Hourly At 7 Past": {
-      "main": [
-        [
-          {
-            "node": "My Settings (edit here)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "My Settings (edit here)": {
       "main": [
         [
@@ -1655,6 +1644,17 @@
         [
           {
             "node": "Which Part Is Running?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due Reminders Every 2 Minutes": {
+      "main": [
+        [
+          {
+            "node": "My Settings (edit here)",
             "type": "main",
             "index": 0
           }

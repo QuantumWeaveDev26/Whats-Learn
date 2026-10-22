@@ -1,3 +1,4 @@
+import {questionText} from './question-translations';
 import {missionForLevel} from './mission-levels';
 import type {LearningStyle} from './learning-styles';
 import {practicalContent} from './practical-content';
@@ -28,11 +29,13 @@ d2:{title:'AI से बने कोड को रिलीज़ से पह
 /** False when a mission has no text in this language yet and is shown in English. */
 export function isMissionTranslated(id:string,lang:string){return lang==='en'||!!(content[lang]?.[id]||filmTranslations[lang]?.[id]||visualTranslations[lang]?.[id]||languagePacks[lang]?.missions?.[id])}
 /** True when v36 rewrote this mission's understanding question and practical task in English; translations of the old question and task no longer match them. */
-export const questionIsEnglishOnly=(id:string)=>!!practicalContent[id]?.question;
+export const questionIsEnglishOnly=(id:string,language='en')=>language!=='en'&&!!practicalContent[id]?.question&&!questionText(language,id);
 export function localizeMission(m:Mission,lang:string,level?:string):Mission{
  if(level!==undefined)m=missionForLevel(m,level);
  const t={...m,...content[lang]?.[m.id],...filmTranslations[lang]?.[m.id],...visualTranslations[lang]?.[m.id],...languagePacks[lang]?.missions[m.id]};
- // The understanding question, its options, its explanation and the practical task stay in English until they are translated, so the answer key and the task always match the practical parts.
- return questionIsEnglishOnly(m.id)?{...t,question:m.question,options:m.options,answer:m.answer,explanation:m.explanation,task:m.task,practical:m.practical}:t;
+ const translated=questionText(lang,m.id),variant=translated?.levels[m.practiceLevel||'practising'];
+ if(variant&&translated){const practical=m.practical?{...m.practical,fields:m.practical.fields.map(f=>{const text=translated.fields.find(t=>t.id===f.id);return text?{...f,prompt:text.prompt,hint:text.hint}:f;})}:undefined;return {...t,...variant,answer:m.answer,contentLanguage:lang,practiceSteps:translated.steps,task:[...translated.steps,variant.levelTask].filter(Boolean).join(' '),practical};}
+ // Never pair a translated legacy option with a newer canonical answer key.
+ return {...t,question:m.question,options:m.options,answer:m.answer,explanation:m.explanation,task:m.task,practical:m.practical,contentLanguage:'en'};
 }
 export function challengeInstruction(level:string,lang:string,structured=false){if(structured){const stretch=level==='stretch';return lang==='hi'?(stretch?'सभी माँगे गए हिस्से पूरे करें। एक किनारे की स्थिति जाँचें और अपना सुधार समझाएँ।':'दिए गए काम से शुरुआत करें। हर हिस्सा भरें, उसे आज़माएँ और नतीजा अपने शब्दों में लिखें।'):lang==='kn'?(stretch?'ಕೇಳಿದ ಎಲ್ಲ ಭಾಗಗಳನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ. ಒಂದು ವಿಶೇಷ ಸಂದರ್ಭವನ್ನು ಪರೀಕ್ಷಿಸಿ, ಮಾಡಿದ ಸುಧಾರಣೆಯನ್ನು ವಿವರಿಸಿ.':'ಕೊಟ್ಟಿರುವ ಕೆಲಸದಿಂದ ಪ್ರಾರಂಭಿಸಿ. ಪ್ರತಿಯೊಂದು ಭಾಗವನ್ನು ತುಂಬಿ, ಪ್ರಯತ್ನಿಸಿ, ಫಲಿತಾಂಶವನ್ನು ನಿಮ್ಮ ಮಾತಿನಲ್ಲಿ ಬರೆಯಿರಿ.'):(stretch?'Complete the requested parts. Test one edge case and explain your improvement. Follow each field’s own limit.':'Start with the supplied brief. Fill each requested part, try it, and record your result in your own words.')}const s=level==='stretch';const pack=languagePacks[lang]?.challenge;return pack?(s?pack.stretch:pack.mini):lang==='kn'?(s?'ಹೆಚ್ಚುವರಿ ಸವಾಲು: ಬೇರೆ ಸ್ಥಳೀಯ ಉದ್ಯಮಕ್ಕೆ ಇದೇ ಕಲ್ಪನೆ ಅನ್ವಯಿಸಿ. 80 ಪದಗಳೊಳಗೆ ಬರೆಯಿರಿ.':'ಸಣ್ಣ ಸವಾಲು: ಉದಾಹರಣೆಯನ್ನು ನಕಲಿಸದೆ ನಿಮ್ಮದೇ ಉತ್ತರ ಬರೆಯಿರಿ. ಮೊದಲು ಗ್ರಾಹಕ ಅಥವಾ ಬಳಕೆದಾರರನ್ನು ಹೆಸರಿಸಿ.'):lang==='hi'?(s?'अतिरिक्त चुनौती: यही विचार दूसरे स्थानीय व्यवसाय पर लागू करें। 80 शब्दों के अंदर लिखें।':'छोटी चुनौती: उदाहरण को कॉपी किए बिना अपना उत्तर लिखें। पहले ग्राहक या उपयोगकर्ता चुनें।'):(s?'Stretch challenge: apply the idea to a different local business. Keep your response under 80 words.':'Mini challenge: create your own response without copying the example. Name the customer or user first.')}

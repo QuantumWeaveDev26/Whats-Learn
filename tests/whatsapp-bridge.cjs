@@ -138,7 +138,7 @@ test('wrong quiz and junk chat parts are refused immediately without advancing',
 test('finishing a mission in chat uses the website rules: points, clue cost, one new mission a day, and the website shows the same state',async()=>{
  await say(P1,'TODAY');await say(P1,'CANCEL');   // the two clues from the clue test (10 points) are already paid
  const before=balance('asha');
- const out=await answerMission(P1,'m1');assert.match(textOf(out),/Mission cleared!/);
+ const out=await answerMission(P1,'m1');assert.match(textOf(out),/Mission saved/);
  const row=db.prepare("SELECT * FROM mission_scores WHERE user_id='asha' AND mission_id='m1'").get();
  assert.equal(row.clues,2);assert.equal(row.deduction,10,'two clues cost 5 + 5, the cap');assert.equal(row.points,row.understanding+row.practical-10);
  assert.equal(before,40);assert.equal(balance('asha'),50+row.points,'the 10 points of clues were paid once when revealed; the mission row only adds the net result');
@@ -155,7 +155,7 @@ test('finishing a mission in chat uses the website rules: points, clue cost, one
 });
 test('mission order and mini challenges: mission 2 opens next day; mission 3 needs the mini challenge, answered in chat',async()=>{
  nextDay();
- let out=await answerMission(P1,'m2');assert.match(textOf(out),/Mission cleared!/);
+ let out=await answerMission(P1,'m2');assert.match(textOf(out),/Mission saved/);
  nextDay();
  out=await say(P1,'TODAY');assert.match(textOf(out),/Mini challenge/);assert.match(textOf(out),/CHECK/);
  assert.equal(count("SELECT COUNT(*) n FROM checkpoint_clears WHERE user_id='asha'"),0);
@@ -179,7 +179,7 @@ test('website to WhatsApp: a mission finished on the website is announced once, 
  const res=await work.POST(new Request('https://x.test/api/work',{method:'POST',headers:{origin:'https://x.test','Content-Type':'application/json'},body:JSON.stringify({missionId:'m1',body,checks:[true,true,true,true,true],quiz:m.answer})}));
  assert.equal(res.status,200);assert.equal(count("SELECT COUNT(*) n FROM whatsapp_outbox WHERE user_id='bina'"),1);
  let c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});
- assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/Built it\. Saved it\..*\n.*points.*\n.*website synced/);assert.equal(c.json.items[0].to,P2);
+ assert.equal(c.json.items.length,1,'inside the 24-hour window (the learner just wrote to us)');assert.match(c.json.items[0].text,/Mission saved:.*\n.*\n.*total points.*Website synced/);assert.equal(c.json.items[0].to,P2);
  c=await call(outbox,'/api/bridge/whatsapp/outbox',{action:'claim'});assert.equal(c.json.items.length,0,'claimed once');
  const id=db.prepare("SELECT id FROM whatsapp_outbox WHERE user_id='bina'").get().id;
  assert.equal((await call(outbox,'/api/bridge/whatsapp/outbox',{action:'report',results:[{id,ok:true}]})).json.updated,1);
@@ -350,7 +350,7 @@ test('No server access path (v53): settings typed in the n8n node work, the serv
  const vals=Object.fromEntries(set.parameters.assignments.assignments.map(a=>[a.name,a.value]));
  assert.deepEqual(Object.keys(vals).sort(),['appSecret','baseUrl','bridgeSecret','phoneNumberId','verifyToken']);
  assert.ok(Object.values(vals).every(v=>/^PASTE_/.test(v)),'only placeholders are stored in the workflow file');
- for(const t of ['Meta Webhook GET (verify)','Meta Webhook POST (messages)','Every 2 Minutes','Hourly At 7 Past'])assert.equal(wf.connections[t].main[0][0].node,'My Settings (edit here)',t+' goes through the settings first');
+ for(const t of ['Meta Webhook GET (verify)','Meta Webhook POST (messages)','Every 2 Minutes','Due Reminders Every 2 Minutes'])assert.equal(wf.connections[t].main[0][0].node,'My Settings (edit here)',t+' goes through the settings first');
  assert.equal(wf.connections['My Settings (edit here)'].main[0][0].node,'Resolve Settings');assert.equal(wf.connections['Resolve Settings'].main[0][0].node,'Which Part Is Running?');
  assert.equal(wf.connections['Which Part Is Running?'].main.length,4);
  const entry=wf.connections['Which Part Is Running?'].main.map(a=>a[0].node);assert.deepEqual(entry,['Check Verify Token','Validate Meta Signature','Notices: Sign Claim Request','Reminders: Sign Claim Request']);

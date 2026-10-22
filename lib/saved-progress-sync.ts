@@ -1,4 +1,4 @@
-export const SAVED_SYNC_MS=1000;
+export const SAVED_SYNC_MS=5000;
 /** Serial polling: no overlapping requests; hidden/offline tabs pause; errors back off. */
 export function startSavedProgressSync(onChange:()=>Promise<void>|void,onIdentityLost:()=>Promise<void>|void=()=>{},onIdentityChanged:(key:string)=>Promise<void>|void=()=>{},initialAccountKey=''){
  let stopped=false,timer:ReturnType<typeof setTimeout>|undefined,busy=false,revision:string|undefined,failures=0;
