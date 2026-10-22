@@ -51,7 +51,7 @@ function distinctive(m:Mission){
 /** How many of the learner's words are specific to this mission. */
 export function missionHits(m:Mission,text:string){const own=distinctive(m);return [...stemsOf(text)].filter(w=>own.has(w)).length}
 export const MIN_MISSION_WORDS=3;
-const asksWhy=(m:Mission)=>/\b(explain|why|reason|justify|because)\b/i.test(m.task);
+const asksWhy=(m:Mission)=>!!m.practical||/\b(explain|why|reason|justify|because)\b/i.test(m.task);
 const latinShare=(t:string)=>{const letters=[...t].filter(c=>/\p{L}/u.test(c));return letters.length?letters.filter(c=>/\p{Script=Latin}/u.test(c)).length/letters.length:0};
 const reasoningWords=/\b(because|since|so that|so|therefore|which means|this means|means|helps?|helped|reason|why|ensures?|prevents?|avoids?|protects?|lets|allows|otherwise|instead|in order to|as a result|rather than|trade-?off|would|could|if|makes?|needs?|better|easier|safer|clearer|fairer|risk|keeps?|stops?|pull|gives?)\b/i;
 export type Gate={ok:boolean;reason:'ok'|'blocked'|'few-ideas'|'wrong-course'|'no-reasoning';message:string};

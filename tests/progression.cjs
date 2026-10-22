@@ -194,7 +194,7 @@ test('audit of all 40 missions: course-specific wording, scenario questions, pra
    const f=m.practical.fields;for(const x of f)kinds[t].add(x.type);
    assert.ok(f.length>=2&&f.length<=5,m.id+' 2 to 5 parts');assert.equal(new Set(f.map(x=>x.id)).size,f.length);assert.equal(new Set(f.map(x=>x.label)).size,f.length);
    assert.ok(f.every(x=>x.hint&&x.hint.length>10),m.id+' every part explains what good looks like');
-   for(const x of f)assert.ok(m.task.includes(x.label)||m.question.length>0&&/[Pp]lan|[Ff]ill|[Cc]hoose|[Ww]rite|[Ll]ist|[Pp]ick|[Rr]epair|[Ff]ix|[Dd]raft|[Mm]ark|[Bb]uild|[Dd]esign|[Ss]tate|[Ss]et|[Dd]ecide|[Rr]eview|[Ss]elect|[Dd]escribe|[Aa]dd|[Cc]ompare/.test(m.task),m.id+' the task points at its parts');
+   for(const x of f)assert.ok(m.task.includes(x.label)||x.prompt?.endsWith('?')&&m.task.startsWith('1. '),m.id+' the task points at its parts');
    assert.doesNotMatch(m.task,/\bwrite (an? )?(essay|paragraph)\b/i,m.id+' is not an essay task');for(const w of m.task.matchAll(/\b(\d+)\s*[–-]\s*(\d+)\s*words?\b/gi))assert.ok(Number(w[2])<=100,m.id+' sets no essay-length target (short word hints for one part are fine)');
    assert.ok(m.question.length>=60&&/\?\s*$/.test(m.question),m.id+' scenario question');assert.ok(new Set(m.options).size===m.options.length&&m.options.length>=3&&m.options.length<=4);assert.ok(m.explanation.length>=60,m.id+' direct explanation');
    if(f.some(x=>x.type==='choice'))choiceMissions++;if(f.some(x=>x.type==='code'))codeMissions++;if(m.practical.link)linkMissions++;if(f.every(x=>x.type==='long'))longOnly++;

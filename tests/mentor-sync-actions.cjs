@@ -33,7 +33,7 @@ test('style requests do not assess or mutate a draft; edit and question requests
  }
  assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM ai_feedback_usage').get().n,0);
  const edit=await say('I need to edit that');assert.match(edit.text,/Which part/);assert.match(edit.text,/EDIT 2/);
- const q=await say('Tell me the qns');assert.match(q.text,/When should a booking page say Booking saved/);assert.doesNotMatch(q.text,/Write the feature brief/);
+ const q=await say('Tell me the qns');assert.match(q.text,/When may the page say Booking saved/);assert.doesNotMatch(q.text,/Write the feature brief/);
  const p=await say('PROFILE');assert.equal(typeof p.context.currentPrompt.text,'string');assert.equal(p.context.currentPrompt.missionId,'d1');
 });
 test('fresh snapshots include all-course status, personal setup and observed practice without another account or an answer key',async()=>{

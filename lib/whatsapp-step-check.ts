@@ -27,9 +27,10 @@ export function chatPartIssue(m:Mission,text:string,field?:PracticalField):strin
 }
 
 export function shortFieldHint(m:Mission,f:PracticalField){
+ if(f.prompt)return f.prompt+(f.hint?'\n'+f.hint:'');
  if(m.id==='d1')return ({story:'Who needs what—and why? One sentence.',inputs:'Which details do you need? Add a quick why for each.',accept:'Give 3 checks: success, bad input, and a taken slot.',failure:'The save failed. What should the parent see + do next?',private:'Which detail needs the most protection?'} as Record<string,string>)[f.id]||f.hint||'';
  const hint=f.hint||'Send your take in one clear message.';
  return hint.split(/(?<=[.!?])\s/)[0].slice(0,160);
 }
 
-export function shortFieldLabel(m:Mission,f:PracticalField){return m.id==='d1'?({story:'The parent’s goal',inputs:'Just the essentials',accept:'Prove it works',failure:'When things break',private:'Keep it private'} as Record<string,string>)[f.id]||f.label:f.label}
+export function shortFieldLabel(m:Mission,f:PracticalField){return f.prompt|| (m.id==='d1'?({story:'The parent’s goal',inputs:'Just the essentials',accept:'Prove it works',failure:'When things break',private:'Keep it private'} as Record<string,string>)[f.id]||f.label:f.label)}

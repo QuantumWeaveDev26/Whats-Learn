@@ -1,21 +1,23 @@
 {
  "f1": {
   "task": "Write the story for the rider film. Fill Logline, Beat 1: Setup, Beat 2: Choice, Beat 3: Payoff and Feeling at the end, with one location, two adult performers and no dialogue. In the reasoning box, explain what the choice shows about the rider. Hands-on completion: Record your three story beats as a short phone clip using available objects or consenting performers. Watch it without narration, record what was unclear and reshoot one beat. Submit timecodes and the before/after change. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "A student’s 30-second film shows a rider finding a lost wallet and returning it with no trouble at all. Viewers say it felt flat. Which fix helps the story most?",
+  "question": "A rider finds a wallet and returns it easily. The film feels flat. What would make the story stronger?",
   "options": [
-   "Add a drone shot and a rich cinematic colour grade to the opening",
-   "Make returning it cost him something, like a delivery bonus",
-   "Add a voice-over explaining how kind and honest the rider is"
+   "Describe the rider’s clothes for longer.",
+   "Make returning it cost the rider something, such as a delivery bonus.",
+   "Add unrelated shots of traffic.",
+   "Remove every difficult choice."
   ],
   "answer": 1,
-  "explanation": "The story was flat because nothing was at stake, so his action showed no character. A cost makes returning the wallet a real choice. Polish and a voice-over do not create that choice; they only decorate or explain it.",
+  "explanation": "A meaningful choice has a cost or consequence. That gives the viewer a reason to care.",
   "practical": {
    "fields": [
     {
      "id": "logline",
      "label": "Logline",
      "type": "short",
-     "hint": "One sentence: a rider, what they want, what stands in the way."
+     "hint": "A one-sentence story summary is called a logline. Name the person, problem and choice.",
+     "prompt": "Who is the film about, what do they want, and what gets in the way?"
     },
     {
      "id": "feeling",
@@ -27,25 +29,29 @@
       "Bittersweet: a gain with a quiet cost",
       "Pride: the rider quietly chose well"
      ],
-     "hint": "Pick the feeling you want the viewer to carry out of the film."
+     "hint": "Choose the main feeling you want the ending to leave.",
+     "prompt": "What should the viewer feel at the end?"
     },
     {
      "id": "setup",
      "label": "Beat 1: Setup",
      "type": "short",
-     "hint": "Where we meet the rider and what they need right now."
+     "hint": "Describe what the viewer actually sees before the problem appears.",
+     "prompt": "What happens at the start?"
     },
     {
      "id": "choice_beat",
      "label": "Beat 2: Choice",
      "type": "short",
-     "hint": "The moment the rider must give something up to do the right thing."
+     "hint": "Show the character deciding between two things that matter.",
+     "prompt": "What difficult choice does the character make?"
     },
     {
      "id": "payoff",
      "label": "Beat 3: Payoff",
      "type": "short",
-     "hint": "A visible action or look that changes the feeling, with no dialogue."
+     "hint": "Show a result of the choice. Keep it clear enough to understand without narration.",
+     "prompt": "What happens because of that choice?"
     }
    ],
    "link": {
@@ -56,22 +62,23 @@
  },
  "f2": {
   "task": "Plan the silent six-shot story. List shots in Six-shot list with framing, action, seconds and feeling, totalling 30 seconds. Choose Size of the final shot and Cut into the choice moment, then fill One continuity rule and One sound cue. In the reasoning box, explain why your shot order tells the story. Hands-on completion: Record the six shots and assemble them in order in a free editor. Watch screen direction, eyeline and reveal; submit shot timecodes, the continuity problem found and a corrected shot. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "In your six-shot film the rider enters the gate moving left to right in shot 1, but in shot 3 he moves right to left toward the watchman. Viewers think he turned back. What fixes it?",
+  "question": "A rider moves left to right in one shot, then right to left in the next. Viewers think he turned around. What helps?",
   "options": [
-   "Add a caption telling viewers that he has now reached the gate",
-   "Shoot everything as one wide shot so direction cannot change",
-   "Cut each shot shorter so viewers have less time to notice",
-   "Keep his screen direction the same across the cuts"
+   "Change direction in every shot.",
+   "Add more unrelated close-ups.",
+   "Make the second shot darker.",
+   "Keep the rider moving in the same screen direction across the shots."
   ],
   "answer": 3,
-  "explanation": "Consistent screen direction tells the viewer he keeps moving toward the same goal. Captions break the silent story, a single wide shot loses the close detail the story needs, and faster cuts only hide a mistake that people still feel.",
+  "explanation": "Matching movement between shots helps viewers follow where the character is going.",
   "practical": {
    "fields": [
     {
      "id": "shots",
      "label": "Six-shot list",
      "type": "long",
-     "hint": "One line per shot: number, framing, action, seconds, feeling. Seconds add up to 30."
+     "hint": "For each shot, list its number, view (wide or close-up), action, seconds and feeling. Seconds must add up to 30.",
+     "prompt": "What will happen in each of your six shots?"
     },
     {
      "id": "last_size",
@@ -83,7 +90,8 @@
       "Medium shot of both men",
       "Wide shot of the gate and the lane"
      ],
-     "hint": "Choose the size that best lands the emotional payoff."
+     "hint": "Choose the size that best lands the emotional payoff.",
+     "prompt": "How close will the camera be in the last shot?"
     },
     {
      "id": "cut_into",
@@ -95,19 +103,22 @@
       "Cutaway to the card, then back to the rider",
       "Slow dissolve from the road to the gate"
      ],
-     "hint": "Pick how the film moves into the difficult choice."
+     "hint": "Pick how the film moves into the difficult choice.",
+     "prompt": "At what moment will you cut to the character’s choice?"
     },
     {
      "id": "continuity",
      "label": "One continuity rule",
      "type": "short",
-     "hint": "A clear rule about jacket, bag, screen direction or time of day."
+     "hint": "A clear rule about jacket, bag, screen direction or time of day.",
+     "prompt": "What must match when you join two shots?"
     },
     {
      "id": "sound_cue",
      "label": "One sound cue",
      "type": "short",
-     "hint": "A sound that helps the story with no words, and where it happens."
+     "hint": "A sound that helps the story with no words, and where it happens.",
+     "prompt": "What sound will help tell the story?"
     }
    ],
    "link": {
@@ -118,33 +129,37 @@
  },
  "f3": {
   "task": "Plan the hybrid shoot within ₹5,000. Fill Live-action and AI-assisted elements, Budget split in rupees, Continuity and final quality checks, Consent or asset-rights check and One thing I will not generate. In the reasoning box, justify one live or AI choice by what it gives the story. Hands-on completion: Create and export a short live-action sequence with a self-made animated or composited insert. Check light, perspective and purpose; submit timecodes and the corrected mismatch. Paid generation tools are not required. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "The watchman’s smile close-up can be generated for ₹1,500, or reshot with the performer for free in ten minutes at the same location. Which choice best fits a ₹5,000 hybrid plan?",
+  "question": "A close-up can be filmed again for free in ten minutes. Making it with AI costs ₹1,500. Your budget is ₹5,000. What fits best?",
   "options": [
-   "Reshoot it live; it is free, quick and keeps the real performance",
-   "Generate it, because a clean generated smile will match the lighting better than a quick reshoot can",
-   "Generate it and also reshoot it, then spend ₹1,500 to keep both versions ready in the edit"
+   "Film the close-up again with the performer.",
+   "Use AI only because it is newer.",
+   "Spend the whole budget on unrelated AI shots.",
+   "Skip the needed close-up without checking the story."
   ],
   "answer": 0,
-  "explanation": "The live reshoot costs nothing, matches the other shots and keeps a real reaction, which is the heart of the film. Paying for a generated smile spends a third of the budget and risks a look that does not match the rest.",
+  "explanation": "The free, quick reshoot keeps the real performance and leaves money for other needs.",
   "practical": {
    "fields": [
     {
      "id": "live_ai",
      "label": "Live-action and AI-assisted elements",
      "type": "long",
-     "hint": "Two short lists, live and AI-assisted, each item with a reason."
+     "hint": "Two short lists, live and AI-assisted, each item with a reason.",
+     "prompt": "Which parts will you film, and which parts will you create or add?"
     },
     {
      "id": "budget",
      "label": "Budget split in rupees",
      "type": "long",
-     "hint": "Rows like “item: ₹amount” that add up to ₹5,000 or less."
+     "hint": "Rows like “item: ₹amount” that add up to ₹5,000 or less.",
+     "prompt": "How will you divide the ₹5,000 budget?"
     },
     {
      "id": "checks",
      "label": "Continuity and final quality checks",
      "type": "long",
-     "hint": "A few picture, sound and continuity checks to run before sharing."
+     "hint": "A few picture, sound and continuity checks to run before sharing.",
+     "prompt": "How will you check that the joined shots look right?"
     },
     {
      "id": "rights",
@@ -156,13 +171,15 @@
       "Verbal yes on the day and a screenshot of the chat",
       "Only use my own recordings, and keep a rights log"
      ],
-     "hint": "Choose the check you will really do and explain it in your reasoning."
+     "hint": "Choose the check you will really do and explain it in your reasoning.",
+     "prompt": "Whose permission do you need for people or material in the film?"
     },
     {
      "id": "no_generate",
      "label": "One thing I will not generate",
      "type": "short",
-     "hint": "One element you will always shoot for real, in a few words."
+     "hint": "One element you will always shoot for real, in a few words.",
+     "prompt": "Which part will you avoid making with AI, and why?"
     }
    ],
    "link": {
@@ -180,28 +197,30 @@
    "An object or action carries the feeling",
    "No line explains an emotion outright"
   ],
-  "question": "Kavya wants her cousin Rohan to stay home, but he leaves tomorrow for an internship in Pune. She is packing his bag. Which line from Kavya best carries subtext?",
+  "question": "Kavya wants Rohan to stay, but he leaves for Pune tomorrow. Which line shows care without directly asking him to stay?",
   "options": [
-   "“Take the thick blanket. Pune nights get cold.”",
-   "“Please do not go, I will be so lonely here without you.”",
-   "“I feel sad and worried about you leaving me.”",
-   "“Packing is easier when a bag is half empty.”"
+   "Take the thick blanket. Pune nights get cold.",
+   "I am telling you exactly how sad I feel.",
+   "This scene is about my hidden emotions.",
+   "I have no interest in whether you leave."
   ],
   "answer": 0,
-  "explanation": "The blanket line talks about weather but really shows care and a wish to look after him. The lonely and sad lines state the feeling outright, so there is nothing for the viewer to read between the words. The bag line is just chatter with no feeling.",
+  "explanation": "A practical line can reveal a feeling the character does not say directly. This is called subtext.",
   "practical": {
    "fields": [
     {
      "id": "surface",
      "label": "Surface topic",
      "type": "short",
-     "hint": "The ordinary thing they talk about, such as a charger, a bag or a snack."
+     "hint": "Name the everyday topic they discuss, such as packing a bag.",
+     "prompt": "What are the characters talking about on the surface?"
     },
     {
      "id": "hidden",
      "label": "Hidden want",
      "type": "short",
-     "hint": "What one character really wants but does not say."
+     "hint": "Say what the character wants but does not say directly.",
+     "prompt": "What does the character secretly want?"
     },
     {
      "id": "carrier",
@@ -213,13 +232,15 @@
       "A busy action, like repacking the same bag",
       "A line left unfinished"
      ],
-     "hint": "Choose the device that holds the feeling on screen."
+     "hint": "Choose the small action or object that helps show the unspoken feeling.",
+     "prompt": "Which words or actions show that feeling indirectly?"
     },
     {
      "id": "dialogue",
      "label": "Dialogue lines",
      "type": "long",
-     "hint": "Four to six short lines, labelled A and B. No line names the real feeling."
+     "hint": "Write four to six short lines, labelled A and B. Do not name the hidden feeling directly; let words and actions suggest it.",
+     "prompt": "What will the characters actually say?"
     }
    ],
    "link": {
@@ -237,15 +258,15 @@
    "Directions fit the bus-stop setting",
    "I explained why from the actor’s view"
   ],
-  "question": "Anil plays a man who has just lost his wallet at a railway station. After you said “look panicked”, his first take felt stiff. What do you say for take two?",
+  "question": "An actor looks stiff when told “look panicked”. His character has lost a wallet before a train leaves. What direction helps?",
   "options": [
-   "“Panic more. The camera must see it.”",
-   "“Think of your saddest memory and use it.”",
-   "“Search every pocket before the train.”",
-   "“Try again, but with more feeling this time, please.”"
+   "Be twice as panicked.",
+   "Look more emotional without doing anything.",
+   "Search every pocket before the train leaves.",
+   "Think about how dramatic the final music will be."
   ],
   "answer": 2,
-  "explanation": "A searching task gives him something real to try, and the worry shows up on its own as he works against the clock. The other three still ask for a finished feeling, which usually makes acting stiffer, not truer.",
+  "explanation": "Give the actor a clear action to do. The action helps the feeling appear naturally.",
   "practical": {
    "fields": [
     {
@@ -258,19 +279,22 @@
       "To convince a friend that it was fine",
       "To avoid looking at the notice on the phone"
      ],
-     "hint": "Choose the single intention that drives the whole take."
+     "hint": "Choose the single intention that drives the whole take.",
+     "prompt": "What does the character want from the other person?"
     },
     {
      "id": "directions",
      "label": "Three directions",
      "type": "long",
-     "hint": "Three short lines, each starting with a verb. No emotion words like sad or angry."
+     "hint": "Three short lines, each starting with a verb. No emotion words like sad or angry.",
+     "prompt": "What three clear actions can you ask the actor to try?"
     },
     {
      "id": "prop",
      "label": "Hand or prop action",
      "type": "short",
-     "hint": "Something the actor does with a ticket, phone or bag during the take."
+     "hint": "Something the actor does with a ticket, phone or bag during the take.",
+     "prompt": "What can the actor do with their hands or an object?"
     },
     {
      "id": "retake",
@@ -282,7 +306,8 @@
       "Shorten the take and try just one line of action",
       "Take a two-minute walk, then repeat the same direction"
      ],
-     "hint": "Pick how you will adjust after take one."
+     "hint": "Pick how you will adjust after take one.",
+     "prompt": "What will you change if the first performance feels stiff?"
     }
    ],
    "link": {
@@ -300,15 +325,15 @@
    "One safety risk has a fix",
    "A backup is included"
   ],
-  "question": "Your team picked a rooftop for a 6 pm scene after seeing it at noon, when the sun was behind a water tank. What should you do before you lock it?",
+  "question": "You saw a rooftop at noon but plan to film there at 6 pm. What should you check before choosing it?",
   "options": [
-   "Visit near 6 pm; note light, shadows and who approves",
-   "Add the rooftop to the call sheet now, since it looked fine at noon",
-   "Search for photos of the rooftop at sunset online",
-   "Book a bigger light kit to cover any shadow problems"
+   "Visit near 6 pm and check the light, safety and permission.",
+   "Assume the noon light will stay the same.",
+   "Choose it from one attractive photograph.",
+   "Wait until the shoot starts to ask permission."
   ],
   "answer": 0,
-  "explanation": "Only a visit at the planned hour shows where light and shadow really fall, and it is the time to ask the owner for permission. Photos or a big light kit try to fix a problem you have not seen yet, and the noon visit tells you nothing about 6 pm.",
+  "explanation": "Light and access can change with the time. Check the place when you actually plan to film.",
   "practical": {
    "fields": [
     {
@@ -321,25 +346,29 @@
       "Shoot only in the last 20 minutes of sun",
       "Shoot in two evenings, a short one each"
      ],
-     "hint": "Choose when you roll, given five students and one clip-on light."
+     "hint": "Choose when you roll, given five students and one clip-on light.",
+     "prompt": "When will you film this scene?"
     },
     {
      "id": "light",
      "label": "Light plan",
      "type": "long",
-     "hint": "Name the sky, stall bulbs and shop lights you use, and how the clip-on light helps."
+     "hint": "Name the sky, stall bulbs and shop lights you use, and how the clip-on light helps.",
+     "prompt": "Where will the light come from?"
     },
     {
      "id": "permission",
      "label": "Permission and safety",
      "type": "long",
-     "hint": "Who says yes in writing, one safety risk on a busy lane and its fix."
+     "hint": "Who says yes in writing, one safety risk on a busy lane and its fix.",
+     "prompt": "How will you get permission and keep the shoot safe?"
     },
     {
      "id": "backup",
      "label": "Backup plan",
      "type": "short",
-     "hint": "A second place or time if rain or a crowd stops you."
+     "hint": "A second place or time if rain or a crowd stops you.",
+     "prompt": "What will you do if the light or location changes?"
     }
    ],
    "link": {
@@ -357,28 +386,30 @@
    "Cue sheet rows have times",
    "I said what sound adds beyond picture"
   ],
-  "question": "You recorded a library scene on a phone. In some takes the ceiling fan hums, in others it does not, and the hum jumps at every cut. What is the best fix?",
+  "question": "A fan hum comes and goes between shots in a quiet scene. What makes the sound feel consistent?",
   "options": [
-   "Layer loud music over the whole scene so nobody hears the hum jump",
-   "Delete the quiet takes and use only the humming ones",
-   "Apply a heavy filter to remove all sound below a tone",
-   "Record 30 s of room tone with the fan on; lay it under cuts"
+   "Make the dialogue very quiet.",
+   "Add a different song at every cut.",
+   "Ignore the jump because the picture looks fine.",
+   "Record the steady room sound with the fan on and use it underneath the cuts."
   ],
   "answer": 3,
-  "explanation": "A steady layer of room tone under every cut makes the change in fan noise disappear, because the ear hears one continuous space. Music only hides the problem, and a heavy filter damages the voices.",
+  "explanation": "A recording of the room’s background sound is called room tone. It helps smooth changes between recorded clips.",
   "practical": {
    "fields": [
     {
      "id": "ambience",
      "label": "Ambience",
      "type": "short",
-     "hint": "The steady background, for example a fan, distant traffic or a faint hum."
+     "hint": "Name the steady background sound of the location, such as a fan or distant traffic.",
+     "prompt": "What background sound belongs in this place?"
     },
     {
      "id": "key_effect",
      "label": "Key effect",
      "type": "short",
-     "hint": "The one sound that matters most, such as a switch clicking off."
+     "hint": "Choose the sound that changes what the viewer notices or feels.",
+     "prompt": "Which sound effect matters most?"
     },
     {
      "id": "music",
@@ -390,13 +421,15 @@
       "Quiet piano that starts once she is alone",
       "Silence the moment the final light goes off"
      ],
-     "hint": "Choose what carries the last beat. Silence counts as a choice."
+     "hint": "Say where music or silence helps the scene, and why.",
+     "prompt": "Where will you use music or silence?"
     },
     {
      "id": "cues",
      "label": "Cue sheet",
      "type": "long",
-     "hint": "Rows like “0:00 | sound | loud or soft”. At least four rows, in time order."
+     "hint": "Write at least four rows in time order: time, sound, and loud or soft. This timing list is called a cue sheet.",
+     "prompt": "At what times will each sound start and stop?"
     }
    ],
    "link": {
@@ -414,22 +447,23 @@
    "One cut on action is described",
    "I gave a reason for each decision"
   ],
-  "question": "A 24-second sequence has six shots of 4 seconds each, all at the same distance, and it feels flat. What most helps build tension toward the final reveal?",
+  "question": "Six equally long shots make a final reveal feel dull. Which edit can build tension while keeping the action clear?",
   "options": [
-   "Make each shot 8 seconds so viewers study it",
-   "Add a 5-second wide of the street at the end",
-   "Trim shots shorter and move closer to the target",
-   "Put a slow dissolve between every pair of shots in the sequence"
+   "Keep every shot identical in length and distance.",
+   "Add unrelated shots before the reveal.",
+   "Gradually shorten the shots and move closer to the important detail.",
+   "Hide the important action so nobody can follow it."
   ],
   "answer": 2,
-  "explanation": "Shorter, closer shots raise the speed of new information, which the viewer feels as pressure. Long holds, a calm wide shot and slow dissolves all slow the story down and let the tension out.",
+  "explanation": "Changes in timing and distance can guide attention toward the reveal. The viewer still needs to follow the action.",
   "practical": {
    "fields": [
     {
      "id": "edl",
      "label": "Cut order with seconds",
      "type": "long",
-     "hint": "One row per kept shot, like “1 | wide road | 5s”. Total about 30 seconds."
+     "hint": "List each kept shot with its number, framing and seconds, such as 1 | wide road | 5s. Total about 30 seconds.",
+     "prompt": "In what order will the shots appear, and for how many seconds?"
     },
     {
      "id": "pace",
@@ -441,19 +475,22 @@
       "Short and fast throughout with one longer face shot",
       "Medium shots first, then a burst of very short cuts"
      ],
-     "hint": "Choose how the cutting speed changes from start to end."
+     "hint": "Choose how the shots become faster or slower as the story changes.",
+     "prompt": "How will the speed of the edit change?"
     },
     {
      "id": "action_cut",
      "label": "Cut on action",
      "type": "short",
-     "hint": "One movement, such as a hand on the throttle, where you cut mid-move."
+     "hint": "Name the movement that continues smoothly when the edit changes shots.",
+     "prompt": "Which movement will continue across a cut?"
     },
     {
      "id": "dropped",
      "label": "Shots dropped or shortened",
      "type": "short",
-     "hint": "Name what goes first and why, for example the tea shop."
+     "hint": "Name a shot you shortened or removed, and say why the story is clearer.",
+     "prompt": "Which shot will you remove or shorten?"
     }
    ],
    "link": {
@@ -471,28 +508,30 @@
    "Budget lines add up in rupees",
    "Contingency and one trade-off are explained"
   ],
-  "question": "The bus stop and hostel are near each other, while the stall is across town and needs dusk light. The hostel scene can be shot at any hour. What order saves the most time?",
+  "question": "Two filming places are nearby. A third is across town and needs sunset light. How should you plan the day?",
   "options": [
-   "Story order: bus stop first, then the stall, then the hostel",
-   "Bus stop and hostel by day, then one trip to the stall",
-   "Stall first at noon, then the other two at night",
-   "Hostel at dawn, stall at midday, bus stop at dusk"
+   "Travel back and forth between all three places.",
+   "Film the nearby places in daylight, then travel once to the sunset location.",
+   "Film in story order regardless of travel or light.",
+   "Leave no time for travel or setup."
   ],
   "answer": 1,
-  "explanation": "Grouping the two nearby places in the day means one journey, and the stall waits for dusk light. Story order and mixed orders make the crew travel back and forth, and the stall cannot look like dusk at noon.",
+  "explanation": "Group nearby work and protect the shot that needs a particular light. Include real travel and setup time.",
   "practical": {
    "fields": [
     {
      "id": "call",
      "label": "Call time",
      "type": "short",
-     "hint": "One time, such as 7:30 am, and where the crew meets."
+     "hint": "One time, such as 7:30 am, and where the crew meets.",
+     "prompt": "What time should everyone arrive?"
     },
     {
      "id": "schedule",
      "label": "Schedule rows",
      "type": "long",
-     "hint": "Rows with time, scene, place and two breaks, in a sensible location order."
+     "hint": "Rows with time, scene, place and two breaks, in a sensible location order.",
+     "prompt": "When will you set up, travel, film and pack away?"
     },
     {
      "id": "top_spend",
@@ -504,13 +543,15 @@
       "A clip-on mic and recorder rental for clean sound",
       "Props and costume for the hostel scene"
      ],
-     "hint": "Pick the line that gets the most rupees, and justify it in reasoning."
+     "hint": "Pick the line that gets the most rupees, and justify it in reasoning.",
+     "prompt": "What will cost the most?"
     },
     {
      "id": "budget",
      "label": "Budget rows",
      "type": "long",
-     "hint": "Rows like “item: ₹amount”, with a contingency near 10 per cent. Total ₹6,000 or less."
+     "hint": "Rows like “item: ₹amount”, with a contingency near 10 per cent. Total ₹6,000 or less.",
+     "prompt": "How will you divide the budget?"
     }
    ],
    "link": {
@@ -528,28 +569,30 @@
    "Disclosure mentions AI use and consent",
    "The risk has a realistic fix"
   ],
-  "question": "Your film has three student actors, all live, and one AI-generated sky shot in scene 4. Which disclosure line in the pitch is the most honest?",
+  "question": "Your film uses real performers and one AI-made sky shot. Which description is honest?",
   "options": [
-   "“AI was involved in making this film in some ways, as usual.”",
-   "“This film uses no AI at all, in any shot.”",
-   "“AI tools were used on the full film; details later.”",
-   "“Live performances; AI made one sky shot; cast consented.”"
+   "Every shot was filmed live with no AI.",
+   "AI made every performance in the film.",
+   "No need to mention where generated images were used.",
+   "Real performances; AI made one sky shot; the cast agreed to take part."
   ],
   "answer": 3,
-  "explanation": "This line says exactly what AI did and that consent was given. A vague line, a false no-AI claim or a promise of details later all leave the committee unable to judge the film fairly.",
+  "explanation": "Say which part used AI and which parts were filmed. Be clear about consent and material you may use.",
   "practical": {
    "fields": [
     {
      "id": "logline",
      "label": "Logline",
      "type": "short",
-     "hint": "One sentence with a character, a want and an obstacle."
+     "hint": "One sentence with a character, a want and an obstacle.",
+     "prompt": "What is your story in one sentence?"
     },
     {
      "id": "audience",
      "label": "Audience",
      "type": "short",
-     "hint": "A specific group, such as college students in your city, not “everyone”."
+     "hint": "A specific group, such as college students in your city, not “everyone”.",
+     "prompt": "Who is the film for?"
     },
     {
      "id": "mix",
@@ -561,19 +604,22 @@
       "Live performances over AI-made background plates",
       "Live action first, AI only for rescue shots if needed"
      ],
-     "hint": "Choose the mix you can honestly deliver on this budget."
+     "hint": "Choose the mix you can honestly deliver on this budget.",
+     "prompt": "Which parts use real footage and which use AI?"
     },
     {
      "id": "disclosure",
      "label": "Disclosure line",
      "type": "short",
-     "hint": "One plain sentence saying what AI did and that everyone filmed agreed."
+     "hint": "One plain sentence saying what AI did and that everyone filmed agreed.",
+     "prompt": "How will you tell viewers where AI was used?"
     },
     {
      "id": "risk",
      "label": "Risk and fix",
      "type": "long",
-     "hint": "One honest risk and a concrete fix you can deliver, not a guarantee."
+     "hint": "One honest risk and a concrete fix you can deliver, not a guarantee.",
+     "prompt": "What could go wrong, and how will you handle it?"
     }
    ],
    "link": {

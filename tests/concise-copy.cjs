@@ -12,5 +12,5 @@ test('optional guidance stays available without taking over the main view',()=>{
  assert.match(workspace,/<details className="path-reason"><summary>/);
  assert.match(membership,/<details className="pricing-terms"><summary>Plan limits & billing details/);
  assert.match(membership,/Unused requests do not roll over/);assert.match(membership,/Cancel future renewals anytime/);
- assert.match(outcome,/Submit your work, actual test results and one improvement/);assert.match(outcome,/AI does not run your project or witness your test/);
+ assert.match(outcome,/Share your work, real results, and why you changed it/);assert.match(outcome,/AI does not run your project or witness your test/);
 });

@@ -1,40 +1,44 @@
 {
  "d1": {
   "task": "Write the feature brief for the trial-class request. Fill User story, Fields to collect, Three acceptance checks, One failure state and Most private detail. In your reasoning explain when your success message appears and why a parent should never see it too early. Hands-on completion: Build a small runnable trial-booking prototype alongside your brief. Use a local mock server or in-memory store. Run one successful save and one forced failure; submit the relevant code, actual output and the fix. Success must appear only after the save response. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "Anita's page runs showMessage('Booking saved') on the Book click and only then calls fetch('/api/bookings'). On a weak mobile network the request fails. Which acceptance check should her feature brief state?",
+  "question": "A parent taps Book, but saving fails. When should the page show “Booking saved”?",
   "options": [
-   "Show Booking saved when the parent presses Book, since pressing is the action they asked for",
-   "Show Booking saved once the page has finished sending the request, even if no reply arrives",
-   "Show Booking saved only after the server replies that the row is stored, else a retry message",
-   "Show Booking saved after the spinner ends, then quietly retry in the background if needed"
+   "As soon as the parent taps Book.",
+   "Once the request is sent, even without a reply.",
+   "Only after the server confirms the booking was saved; show a retry message if saving fails.",
+   "When the loading animation stops."
   ],
   "answer": 2,
-  "explanation": "A success message is a promise that the booking exists. Only the server's reply proves the row was stored, so the brief must tie the message to that reply. Showing it on click or after sending tells the parent a lie whenever the network fails.",
+  "explanation": "A tap only starts the request. Wait for the server to confirm the save before showing success.",
   "practical": {
    "fields": [
     {
      "id": "story",
      "label": "User story",
      "type": "short",
-     "hint": "One line: As a parent, I want ..., so that ... Keep it about one action."
+     "hint": "One sentence: a parent wants to request a trial class so they can choose a tutor.",
+     "prompt": "Who needs the booking page, what do they want, and why?"
     },
     {
      "id": "inputs",
      "label": "Fields to collect",
      "type": "long",
-     "hint": "List only the fields the tutor truly needs, each with a short reason. Leave out anything nice-to-have."
+     "hint": "List only necessary details, such as a name and class time. Give a reason for each.",
+     "prompt": "Which details must the parent enter?"
     },
     {
      "id": "accept",
      "label": "Three acceptance checks",
      "type": "long",
-     "hint": "Three testable lines, each a situation and an exact result, for example slot taken, empty name, success."
+     "hint": "Describe a successful save, missing information, and a time that is already taken. Say what should happen in each.",
+     "prompt": "What should happen in three test situations?"
     },
     {
      "id": "failure",
      "label": "One failure state",
      "type": "short",
-     "hint": "What the parent sees when it goes wrong, in plain words, with the next step."
+     "hint": "Write the message and next step. A failed save must not also show Booking saved.",
+     "prompt": "What should the parent see when saving fails?"
     },
     {
      "id": "private",
@@ -46,29 +50,31 @@
       "Preferred slot and time",
       "Parent's full name"
      ],
-     "hint": "Pick the detail you would hide from other parents; explain in your reasoning."
+     "hint": "Choose one detail below and explain why other parents should not see it.",
+     "prompt": "Which detail needs the most protection?"
     }
    ]
   }
  },
  "d2": {
   "task": "Review the AI-written booking handler. Name Two trust failures, rewrite it in Corrected handler, write Three negative tests, and pick Where the price comes from. In your reasoning explain why the browser cannot be trusted for these values. Hands-on completion: Run your corrected handler locally with a spoofed user ID, changed price and repeated request. Submit the handler and actual output for all three cases, then fix a failing case. A paper trace or expected output alone does not count. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "A reviewer reads this AI-written line: const { userId, price } = req.body; await db.query('INSERT INTO bookings(user_id, amount) VALUES ($1, $2)', [userId, price]). A parent sends userId 7 and price 0. What is the best review comment?",
+  "question": "A booking page sends a user ID and price to the server. Someone changes both before sending. What should the server do?",
   "options": [
-   "Add a browser check that price is above zero before the form can be sent",
-   "The $1 and $2 placeholders already make this safe, so approve it",
-   "Validate that userId is a number and price is not negative",
-   "Take userId from the session and look up the price from the server's slots table"
+   "Trust the values because the form checked them.",
+   "Accept any price above zero.",
+   "Check only that the user ID is a number.",
+   "Use the verified sign-in to identify the user and its own records to find the price."
   ],
   "answer": 3,
-  "explanation": "Placeholders stop SQL injection but not lying: the browser can send any userId or price. The server must take identity from the session and the price from its own table. Range checks still accept price 1 for a 500 rupee class.",
+  "explanation": "People can change data sent by a browser. The server must check who is signed in and choose the trusted price.",
   "practical": {
    "fields": [
     {
      "id": "flaws",
      "label": "Two trust failures",
      "type": "long",
-     "hint": "Name both failures in this snippet and what an attacker could do with each, in your own words."
+     "hint": "Explain the fake user ID and changed price, and what harm each could cause.",
+     "prompt": "What two things could someone change to cheat this booking form?"
     },
     {
      "id": "fixed",
@@ -81,7 +87,8 @@
       "$1",
       "select"
      ],
-     "hint": "Edit the handler: derive the user from the session, price from the database, and save with a safe query."
+     "hint": "Use the verified sign-in for identity and the database for price. Use a safe database query.",
+     "prompt": "What does your fixed server code look like?"
     },
     {
      "id": "negtests",
@@ -93,7 +100,8 @@
       "it(",
       "assert"
      ],
-     "hint": "Three tests that must fail safely: another user, a tampered price, a duplicate request. Use expect lines."
+     "hint": "Write runnable tests for someone else’s ID, a changed price and the same request twice. Include checks such as expect or assert.",
+     "prompt": "Which three tests check fake IDs, changed prices and repeat requests?"
     },
     {
      "id": "price_src",
@@ -105,7 +113,8 @@
       "A value stored in the browser's local storage",
       "The price in the page URL query string"
      ],
-     "hint": "Pick the one source you would trust for the amount charged."
+     "hint": "Choose a trusted source. A hidden form field can still be changed.",
+     "prompt": "Where should the server get the real price?"
     }
    ]
   }
@@ -119,15 +128,15 @@
    "Mark two private columns",
    "Say who may see them"
   ],
-  "question": "Anita's app stores each booking as a batch id and a seat number. Two parents press Book for seat 10 of the Saturday batch in the same second, and the app only checks the list in its own code first. What most reliably stops both from getting the seat?",
+  "question": "Two parents try to book the same seat at the same time. What reliably prevents a double booking?",
   "options": [
-   "A note saying seats are limited, shown beside the Book button",
-   "Tell parents to refresh the page before booking a seat",
-   "A database rule allowing each batch and seat pair only once",
-   "A two-second wait after the Book button so replies can catch up"
+   "Hide the Book button after one click.",
+   "Ask parents not to book together.",
+   "A database rule that allows each class-and-seat pair to be saved only once.",
+   "Check the browser’s old list of seats."
   ],
   "answer": 2,
-  "explanation": "Two requests can both pass a check in code before either one saves. A unique rule in the database is checked at the moment of saving, so the second booking is refused. Notes, refreshing and waiting only reduce the chance, they do not remove it.",
+  "explanation": "The database must reject the second booking, even when two requests arrive together.",
   "practical": {
    "fields": [
     {
@@ -139,7 +148,8 @@
       "primary key",
       "references"
      ],
-     "hint": "SQL CREATE TABLE statements for the records, with primary keys and the foreign key from booking to batch."
+     "hint": "Write SQL instructions to create the tables—lists of stored records—and connect each booking to the right person or class.",
+     "prompt": "What information goes in each database table?"
     },
     {
      "id": "unique_rule",
@@ -151,13 +161,15 @@
       "One row per phone number overall",
       "One row per booking date and time"
      ],
-     "hint": "Pick the rule you would enforce in the database for last-seat bookings."
+     "hint": "Add a database rule for a class-and-seat pair that must be unique—saved only once.",
+     "prompt": "Which booking details must never be saved twice?"
     },
     {
      "id": "private_cols",
      "label": "Private columns and who sees them",
      "type": "long",
-     "hint": "Name two private columns and say who may read them: the parent, the tutor, or nobody else."
+     "hint": "Name two private data columns and who may read each: the parent, tutor, or nobody else. Show a query that respects this.",
+     "prompt": "Which information is private, and who may see it?"
     }
    ],
    "link": {
@@ -175,22 +187,23 @@
    "Give two distinct errors",
    "Pick a status for duplicates"
   ],
-  "question": "The Pune workshop page sends a student's email to the Register endpoint, and the same email is already on the list. The browser team needs to show a helpful message. Which reply should the contract promise?",
+  "question": "A student registers for a workshop twice with the same email. Which server reply clearly tells the page what happened?",
   "options": [
-   "A 409 reply with an already_registered code",
-   "A 200 reply with an empty body, so the page never breaks or shows anything odd",
-   "A 500 reply carrying the raw database error text so the team can debug quickly",
-   "A 400 reply with no message, because the browser should work out why itself"
+   "Status 409 with an already_registered message.",
+   "Status 200 saying a new registration was saved.",
+   "No reply until the student gives up.",
+   "A different random error each time."
   ],
   "answer": 0,
-  "explanation": "The contract should give a clear status and a code the page can turn into a friendly message. An empty 200 hides the problem, raw database text leaks internals, and a bare 400 leaves the browser guessing what went wrong.",
+  "explanation": "A 409 status means this request conflicts with an existing record. A clear message lets the page explain that registration already exists.",
   "practical": {
    "fields": [
     {
      "id": "endpoint",
      "label": "Method and path",
      "type": "short",
-     "hint": "One line such as VERB /api/... naming the action, not the page."
+     "hint": "Name the HTTP action, such as POST, and the server URL, such as /api/register.",
+     "prompt": "Which URL and action will the page use to send a registration?"
     },
     {
      "id": "req_json",
@@ -201,7 +214,8 @@
       "email",
       "{"
      ],
-     "hint": "The JSON body as a JavaScript object literal, with every required input and realistic sample values."
+     "hint": "Write the data as JSON, with field names and example values. Use safe made-up details.",
+     "prompt": "What data will the page send?"
     },
     {
      "id": "ok_json",
@@ -212,7 +226,8 @@
       "200",
       "id"
      ],
-     "hint": "The server line that sends the success status and JSON body when the registration is saved."
+     "hint": "Write a JSON reply with the saved registration reference and a clear result.",
+     "prompt": "What will the server send back after saving?"
     },
     {
      "id": "dup_status",
@@ -224,13 +239,15 @@
       "422 Unprocessable Entity",
       "200 OK with an error message inside"
      ],
-     "hint": "Pick the status you would return when the same email registers twice."
+     "hint": "Choose the status code for a request that conflicts with an existing registration.",
+     "prompt": "What status number means this student is already registered?"
     },
     {
      "id": "errors",
      "label": "Two error replies",
      "type": "long",
-     "hint": "Two different errors, each with status, JSON body and when it happens."
+     "hint": "Write two different errors with a status number, JSON reply, and the situation that causes each.",
+     "prompt": "What will the server reply for two different errors?"
     }
    ],
    "link": {
@@ -248,15 +265,15 @@
    "Keep both messages polite",
    "Say how to fix each mistake"
   ],
-  "question": "The Jaipur form stops quantity above 20 using a browser setting. A cousin sends a direct request for item 7, quantity 5000, while only 12 are in stock. Which check actually stops this order?",
+  "question": "A browser allows only 20 items, but someone sends a direct order for 5,000. Only 12 are in stock. What stops it?",
   "options": [
-   "The maximum value set on the quantity box in the page",
-   "A script that disables the Order button after the first click",
-   "Hiding the quantity box on small phone screens",
-   "The server comparing quantity with stock before saving"
+   "The browser’s quantity limit alone.",
+   "Hiding the order button after the click.",
+   "Accepting the order and checking stock tomorrow.",
+   "The server checks stock and quantity before saving the order."
   ],
   "answer": 3,
-  "explanation": "A direct request never touches the page, so the box limit, button script and hiding all get skipped. Only a check on the server, run before saving, sees every request and can refuse this one.",
+  "explanation": "Browser controls can be bypassed. Check the available stock again on the server when the order is saved.",
   "practical": {
    "fields": [
     {
@@ -269,7 +286,8 @@
       "In both, browser for feedback and server as the real guard",
       "Skip it and let the owner fix orders by phone"
      ],
-     "hint": "Pick where the check \"quantity is not above stock\" must run for the order form."
+     "hint": "Choose where the final stock check happens before an order is saved.",
+     "prompt": "Where should the app check the remaining stock?"
     },
     {
      "id": "validator",
@@ -283,19 +301,22 @@
       "length",
       "number.isinteger"
      ],
-     "hint": "Improve the weak validator: check name, a 10-digit Indian phone, a known item, and a whole quantity from 1 to stock."
+     "hint": "Check the name, a 10-digit Indian phone number, a known item, and a whole quantity from 1 up to available stock.",
+     "prompt": "What code checks whether an order is allowed?"
     },
     {
      "id": "msg_phone",
      "label": "Error message for a bad phone",
      "type": "short",
-     "hint": "Polite, names the problem and the fix, without blaming the customer."
+     "hint": "Use a helpful sentence that says how to correct the phone number.",
+     "prompt": "What will you tell someone whose phone number is invalid?"
     },
     {
      "id": "msg_qty",
      "label": "Error message for too many items",
      "type": "short",
-     "hint": "Say how many are available and what to do next."
+     "hint": "Explain the available amount and ask the person to reduce the order.",
+     "prompt": "What will you say when they order more than is available?"
     }
    ],
    "link": {
@@ -313,15 +334,15 @@
    "Fix the success timing",
    "Handle a failed save"
   ],
-  "question": "You will ask an AI assistant about the bug where parents see Booking confirmed but the tutor's list is empty. Which message to the assistant is both safest and most useful?",
+  "question": "A page says a booking is confirmed, but no booking is stored. What should you share when asking AI to help?",
   "options": [
-   "Repeat steps, expected and actual result, error line, with secrets and phone numbers replaced by placeholders",
-   "Paste the whole .env file and a full export of the bookings table, so the assistant can see the entire setup and every parent's details",
-   "Only the words: booking broken, please fix it fast",
-   "A screenshot of the live admin page showing every parent's name and number"
+   "The steps, expected and actual results, and error details, with private data removed.",
+   "Real passwords and customer phone numbers.",
+   "Only the words “it is broken”.",
+   "Every unrelated file without explaining the problem."
   ],
   "answer": 0,
-  "explanation": "Steps plus expected and actual results give the assistant something to reason about, and placeholders keep secrets and families' data out. Pasting the .env or customer data leaks private details, and a vague message makes it guess.",
+  "explanation": "Clear steps and actual results help find the cause. Remove secrets and replace personal details with safe examples.",
   "practical": {
    "fields": [
     {
@@ -334,13 +355,15 @@
       "Restart the server and hope it clears",
       "Check the database tables for old rows only"
      ],
-     "hint": "Pick the first thing you would do about the missing bookings."
+     "hint": "Choose how you will repeat the problem before changing code.",
+     "prompt": "What will you do first to find this booking bug?"
     },
     {
      "id": "evidence",
      "label": "Evidence for the assistant",
      "type": "long",
-     "hint": "List what you will paste (steps, expected, actual, error line) and what you will remove or replace first."
+     "hint": "Include the steps, expected and actual results, and relevant error. Replace secrets and phone numbers with safe examples.",
+     "prompt": "What real error details can you safely share with AI?"
     },
     {
      "id": "fix",
@@ -354,7 +377,8 @@
       "status(500)",
       "try"
      ],
-     "hint": "Edit the handler so success is sent only after the save works, and a failed save returns an error."
+     "hint": "Update the actual code so only the correct success or error message appears after the server replies.",
+     "prompt": "What does your fixed booking code look like?"
     }
    ],
    "link": {
@@ -372,15 +396,15 @@
    "Keep the check on the server",
    "Separate login from permission"
   ],
-  "question": "Meera is logged in as a parent. She changes the number in the page address from 412 to 413 and sees another family's booking and phone number. Which fix actually closes this gap?",
+  "question": "Meera changes a booking number in the address and sees another family’s phone number. What fixes this?",
   "options": [
-   "Remove the booking number from the page address so it cannot be edited by hand, and hide other families' links",
-   "Check on the server that the booking's parent matches the session user, or the user is the tutor",
-   "Only return a booking when the visitor is logged in",
-   "Use longer random booking numbers and keep the same code"
+   "Hide the link to the other booking.",
+   "The server checks that the booking belongs to Meera or that she has the tutor role.",
+   "Check only that Meera has signed in.",
+   "Change the colour of the booking number."
   ],
   "answer": 1,
-  "explanation": "The server must compare the booking's owner with the person asking, on every request. Hiding the number or lengthening it only makes guessing harder, and a login-only check lets any logged-in family read any booking.",
+  "explanation": "Signing in does not give access to every record. Check permission for the specific booking on the server.",
   "practical": {
    "fields": [
     {
@@ -393,7 +417,8 @@
       "parent, tutor and admin",
       "guest, member and owner"
      ],
-     "hint": "Pick the role set you would store in the users table."
+     "hint": "Name the user roles, such as parent, tutor and administrator. Say what each may do.",
+     "prompt": "Which kinds of users need different access?"
     },
     {
      "id": "deny_status",
@@ -405,7 +430,8 @@
       "200 with an empty booking object",
       "302 redirect to the login page"
      ],
-     "hint": "Pick what the server returns when a parent asks for a booking that is not theirs."
+     "hint": "Choose the response for a signed-in user who does not have permission for this record.",
+     "prompt": "What should the server reply when someone opens another person’s booking?"
     },
     {
      "id": "can_access",
@@ -419,13 +445,15 @@
       "owner",
       "==="
      ],
-     "hint": "Fix canViewBooking: it must check the owner or the tutor role, not just that someone is logged in."
+     "hint": "Write and run a function that checks the signed-in user, record owner and permitted role.",
+     "prompt": "What code decides who may open a booking?"
     },
     {
      "id": "where",
      "label": "Where the check runs",
      "type": "short",
-     "hint": "One line naming where every protected action is checked, and why a hidden button is not enough."
+     "hint": "Choose the place that cannot be bypassed by changing a page or button.",
+     "prompt": "Where must that permission check run?"
     }
    ],
    "link": {
@@ -443,15 +471,15 @@
    "Use exact expected results",
    "Fix the off-by-one"
   ],
-  "question": "A batch has ten seats and the code is canBook(taken, capacity) { return taken <= capacity }. Which single test would catch the mistake in this code?",
+  "question": "A class has 10 seats and all 10 are taken. Which test catches code that still allows another booking?",
   "options": [
-   "taken is 3 and capacity is 10, a normal booking day, expecting true",
-   "taken is 0 and capacity is 10, expecting true",
-   "taken is 12 and capacity is 10, expecting false",
-   "taken is 10 and capacity is 10, expecting false"
+   "Test taken = 0 and capacity = 10; expect booking to be allowed.",
+   "Check only whether the button has a label.",
+   "Test one free seat without testing a full class.",
+   "Test taken = 10 and capacity = 10; expect booking to be refused."
   ],
   "answer": 3,
-  "explanation": "With ten of ten seats taken the batch is full, but less-than-or-equal still says yes. Only the test at the exact limit shows it. Tests far from the limit pass with both the right and the wrong code.",
+  "explanation": "Test the exact limit. When taken equals capacity, the class is full and another booking must be refused.",
   "practical": {
    "fields": [
     {
@@ -464,7 +492,8 @@
       "A booking when the batch is full",
       "An empty-name form submission"
      ],
-     "hint": "Pick the test you would automate first and defend it in your reasoning."
+     "hint": "Choose an important booking behaviour to protect with an automatic test.",
+     "prompt": "Which booking test will you write first?"
     },
     {
      "id": "tests",
@@ -476,13 +505,15 @@
       "it(",
       "assert"
      ],
-     "hint": "Normal, boundary and failure tests for seats, as Jest-style code with exact expected results."
+     "hint": "Write runnable tests with inputs and expected results. Include normal, invalid and full-capacity cases.",
+     "prompt": "What do your three test cases check?"
     },
     {
      "id": "boundary_name",
      "label": "Boundary test name",
      "type": "short",
-     "hint": "One line naming the boundary test, such as when the last seat is taken, in plain words."
+     "hint": "Give the full-class test a clear name that says the expected result.",
+     "prompt": "What will you name the test for a full class?"
     },
     {
      "id": "fix_seat",
@@ -494,7 +525,8 @@
       "capacity",
       "taken"
      ],
-     "hint": "The boundary test fails on this function. Fix the off-by-one so the tenth seat can be booked and the eleventh cannot."
+     "hint": "Fix the code so the tenth seat can be booked but an eleventh cannot. Test the exact limit.",
+     "prompt": "What is the fixed code for checking whether a seat is free?"
     }
    ],
    "link": {
@@ -512,22 +544,23 @@
    "Write the rollback command",
    "Choose how to merge"
   ],
-  "question": "The preferred-language change was merged and deployed. Within minutes, bookings fail because the new column is required but the form does not send it. What is the safest first recovery move?",
+  "question": "A new website release breaks bookings. The previous code still works with the stored data. What is the safest first recovery?",
   "options": [
-   "Revert the merge commit and redeploy, then fix it on a new branch",
-   "Edit the live server files by hand until bookings work",
-   "Force-push an older copy from your laptop over main",
-   "Delete the repository and start again from last month's zip file"
+   "Undo that release, restore the working version, then fix the change separately.",
+   "Keep the broken version and wait for complaints.",
+   "Delete the booking database.",
+   "Make several untested changes directly on the live site."
   ],
   "answer": 0,
-  "explanation": "Reverting the merge commit returns the live app to the last working state quickly and keeps the history. Hand edits and force-pushes can lose other work, and deleting everything throws away the record that helps you find the cause.",
+  "explanation": "Restore the known working version first when it is compatible with the data. Then test the repair before releasing it.",
   "practical": {
    "fields": [
     {
      "id": "branch",
      "label": "Branch name",
      "type": "short",
-     "hint": "A short name that says what the change is, such as feature/ then a few words."
+     "hint": "Use a short branch name describing the change, such as fix-booking-message.",
+     "prompt": "What will you name your separate Git branch?"
     },
     {
      "id": "commits",
@@ -539,7 +572,8 @@
       "git switch",
       "git add"
      ],
-     "hint": "Git commands: create the branch, then three add and commit steps with clear messages, one per small change."
+     "hint": "Show Git commands to create the branch and make three add/commit steps with clear messages. Each commit saves one small change.",
+     "prompt": "What changes will your three small commits save?"
     },
     {
      "id": "rollback",
@@ -551,7 +585,8 @@
       "git checkout",
       "redeploy"
      ],
-     "hint": "Exact commands to undo the change on the live app if bookings break after the merge."
+     "hint": "Give the safe undo commands and checks. Use only a throwaway local project.",
+     "prompt": "How will you return to a working version if the change fails?"
     },
     {
      "id": "merge_way",
@@ -563,7 +598,8 @@
       "Rebase then fast-forward for a straight history",
       "Push straight to main to save time"
      ],
-     "hint": "Pick how the branch joins main, and defend it in your reasoning."
+     "hint": "Choose a merge approach after reviewing and testing the changes. Merging joins the branch into the main version.",
+     "prompt": "How will you join the checked changes into the main version?"
     }
    ],
    "link": {
@@ -581,15 +617,15 @@
    "Tie the reason to harm",
    "Name who gets the alert"
   ],
-  "question": "Four gaps remain a week before launch: any logged-in family can open another family's booking by changing the number; a typo in the confirmation text; no alert when saving fails; slow loading on mobile data. Which should be fixed first?",
+  "question": "Before sharing a booking app, you find a typo, slow loading, and a way to open other families’ private records. What comes first?",
   "options": [
-   "The typo, because it is a ten-second fix and makes the list of gaps look much shorter",
-   "The booking-number gap, since it is easy to try and exposes families' phone numbers",
-   "The missing alert, since failures could pass unseen for a whole day and hit several parents",
-   "The slow loading, because every family sees it on the first visit and may give up before booking"
+   "Fix the typo before checking private records.",
+   "Block access to other families’ records and test the fix.",
+   "Change the homepage colours.",
+   "Ignore the problem because people need to sign in."
   ],
   "answer": 1,
-  "explanation": "Ranking by harm and likelihood puts the booking-number gap first: anyone can try it and it exposes private phone numbers. The alert and the loading time matter, but their harm is smaller, and a quick typo fix does not reduce real risk.",
+  "explanation": "Exposed private records can harm families. Fix and test access checks before treating the app as ready to share.",
   "practical": {
    "fields": [
     {
@@ -602,7 +638,8 @@
       "monitoring",
       "tests"
      ],
-     "hint": "Five yes/no checks, one each for security, tests, privacy, errors and monitoring, as a checklist block."
+     "hint": "Write five yes/no checks: security, tests, privacy, errors, and noticing failures. Say how each will be checked.",
+     "prompt": "What will you check before sharing the app?"
     },
     {
      "id": "first_risk",
@@ -614,19 +651,22 @@
       "No alert if bookings stop saving",
       "The page takes three seconds to load on mobile data"
      ],
-     "hint": "Pick the gap you would fix before launch day."
+     "hint": "Choose the issue with the greatest likely harm, especially exposure of private records.",
+     "prompt": "Which risk will you fix first?"
     },
     {
      "id": "alert",
      "label": "Who is alerted, and how",
      "type": "short",
-     "hint": "Name the person and channel for the monitoring check, for example the tutor by WhatsApp."
+     "hint": "Name the responsible person or role and a way to reach them. Keep private data out of alerts.",
+     "prompt": "Who should hear about a failed save, and how?"
     },
     {
      "id": "why",
      "label": "Why that risk comes first",
      "type": "long",
-     "hint": "Link it to harm and likelihood for fifty real families, and say what you will check again after the fix."
+     "hint": "Explain the possible harm, who is affected, and how your test confirms the fix.",
+     "prompt": "Why is this the most important risk to fix first?"
     }
    ],
    "link": {

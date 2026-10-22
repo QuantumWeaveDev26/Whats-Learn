@@ -8,7 +8,7 @@
  * Code is only ever stored and shown as text. It is never run, compiled, opened or fetched, and public GitHub roots can be read by the bounded AI source reviewer. Other links are references only.
  */
 export type FieldType='choice'|'short'|'long'|'code';
-export type PracticalField={id:string;label:string;type:FieldType;options?:string[];hint?:string;starter?:string;anyOf?:string[]};
+export type PracticalField={id:string;label:string;prompt?:string;type:FieldType;options?:string[];hint?:string;starter?:string;anyOf?:string[]};
 export type Practical={fields:PracticalField[];link?:{label:string;hint:string}};
 export type Answer={fields:Record<string,string>;reasoning:string;link:string};
 export const LIMITS={short:160,long:900,code:2500,reasoning:1500,link:300,total:9000,minReasoning:40} as const;

@@ -61,5 +61,5 @@ test('WhatsApp stops after the same three free missions and honours paid access 
   }}finally{global.fetch=real}
  });
  test('every mission task includes actual hands-on completion and rejects theoretical substitutes',()=>{
-  for(const m of missions){assert.match(m.task,/Hands-on completion:/,m.id);assert.match(m.task,/actual test\/run results/,m.id);assert.match(m.task,/manual walkthroughs alone do not complete/,m.id)}
+  for(const m of missions){assert.match(m.task,/^1\. /,m.id);assert.match(m.task,/\n2\. /,m.id);assert.match(m.task,/\n3\. /,m.id);assert.equal(require('../lib/mission-practice.ts').missionPractice(m).steps.length,3)}
  });

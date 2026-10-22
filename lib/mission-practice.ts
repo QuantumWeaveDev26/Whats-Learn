@@ -1,5 +1,6 @@
 import {missions,type Mission} from './missions';
 import {deliverables} from './course-roadmap';
+import {courseSteps} from './course-guidance';
 /** Realistic practice, not a claim that these are live client commissions. */
 const trials:Record<string,string[]>={
  "marketing": [
@@ -51,4 +52,4 @@ const trials:Record<string,string[]>={
   "Create and export five campaign frames using your earlier work. View the full sequence on a phone, record where its message breaks and revise that frame. Submit the actual frame content and before/after correction."
  ]
 };
-export function missionPractice(m:Mission){const index=missions.filter(x=>x.track===m.track).findIndex(x=>x.id===m.id);return {outcome:deliverables[m.track]?.[index]||m.title,trial:(trials[m.track]?.[index]||m.task)+(m.levelTask?' ' +m.levelTask:''),day:index+1}}
+export function missionPractice(m:Mission){const index=missions.filter(x=>x.track===m.track).findIndex(x=>x.id===m.id);const steps=courseSteps[m.id]||[trials[m.track]?.[index]||m.task];return {outcome:deliverables[m.track]?.[index]||m.title,steps:[...steps,...(m.levelTask?[m.levelTask]:[])],trial:steps.join(' ')+(m.levelTask?' ' +m.levelTask:''),day:index+1}}

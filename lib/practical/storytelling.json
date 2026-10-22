@@ -1,45 +1,51 @@
 {
  "v1": {
   "task": "Plan the library story. Write the Audience, then Frame 1, Frame 2 and Frame 3, each with what we see, the feeling and a short caption, and name the Visual detail that stays the same. In your reasoning box, explain why you ordered the frames this way. Hands-on completion: Create three finished rough frames on paper or in a free design tool. Hide the captions and check whether the visual change is readable; redraw or reorder one frame. Submit the actual frame content and the change observed. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "The library’s draft has Frame 1 as an exam hall, Frame 2 as a cricket match, and Frame 3 as a bookshelf with the address. Reviewers say the three pictures feel unrelated. What is the best fix?",
+  "question": "Three library pictures show an exam hall, a cricket match and a bookshelf. They feel unrelated. What makes one clear story?",
   "options": [
-   "Add a fourth frame listing all of the library’s events and timings for the month",
-   "Write a longer, more detailed AI prompt for each frame so the pictures look richer",
-   "Show problem, change and invitation in order, linked by one repeated detail"
+   "Add more unrelated attractive pictures.",
+   "Make every picture use a different audience.",
+   "Show a problem, a change and an invitation, linked by a repeated detail.",
+   "Keep the order random and explain everything later."
   ],
   "answer": 2,
-  "explanation": "Frames feel like a story when each has one job and something visible repeats across them. A longer prompt or an extra frame of events adds detail but does not connect the pictures.",
+  "explanation": "Viewers need to see how one picture leads to the next. A repeated person or object helps connect them.",
   "practical": {
    "fields": [
     {
      "id": "audience",
      "label": "Audience",
      "type": "short",
-     "hint": "Name one specific group, such as college students near the library, not everyone."
+     "hint": "Name one specific group, such as college students near the library, not everyone.",
+     "prompt": "Who should understand these pictures?"
     },
     {
      "id": "frame_1",
      "label": "Frame 1",
      "type": "short",
-     "hint": "What we see, the feeling, and a short caption. Show the relatable problem."
+     "hint": "What we see, the feeling, and a short caption. Show the relatable problem.",
+     "prompt": "What do we see in the first picture?"
     },
     {
      "id": "frame_2",
      "label": "Frame 2",
      "type": "short",
-     "hint": "What we see, the feeling, and a short caption. Show the change happening."
+     "hint": "What we see, the feeling, and a short caption. Show the change happening.",
+     "prompt": "What changes in the second picture?"
     },
     {
      "id": "frame_3",
      "label": "Frame 3",
      "type": "short",
-     "hint": "What we see, the feeling, and a caption that ends with one clear invitation."
+     "hint": "What we see, the feeling, and a caption that ends with one clear invitation.",
+     "prompt": "What do we see or do in the last picture?"
     },
     {
      "id": "thread",
      "label": "Visual detail that stays the same",
      "type": "short",
-     "hint": "One object, colour or place that appears in all three frames."
+     "hint": "One object, colour or place that appears in all three frames.",
+     "prompt": "Which person, object or detail links all three pictures?"
     }
    ],
    "link": {
@@ -50,22 +56,23 @@
  },
  "v2": {
   "task": "Write the AI brief for the three library images. Fill Subject and setting, choose Composition and Mood, name one Consistent detail, and list Two things to avoid. In your reasoning box, explain how you would check that viewers get the story. Hands-on completion: Create two consistent images from your brief using an available image tool or your own drawing. Compare the actual outputs, revise the brief and create a corrected image. Submit the work and the observed consistency fix. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "A team asks an AI tool for three library images from a loose prompt. The results show a different person each time, and one image has a signboard with garbled letters. Which brief change helps most?",
+  "question": "AI gives you a different library visitor in each image and unreadable signs. What should your instructions make clear?",
   "options": [
-   "Ask for the highest resolution and add extra descriptive words to every prompt",
-   "Generate fifty versions and pick the three prettiest images from the batch",
-   "Put the full caption text in the prompt so the tool prints it inside each image",
-   "Describe the person and one repeated item once, and ban text in the image"
+   "Ask only for more beautiful pictures.",
+   "Request a different person in every image.",
+   "Keep the unreadable sign because it looks detailed.",
+   "Describe the same person and repeated item each time, and add readable text separately."
   ],
   "answer": 3,
-  "explanation": "A fixed description and a recurring detail keep the set consistent, and banning text avoids garbled letters that you can replace with proper captions in the layout. Resolution, volume and asking for text in the image do not solve either problem.",
+  "explanation": "Describe what must stay the same. Check the actual images; add important words in a tool where you can read and edit them.",
   "practical": {
    "fields": [
     {
      "id": "subject",
      "label": "Subject and setting",
      "type": "short",
-     "hint": "Who is in the image and where, in plain words. Be specific about the person and place."
+     "hint": "Who is in the image and where, in plain words. Be specific about the person and place.",
+     "prompt": "Who or what appears, and where are they?"
     },
     {
      "id": "composition",
@@ -77,7 +84,8 @@
       "Over-the-shoulder shot looking at the shelves",
       "Wide shot with the person small in the room",
       "Close-up on hands and the book"
-     ]
+     ],
+     "prompt": "Where should the main subject sit in the picture?"
     },
     {
      "id": "mood",
@@ -89,19 +97,22 @@
       "Soft morning light, fresh and hopeful",
       "Cosy evening lamplight, quiet and safe",
       "Bright airy daylight, open and friendly"
-     ]
+     ],
+     "prompt": "What should the mood and lighting feel like?"
     },
     {
      "id": "continuity",
      "label": "Consistent detail",
      "type": "short",
-     "hint": "One item or colour repeated across all three images so they look like a set."
+     "hint": "One item or colour repeated across all three images so they look like a set.",
+     "prompt": "What detail should stay the same in every image?"
     },
     {
      "id": "avoid",
      "label": "Two things to avoid",
      "type": "long",
-     "hint": "Name two exclusions, such as text inside the image or invented endorsements, and say why each matters."
+     "hint": "Name two exclusions, such as text inside the image or invented endorsements, and say why each matters.",
+     "prompt": "What two things should the maker leave out?"
     }
    ],
    "link": {
@@ -119,21 +130,23 @@
    "Join them in one line",
    "Explain the feeling you chose"
   ],
-  "question": "The Pune club drafts a poster line: “Photography club: cameras, walks, friends, contests and workshops, all in one place!” The club wants first-year students to join Saturday walks. Which rewrite is best?",
+  "question": "A photography club wants first-year students to join a Saturday walk. Which poster line makes that invitation clear?",
   "options": [
-   "Join a lively club with many events, walks, contests and chances to grow throughout the year",
-   "First year? Come on Saturday’s walk, no camera skills needed",
-   "Our members love photography and we would be happy to see more people soon"
+   "Cameras, friends, contests, workshops and everything for everyone.",
+   "First year? Join Saturday’s photo walk. No camera skills needed.",
+   "The greatest creative experience in history.",
+   "A photography club exists somewhere nearby."
   ],
   "answer": 1,
-  "explanation": "The second line names one audience, lowers the fear of not being good enough, and gives one action. The others still list or describe the club without telling a particular person what to do next.",
+  "explanation": "Name the person, activity and next step. Say if beginners are welcome.",
   "practical": {
    "fields": [
     {
      "id": "audience",
      "label": "Audience",
      "type": "short",
-     "hint": "One specific group of students, not everyone in the college."
+     "hint": "One specific group of students, not everyone in the college.",
+     "prompt": "Who should notice this message?"
     },
     {
      "id": "feeling",
@@ -146,7 +159,8 @@
       "Confidence",
       "Excitement",
       "Relief"
-     ]
+     ],
+     "prompt": "What should they feel?"
     },
     {
      "id": "action",
@@ -158,13 +172,15 @@
       "Message the club on Instagram to reserve a spot",
       "Fill a short sign-up form this week",
       "Bring one friend along this Saturday"
-     ]
+     ],
+     "prompt": "What should they do next?"
     },
     {
      "id": "line",
      "label": "One-line message",
      "type": "short",
-     "hint": "One line a stranger could repeat. It should carry the audience, the feeling and the action."
+     "hint": "One line a stranger could repeat. It should carry the audience, the feeling and the action.",
+     "prompt": "What is your message in one sentence?"
     }
    ]
   }
@@ -178,57 +194,63 @@
    "Describe three reading steps",
    "Name what you left out"
   ],
-  "question": "A first draft of the open-mic poster has the library logo, five performer photos, the date, a sponsor strip and a quote, all about the same size. People walking by cannot say what it is for. What is the best fix?",
+  "question": "An event poster gives every photo, date and logo the same size. People cannot tell what it is for. What should change?",
   "options": [
-   "Add brighter colours to every element so each one pops out of the board",
-   "Reduce the font and photo sizes so everything fits comfortably",
-   "Let one element dominate through size and space, and shrink or cut the rest"
+   "Make every detail larger.",
+   "Add more photos and sponsor names.",
+   "Make the main event message stand out and reduce less important details.",
+   "Remove the event name and date."
   ],
   "answer": 2,
-  "explanation": "When everything competes, nothing leads, so the eye has no starting point. Making one thing clearly larger and giving it room lets the rest be read in order. Brighter colours on everything only adds more competition.",
+  "explanation": "Use size and space to show what matters first. Keep the key details easy to find.",
   "practical": {
    "fields": [
     {
      "id": "focal",
      "label": "Focal point",
      "type": "choice",
-     "hint": "What should the eye land on first?",
+     "hint": "Choose the main message, person or object the viewer should notice first.",
      "options": [
       "A large microphone image in the upper third",
       "The bold words “Open Mic Friday” as the headline",
       "A single performer silhouette on a dark background",
       "The date and time set in very large numbers"
-     ]
+     ],
+     "prompt": "What should people notice first on the poster?"
     },
     {
      "id": "contrast",
      "label": "Main contrast",
      "type": "choice",
-     "hint": "The one contrast that makes your focal point stand out.",
+     "hint": "Choose the main size, colour or brightness difference that makes it stand out.",
      "options": [
       "Size: much bigger than everything else",
       "Light against dark",
       "One bright colour on a calm background",
       "Empty space around it"
-     ]
+     ],
+     "prompt": "How will size or light and dark make it stand out?"
     },
     {
      "id": "headline",
      "label": "Poster headline",
      "type": "short",
-     "hint": "The exact words on the poster, short enough to read while walking."
+     "hint": "Write a short headline that makes the event clear.",
+     "prompt": "What is the main poster headline?"
     },
     {
      "id": "path",
      "label": "Eye path",
      "type": "long",
-     "hint": "Three steps, for example from the main image to the headline to the details, with what sits at each step."
+     "hint": "Describe three reading steps: what the viewer sees first, second and third, and where each detail sits.",
+     "prompt": "What should the viewer read first, second and third?"
     },
     {
      "id": "left_out",
      "label": "Left out",
      "type": "short",
-     "hint": "One thing you removed from the poster."
+     "hint": "Name a detail you removed so the important message has room.",
+     "prompt": "What will you leave out to keep the poster clear?"
     }
    ],
    "link": {
@@ -246,57 +268,62 @@
    "Add a cue that does not rely on colour",
    "Explain a greyscale test"
   ],
-  "question": "The NGO’s draft flyer has an orange headline on a pink background. It looks lively on a phone, but printed in black and white at the shop the headline almost disappears. What is the best fix?",
+  "question": "A flyer’s orange headline on pink disappears when printed in black and white. What helps?",
   "options": [
-   "Use a very dark headline on a clearly lighter background, so the difference is in brightness",
-   "Make the orange a little more vivid and saturated so that it prints much stronger in the shop",
-   "Put a thin outline around each letter in a lighter shade of pink"
+   "Use dark text on a clearly lighter background.",
+   "Choose two equally light colours.",
+   "Make the text smaller.",
+   "Rely only on colour to show the important information."
   ],
   "answer": 0,
-  "explanation": "Black-and-white printing keeps only how light or dark a colour is, so two colours of similar brightness merge. Changing the brightness gap fixes it for everyone. A more vivid orange or a faint outline still leaves the two colours close in brightness.",
+  "explanation": "Text needs a clear light-dark difference to stay readable without colour.",
   "practical": {
    "fields": [
     {
      "id": "contrast",
      "label": "Text and background",
      "type": "choice",
-     "hint": "The pair you would use for the main text.",
+     "hint": "Choose text and background colours with a clear light-dark difference.",
      "options": [
       "Black text on white paper",
       "Deep brown text on cream paper",
       "White text on dark navy",
       "Dark green text on pale yellow"
-     ]
+     ],
+     "prompt": "What text and background colours will keep the words readable?"
     },
     {
      "id": "size",
      "label": "Headline size on A4 print",
      "type": "choice",
-     "hint": "Pick a size for the main headline.",
+     "hint": "Choose a headline size you can read in the actual A4 print or export.",
      "options": [
       "36 pt",
       "48 pt",
       "60 pt",
       "72 pt, only a short headline"
-     ]
+     ],
+     "prompt": "How large will the headline be on an A4 page?"
     },
     {
      "id": "palette",
      "label": "Colour roles",
      "type": "choice",
-     "hint": "Pick how many colours you use and what each one does.",
+     "hint": "List your colours and what each marks, such as headings or warnings.",
      "options": [
       "Two: one for text, one for background",
       "Three: text, background and one accent for the date",
       "Three: dark text, light background and a warm band for the title",
       "Four: text, background, accent and a soft highlight"
-     ]
+     ],
+     "prompt": "What job does each colour have?"
     },
     {
      "id": "cue",
      "label": "Date cue without colour",
      "type": "short",
-     "hint": "How the donation date stands out even in greyscale, such as a box, bold type or an icon."
+     "hint": "Use words, a shape or placement so the date remains clear in black and white.",
+     "prompt": "How will you show the date clearly without relying on colour?"
     }
    ],
    "link": {
@@ -314,46 +341,50 @@
    "Name something the data does not prove",
    "Explain why the chart fits"
   ],
-  "question": "A library plots visits of 420, 510 and 640 as bars, but starts the vertical axis at 400. The May bar looks about twelve times taller than March. Why is this a problem?",
+  "question": "Library visits rise from 420 to 640. A bar chart starts at 400 and makes the rise look huge. What is misleading?",
   "options": [
-   "Bars cannot show only three numbers, so a table would be needed",
-   "The numbers should be rounded to the nearest hundred first",
-   "Nothing is wrong, since a taller bar always shows a bigger number and readers understand that",
-   "The cut-off axis exaggerates the rise, so the bars should start at zero"
+   "The labels show actual visit counts.",
+   "The chart includes both months.",
+   "The chart has a title.",
+   "The bars exaggerate the change because their scale does not start at zero."
   ],
   "answer": 3,
-  "explanation": "Bar length is read as size, so cutting the axis makes a rise of about half look like a huge jump. Starting at zero keeps the bar lengths in true proportion. A short series of three values is fine for bars.",
+  "explanation": "Bar lengths should represent the numbers fairly. Starting at zero stops a modest rise from looking many times larger.",
   "practical": {
    "fields": [
     {
      "id": "chart",
      "label": "Chart type",
      "type": "choice",
-     "hint": "The simplest chart that shows the change across three months.",
+     "hint": "Choose the simplest chart that clearly shows the change over the three supplied months.",
      "options": [
       "Bar chart starting at zero",
       "Line chart with three labelled points",
       "Big-number callout with a small arrow",
       "Column chart with value labels on each column"
-     ]
+     ],
+     "prompt": "Which chart will you use to show these numbers?"
     },
     {
      "id": "headline",
      "label": "Headline finding",
      "type": "short",
-     "hint": "One plain sentence that states what changed, not a topic label."
+     "hint": "Write one finding supported by the actual numbers, without exaggerating.",
+     "prompt": "What one finding does the chart show?"
     },
     {
      "id": "caption",
      "label": "Caption",
      "type": "short",
-     "hint": "Under 25 words. State only what the numbers show."
+     "hint": "Use fewer than 25 words. State only what the numbers show, including the period and units where needed.",
+     "prompt": "What will your chart caption explain?"
     },
     {
      "id": "unproven",
      "label": "What the numbers do not prove",
      "type": "short",
-     "hint": "One thing a reader might wrongly assume from this chart."
+     "hint": "Explain one conclusion the data cannot support, such as why visits changed.",
+     "prompt": "What can these numbers not tell you?"
     }
    ],
    "link": {
@@ -371,45 +402,51 @@
    "Slide 5 invites one action",
    "Name one claim to check"
   ],
-  "question": "The bakery’s slide 3 reads: “Made with millet, less sugar, free delivery nearby and 10% off for students.” It is too crowded to read in a second. What is the best fix?",
+  "question": "One bakery slide lists ingredients, delivery, a discount and health claims. It is hard to read. What helps?",
   "options": [
-   "Reduce the font size a lot so that all four points still fit on the same slide",
-   "Make the slide longer by adding more detail about each point",
-   "Keep one idea on this slide and move the others to their own slides"
+   "Add more words in smaller text.",
+   "Repeat all the details on every slide.",
+   "Keep one main idea on this slide and move other ideas to separate slides.",
+   "Remove the final order instruction from the whole sequence."
   ],
   "answer": 2,
-  "explanation": "A carousel is read quickly, one slide at a time, so each slide should carry a single idea. Splitting the points gives each one room and a reason to swipe. Shrinking the text only makes the slide harder to read.",
+  "explanation": "Give each slide one clear job. Readers should be able to follow the message and next step.",
   "practical": {
    "fields": [
     {
      "id": "s1",
      "label": "Slide 1: hook",
      "type": "short",
-     "hint": "One line and a picture note that stops the scroll. A question or surprise works better than a logo."
+     "hint": "One line and a picture note that stops the scroll. A question or surprise works better than a logo.",
+     "prompt": "How will the first slide catch attention?"
     },
     {
      "id": "s2",
      "label": "Slide 2: build",
      "type": "short",
-     "hint": "One line and a picture note: the first idea that adds interest."
+     "hint": "One line and a picture note: the first idea that adds interest.",
+     "prompt": "What one idea will the second slide add?"
     },
     {
      "id": "s3",
      "label": "Slide 3: build",
      "type": "short",
-     "hint": "One line and a picture note: a second, different idea."
+     "hint": "One line and a picture note: a second, different idea.",
+     "prompt": "What one new idea will the third slide add?"
     },
     {
      "id": "s4",
      "label": "Slide 4: proof",
      "type": "short",
-     "hint": "One line and a picture note that makes the claim believable."
+     "hint": "One line and a picture note that makes the claim believable.",
+     "prompt": "What fact or real example supports your message?"
     },
     {
      "id": "s5",
      "label": "Slide 5: invitation",
      "type": "short",
-     "hint": "One line and a picture note with a single action, such as ordering the six-cookie box for ₹240."
+     "hint": "One line and a picture note with a single action, such as ordering the six-cookie box for ₹240.",
+     "prompt": "What should the viewer do after the last slide?"
     }
    ],
    "link": {
@@ -427,52 +464,57 @@
    "Choose a verdict",
    "Make the revision request specific"
   ],
-  "question": "A Kochi tea-stall owner’s AI-made banner shows a smiling shop owner who looks very much like a well-known film actor. The owner likes it and wants to print it. What should happen first?",
+  "question": "An AI banner for a tea stall closely copies a famous actor’s face without permission. What should happen before printing?",
   "options": [
-   "Print it, since an AI picture does not belong to anyone and carries no risk at all",
-   "Change or replace the face so no real person is imitated, then review again",
-   "Print it small in a corner so that fewer people will notice",
-   "Add an “AI generated” label and print it as it is"
+   "Print it because AI made it.",
+   "Replace or change the face so it does not copy the person, then check the image again.",
+   "Hide a small corner but keep the recognisable face.",
+   "Say the actor supports the tea stall."
   ],
   "answer": 1,
-  "explanation": "A face that resembles a real person can suggest that person endorses the shop, and AI images are not automatically free of such risks. The image should be changed first. A label does not remove the problem.",
+  "explanation": "AI-made images still need careful checks. Do not imply a real person’s involvement or permission when you do not have it.",
   "practical": {
    "fields": [
     {
      "id": "defects",
      "label": "Hands and text finding",
      "type": "short",
-     "hint": "What is wrong with the hands or the lettering on the box, and where."
+     "hint": "Look at the actual image. Note visible problems such as extra fingers or unreadable words.",
+     "prompt": "What mistakes can you see in the hands or words?"
     },
     {
      "id": "bias",
      "label": "Bias or gaps finding",
      "type": "short",
-     "hint": "Who is missing or shown as a stereotype in the picture."
+     "hint": "Check whether people are missing, stereotyped or shown unfairly. Describe what you see.",
+     "prompt": "Who or what is missing or shown unfairly?"
     },
     {
      "id": "rights",
      "label": "Consent or rights finding",
      "type": "short",
-     "hint": "Any risk with real people, artists or brands being copied."
+     "hint": "Check faces, logos and source material. Do not assume AI output comes with permission.",
+     "prompt": "Do you have permission to use the people and material shown?"
     },
     {
      "id": "verdict",
      "label": "Verdict",
      "type": "choice",
-     "hint": "Your overall decision on the image.",
+     "hint": "Choose use, revise or replace based on the checks you actually made.",
      "options": [
       "Use as it is",
       "Use after fixing small details in the layout",
       "Regenerate with a new prompt",
       "Reject it and use a real photo"
-     ]
+     ],
+     "prompt": "Is the image ready to use, or must it change?"
     },
     {
      "id": "revision",
      "label": "Revision request",
      "type": "long",
-     "hint": "The exact change you would ask the AI tool or designer for, in plain words."
+     "hint": "Ask for specific changes to the visible problems. Then check the new image too.",
+     "prompt": "What exactly should be fixed in the next version?"
     }
    ],
    "link": {
@@ -490,45 +532,50 @@
    "Make the ask specific",
    "Explain why the order works"
   ],
-  "question": "A student team opens its pitch to the council with “Please give us ₹12,000 for a repair stall.” Members interrupt to ask why it is needed. What is the best change?",
+  "question": "Students start a pitch by asking for ₹12,000. The listeners ask why the project is needed. What should the students explain first?",
   "options": [
-   "Start with the problem and insight so the need is clear when the ask comes",
-   "Say a much smaller amount at the start so the council is less likely to object to it",
-   "Add ten more slides of figures before the ask so nobody questions it"
+   "The problem, what they learned, and why their idea would help.",
+   "A larger amount of money with no explanation.",
+   "Only the colours used on the slides.",
+   "A promise that the idea can never fail."
   ],
   "answer": 0,
-  "explanation": "People agree faster when they already understand the need and the idea, so the ask should arrive last. Hiding or shrinking the amount does not answer their question, and a long wall of figures loses the room.",
+  "explanation": "Show the need and supporting facts before asking for help. Then the request has a clear reason.",
   "practical": {
    "fields": [
     {
      "id": "problem",
      "label": "Problem slide",
      "type": "short",
-     "hint": "A headline and a picture that make the council feel the need."
+     "hint": "Show who has the problem and what is difficult for them.",
+     "prompt": "What problem will your first slide show?"
     },
     {
      "id": "insight",
      "label": "Insight slide",
      "type": "short",
-     "hint": "A headline and picture for what you noticed that others missed."
+     "hint": "State the useful idea you learned from what you observed.",
+     "prompt": "What have you learned that helps explain the problem?"
     },
     {
      "id": "proof",
      "label": "Proof for the insight",
      "type": "choice",
-     "hint": "The evidence you would show on the insight slide.",
+     "hint": "Use a real fact, observation or example. Do not invent evidence.",
      "options": [
       "A quick survey of 30 hostel students",
       "A photo count of bicycles with small faults",
       "A comparison of repair shop prices",
       "A short quote from a hostel warden"
-     ]
+     ],
+     "prompt": "What fact or example supports that idea?"
     },
     {
      "id": "ask",
      "label": "Ask slide",
      "type": "short",
-     "hint": "Headline and picture, with a specific amount, place and start date."
+     "hint": "Say what help you need, what it will be used for, and the next step.",
+     "prompt": "What help or action will you ask for on the last slide?"
     }
    ],
    "link": {
@@ -546,34 +593,37 @@
    "Choose a risk and fix",
    "Write an AI disclosure line"
   ],
-  "question": "The NGO’s five frames use a different art style, colours and character each time. Viewers do not realise they belong to one campaign. What is the most effective fix?",
+  "question": "Five pictures in one campaign use different characters and colours. People do not see a connection. What should stay the same?",
   "options": [
-   "Add the NGO’s name in big letters on every frame to link them",
-   "Post each frame on a different day so people notice each one",
-   "Add more frames showing every kind of volunteer task",
-   "Choose one repeated detail and one colour scheme, and use them in all five"
+   "A new audience and goal in every picture.",
+   "Unrelated characters with no connection.",
+   "Different messages that point to unrelated actions.",
+   "One repeated detail and a shared colour scheme across all five pictures."
   ],
   "answer": 3,
-  "explanation": "A repeated visual detail and shared palette make separate frames read as one set, and viewers can follow the story. A name alone does not unify the look, and extra frames add more variety, not less.",
+  "explanation": "Repeated details help people recognise one connected campaign. Keep its audience and next step consistent too.",
   "practical": {
    "fields": [
     {
      "id": "setup",
      "label": "Audience and repeating detail",
      "type": "short",
-     "hint": "Who the campaign speaks to, and the one object or colour that repeats in every frame."
+     "hint": "Who the campaign speaks to, and the one object or colour that repeats in every frame.",
+     "prompt": "Who are the pictures for, and what detail links them?"
     },
     {
      "id": "frames_a",
      "label": "Frames 1 to 3",
      "type": "long",
-     "hint": "One line each: what we see, plus a short caption. Start with the problem and build to the change."
+     "hint": "One line each: what we see, plus a short caption. Start with the problem and build to the change.",
+     "prompt": "What will the first three pictures show?"
     },
     {
      "id": "frames_b",
      "label": "Frames 4 and 5",
      "type": "long",
-     "hint": "One line each: what we see and a caption. Frame 5 ends with the invitation to volunteer."
+     "hint": "One line each: what we see and a caption. Frame 5 ends with the invitation to volunteer.",
+     "prompt": "What will the last two pictures show?"
     },
     {
      "id": "risk",
@@ -585,13 +635,15 @@
       "AI faces may look odd, so edit them by hand before posting",
       "Captions may be misread, so test them with three college students",
       "Images may copy an artist’s style, so avoid naming artists in prompts"
-     ]
+     ],
+     "prompt": "What might confuse viewers, and how will you fix it?"
     },
     {
      "id": "disclosure",
      "label": "AI disclosure line",
      "type": "short",
-     "hint": "A short plain line telling viewers that some images were made with AI."
+     "hint": "A short plain line telling viewers that some images were made with AI.",
+     "prompt": "How will you tell viewers which parts used AI?"
     }
    ],
    "link": {

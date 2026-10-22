@@ -138,7 +138,7 @@ function promptFor(m:Mission,step:string,d:Draft,language:string,style:unknown='
  const f=m.practical!.fields.find(x=>'f:'+x.id===step)!;const n=m.practical!.fields.indexOf(f)+1;
  const body=f.type==='choice'?`${optionList(f.options||[])}\n\nPick A–${letters[(f.options?.length||1)-1]}.`:f.type==='code'?`${f.starter?`Starter code (it has a problem to fix):\n${f.starter}\n\n`:''}Your fix → one message.`:'';
  const kind=learningStyle(style),heading=kind==='game'?`🎮 BUILD CHECKPOINT ${n}/${m.practical!.fields.length}`:kind==='story'?`📖 SCENE ${n+2}`:kind==='facts'?`⚡ APPLY ${n}/${m.practical!.fields.length}`:`💬 ${n}/${m.practical!.fields.length}`;
- return `*${heading} · ${shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
+ return `*${heading}${f.prompt?'':' · '+shortFieldLabel(m,f)}*\n${followUp||shortFieldHint(m,f)}${body?"\n"+body:""}`;
 }
 function readyText(m:Mission,d:Draft){
  return `Your draft is filled in—not yet approved.\nReply *SAVE* for the final review, or *EDIT* to change it.`;
@@ -448,7 +448,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
    const {profile}=await loadLearning(c.user_id);await saveProfile(c.user_id,{...profile,style:picked});
    return reply(`Style set: *${learningStyles[picked]}* ✅\nSynced with the website. Send *TODAY* to continue or *LEARN* for the idea.`);
   }
-  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id,c.level),c.language);const personal=await readContext(c.user_id);const angle=personal?personalAngle(personal.answers,lm.track):null;return reply(`${chatStyleLesson({...lm,task:missionPractice(lm).trial},c.style,c.language)}${angle?'\n\nYour angle: '+angle.text:''}\n\n*Make:* ${missionPractice(lm).outcome}\n\nSend *TODAY* to continue.`)}
+  case 'learn':{const d=await getDraft(c.user_id);if(!d)return reply('Send *TODAY* to start a challenge.');if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');const lm=localizeMission(getMission(d.mission_id,c.level),c.language);const personal=await readContext(c.user_id);const angle=personal?personalAngle(personal.answers,lm.track):null;return reply(`${chatStyleLesson({...lm,task:missionPractice(lm).steps.map((step,i)=>`${i+1}. ${step}`).join('\n')},c.style,c.language)}${angle?'\n\nYour angle: '+angle.text:''}\n\n*Make:* ${missionPractice(lm).outcome}\n\nSend *TODAY* to continue.`)}
   case 'course':return chooseCourse(c,arg);
   case 'hint':return hint(c,arg);
   case 'yes':{const d=await getDraft(c.user_id);if(d?.pending_clue)return revealClue(c,d);break}
@@ -459,7 +459,7 @@ async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
    if(!arg)return editParts(c);
    const d=await getDraft(c.user_id);if(!d)return reply('Reply TODAY to start a mission first.');
    const m=getMission(d.mission_id,c.level),steps=stepsFor(m),n=Number(arg);
-   if(!Number.isInteger(n)||n<1||n>steps.length)return reply(steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your decision':s==='reasoning'?'Your reasoning':s==='checks'?'Self-review':s==='link'?'Link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nSend *EDIT 2*, for example.');
+   if(!Number.isInteger(n)||n<1||n>steps.length)return reply(steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your decision':s==='reasoning'?'Your reasoning':s==='checks'?'Self-review':s==='link'?'Link':shortFieldLabel(m,m.practical!.fields.find(f=>'f:'+f.id===s)!)}`).join('\n')+'\nSend *EDIT 2*, for example.');
    d.data.edit=steps[n-1];if(steps[n-1]==='quiz'){d.quiz=null;d.data.styleState=initialStyleState(c.style);}await putDraft(c.user_id,d);return reply(promptFor(m,steps[n-1],d,c.language,c.style));
   }
   case 'check':return check(c,arg);
@@ -491,7 +491,7 @@ async function editParts(c:Contact):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return reply('No draft is open yet. Say “start my task” to begin.');
  if(!await canUseMission(c.user_id,d.mission_id))return reply(membershipRequired+'\n'+site()+'/membership');
  const m=getMission(d.mission_id,c.level),steps=stepsFor(m);
- return reply('Which part do you want to change?\n'+steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your first answer':s==='reasoning'?'Your work and test result':s==='checks'?'Self-review':s==='link'?'Project link':m.practical!.fields.find(f=>'f:'+f.id===s)!.label}`).join('\n')+'\nReply EDIT and the number, e.g. EDIT 2.');
+ return reply('Which part do you want to change?\n'+steps.map((s,i)=>`${i+1}. ${s==='quiz'?'Your first answer':s==='reasoning'?'Your work and test result':s==='checks'?'Self-review':s==='link'?'Project link':shortFieldLabel(m,m.practical!.fields.find(f=>'f:'+f.id===s)!)}`).join('\n')+'\nReply EDIT and the number, e.g. EDIT 2.');
 }
 async function currentQuestion(c:Contact):Promise<Out>{
  const d=await getDraft(c.user_id);if(!d)return today(c);

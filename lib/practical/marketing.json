@@ -1,15 +1,15 @@
 {
  "m1": {
   "task": "Write an offer for the Bengaluru home-meal service. Choose the Target customer, write your Offer in 40-80 words, and name one Claim to verify before publishing. In your reasoning, explain why this customer feels the problem most and why the claim needs checking. Hands-on completion: Create the finished customer offer. Time a five-second reading of it, record which benefit and next action you actually noticed, then submit the original and improved copy. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "The home-meal service tests two messages for a week. “Fresh. Tasty. Affordable.” gets 9,000 views and 4 enquiries. “Home-style lunch at your Indiranagar desk by 12:45” gets 1,100 views and 31 enquiries, 22 of them about the delivery area. Which message should it keep?",
+  "question": "A lunch ad gets many views but few customer messages. Another gets fewer views but more messages from nearby office workers. Which should the service keep?",
   "options": [
-   "The first one, because 9,000 views show many more people liked it",
-   "The second, because it draws enquiries from the customers it aims at",
-   "The first one, because short general words suit every customer",
-   "Neither, until each message has been seen by at least 10,000 people"
+   "The first ad: views matter more than customer messages.",
+   "The second ad: it reaches people who may order lunch.",
+   "The first ad: a general message suits everyone.",
+   "Neither ad until both have 10,000 views."
   ],
   "answer": 1,
-  "explanation": "The second message names a customer, a place and a time, and most of its enquiries are about delivery, which shows the right people are replying. Views alone tell you attention, not whether the offer fits anyone, so the first message looks bigger but does less.",
+  "explanation": "Useful customer messages show interest from the people you serve. Views alone do not show whether someone may order.",
   "practical": {
    "fields": [
     {
@@ -22,19 +22,22 @@
       "Work-from-home couples who cook only on weekends",
       "Parents packing lunch for children in Jayanagar"
      ],
-     "hint": "Pick the one customer your offer speaks to. Your reasoning should say why this group feels the problem most."
+     "hint": "Pick the one customer your offer speaks to. Your reasoning should say why this group feels the problem most.",
+     "prompt": "Who are you writing the offer for?"
     },
     {
      "id": "offer",
      "label": "Offer in 40-80 words",
      "type": "long",
-     "hint": "Name the customer, the problem, a believable outcome and end with one action to take next."
+     "hint": "Name the customer, the problem, a believable outcome and end with one action to take next.",
+     "prompt": "What will your 40–80 word lunch offer say?"
     },
     {
      "id": "verify",
      "label": "Claim to verify before publishing",
      "type": "short",
-     "hint": "One claim from your offer that you must confirm first, such as a delivery time or a menu detail."
+     "hint": "One claim from your offer that you must confirm first, such as a delivery time or a menu detail.",
+     "prompt": "Which promise must you check before using this offer?"
     }
    ],
    "link": {
@@ -45,15 +48,15 @@
  },
  "m2": {
   "task": "Draft the campaign brief for an AI tool for three ad concepts. Choose the Campaign goal and Tone to ask for, write the Reusable AI prompt, and add a Quality checklist for the AI output. In your reasoning, explain how your prompt keeps the AI from inventing facts. Hands-on completion: Run your reusable prompt in an AI tool you already have. Submit its actual draft, identify one unsupported claim and submit your corrected version. Invented model output does not count. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "A founder types “Write a great ad for our lunch service” and the AI replies with a hook saying “Rated 4.9 by 500 Bengaluru customers”. The service has 40 customers and no ratings yet. What should the founder do before using the tool again?",
+  "question": "An AI ad says a lunch service has a five-star rating, but nobody has rated it. What should you change before asking AI again?",
   "options": [
-   "Give it audience, goal, real evidence and a no-invented-claims rule",
-   "Ask it to make the ad more detailed and more convincing",
-   "Ask it to add a believable rating so the ad feels trusted",
-   "Lower the number to 4.5 and 50 customers, and publish it"
+   "Give AI the real facts and tell it not to invent claims.",
+   "Ask AI to sound more confident.",
+   "Ask AI to invent a more believable rating.",
+   "Use a smaller made-up rating."
   ],
   "answer": 0,
-  "explanation": "The AI filled a gap with a made-up rating because the prompt gave it no facts and no limits. Supplying verified evidence and banning invented claims fixes the cause. Lowering the number still publishes something untrue.",
+  "explanation": "AI can make up details when facts are missing. Supply facts you can check and remove unsupported claims.",
   "practical": {
    "fields": [
     {
@@ -65,7 +68,8 @@
       "Free trial lunch sign-ups",
       "Repeat orders from past customers"
      ],
-     "hint": "Choose the single result the three ad concepts should aim for. Your reasoning should say why it suits the offer."
+     "hint": "Choose the single result the three ad concepts should aim for. Your reasoning should say why it suits the offer.",
+     "prompt": "What should the ad help the business achieve?"
     },
     {
      "id": "tone",
@@ -76,19 +80,22 @@
       "Quick and practical",
       "Light and playful"
      ],
-     "hint": "Pick the voice the AI should write in so the ads feel right for the audience."
+     "hint": "Pick the voice the AI should write in so the ads feel right for the audience.",
+     "prompt": "How should the ad sound?"
     },
     {
      "id": "prompt",
      "label": "Reusable AI prompt",
      "type": "long",
-     "hint": "Cover audience, goal, verified evidence, constraints and the output format you want back."
+     "hint": "Cover audience, goal, verified evidence, constraints and the output format you want back.",
+     "prompt": "What instructions will you give AI?"
     },
     {
      "id": "review",
      "label": "Quality checklist for the AI output",
      "type": "long",
-     "hint": "List 3-5 checks you will run on the answer, such as invented facts, one clear action and tone fit."
+     "hint": "List 3-5 checks you will run on the answer, such as invented facts, one clear action and tone fit.",
+     "prompt": "What will you check before using the AI reply?"
     }
    ],
    "link": {
@@ -99,34 +106,37 @@
  },
  "m3": {
   "task": "Write the follow-up messages for a prospect who asked for the menu yesterday and has not replied. Write the First reply to the prospect and One follow-up message, add an Opt-out line, and choose the Conversion measure. In your reasoning, explain why your follow-up is easy to reply to. Hands-on completion: Create the actual reply sequence. Rehearse it with a willing partner playing an interested customer and then a STOP request. Record the replies used, one observed problem and your corrected response; do not contact real prospects. Include the artifact or relevant extract, actual test/run results and your improvement in Your reasoning. Plans, invented results and manual walkthroughs alone do not complete this mission.",
-  "question": "A prospect asked a home-meal service for the menu yesterday and has not replied. She gave permission to be contacted. Which follow-up is most likely to earn a reply while respecting her?",
+  "question": "A customer agreed to messages and asked for your lunch menu yesterday. They have not replied. What is a helpful follow-up?",
   "options": [
-   "“Last chance! Only 2 lunch slots left today. Reply YES now.”",
-   "“Why have you not replied? Do you want lunch or not?”",
-   "“Vegetarian or mixed menu this week? Reply STOP to opt out.”",
-   "“Menu again”, resent every two hours until she answers"
+   "Send several unrelated offers.",
+   "Say the last meal will be sold unless they reply now.",
+   "Would you like the vegetarian or mixed menu? Reply STOP to stop messages.",
+   "Keep messaging until they reply."
   ],
   "answer": 2,
-  "explanation": "It asks one easy question, is short and lets her opt out. False scarcity and guilt push people away, and repeated messages ignore her choice and can break messaging rules.",
+  "explanation": "Offer one useful choice without pressure. Make it easy for the customer to stop messages.",
   "practical": {
    "fields": [
     {
      "id": "reply",
      "label": "First reply to the prospect",
      "type": "long",
-     "hint": "Answer the likely question, add one helpful detail and keep the tone friendly, with no pressure."
+     "hint": "Answer the likely question, add one helpful detail and keep the tone friendly, with no pressure.",
+     "prompt": "What will you say when the customer first asks for the menu?"
     },
     {
      "id": "followup",
      "label": "One follow-up message",
      "type": "long",
-     "hint": "Ask one easy next-step question. No false scarcity and no guilt. It should be short enough to read in a glance."
+     "hint": "Ask one easy next-step question. No false scarcity and no guilt. It should be short enough to read in a glance.",
+     "prompt": "What one message will you send if they do not reply?"
     },
     {
      "id": "optout",
      "label": "Opt-out line",
      "type": "short",
-     "hint": "One plain line telling the person how to stop messages, such as replying STOP."
+     "hint": "One plain line telling the person how to stop messages, such as replying STOP.",
+     "prompt": "How can the customer ask you to stop messages?"
     },
     {
      "id": "measure",
@@ -138,7 +148,8 @@
       "Share of prospects who place a first order",
       "Share of prospects who opt out"
      ],
-     "hint": "Choose the one number that shows the follow-up worked. Your reasoning should explain why."
+     "hint": "Choose the one number that shows the follow-up worked. Your reasoning should explain why.",
+     "prompt": "What result will show whether your messages helped?"
     }
    ],
    "link": {
@@ -156,14 +167,15 @@
    "Ask about what people already did",
    "Explain why one question is fairer"
   ],
-  "question": "Ravi asks five colleagues at a Whitefield tech park, “Would you buy a ₹120 healthy home lunch subscription?” All five say yes, yet only one signs up after launch. What would give him more honest information next time?",
+  "question": "People say they like Ravi’s lunch idea, but few order. What should he ask to understand their real needs?",
   "options": [
-   "Ask about their last weekday lunches and what they did",
-   "Ask many more people the same question so the yes answers average out",
-   "Add more benefits to the question so they picture the product clearly"
+   "What did you eat for lunch yesterday, and how did you choose it?",
+   "Would you buy our amazing lunch every day?",
+   "Do you agree our food is the best?",
+   "Can you promise to subscribe?"
   ],
   "answer": 0,
-  "explanation": "People are polite about future promises, so “yes, I would” costs them nothing. Asking what they really ate and why shows true behaviour. Asking more people the same leading question only gives more polite yeses.",
+  "explanation": "Questions about real past choices reveal needs better than questions that encourage people to praise an idea.",
   "practical": {
    "fields": [
     {
@@ -176,19 +188,22 @@
       "People who tried a tiffin service and stopped",
       "People who eat at the office canteen daily"
      ],
-     "hint": "Pick who you will speak to first. Your reasoning should say why they can describe real lunch habits."
+     "hint": "Choose willing people who face the lunch problem. Do not collect private details.",
+     "prompt": "Who will you ask about their lunch choices?"
     },
     {
      "id": "rewrite",
      "label": "Fair rewrite of the leading question",
      "type": "short",
-     "hint": "Rewrite “Don’t you think home food is healthier?” so it is open and does not hint at an answer."
+     "hint": "Replace a question that nudges someone to say yes with a neutral question about their past experience.",
+     "prompt": "How can you ask without suggesting the answer?"
     },
     {
      "id": "questions",
      "label": "Five questions",
      "type": "long",
-     "hint": "Write five numbered questions. Each must be open, neutral and ask about something that already happened."
+     "hint": "Write five numbered questions about past lunch experiences. Keep them open and neutral—do not suggest an answer.",
+     "prompt": "What five questions will you ask?"
     }
    ]
   }
@@ -202,15 +217,15 @@
    "Set a switch rule in advance",
    "Explain why other things stay equal"
   ],
-  "question": "A club posts version A on Monday with a blue poster and the headline “Free Canva workshop”. It posts version B on Friday with a red poster and a new headline. B gets 14 registrations, A gets 9. What can the club fairly say?",
+  "question": "A club changes its poster, headline and posting day. More people register. What can it honestly say about the headline?",
   "options": [
-   "The new headline wins because B got five more registrations than A did",
-   "The red colour worked better, since colour changes attention most",
-   "They cannot tell: headline, poster and day all changed at once",
-   "Both versions are equal because the follower group was small"
+   "The new headline definitely caused the increase.",
+   "The old headline should never be used again.",
+   "It cannot tell whether the headline helped because several things changed.",
+   "Posting on Friday always brings more registrations."
   ],
   "answer": 2,
-  "explanation": "When poster, day and headline all change, any of them could explain the gap. A fair test changes one thing and keeps the rest equal. Small numbers make results noisy, but the real problem here is the mixed changes.",
+  "explanation": "To find out what helped, change one thing and compare under similar conditions.",
   "practical": {
    "fields": [
     {
@@ -223,19 +238,22 @@
       "Call-to-action button text",
       "Time of posting"
      ],
-     "hint": "Choose the one thing that differs between A and B. All other parts stay the same."
+     "hint": "Choose one thing, such as the headline. Keep the customer group and conditions similar.",
+     "prompt": "What one thing will you change between the two messages?"
     },
     {
      "id": "version_a",
      "label": "Version A",
      "type": "short",
-     "hint": "Write the full text of version A, the current or baseline version."
+     "hint": "Write the first complete message, with one clear next action.",
+     "prompt": "What does your first message say?"
     },
     {
      "id": "version_b",
      "label": "Version B",
      "type": "short",
-     "hint": "Write the full text of version B. It should differ from A only in the variable you chose."
+     "hint": "Change only the chosen thing. Keep everything else as similar as possible.",
+     "prompt": "What does your second message say?"
     },
     {
      "id": "metric",
@@ -247,13 +265,15 @@
       "Link clicks per 100 views",
       "Saves and shares"
      ],
-     "hint": "Pick the one number you will compare, decided before you start."
+     "hint": "Before starting, choose one result to count, such as suitable customer enquiries or registrations.",
+     "prompt": "What result will you count?"
     },
     {
      "id": "rule",
      "label": "Switch rule",
      "type": "short",
-     "hint": "State in advance what result makes you choose version B, for example a minimum gap."
+     "hint": "Say how long you will compare, what result you need, and what you will do if the result is unclear.",
+     "prompt": "When will you decide which message to keep?"
     }
    ]
   }
@@ -267,15 +287,15 @@
    "Keep the action within the budget",
    "Justify with audience, cost, measurement"
   ],
-  "question": "A Mysuru bakery has 220 past customers who agreed to receive order updates on WhatsApp, a ₹3,000 monthly budget and one person for marketing. Which first channel fits best for cake orders from nearby families?",
+  "question": "A bakery has little money and time. Past customers agreed to WhatsApp offers, and most live nearby. Where should it start?",
   "options": [
-   "Search ads for “birthday cake Mysuru”, since many people search on Google",
-   "A weekly email newsletter, because sending email costs almost nothing",
-   "Instagram reels every day, because cake photos attract plenty of views",
-   "WhatsApp to opted-in past customers, with an order code word"
+   "Pay to reach people across the whole country.",
+   "Post on every social platform at once.",
+   "Send offers to phone numbers that never agreed.",
+   "Send a clear WhatsApp offer to those customers, with a way to track orders."
   ],
   "answer": 3,
-  "explanation": "Past customers already know the bakery and agreed to messages, so reaching them costs little and a code word makes orders countable. Search ads can work but use up a small budget fast and are harder for one person to manage well.",
+  "explanation": "Start where your customers already are and have agreed to hear from you. Track actual orders, not just attention.",
   "practical": {
    "fields": [
     {
@@ -289,7 +309,8 @@
       "Notice boards in nearby apartments",
       "Email newsletter"
      ],
-     "hint": "Pick one channel to start with. Explain in your reasoning how it reaches the families and why it fits the budget."
+     "hint": "Pick one channel to start with. Explain in your reasoning how it reaches the families and why it fits the budget.",
+     "prompt": "Where will you reach these customers?"
     },
     {
      "id": "rejected",
@@ -302,19 +323,22 @@
       "Notice boards in nearby apartments",
       "WhatsApp messages to past customers"
      ],
-     "hint": "Pick one channel you will not use first. Say in your reasoning what is wrong for now."
+     "hint": "Pick one channel you will not use first. Say in your reasoning what is wrong for now.",
+     "prompt": "Which other place will you avoid for now, and why?"
     },
     {
      "id": "tracking",
      "label": "Tracking method",
      "type": "short",
-     "hint": "How will you count orders from this channel, for example a code word or a separate number?"
+     "hint": "How will you count orders from this channel, for example a code word or a separate number?",
+     "prompt": "How will you know where each enquiry came from?"
     },
     {
      "id": "action",
      "label": "First week action",
      "type": "long",
-     "hint": "Describe what you will do in week one, with a rupee amount and who does it."
+     "hint": "Describe what you will do in week one, with a rupee amount and who does it.",
+     "prompt": "What exactly will you make and try in the first week?"
     }
    ]
   }
@@ -328,28 +352,30 @@
    "Choose one step to improve first",
    "Use the given figures as your reason"
   ],
-  "question": "A yoga studio runs two ads, each costing ₹3,000. Ad X brings 1,500 clicks and 6 qualified enquiries. Ad Y brings 300 clicks and 10 qualified enquiries. Which ad should get next month’s extra budget?",
+  "question": "Two ads each cost ₹3,000. Ad X brings 6 suitable customer enquiries. Ad Y brings 10. Which costs less per suitable enquiry?",
   "options": [
-   "Ad Y, as each qualified enquiry costs ₹300 against ₹500 for Ad X",
-   "Ad X, since five times more people clicked and clicks show interest",
-   "Neither, until both ads show the same number of clicks",
-   "Ad X, because 1,500 clicks is a larger total result for the same money"
+   "Ad Y: ₹300 per enquiry, compared with ₹500 for X.",
+   "Ad X: fewer enquiries always cost less.",
+   "Both: the total spend is the same.",
+   "Choose the ad with more clicks, ignoring enquiries."
   ],
   "answer": 0,
-  "explanation": "The goal is people likely to join, so compare spend per qualified enquiry: ₹3,000 ÷ 10 is ₹300 for Y and ₹3,000 ÷ 6 is ₹500 for X. Clicks are further from the outcome, so a high count of them can mislead.",
+  "explanation": "Divide spending by suitable enquiries: 3,000 ÷ 10 = 300; 3,000 ÷ 6 = 500.",
   "practical": {
    "fields": [
     {
      "id": "cost",
      "label": "Cost per qualified enquiry",
      "type": "short",
-     "hint": "Write the amount in rupees, for example “₹100”."
+     "hint": "For each ad, divide the money spent by suitable enquiries. Show the rupee amount.",
+     "prompt": "What is the cost of one suitable customer enquiry?"
     },
     {
      "id": "working",
      "label": "Your working",
      "type": "long",
-     "hint": "Show the division and then the drop from each step to the next, for example clicks to chats."
+     "hint": "Show the spreadsheet formulas and calculations using the supplied numbers.",
+     "prompt": "How did you calculate that cost?"
     },
     {
      "id": "step",
@@ -361,7 +387,8 @@
       "Lower the ad spend",
       "Get more clicks from a wider audience"
      ],
-     "hint": "Pick the step where fixing something would help most. Back it with the numbers in your reasoning."
+     "hint": "Choose a step that could improve suitable customer enquiries, then explain why.",
+     "prompt": "What would you improve first?"
     }
    ]
   }
@@ -375,22 +402,23 @@
    "Mark rest days in the calendar",
    "Explain why it is realistic"
   ],
-  "question": "Kavya sells handmade diyas on Instagram and has four hours a week before Diwali, with exams coming up. Which two-week plan is she most likely to finish?",
+  "question": "Kavya sells diyas and has four hours a week for posts. Which plan is realistic?",
   "options": [
-   "Post a new idea in a new style every day, so the page always looks busy and active",
-   "Wait until each post looks perfect, then post whenever it is ready",
-   "One diya video cut into a reel, stories and status, posted 3 days a week",
-   "Film six reels on one Sunday and post them all in two days"
+   "Make a new long video every day.",
+   "Post every hour during her exams.",
+   "Make one video and reuse parts in posts on three days each week.",
+   "Promise daily posts and decide how to make them later."
   ],
   "answer": 2,
-  "explanation": "One idea reused across formats saves time, and three posts a week with rest days matches four hours. Posting daily in new styles needs far more hours, and waiting for perfect usually means nothing gets posted.",
+  "explanation": "Plan around the time you really have. Reuse useful material instead of promising more work than you can finish.",
   "practical": {
    "fields": [
     {
      "id": "theme",
      "label": "Theme",
      "type": "short",
-     "hint": "One theme that every post supports, such as “made by hand in our home”."
+     "hint": "One theme that every post supports, such as “made by hand in our home”.",
+     "prompt": "What will your posts be about?"
     },
     {
      "id": "format",
@@ -402,19 +430,22 @@
       "Story sequences",
       "WhatsApp status and broadcast"
      ],
-     "hint": "Pick the format you will make most of. Your reasoning should say why it fits the time you have."
+     "hint": "Pick the format you will make most of. Your reasoning should say why it fits the time you have.",
+     "prompt": "What kind of post will you mainly make?"
     },
     {
      "id": "reuse",
      "label": "Reused idea",
      "type": "short",
-     "hint": "The one core idea you will make once and reuse in at least three places."
+     "hint": "The one core idea you will make once and reuse in at least three places.",
+     "prompt": "Which idea or material can you use again?"
     },
     {
      "id": "calendar",
      "label": "Calendar rows (14 days)",
      "type": "long",
-     "hint": "One row per day: day, format and what goes out. Mark rest days clearly."
+     "hint": "One row per day: day, format and what goes out. Mark rest days clearly.",
+     "prompt": "What will you post on each of the 14 days?"
     }
    ],
    "link": {
@@ -432,15 +463,15 @@
    "Describe a clear consent step",
    "Include an easy opt-out"
   ],
-  "question": "A ₹1,499 online resume course wants to advertise. Which draft line is honest and can be backed up?",
+  "question": "A resume course costs ₹1,499 and cannot promise anyone a job. Which ad is honest?",
   "options": [
-   "“Join 1,200 happy learners. Most of them get jobs within a few weeks.”",
-   "“Only 2 seats left. Priya got a ₹12 lakh offer, and you can too, guaranteed.”",
-   "“Results vary, but Priya earned ₹12 lakh after taking this course with us.”",
-   "“Build a better resume in four weeks with feedback. ₹1,499. No job promise.”"
+   "Pay ₹1,499 and get a guaranteed job.",
+   "Every student gets hired within four weeks.",
+   "Our resume always beats every other applicant.",
+   "Improve your resume in four weeks with feedback. ₹1,499. No job guarantee."
   ],
   "answer": 3,
-  "explanation": "This line promises only what the course controls, shows the price and does not invent proof. The other lines use made-up numbers, false urgency or a single success story that implies a result, and a small “results vary” does not fix that.",
+  "explanation": "State what the course provides and its price. Do not promise a result you cannot support.",
   "practical": {
    "fields": [
     {
@@ -453,25 +484,29 @@
       "A testimonial that may be invented or unapproved",
       "Adding people to WhatsApp without asking"
      ],
-     "hint": "Pick the problem that could hurt people most. Say why in your reasoning."
+     "hint": "Pick the problem that could hurt people most. Say why in your reasoning.",
+     "prompt": "Which problem could hurt customers most?"
     },
     {
      "id": "problems",
      "label": "Problems found",
      "type": "long",
-     "hint": "List three separate problems across the ad and the list plan, each in a short line."
+     "hint": "List three separate problems across the ad and the list plan, each in a short line.",
+     "prompt": "Which promises or message choices are a problem?"
     },
     {
      "id": "rewrite",
      "label": "Ad rewrite",
      "type": "short",
-     "hint": "One or two honest sentences for the ad that promise only what the course can deliver."
+     "hint": "One or two honest sentences for the ad that promise only what the course can deliver.",
+     "prompt": "What does your corrected ad say?"
     },
     {
      "id": "consent",
      "label": "Consent step",
      "type": "long",
-     "hint": "Say how you would ask permission, what you would send and how a person can stop messages."
+     "hint": "Say how you would ask permission, what you would send and how a person can stop messages.",
+     "prompt": "How will someone agree to messages and later stop them?"
     }
    ]
   }
@@ -485,15 +520,15 @@
    "Metric can be counted on the channel",
    "Risk has a clear fix"
   ],
-  "question": "Four students propose plans for the Pune tiffin service. Which plan hangs together best from customer to metric?",
+  "question": "A tiffin service wants orders from people in two nearby hostels. Which plan connects the customer, offer and result?",
   "options": [
-   "Customer: women who like cooking. Channel: Instagram for all of India. Metric: likes.",
-   "Customer: working women in two nearby PGs. Channel: PG notice boards. Metric: trial orders using a code word.",
-   "Customer: everyone in Pune. Channel: five platforms at once. Metric: total reach across all platforms.",
-   "Customer: working women in PGs. Channel: TV ads. Metric: how loved the brand feels."
+   "Advertise everywhere and count every view as an order.",
+   "Show a hostel lunch offer on its notice board; count trial orders using a code.",
+   "Use unrelated pictures without an order step.",
+   "Target distant cities that the service cannot deliver to."
   ],
   "answer": 1,
-  "explanation": "Here the channel reaches the named women where they live, and the code word makes the metric countable on that channel. The other plans pick audiences the channel does not reach or a metric that cannot be counted.",
+  "explanation": "A useful plan reaches the right people, gives them a clear next step and records the result of that step.",
   "practical": {
    "fields": [
     {
@@ -505,7 +540,8 @@
       "Women in night shifts at a nearby hospital",
       "Students of a nearby women’s college hostel"
      ],
-     "hint": "Pick the group you will serve first. Your reasoning should link them to the channel."
+     "hint": "Pick the group you will serve first. Your reasoning should link them to the channel.",
+     "prompt": "Who is your lunch offer for?"
     },
     {
      "id": "channel",
@@ -517,7 +553,8 @@
       "Local search ads",
       "Handing flyers at the PG gates"
      ],
-     "hint": "Pick one channel that reaches that group and fits ₹5,000 and one owner."
+     "hint": "Pick one channel that reaches that group and fits ₹5,000 and one owner.",
+     "prompt": "Where will you reach them?"
     },
     {
      "id": "metric",
@@ -529,19 +566,22 @@
       "Repeat orders in week four",
       "Instagram followers gained"
      ],
-     "hint": "Pick one number that you can count on your chosen channel in four weeks."
+     "hint": "Pick one number that you can count on your chosen channel in four weeks.",
+     "prompt": "What result will you count?"
     },
     {
      "id": "offer",
      "label": "One-line offer",
      "type": "short",
-     "hint": "One line with the customer, the benefit and one action."
+     "hint": "One line with the customer, the benefit and one action.",
+     "prompt": "What is your offer in one sentence?"
     },
     {
      "id": "plan",
      "label": "Plan page",
      "type": "long",
-     "hint": "Write the customer problem, your one test (changing one thing) and one risk with how you will reduce it."
+     "hint": "Write the customer problem, your one test (changing one thing) and one risk with how you will reduce it.",
+     "prompt": "How will your offer, posts, next step and tracking work together?"
     }
    ],
    "link": {
