@@ -46,7 +46,7 @@ export async function createSupportRequest(userId:string,raw:SupportInput){
  return (await db.prepare('SELECT id,status FROM quality_support WHERE user_id=? AND idempotency_key=?').bind(userId,p.idempotencyKey).first<{id:string;status:string}>())!;
 }
 
-const ownerQuery=z.object({kind:z.enum(['reports','support','failures']).default('reports'),status:z.enum(['all','received','acknowledged','resolved']).default('all'),limit:z.coerce.number().int().min(1).max(50).default(20),cursor:z.string().max(200).optional()}).strict();
+const ownerQuery=z.object({kind:z.enum(['reports','support','failures']).default('reports'),status:z.enum(['unresolved','all','received','acknowledged','resolved']).default('unresolved'),limit:z.coerce.number().int().min(1).max(50).default(20),cursor:z.string().max(200).optional()}).strict();
 export const qualityUpdate=z.object({kind:z.enum(['reports','support']),id:z.string().uuid(),status:z.enum(['received','acknowledged','resolved']),resolution:z.string().trim().max(2000).default('')}).strict().refine(p=>p.status!=='resolved'||p.resolution.length>=5,{message:'Add a short learner-visible resolution.'});
 type Owner={userId:string;email:string};
 const tableFor={reports:'quality_reports',support:'quality_support',failures:'quality_events'} as const;
@@ -61,12 +61,16 @@ export async function listQualityItems(_owner:Owner,raw:unknown){
  const p=parse(ownerQuery,raw);let cursor:{at:string;id:string}|null=null;
  if(p.cursor){try{cursor=JSON.parse(Buffer.from(p.cursor,'base64url').toString());if(!cursor||typeof cursor.at!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(cursor.at)||typeof cursor.id!=='string'||!z.string().uuid().safeParse(cursor.id).success)throw Error()}catch{throw new QualityError('Invalid page cursor.')}}
  await pruneQualityRecords();const args:unknown[]=[];const where:string[]=[];
- if(p.kind==='failures'){where.push('created_at>?');args.push(cutoff(new Date(),30))}else{where.push("(status!='resolved' OR resolved_at>?)");args.push(cutoff(new Date(),90));if(p.status!=='all'){where.push('status=?');args.push(p.status)}}
+ if(p.kind==='failures'){where.push('created_at>?');args.push(cutoff(new Date(),30))}else{where.push("(status!='resolved' OR resolved_at>?)");args.push(cutoff(new Date(),90));if(p.status==='unresolved'){where.push("status IN ('received','acknowledged')")}else if(p.status!=='all'){where.push('status=?');args.push(p.status)}}
  if(cursor){where.push('(created_at<? OR (created_at=? AND id<?))');args.push(cursor.at,cursor.at,cursor.id)}
  const fields=p.kind==='reports'?'id,user_id,reason,note,channel,mission_id,question_excerpt,answer_excerpt,status,resolution,created_at,updated_at':p.kind==='support'?'id,user_id,category,description,report_id,status,resolution,created_at,updated_at':'id,user_id,channel,category,correlation_id,created_at';
  const rows=(await database().prepare(`SELECT ${fields} FROM ${tableFor[p.kind]} WHERE ${where.join(' AND ')} ORDER BY created_at DESC,id DESC LIMIT ?`).bind(...args,p.limit+1).all<Record<string,string|null>>()).results;
  const more=rows.length>p.limit,items=rows.slice(0,p.limit),last=items.at(-1);
- return {items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
+ const db=database();
+ const reports=await db.prepare("SELECT COUNT(*) n FROM quality_reports WHERE status IN ('received','acknowledged')").first<{n:number}>();
+ const support=await db.prepare("SELECT COUNT(*) n FROM quality_support WHERE status IN ('received','acknowledged')").first<{n:number}>();
+ const failures=await db.prepare('SELECT COUNT(*) n FROM quality_events WHERE created_at>?').bind(cutoff(new Date(),30)).first<{n:number}>();
+ return {counts:{reports:Number(reports?.n||0),support:Number(support?.n||0),failures:Number(failures?.n||0)},items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
 }
 export async function updateQualityItem(owner:Owner,raw:unknown){
  const p=parse(qualityUpdate,raw),db=database(),table=tableFor[p.kind];await pruneQualityRecords();

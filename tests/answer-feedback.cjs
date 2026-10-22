@@ -29,15 +29,9 @@ test('no vague wrong-answer wording is left anywhere a multiple-choice answer is
   const t=fs.readFileSync(path.join(ROOT,f),'utf8');const m=t.match(WRONG_VAGUE);if(m)hits.push(f+': '+m[0])}
  assert.deepEqual(hits,[]);
 });
-test('home starter challenge: all four questions say plainly whether the answer is right or wrong',()=>{
- const page=fs.readFileSync(path.join(ROOT,'app/page.tsx'),'utf8');
- assert.match(page,/answer===quiz\.correct\?'Correct\.':'That answer is not correct\.'/);
- assert.match(page,/feedbackLines\('en'\)\.again/,'a wrong answer invites another try');
- const q=[...page.matchAll(/(marketing|development|filmmaking|storytelling):\{q:'([^']+)',options:\['([^']+)','([^']+)'\],correct:(\d),why:'([^']+)'/g)];
- assert.equal(q.length,4);for(const m of q){assert.ok(m[2].length>10&&m[6].length>30,m[1]+' has a question and a reason');assert.ok(m[5]==='0'||m[5]==='1');assert.notEqual(m[3],m[4])}
- // The reason is shown for both outcomes and the buttons stay usable, so a wrong choice never ends the challenge.
- assert.match(page,/setAnswer\(i\)/);assert.ok(!/disabled=\{answer/.test(page.slice(page.indexOf('challenge-choices'),page.indexOf('answer-reveal'))),'choices stay clickable after a wrong answer');
- const en=QF.feedbackLines('en');assert.equal(en.wrong,'That answer is not correct.');assert.equal(en.right,'Correct.');assert.match(en.again,/Choose another answer/);
+test('homepage keeps one starter with explicit correct and retry feedback for all courses',()=>{
+ const page=fs.readFileSync(path.join(ROOT,'app/page.tsx'),'utf8');assert.match(page,/<VisualStart\/>/);assert.doesNotMatch(page,/30-SECOND WARM-UP/);
+ const hero=fs.readFileSync(path.join(ROOT,'components/whatslearn/visual-start.tsx'),'utf8');assert.match(hero,/choice===0\?t.correct:t.retry/);assert.match(hero,/choice===0\?t.feedback/);
 });
 test('agency starter (14 languages): wrong says not correct and invites a retry; right says correct and why',()=>{
  assert.equal(AG.agencyStoryLanguages.length,14);

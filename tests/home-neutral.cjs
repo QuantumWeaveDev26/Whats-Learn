@@ -46,7 +46,7 @@ test('unanswered starter options share a neutral appearance',()=>{
 
 test('signed-out visitors do not get an account resume link from device work',()=>{
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
- assert.match(source,/account&&<a className="hero-continue"/);
+ assert.match(source,/account\?<a className="primary hero-play-button"/);
  assert.doesNotMatch(source,/returning|setReturning|readGuestWork/);
  assert.match(source,/r.status===401.*clearAccountStarter\(\)/);assert.match(source,/function clearAccountStarter\(\).*setAccount\(null\);setProgress\(null\)/);
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
