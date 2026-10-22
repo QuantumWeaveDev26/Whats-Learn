@@ -1,3 +1,4 @@
+import {readPracticalDraft,writePracticalDraft,DraftError,type DraftLevel,type PracticalDraft} from '../practical-draft-store';
 import {reminderCopy} from '../reminder-copy';
 import {normalizeControlCommand,stopCommands,pauseReminders,stopMessages} from '../reminder-control';
 import {createReport,latestReply} from '../quality/store';
@@ -89,15 +90,20 @@ async function confirmLink(from:string,code:string,at=now()):Promise<Out>{
 export async function unlink(userId:string){const db=database();await db.batch([db.prepare("UPDATE whatsapp_contacts SET state='opted_out',remind_state='off',opted_out_at=?,updated_at=? WHERE user_id=?").bind(now().toISOString(),now().toISOString(),userId),db.prepare('DELETE FROM whatsapp_link_codes WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId),db.prepare('DELETE FROM whatsapp_saved_drafts WHERE user_id=?').bind(userId)])}
 
 // Drafts survive a break. Clear only on save, cancellation, unlink or account deletion.
-type Draft={mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string;revisiting?:boolean;styleState?:StyleState};pending_clue:string|null};
+type Draft={_web?:boolean;_revision?:number;_level?:string;mission_id:string;quiz:number|null;data:{fields:Record<string,string>;reasoning?:string;link?:string;checks?:number[];edit?:string;level?:string;revisiting?:boolean;styleState?:StyleState};pending_clue:string|null};
 async function getDraft(userId:string):Promise<Draft|null>{
  const r=await database().prepare('SELECT mission_id,quiz,body,pending_clue,updated_at FROM whatsapp_drafts WHERE user_id=?').bind(userId).first<{mission_id:string;quiz:number|null;body:string|null;pending_clue:string|null;updated_at:string}>();
- if(!r)return null;
+ if(!r){const {path}=await loadLearning(userId);const shared=await readPracticalDraft(userId,path.nextMissionId,path.practiceLevel as DraftLevel);return shared?.status==='active'?fromShared(shared):null;}
  let data:Draft['data'];try{data=JSON.parse(r.body||'')}catch{data={fields:{}}}
- return {mission_id:r.mission_id,quiz:r.quiz,data:{...data,fields:data.fields||{}},pending_clue:r.pending_clue};
+ const level=(data.level||'beginner') as DraftLevel,shared=await readPracticalDraft(userId,r.mission_id,level);
+ if(shared?.status==='closed')return null;
+ if(shared&&(shared.source==='web'||r.updated_at<shared.updatedAt))return fromShared(shared);
+ return {_revision:shared?.revision||0,_level:level,mission_id:r.mission_id,quiz:r.quiz,data:{...data,fields:data.fields||{}},pending_clue:r.pending_clue};
 }
-async function putDraft(userId:string,d:Draft){await database().prepare('INSERT INTO whatsapp_drafts(user_id,mission_id,quiz,body,pending_clue,updated_at) VALUES (?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET mission_id=excluded.mission_id,quiz=excluded.quiz,body=excluded.body,pending_clue=excluded.pending_clue,updated_at=excluded.updated_at').bind(userId,d.mission_id,d.quiz,JSON.stringify(d.data),d.pending_clue,now().toISOString()).run()}
-const dropDraft=(userId:string)=>database().prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId).run();
+function fromShared(d:PracticalDraft):Draft{return {_web:d.source==='web',_revision:d.revision,_level:d.level,mission_id:d.missionId,quiz:d.quiz,data:d.data as Draft['data'],pending_clue:d.pendingClue};}
+async function putDraft(userId:string,d:Draft){const level=(d.data.level||'beginner') as DraftLevel;if(d._level&&d._level!==level){const target=await readPracticalDraft(userId,d.mission_id,level);if(target?.status==='active')throw new DraftError('A draft is already kept at this level. Open your website journey to choose the copy to continue.',409);d._revision=target?.revision||0;}const m=missionForLevel(missions.find(m=>m.id===d.mission_id)!,level);const saved=await writePracticalDraft(userId,{missionId:d.mission_id,level,body:composeAnswer(m.practical,{fields:d.data.fields,reasoning:d.data.reasoning||'',link:d.data.link||''}),baseRevision:d._revision||0,source:'whatsapp',data:d.data,quiz:d.quiz,pendingClue:d.pending_clue});d._revision=saved.revision;d._level=level;d._web=false;}
+async function dropDraft(userId:string,expected?:Draft){const d=expected||await getDraft(userId);if(d)await writePracticalDraft(userId,{missionId:d.mission_id,level:(d.data.level||'beginner') as DraftLevel,body:'',baseRevision:d._revision||0,source:'whatsapp',close:true});else await database().prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').bind(userId).run();}
+
 const getMission=(id:string,level?:string)=>level?missionForLevel(missions.find(m=>m.id===id)!,level):missions.find(m=>m.id===id)!;
 /** The parts of an answer, in order. */
 export function stepsFor(m:Mission){return ['quiz',...(m.practical?.fields||[]).map(f=>'f:'+f.id),'reasoning',...(m.practical?.link?['link']:[])]}
@@ -118,7 +124,7 @@ async function savedDrafts(c:Contact,missionId=''):Promise<Out>{
  if(active)return reply('Your current draft is still open. Finish it first, or CANCEL to discard it.');
  const take=await db.prepare('INSERT OR IGNORE INTO whatsapp_drafts(user_id,mission_id,quiz,body,pending_clue,updated_at) SELECT user_id,mission_id,quiz,body,pending_clue,? FROM whatsapp_saved_drafts WHERE user_id=? AND mission_id=?').bind(now().toISOString(),c.user_id,missionId).run();
  if(!take.meta.changes)return reply('That saved draft was not opened. Send DRAFTS to see yours.');
- const draft=(await getDraft(c.user_id))!;draft.data.revisiting=true;await putDraft(c.user_id,draft);const m=getMission(draft.mission_id,draft.data.level||c.level),step=currentStep(m,draft);
+ let draft=await getDraft(c.user_id);if(!draft){const legacy=await db.prepare('SELECT mission_id,quiz,body,pending_clue FROM whatsapp_drafts WHERE user_id=?').bind(c.user_id).first<{mission_id:string;quiz:number|null;body:string;pending_clue:string|null}>();if(!legacy)return reply('That kept draft is unavailable.');const data=JSON.parse(legacy.body);const prior=await readPracticalDraft(c.user_id,legacy.mission_id,data.level||'beginner');draft={...legacy,data,_revision:prior?.revision||0,_level:data.level||'beginner'};}draft.data.revisiting=true;await putDraft(c.user_id,draft);const m=getMission(draft.mission_id,draft.data.level||c.level),step=currentStep(m,draft);
  return reply('Revision opened. Your completed progress stays saved.\n'+(step==='ready'?readyText(m,draft):promptFor(m,step,draft,c.language,c.style)));
 }
 const currentStep=(m:Mission,d:Draft)=>d.quiz!==m.answer?'quiz':(d.data.edit&&stepsFor(m).includes(d.data.edit)?d.data.edit:stepsFor(m).find(s=>!filled(d,s))||'ready');
@@ -198,7 +204,7 @@ async function today(c:Contact):Promise<Out>{
  const synced=!!open&&!open.data.revisiting&&(done.has(open.mission_id)||getMission(open.mission_id).track!==path.profile.track);
  if(open&&synced){await archiveCompletedDraft(userId,open.mission_id);open=null;}
  const syncNote=(synced||c.journeySynced)?'Journey synced ✅ Chat revision kept: *DRAFTS*.\n':'';
- if(open&&open.mission_id){const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}`)}
+ if(open&&open.mission_id){const fromWebsite=open._web;const m=getMission(open.mission_id,c.level);if(!await canUseMission(userId,m.id))return reply(membershipRequired+'\n'+site()+'/membership');if(fromWebsite)await putDraft(userId,open);const issue=draftIssue(m,open);if(issue){open.data.edit=issue.step;await putDraft(userId,open)}const step=currentStep(m,open);return reply(`${issue&&step===issue.step?'Quick fix: '+issue.message:fromWebsite?'Your website draft is here. Text synced; final review is still required.':'Back at it ⚡'}\n\n${step==='ready'?readyText(m,open):promptFor(m,step,open,c.language,c.style)}`)}
  if(list.every(m=>done.has(m.id))){
   const fin=checkpointFor(track,10);
   if(fin&&!cleared.has(checkpointKey(track,10)))return reply(`You finished every mission in ${courseName(track)}.\n\n${checkpointText(fin)}`);
@@ -209,10 +215,12 @@ async function today(c:Contact):Promise<Out>{
  const lock=lockFor(next,done,cleared);
  if(lock.locked&&lock.checkpoint){const cp=checkpointFor(lock.checkpoint.track,lock.checkpoint.after)!;return reply(`${lock.message}\n\n${checkpointText(cp)}`)}
  if(lock.locked)return reply(lock.message);
+ const shared=await readPracticalDraft(userId,next.id,path.practiceLevel as DraftLevel);
+ if(shared?.status==='active'){const draft=fromShared(shared);await putDraft(userId,draft);await setCurrent(userId,next.id);return reply('Your website draft is here. Text synced; final review is still required.\n\n'+promptFor(next,currentStep(next,draft),draft,c.language,c.style));}
  const scores=await loadScores(userId);
  if(scores.todayUsed)return reply(`${syncNote}${dailyLimitMessage}\n${path.progress.creations}/10 creations saved.\nNext: ${path.challenge.title}`);
  void work;await setCurrent(userId,next.id);
- await putDraft(userId,{mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel,styleState:initialStyleState(c.style)},pending_clue:null});
+ await putDraft(userId,{_revision:shared?.revision||0,_level:path.practiceLevel,mission_id:next.id,quiz:null,data:{fields:{},level:path.practiceLevel,styleState:initialStyleState(c.style)},pending_clue:null});
  const d=(await getDraft(userId))!;
  const greeting=(await learnerOverview(userId)).split('\n')[0];
  return reply(`${syncNote}${greeting}\n\n${path.focus?'Next skill: '+path.focus.instruction.slice(0,160)+'\n':''}${missionIntro(next,c.language,c.style)}\n🎒 Make: ${missionPractice(next).outcome}\n\n${promptFor(next,'quiz',d,c.language,c.style)}\nLEARN for the idea · HELP for commands`);
@@ -267,10 +275,10 @@ async function submit(c:Contact,arg:string):Promise<Out>{
  const crisp=(text:string)=>briefFocus(text,12);
  const feedbackText=feedback?`✅ Works: ${crisp(feedback.worked)}\n🔧 Improve: ${crisp(feedback.improve)}\n⚡ Next action: ${crisp(feedback.next)}\n\n`:'';
  if(!r.saved)return reply(`${feedbackText||r.message+'\n\n'}Nothing was saved. Your draft is kept. ${r.code===429?'SAVE after midnight India time.':'EDIT to pick a part, then SAVE.'}`);
- await dropDraft(c.user_id);
+ let newerDraft=false;try{await dropDraft(c.user_id,d)}catch(e){if(e instanceof DraftError&&e.status===409)newerDraft=true;else throw e}
  const performance=await learnerPerformance(c.user_id);
  const nextPath=(await loadLearning(c.user_id)).path;
- return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${performance.count}/10 creations saved\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\nNext challenge: ${nextPath.challenge.title}\n${briefFocus(nextPath.reason,14)}\n\n*TODAY* → next move · *POINTS* → optional rewards`);
+ return reply(`${feedbackText}✅ ${r.status==='awarded'?'Mission cleared!':'Upgrade saved!'}\n${performance.count}/10 creations saved\n${performance.star.earned?'🌟 *Star Learner* — 10 useful creations completed. Help and breaks are welcome!\n':''}Website synced ✅\n${newerDraft?'Your newer draft edits are kept separately.\n':''}Next challenge: ${nextPath.challenge.title}\n${briefFocus(nextPath.reason,14)}\n\n*TODAY* → next move · *POINTS* → optional rewards`);
 }
 async function check(c:Contact,arg:string):Promise<Out>{
  const {profile}=await loadLearning(c.user_id);const done=await completedIds(c.user_id),cleared=await clearedKeys(c.user_id);
@@ -365,7 +373,7 @@ export async function handleBridgeMessage(m:Inbound,at=now()):Promise<Out>{
   }
   return out;
  }
- catch(e){await db.prepare('DELETE FROM whatsapp_events WHERE id=?').bind(m.wamid).run();throw e}
+ catch(e){if(e instanceof DraftError&&e.status===409)return reply('Your draft changed on the website or another chat. I kept the newer copy. Send TODAY to reload it before adding your answer again.');await db.prepare('DELETE FROM whatsapp_events WHERE id=?').bind(m.wamid).run();throw e}
 }
 async function route(from:string,raw:string,type:string,at:Date):Promise<Out>{
  const db=database(),text=raw.trim().slice(0,4000);

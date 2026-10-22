@@ -52,6 +52,6 @@ test('the connected mentor blocks a wrong-script reply instead of delivering it'
 });
 test('signed-in auth links resume their destination and the WhatsApp handoff explains linking',()=>{
  for(const page of ['signin','signup']){const s=fs.readFileSync(`app/${page}/page.tsx`,'utf8');assert.match(s,/getChatGPTUser/);assert.match(s,/afterSignIn/);}
- const widget=fs.readFileSync('components/whatslearn/whatsapp-mentor-widget.tsx','utf8');assert.match(widget,/Connect WhatsApp/);assert.match(widget,/\[pathname\]/);
+ const widget=fs.readFileSync('components/whatslearn/whatsapp-mentor-widget.tsx','utf8');assert.match(widget,/useWhatsAppConnection/);const connection=fs.readFileSync('components/whatslearn/use-whatsapp-connection.ts','utf8');assert.match(connection,/\[pathname,retry\]/);assert.match(connection,/focus/);assert.match(fs.readFileSync('lib/whatsapp-connection.ts','utf8'),/Connect WhatsApp/);
  const source=fs.readFileSync('components/whatslearn/whatsapp-optin.tsx','utf8');assert.match(source,/optional/i);assert.match(source,/Keep learning on the website/);
 });

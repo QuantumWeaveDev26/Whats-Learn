@@ -25,7 +25,7 @@ function reset(opts={}){
  for(const k of Object.keys(env))delete env[k];env.DB=d1;Object.assign(env,opts.noProvider?{}:defaults,opts.env||{});
  jar.clear();requestHeaders=new Headers();
  fake=new FakeGoTrue(opts.fake||{});global.fetch=fake.fetch(BASE,realFetch);
- for(const t of ['quality_audit','quality_reports','quality_support','quality_events','quality_replies','whatsapp_drafts','learning_sessions','concept_drafts','skill_practice','whatsapp_saved_drafts','auth_attempts','point_ledger','work','mission_scores','mission_clues','practice_events','proofs','learner_profiles','ai_feedback_usage','submission_reviews','whatsapp_contacts','reward_claims','uploads','entitlements'])db.exec('DELETE FROM '+t);
+ for(const t of ['practical_drafts','quality_audit','quality_reports','quality_support','quality_events','quality_replies','whatsapp_drafts','learning_sessions','concept_drafts','skill_practice','whatsapp_saved_drafts','auth_attempts','point_ledger','work','mission_scores','mission_clues','practice_events','proofs','learner_profiles','ai_feedback_usage','submission_reviews','whatsapp_contacts','reward_claims','uploads','entitlements'])db.exec('DELETE FROM '+t);
  return fake;
 }
 const load=rel=>require(path.join(ROOT,rel));

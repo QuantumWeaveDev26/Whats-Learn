@@ -44,7 +44,7 @@ test('test learner flow: weak answer, focused feedback, revision, safe save and 
  const count=h.db.prepare('SELECT COUNT(*) n FROM mission_scores WHERE user_id=?').get('flow-learner').n;
  const list=await handleBridgeMessage({wamid:'product-flow-drafts',from:phone,type:'text',text:'DRAFTS'});assert.match(list.text,/RESUME m1/);
  const held=await handleBridgeMessage({wamid:'product-flow-held',from:phone,type:'text',text:'RESUME m1'});assert.match(held.text,/current draft is still open/);
- h.db.prepare('DELETE FROM whatsapp_drafts WHERE user_id=?').run('flow-learner');
+ await handleBridgeMessage({wamid:'product-flow-cancel',from:phone,type:'text',text:'CANCEL'});
  const restored=await handleBridgeMessage({wamid:'product-flow-resume',from:phone,type:'text',text:'RESUME m1'});assert.match(restored.text,/Revision opened/);
  await handleBridgeMessage({wamid:'product-flow-revision-today',from:phone,type:'text',text:'TODAY'});
  assert.equal(h.db.prepare('SELECT mission_id FROM whatsapp_drafts WHERE user_id=?').get('flow-learner').mission_id,'m1');
@@ -82,7 +82,7 @@ test('WhatsApp submission shows specific formative feedback without completing w
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,0);
  const original=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(user).body;
  const draft=JSON.parse(original);draft.reasoning+=' Audience revised to MG Road office workers after the test.';
- h.db.prepare('UPDATE whatsapp_drafts SET body=? WHERE user_id=?').run(JSON.stringify(draft),user);strong=true;
+ const sharedStore=h.load('lib/practical-draft-store.ts'),shared=await sharedStore.readPracticalDraft(user,'m1','beginner');await sharedStore.writePracticalDraft(user,{missionId:'m1',level:'beginner',body:h.load('lib/practical.ts').composeAnswer(m.practical,{fields:draft.fields,reasoning:draft.reasoning,link:draft.link||''}),baseRevision:shared.revision,source:'whatsapp',data:draft,quiz:m.answer});strong=true;
  out=await handleBridgeMessage({wamid:'wa-formative-2',from:phone,text:'SUBMIT',type:'text'});
  assert.match(out.text,/Works:/);assert.match(out.text,/Website synced/);assert.match(out.text,/Next challenge:/);
  assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work WHERE user_id=?').get(user).n,1);
