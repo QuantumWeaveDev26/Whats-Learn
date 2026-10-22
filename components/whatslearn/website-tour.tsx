@@ -3,6 +3,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {usePathname,useRouter} from 'next/navigation';
 import {observeTourTarget} from '@/lib/tour-target';
+import {tourLayout} from '@/lib/tour-layout';
 import {createPortal} from 'react-dom';
 import {Compass,X,ArrowRight,ArrowLeft} from 'lucide-react';
 import './website-tour.css';
@@ -34,6 +35,7 @@ export default function WebsiteTour(){
  const pathname=usePathname(),router=useRouter();
  const [mounted,setMounted]=useState(false),[run,setRun]=useState<Run|null>(null),[offer,setOffer]=useState(false),[guest,setGuest]=useState(true),[sessionReady,setSessionReady]=useState(false);
  const [rect,setRect]=useState<DOMRect|null>(null),[size,setSize]=useState({width:0,height:0}),[phase,setPhase]=useState<'moving'|'ready'|'unavailable'>('moving'),[attempt,setAttempt]=useState(0),[cardHeight,setCardHeight]=useState(320);
+ const measured=useRef({width:0,height:0,cardHeight:0});
  const card=useRef<HTMLDivElement>(null),launcher=useRef<HTMLButtonElement>(null),previousFocus=useRef<HTMLElement|null>(null),scope=useRef(''),watch=useRef<ReturnType<typeof observeTourTarget>|null>(null);
  const steps=run?.guest?guestSteps:learnerSteps,step=run?steps[run.index]:null;
  const hidden=blocked.includes(pathname||'')||pathname?.startsWith('/auth/')||pathname?.startsWith('/api/');
@@ -64,17 +66,23 @@ export default function WebsiteTour(){
    onWaiting:()=>setPhase('moving'),onMissing:()=>setPhase('unavailable'),
    onTarget:(target,first)=>{
     setSize(old=>old.width===window.innerWidth&&old.height===window.innerHeight?old:{width:window.innerWidth,height:window.innerHeight});
-    if(first){target.scrollIntoView({block:'center',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});card.current?.focus({preventScroll:true});}
-    const next=target.getBoundingClientRect();setRect(old=>old?.left===next.left&&old?.top===next.top&&old?.width===next.width&&old?.height===next.height?old:next);
-    const height=card.current?.offsetHeight;if(height)setCardHeight(old=>old===height?old:height);setPhase('ready');
+    const height=card.current?.offsetHeight||320,next=target.getBoundingClientRect();
+    const resized=measured.current.width>0&&(measured.current.width!==window.innerWidth||measured.current.height!==window.innerHeight);
+    const reflow=measured.current.cardHeight!==height;
+    measured.current={width:window.innerWidth,height:window.innerHeight,cardHeight:height};
+    if(first||resized||reflow){
+     const layout=tourLayout(next,{width:window.innerWidth,height:window.innerHeight},height);
+     if(Math.abs(layout.scrollDelta)>1)window.scrollBy({top:layout.scrollDelta,behavior:!resized&&window.matchMedia('(prefers-reduced-motion: no-preference)').matches?'smooth':'instant'});
+     if(first)card.current?.focus({preventScroll:true});
+    }
+    const box=target.getBoundingClientRect();setRect(old=>old?.left===box.left&&old?.top===box.top&&old?.width===box.width&&old?.height===box.height?old:box);
+    setCardHeight(old=>old===height?old:height);setPhase('ready');
    }
   });watch.current=controller;return()=>{controller.dispose();if(watch.current===controller)watch.current=null};
  },[step,hidden,pathname,attempt]);
  useEffect(()=>{if(!run&&!offer)return;const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();close()}if(e.key==='Tab'&&card.current){const items=Array.from(card.current.querySelectorAll<HTMLElement>('button,a[href]')).filter(el=>!el.hasAttribute('disabled'));const first=items[0],last=items[items.length-1];if(e.shiftKey&&(!card.current.contains(document.activeElement)||document.activeElement===first||document.activeElement===card.current)){e.preventDefault();last?.focus()}else if(!e.shiftKey&&(!card.current.contains(document.activeElement)||document.activeElement===last||document.activeElement===card.current)){e.preventDefault();first?.focus()}}};document.addEventListener('keydown',key);card.current?.focus({preventScroll:true});return()=>document.removeEventListener('keydown',key)},[run,offer]);
  if(!mounted||hidden)return null;
- const spotlight=rect?{left:Math.max(8,rect.left-6),top:Math.max(8,rect.top-6),width:Math.min(rect.width+12,size.width-16),height:Math.min(rect.height+12,size.height-16)}:null;
- const narrow=size.width<640;
- const below=rect&&rect.bottom+cardHeight+32<size.height;
- const position=run&&!narrow&&rect?{left:Math.max(16,Math.min(rect.left,size.width-376)),top:below?Math.max(16,rect.bottom+16):Math.max(16,Math.min(rect.top-cardHeight-16,size.height-cardHeight-16))}:undefined;
+ const layout=rect?tourLayout(rect,size,cardHeight):null;
+ const spotlight=layout?.spotlight,position=run?layout?.card:undefined;
  return <><button ref={launcher} className="website-tour-launch" onClick={start} onPointerEnter={preloadStart} onFocus={preloadStart} disabled={!sessionReady} aria-busy={!sessionReady} aria-haspopup="dialog" aria-expanded={!!run||offer}><span className="website-tour-icon" aria-hidden="true"><Compass size={26}/></span><strong>Take a tour</strong></button>{(run||offer)&&createPortal(<div className="website-tour-layer"><div className="website-tour-shade" style={run&&spotlight&&phase==='ready'?{background:'transparent'}:undefined}/>{run&&spotlight&&<div className="website-tour-spotlight" data-pending={phase!=='ready'} style={spotlight}/>}<div ref={card} className={'website-tour-card'+(offer?' website-tour-offer':'')} style={position} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="website-tour-title" aria-describedby="website-tour-description" aria-busy={!!run&&phase==='moving'}><button className="website-tour-close" onClick={close} aria-label="Close tour"><X size={18}/></button><span className="website-tour-count">{offer?'QUICK WEBSITE TOUR':`${(run?.index||0)+1} / ${steps.length}`}</span><div className="website-tour-copy" key={step?.id||'offer'}><h2 id="website-tour-title">{offer?'Find your way in a minute':step?.title}</h2><p id="website-tour-description" aria-live="polite">{offer?'See where to learn, save your work and connect your mentor.':step?.text}</p>{run&&phase==='moving'&&<p className="website-tour-hint" role="status">Opening this section…</p>}{run&&phase==='unavailable'&&<p className="website-tour-hint" role="status">This section could not load. Retry or skip this step.</p>}</div><div className="website-tour-actions">{offer?<><button onClick={close}>Not now</button><button className="website-tour-next" onClick={start}>Show me <ArrowRight size={16}/></button></>:<><button onClick={close}>Skip</button>{run&&run.index>0&&<button disabled={phase==='moving'} aria-label="Previous tour step" onClick={()=>move({...run,index:run.index-1})}><ArrowLeft size={16}/> Back</button>}{phase==='unavailable'&&<button onClick={retry}>Retry section</button>}<button className="website-tour-next" disabled={phase==='moving'} onClick={()=>run&&move({...run,index:run.index+1})}>{phase==='unavailable'?'Skip this step':run&&run.index===steps.length-1?'Done':'Next'} <ArrowRight size={16}/></button></>}</div></div></div>,document.body)}</>;
 }
