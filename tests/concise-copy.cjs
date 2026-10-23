@@ -11,6 +11,6 @@ test('optional guidance stays available without taking over the main view',()=>{
  assert.match(workspace,/<details className="dashboard-sidequest"><summary>Optional/);
  assert.match(workspace,/<details className="path-reason"><summary>/);
  assert.match(membership,/<details className="pricing-terms"><summary>Plan limits & billing details/);
- assert.match(membership,/Unused requests do not roll over/);assert.match(membership,/Cancel future renewals anytime/);
+ assert.match(membership,/Unused reviews do not roll over/);assert.match(membership,/Cancel future renewals anytime/);
  assert.match(outcome,/copy.evidence/);assert.match(outcome,/copy.reviewScope/);const copy=read('lib/question-translations/copy.ts');assert.match(copy,/real results/);assert.match(copy,/AI does not run your project or witness your test/);
 });
