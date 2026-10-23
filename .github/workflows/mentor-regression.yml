@@ -22,8 +22,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Reject production security advisories at high severity
         run: pnpm audit --prod --audit-level high
-      - name: Reject critical advisories across the complete dependency tree
-        run: pnpm audit --audit-level critical
+      - name: Reject all advisories across the complete dependency tree
+        run: pnpm audit --audit-level low
       - run: node scripts/mentor-regression.cjs
       - run: node scripts/verify-migrations.cjs
       - run: pnpm exec tsc --noEmit

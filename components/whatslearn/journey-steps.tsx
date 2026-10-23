@@ -3,9 +3,9 @@ import {useState} from 'react';
 import {Plus,Minus} from 'lucide-react';
 
 const steps=[
- {n:'01',title:'Bring your ambition.',text:'Pick your goal, level and language.'},
- {n:'02',title:'Meet a real-world challenge.',text:'Solve a realistic problem. Make something useful.'},
- {n:'03',title:'Make. Reflect. Level up.',text:'Get feedback. Improve your work. Grow your portfolio.'}
+ {n:'01',title:'Choose your course.',text:'After the starter, choose your goal, level and language.'},
+ {n:'02',title:'Do one practical task.',text:'Each course task is called a mission. Solve an everyday problem and make something useful.'},
+ {n:'03',title:'Get feedback. Keep learning.',text:'Improve your work, then open your next task. Find saved work in My Creations on your dashboard.'}
 ];
 
 export default function JourneySteps(){

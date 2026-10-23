@@ -10,7 +10,7 @@ The screenshot was treated as a report to investigate, not evidence of a breach.
 - Regenerated the lockfile and installed it frozen into a separate dependency tree for this worktree. The junction to the original checkout was detached; the original checkout's dependencies were preserved.
 - CI now rejects high/critical production advisories and critical advisories across the entire tree. No advisory IDs are ignored or hidden.
 
-## Fresh audit result
+## Earlier v8.1 audit result (superseded below)
 
 | Scope | Critical | High | Moderate | Low |
 | --- | ---: | ---: | ---: | ---: |
@@ -30,3 +30,13 @@ A reproducible pnpm patch in `patches/braces@3.0.3.patch` now bounds parser nest
 Eleven focused regressions check the installed dependency reached through the actual build-tool chain, including an 8,001-character pattern with 4,000 nested braces and direct deeply nested ASTs. The supplied payloads produce controlled syntax errors rather than stack exhaustion. The patch is integrity-bound in the frozen lockfile and reapplied in CI/hosting installs.
 
 This is a local mitigation for the reported recursion issue, not an upstream patched release or a guarantee about every possible regular-expression complexity issue. The complete registry audit still reports one high finding for version 3.0.3; it is intentionally not suppressed. Hostinger may continue to display that upstream-version finding until a patched upstream release or a manual assessment recognises the local defence. Production and the separate sandbox service audit remain zero at all severities.
+
+## v9: removed the remaining vulnerable package
+
+The current release removes `braces` and `micromatch` from both the lockfile and the installed dependency graph. The old `braces` patch is retired. No package has been renamed to hide an advisory and no advisory ID is ignored.
+
+Both consumers now use fast-glob 3.3.3 with the integrity-bound `patches/fast-glob@3.3.3.patch`. Scanning and regex matching use picomatch 2.3.2 directly, the same API previously forwarded by micromatch. Brace expansion uses brace-expansion 5.0.12 with explicit input, depth, rewrite and result limits. Quoted text and escaped glob characters are protected and restored. Oversized expansions fail rather than silently dropping source files. The installed package manifest and pnpm resolution policy both declare the replacement dependencies so standalone tracing uses the same graph.
+
+Focused checks compare 21 expansion patterns against the previous implementation and scan real fixture files through synchronous, asynchronous and streaming APIs, including negation, extglobs, hidden files and escaped brackets. Both the Next lint plugin and the Vinext build plugin resolve this implementation. Deeply nested strings, mixed closing symbols, NUL input and combinatorial/range expansion are bounded.
+
+Fresh complete-tree and production audits report **0 critical, 0 high, 0 moderate and 0 low**. CI now rejects advisories at every severity across the complete graph. Supply-chain age and build-script protections are preserved. The upstream braces advisory still has no fixed release; this project no longer installs the affected package.

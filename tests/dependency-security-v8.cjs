@@ -10,5 +10,5 @@ test('transitive patch floors retain install policies and do not suppress adviso
  const policy=fs.readFileSync('pnpm-workspace.yaml','utf8');assert.match(policy,/minimumReleaseAge: 10080/);assert.match(policy,/strictDepBuilds: true/);
  assert.match(policy,/miniflare>sharp: 0.35.5/);assert.match(policy,/undici@>=7.0.0 <7.29.1/);
  assert.doesNotMatch(policy,/audit\.ignore|ignoreCves|ignore-cves/);
- const workflow=fs.readFileSync('.github/workflows/mentor-regression.yml','utf8');assert.match(workflow,/pnpm audit --prod --audit-level high/);assert.match(workflow,/pnpm audit --audit-level critical/);
+ const workflow=fs.readFileSync('.github/workflows/mentor-regression.yml','utf8');assert.match(workflow,/pnpm audit --prod --audit-level high/);assert.match(workflow,/pnpm audit --audit-level low/);
 });

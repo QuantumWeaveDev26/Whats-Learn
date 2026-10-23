@@ -20,7 +20,7 @@ export default function GuestStarterPreview({track,body,language,onRestore,onEdi
    <p>{kept?'Your draft is kept on this device.':'Your browser could not keep this draft. Copy it before leaving.'} It has not been AI reviewed and earns no mission points.</p>
    <details open><summary>See how one small revision helps</summary><p><strong>Sample draft:</strong> {sample.before}</p><p><strong>What worked in the revised sample:</strong> {sample.worked}</p><p><strong>One improvement:</strong> {sample.improve}</p><p><strong>Revised example:</strong> {sample.after}</p><p><strong>Try next:</strong> {sample.next}</p></details>
    <small>This is feedback on an authored example, not an assessment of your answer.</small>
-   <div className="starter-next-actions"><a className="primary" href={'/learn?mission='+lane.mission}>Keep learning as a guest</a><a className="text-button" href={'/signin?return_to='+encodeURIComponent('/?starter='+track+'#start')}>Get AI feedback and sync my draft →</a></div>
+   <div className="starter-next-actions"><a className="primary" href={'/find-my-path?track='+track+'&language='+encodeURIComponent(language)}>Choose my course</a><a className="text-button" href={'/signin?return_to='+encodeURIComponent('/?starter='+track+'#start')}>Get AI feedback and sync my draft →</a></div>
   </div>}
  </section>;
 }

@@ -1,0 +1,93 @@
+diff --git a/out/utils/bounded-expansion.js b/out/utils/bounded-expansion.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..c89b5f0b3099534f05ee98e7286803a1d0922257
+--- /dev/null
++++ b/out/utils/bounded-expansion.js
+@@ -0,0 +1,32 @@
++"use strict";
++
++// Replace the braces/micromatch expansion path with bounded brace-expansion.
++// Matching and scanning use the same picomatch API as micromatch previously did.
++const { expand } = require("brace-expansion");
++const MAX_LENGTH = 10000;
++const MAX_DEPTH = 128;
++const MAX_RESULTS = 1000;
++
++module.exports = pattern => {
++    if (typeof pattern !== "string") throw new TypeError("Expected a glob string");
++    if (pattern.length > MAX_LENGTH || pattern.includes("\0")) throw new SyntaxError("Glob pattern exceeds safe input limits");
++    const protectedParts = [];
++    const input = pattern.replace(/\\[\s\S]|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, value => {
++        const quoted = value[0] === '"' || value[0] === "'";
++        protectedParts.push(quoted ? value.slice(1, -1) : value);
++        return "\0WL" + (protectedParts.length - 1) + "\0";
++    });
++    let braceDepth = 0, parenDepth = 0;
++    for (const character of input) {
++        if (character === "{") braceDepth++;
++        if (character === "(") parenDepth++;
++        if (braceDepth + parenDepth > MAX_DEPTH) throw new SyntaxError("Glob pattern exceeds maximum nesting depth (128)");
++        if (character === "}") braceDepth = Math.max(0, braceDepth - 1);
++        if (character === ")") parenDepth = Math.max(0, parenDepth - 1);
++    }
++    // Preserve non-expansion strings exactly, as micromatch.braces did.
++    if (!pattern.includes("{") || !pattern.includes("}")) return [pattern];
++    const result = expand(input, { max: MAX_RESULTS + 1, maxLength: (MAX_LENGTH + 1) * (MAX_RESULTS + 1), maxDepth: MAX_DEPTH, maxRewrites: MAX_DEPTH });
++    if (result.length > MAX_RESULTS) throw new SyntaxError("Glob pattern exceeds maximum expansions (1000)");
++    return [...new Set(result.map(value => value.replace(/\0WL(\d+)\0/g, (_, index) => protectedParts[Number(index)])))];
++};
+diff --git a/out/utils/pattern.js b/out/utils/pattern.js
+index b2924e7874dbc901ef6f261e9c508c17e9365f45..6148b3f5c24e1205cdbb74e132a5998a23e788f0 100644
+--- a/out/utils/pattern.js
++++ b/out/utils/pattern.js
+@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
+ const path = require("path");
+ const globParent = require("glob-parent");
+-const micromatch = require("micromatch");
++const picomatch = require("picomatch");
++const expandPattern = require("./bounded-expansion");
+ const GLOBSTAR = '**';
+ const ESCAPE_SYMBOL = '\\';
+ const COMMON_GLOB_SYMBOLS_RE = /[*?]|^!/;
+@@ -134,7 +135,7 @@ function expandPatternsWithBraceExpansion(patterns) {
+ }
+ exports.expandPatternsWithBraceExpansion = expandPatternsWithBraceExpansion;
+ function expandBraceExpansion(pattern) {
+-    const patterns = micromatch.braces(pattern, { expand: true, nodupes: true, keepEscaping: true });
++    const patterns = expandPattern(pattern);
+     /**
+      * Sort the patterns by length so that the same depth patterns are processed side by side.
+      * `a/{b,}/{c,}/*` – `['a///*', 'a/b//*', 'a//c/*', 'a/b/c/*']`
+@@ -147,7 +148,7 @@ function expandBraceExpansion(pattern) {
+ }
+ exports.expandBraceExpansion = expandBraceExpansion;
+ function getPatternParts(pattern, options) {
+-    let { parts } = micromatch.scan(pattern, Object.assign(Object.assign({}, options), { parts: true }));
++    let { parts } = picomatch.scan(pattern, Object.assign(Object.assign({}, options), { parts: true }));
+     /**
+      * The scan method returns an empty array in some cases.
+      * See micromatch/picomatch#58 for more details.
+@@ -167,7 +168,7 @@ function getPatternParts(pattern, options) {
+ }
+ exports.getPatternParts = getPatternParts;
+ function makeRe(pattern, options) {
+-    return micromatch.makeRe(pattern, options);
++    return picomatch.makeRe(pattern, options);
+ }
+ exports.makeRe = makeRe;
+ function convertPatternsToRe(patterns, options) {
+diff --git a/package.json b/package.json
+index e910de93f5022ec52223063e049cae8fa03dabc2..4839c20659b4876b3fe8ca2c147a8d31fc4f6faa 100644
+--- a/package.json
++++ b/package.json
+@@ -53,7 +53,8 @@
+     "@nodelib/fs.walk": "^1.2.3",
+     "glob-parent": "^5.1.2",
+     "merge2": "^1.3.0",
+-    "micromatch": "^4.0.8"
++    "picomatch": "2.3.2",
++    "brace-expansion": "5.0.12"
+   },
+   "scripts": {
+     "clean": "rimraf out",

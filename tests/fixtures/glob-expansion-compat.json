@@ -1,0 +1,152 @@
+[
+  {
+    "pattern": "{src,test}/**/*.{js,ts}",
+    "expanded": [
+      "src/**/*.js",
+      "src/**/*.ts",
+      "test/**/*.js",
+      "test/**/*.ts"
+    ]
+  },
+  {
+    "pattern": "a{1..3}",
+    "expanded": [
+      "a1",
+      "a2",
+      "a3"
+    ]
+  },
+  {
+    "pattern": "{a,{b,c}}",
+    "expanded": [
+      "a",
+      "b",
+      "c"
+    ]
+  },
+  {
+    "pattern": "{a,}",
+    "expanded": [
+      "a",
+      ""
+    ]
+  },
+  {
+    "pattern": "a/{b,}/**/*",
+    "expanded": [
+      "a/b/**/*",
+      "a//**/*"
+    ]
+  },
+  {
+    "pattern": "{01..03}",
+    "expanded": [
+      "01",
+      "02",
+      "03"
+    ]
+  },
+  {
+    "pattern": "{3..1}",
+    "expanded": [
+      "3",
+      "2",
+      "1"
+    ]
+  },
+  {
+    "pattern": "{a..e..2}",
+    "expanded": [
+      "a",
+      "c",
+      "e"
+    ]
+  },
+  {
+    "pattern": "literal",
+    "expanded": [
+      "literal"
+    ]
+  },
+  {
+    "pattern": "\\{a,b\\}",
+    "expanded": [
+      "\\{a,b\\}"
+    ]
+  },
+  {
+    "pattern": "dir/\\[name\\]/{a,b}",
+    "expanded": [
+      "dir/\\[name\\]/a",
+      "dir/\\[name\\]/b"
+    ]
+  },
+  {
+    "pattern": "{a,b}/\\*",
+    "expanded": [
+      "a/\\*",
+      "b/\\*"
+    ]
+  },
+  {
+    "pattern": "{a,b}/\\\\file",
+    "expanded": [
+      "a/\\\\file",
+      "b/\\\\file"
+    ]
+  },
+  {
+    "pattern": "{a,\\,b}",
+    "expanded": [
+      "a",
+      "\\,b"
+    ]
+  },
+  {
+    "pattern": "{\"a,b\",c}",
+    "expanded": [
+      "a,b",
+      "c"
+    ]
+  },
+  {
+    "pattern": "{'a,b',c}",
+    "expanded": [
+      "a,b",
+      "c"
+    ]
+  },
+  {
+    "pattern": "{}",
+    "expanded": [
+      "{}"
+    ]
+  },
+  {
+    "pattern": "{a}",
+    "expanded": [
+      "{a}"
+    ]
+  },
+  {
+    "pattern": "a{b}c",
+    "expanded": [
+      "a{b}c"
+    ]
+  },
+  {
+    "pattern": "{a,b}{c,d}",
+    "expanded": [
+      "ac",
+      "ad",
+      "bc",
+      "bd"
+    ]
+  },
+  {
+    "pattern": "{a,a}",
+    "expanded": [
+      "a"
+    ]
+  }
+]

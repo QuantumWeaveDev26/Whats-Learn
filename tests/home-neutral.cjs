@@ -5,7 +5,7 @@ const React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
 test('a fresh hero asks for a subject and does not open a story or completed progress',()=>{
  const Hero=require('../components/whatslearn/visual-start.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Hero));
- assert.match(html,/One spark\. Something real\./);assert.match(html,/Pick your spark/);
+ assert.match(html,/Try a skill in 3 minutes\./);assert.match(html,/Choose a skill to try/);
  assert.equal((html.match(/aria-pressed="false"/g)||[]).length,4);
  assert.doesNotMatch(html,/aria-pressed="true"|role="progressbar"|A draft\. An approval\.|THE APP STUDIO/);
  assert.match(html,/welcome-video-inline/);
@@ -54,13 +54,13 @@ test('signed-out visitors do not get an account resume link from device work',()
  assert.doesNotMatch(html,/Continue my journey|Welcome back/);
  assert.match(html,/Checking your account/);
  assert.doesNotMatch(html,/Sign in<\/a> to sync progress/,'do not label an unresolved session as a guest');
- assert.match(html,/10-day foundation courses/);
- assert.match(html,/first 3 per course free/);
+ assert.match(html,/10-day courses/);
+ assert.match(html,/First 3 tasks in each course free/);
 });
 
 test('every collapsed programme shows its duration and practical mission count',()=>{
  const Explorer=require('../components/whatslearn/programme-explorer.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Explorer));
- assert.equal((html.match(/10-DAY FOUNDATION COURSE · 10 PRACTICAL MISSIONS/g)||[]).length,4);
+ assert.equal((html.match(/10-DAY COURSE · 10 PRACTICAL TASKS/g)||[]).length,4);
  assert.match(html,/Take longer if you need/);
 });

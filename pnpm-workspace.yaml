@@ -18,6 +18,8 @@ packageImportMethod: clone-or-copy
 verifyDepsBeforeRun: false
 optimisticRepeatInstall: false
 overrides:
+  'fast-glob@>=3.0.0 <4.0.0': 3.3.3
+  'fast-glob@3.3.3>micromatch': '-'
   miniflare>sharp: 0.35.5
   # Patched floors for the 2026-10-23 advisory review; keep the release-age policy above.
   'esbuild@<0.28.1': 0.28.1
@@ -35,4 +37,11 @@ overrides:
   'source-map-js@>=1.0.0 <1.2.2': 1.2.2
   'sharp@<0.35.5': 0.35.5
 patchedDependencies:
-  braces@3.0.3: patches/braces@3.0.3.patch
+  fast-glob@3.3.3: patches/fast-glob@3.3.3.patch
+
+# The source patch above replaces the former matcher dependency with these APIs.
+packageExtensions:
+  fast-glob@3.3.3:
+    dependencies:
+      picomatch: 2.3.2
+      brace-expansion: 5.0.12
