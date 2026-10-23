@@ -37,3 +37,11 @@ Release marker: `2026-10-23-account-journey-v5`.
 Public launch remains conditional on these external/account acceptance checks. No claim of a flawless or fully certified launch is made.
 
 Deployment is recorded after verifying the live marker; pushing GitHub alone is insufficient.
+
+## Deployment confirmation
+
+Hostinger deployment `01a16759-5160-7069-b21a-6837950532b5` completed for commit `7ee32e2a4572db4e7ce221eeb2ca7ee36239ff90` on main. The dashboard marked it Current and Completed and showed a successful application restart. Live home HTML returned marker `2026-10-23-account-journey-v5`. GitHub Actions run `39908950285` completed successfully.
+
+The deployed public tour reached all five steps on desktop and at 390×844. The final phone card fit inside the viewport; there was no horizontal overflow (375px document and content width after the scrollbar). Done dismissed the tour. The nine-step authenticated tour and actual repeat-login journey were checked in the isolated local preview, not in the owner's signed-out production account. No console errors were captured in that preview.
+
+Live `/support` and `/age-policy` returned 200. Anonymous `/api/mentor-context` returned 401; `/api/session` returned 200 with `signedIn:false`. These are smoke checks and do not certify the external acceptance items above.
