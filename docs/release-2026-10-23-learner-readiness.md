@@ -1,6 +1,6 @@
 # Learner readiness repairs — 23 October 2026
 
-Release marker: `2026-10-23-learner-readiness-v9.4`.
+Release marker: `2026-10-23-learner-readiness-v9.5`.
 
 ## Changes
 
@@ -29,3 +29,9 @@ Release marker: `2026-10-23-learner-readiness-v9.4`.
 4. Complete a real first-time sign-up/Google login and a practical review/save in each course using real work. Confirm the same accepted work appears on the website and linked chat.
 
 Public launch clearance is conditional on those acceptance results; a successful deployment alone is not clearance.
+
+## Live mentor follow-up (v9.5)
+
+The live v9.4 retest still excluded existing buyers from an audience, despite revised instructions. v9.5 adds a checked English teaching-reference guard for this observed definition error, applied to the generated answer and any rewrite. It retains the selected-language gate and does not grade work or spend review credits. Unrelated advice is unchanged. This targeted reference repair does not certify all generated answers as accurate.
+
+Cross-task live inspection also exposed an old question/reply remaining visible after opening another lesson. The mentor panel now resets on mission, language and account identity changes and discards delayed results from the former view.

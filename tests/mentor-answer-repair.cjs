@@ -5,10 +5,10 @@ function provider(replies){h.reset({env:{OPENAI_API_KEY:'synthetic-repair-key'}}
 const question='What is the difference between a customer and an audience? Explain in English with one simple lunch-service example.';
 
 test('the observed invented-draft opening is repaired as an AI answer, preserving the actual question and context',async()=>{
- const requests=provider(['Your draft explains the difference well! A customer buys lunch. An audience sees the offer.','A customer buys your lunch. Your audience includes office workers who see the offer but have not bought it.']);
+ const requests=provider(['Your draft explains the difference well! A customer buys lunch. An audience sees the offer.','A customer buys lunch. Your audience includes office workers you want to reach, including existing customers.']);
  const context={name:'Learner',draft:'',recentConversation:{question:'Explain lunch offers',answer:'Start with who needs lunch.'}};
  const out=await ai.answerMentor(question,'en',context);
- assert.equal(requests.length,2);assert.equal(out.answer,'A customer buys your lunch. Your audience includes office workers who see the offer but have not bought it.');
+ assert.equal(requests.length,2);assert.equal(out.answer,'A customer buys lunch. Your audience includes office workers you want to reach, including existing customers.');
  const repair=JSON.parse(requests[1].messages[1].content);
  assert.equal(repair.question,question);assert.deepEqual(repair.account,context);assert.match(repair.candidateAnswer,/Your draft explains/);assert.equal(Object.hasOwn(repair,'draft'),false);
  assert.match(requests[1].messages[0].content,/NOT learner work or a submission/);
@@ -53,4 +53,13 @@ test('ordinary advice and genuine saved-account facts are not confused with unsu
 test('definition questions preserve accuracy, overlapping groups and the requested example',async()=>{
  const requests=provider(['A customer buys lunch. Your audience is the group you want to reach, including existing customers. An office worker can see your lunch offer and also buy it.']);
  const out=await ai.answerMentor(question,'en',{});assert.match(out.answer,/including existing customers/);const system=requests[0].messages[0].content;assert.match(system,/Categories can overlap/);assert.match(system,/a marketing audience is the intended group/);assert.match(system,/any example the question requests/);assert.match(system,/under 55 words/);
+});
+
+
+test('the live audience exclusion is repaired against a checked reference without another model request',async()=>{
+ const bad="A customer is someone who buys your lunch. An audience is a group of people who see your ads but haven’t bought yet. Customers pay; audiences might pay later.";
+ const requests=provider([bad]);const out=await ai.answerMentor(question,'en',{});assert.match(out.answer,/can include existing customers/);assert.match(out.answer,/lunch service/);assert.doesNotMatch(out.answer,/haven.t bought/);assert.equal(requests.length,1);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);assert.equal(h.db.prepare('SELECT COUNT(*) n FROM ai_feedback_usage').get().n,0);
+});
+test('the checked reference does not replace unrelated questions, correct overlap explanations or selected-language output',()=>{
+ const repair=h.load('lib/mentor-reference.ts').checkedDefinitionAnswer;const answer='Some of the audience have not bought; the audience also includes existing customers.';assert.equal(repair(question,answer,'English'),answer);assert.equal(repair('How do I turn an audience into customers?','Give a clear offer and useful next step.','English'),'Give a clear offer and useful next step.');assert.equal(repair(question,'A customer buys. An audience has not bought.','Kannada'),'A customer buys. An audience has not bought.');
 });
