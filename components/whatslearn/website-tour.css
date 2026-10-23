@@ -21,3 +21,9 @@
 @media(max-width:700px){.website-tour-launch{left:12px;bottom:var(--floating-action-bottom);gap:9px;min-height:var(--floating-action-height);padding:7px 13px 7px 7px}.website-tour-icon{width:36px;height:36px}}
 @media(max-width:639px){.website-tour-card{left:16px;bottom:16px;width:calc(100vw - 32px);padding:20px}.website-tour-offer{left:50%;bottom:auto}.website-tour-card h2{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.website-tour-launch,.website-tour-shade,.website-tour-spotlight,.website-tour-card{transition:none}.website-tour-launch:hover{transform:none}.website-tour-copy,.mission-tour-note{animation:none}}
+
+/* The automatic invitation stays in the page flow; only an explicit tour opens a modal. */
+.website-tour-invitation{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:12px 0 20px;padding:16px 20px;border:1px solid #c9ded1;border-radius:16px;background:#f0f6ed;color:#17362b}.website-tour-invitation p{margin:4px 0 0;font-size:14px}.website-tour-invitation .website-tour-actions{flex-shrink:0}
+
+/* Mission dialogs have their own tour; avoid competing focus traps. */
+body:has([role="dialog"]:not(.website-tour-card)) .website-tour-launch{visibility:hidden}

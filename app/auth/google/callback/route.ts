@@ -2,7 +2,7 @@ import {readGoogle,clearGoogle,googleFailure} from '@/lib/auth/google';
 import {exchangeGoogleCode} from '@/lib/auth/gotrue';
 import {setSessionCookies} from '@/lib/auth/session';
 import {secureRequest} from '@/lib/auth/http';
-import {afterSignIn} from '@/lib/learner-context-store';
+import {afterSignIn,contextDestination} from '@/lib/learner-context-store';
 import {ensureAccount} from '@/lib/points';
 export const dynamic='force-dynamic';
 export async function GET(request:Request){
@@ -14,6 +14,6 @@ export async function GET(request:Request){
  const r=await exchangeGoogleCode(code,flow.verifier);if(!r.ok)return googleFailure(r.status>=500?'unavailable':'failed',flow.next);
  await setSessionCookies(r.data,secure);
  try{await ensureAccount(r.data.user.id)}catch{}
- let destination='/welcome?next='+encodeURIComponent(flow.next);try{destination=await afterSignIn(r.data.user.id,flow.next)}catch{}
+ let destination=contextDestination(flow.next);try{destination=await afterSignIn(r.data.user.id,flow.next)}catch{}
  return new Response(null,{status:303,headers:{Location:destination,'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
 }
