@@ -111,7 +111,7 @@ export async function cancelSubscription(userId:string,id:string){
  // Test: cancel now so the integration can be verified immediately.
  await razorpay('subscriptions/'+encodeURIComponent(row.provider_id)+'/cancel',{cancel_at_cycle_end:live});
  const verified=await syncSession(row);
- if(live)return {...verified,message:'Renewal cancelled. You keep access until the end of the period you paid for.'};
+ if(live)return {...verified,message:verified.state==='cancelled'?'Razorpay confirmed this subscription has ended.':'Razorpay accepted your request to stop future renewals at the end of the paid period. Your plan can remain active until then. Contact support if you need confirmation.'};
  if(verified.state!=='cancelled')return {...verified,message:'Razorpay accepted the cancellation request, but has not yet confirmed cancelled status. Refresh status before retrying.'};
  return {...verified,message:'Razorpay confirmed: test subscription cancelled immediately. No real payment was made.'};
 }

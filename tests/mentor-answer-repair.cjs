@@ -48,3 +48,9 @@ test('ordinary advice and genuine saved-account facts are not confused with unsu
  for(const text of ['Your code should wait for the response.','Your draft has three saved parts.','Your work is saved in My Creations.'])assert.equal(copy.unrequestedMentorAssessment(text),false,text);
  for(const text of ['Your draft explains the difference well!','Your answer is correct.','Your fix correctly ensures only one message.','Your draft looks strong!'])assert.equal(copy.unrequestedMentorAssessment(text),true,text);
 });
+
+
+test('definition questions preserve accuracy, overlapping groups and the requested example',async()=>{
+ const requests=provider(['A customer buys lunch. Your audience is the group you want to reach, including existing customers. An office worker can see your lunch offer and also buy it.']);
+ const out=await ai.answerMentor(question,'en',{});assert.match(out.answer,/including existing customers/);const system=requests[0].messages[0].content;assert.match(system,/Categories can overlap/);assert.match(system,/a marketing audience is the intended group/);assert.match(system,/any example the question requests/);assert.match(system,/under 55 words/);
+});

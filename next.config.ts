@@ -17,7 +17,10 @@ const nextConfig: NextConfig = {
       ...pages.map(source => ({ source, headers: [
         // These pages can appear in the site's own frame or its ChatGPT companion.
         // Do not overwrite private-upload CSP sandbox rules on /api routes.
-        { key: "Content-Security-Policy", value: "frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com https://chat.openai.com" },
+        { key: "Content-Security-Policy", value: "frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com https://chat.openai.com; object-src 'none'; base-uri 'self'" },
+        // Observe script-policy incompatibilities before enforcing nonce/hash restrictions.
+        // No report endpoint is configured: reports stay in the browser console.
+        { key: "Content-Security-Policy-Report-Only", value: "script-src 'self' https://checkout.razorpay.com https://*.razorpay.com 'report-sample'; object-src 'none'; base-uri 'self'" },
       ] })),
     ];
   },

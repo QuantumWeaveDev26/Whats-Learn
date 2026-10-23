@@ -8,7 +8,7 @@ export const courseOutcomes:Record<string,string>={
 };
 export const deliverables:Record<string,string[]>={
  marketing:['Customer + offer brief','Reusable campaign prompt','Reply + follow-up sequence','Customer interview + actual responses','Two messages + reader comparison','Finished post + tested action path','Campaign cost analysis','14-day content calendar','Safer ad + consent flow','One-page campaign capstone'],
- development:['Booking prototype + acceptance brief','Corrected booking handler','Booking data model','Working local API + request results','Server validation + error messages','Debugging evidence + corrected handler','Role-based access-check function','Executed tests + actual results','Git history + performed rollback','Tested local booking capstone'],
+ development:['A working booking page + three checks','Corrected booking handler','Booking data model','Working local API + request results','Server validation + error messages','Debugging evidence + corrected handler','Role-based access-check function','Executed tests + actual results','Git history + performed rollback','Tested local booking capstone'],
  filmmaking:['Recorded three-beat film','Six-shot sequence','Live footage + composited insert','Recorded dialogue + revised take','Actor direction + backup take','Recorded location + lighting test','Exported sound edit + cue sheet','Two exported cuts + pacing check','Shoot schedule + budget','Exported film sample + recorded pitch'],
  storytelling:['Three-frame story','Consistent AI image brief','Audience + message brief','Poster composition','Accessible type + colour system','Honest chart + caption','Five-slide carousel','AI image audit + revision','Three-slide pitch','Campaign storyboard capstone']
 };

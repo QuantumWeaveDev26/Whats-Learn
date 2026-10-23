@@ -29,6 +29,7 @@ jobs:
         run: |
           node tests/billing-setup.cjs
           node tests/billing.cjs
+          node --test tests/membership-management.cjs tests/membership-management-ui.cjs tests/policy-readiness.cjs tests/style-account-safety.cjs
       - run: node scripts/verify-migrations.cjs
       - run: pnpm exec tsc --noEmit
       - run: npm ci --ignore-scripts --no-audit --no-fund

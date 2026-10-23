@@ -39,7 +39,7 @@ test('learning, human support and account assistance have distinct accessible de
 });
 test('membership explains free access and paid continuation without changing pricing',()=>{
  const membership=read('components/whatslearn/membership.tsx');
- assert.match(membership,/first 3 tasks in each course free/);assert.match(membership,/tasks 4–10/);
+ assert.match(membership,/First 3 tasks free in every course/);assert.match(membership,/tasks 4–10/);
  assert.match(membership,/saved work stays in My Creations when paid access ends/);
  assert.match(membership,/Selecting a plan shows its price and terms before payment/);
  for(const amount of [499,999,149])assert.ok(membership.includes(String(amount)));

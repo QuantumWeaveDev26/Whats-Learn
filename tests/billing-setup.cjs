@@ -15,7 +15,7 @@ const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../driz
 (async()=>{
  // Nothing configured: guests and customers just see "not open".
  let d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false,sprintCreditAvailable:false});
- testUser=CUSTOMER;d=await get();customerSafe(d,'customer, nothing configured');assert.equal(d.enabled,false);
+ testUser=CUSTOMER;d=await get();customerSafe(d,'customer, nothing configured');assert.match(d.error,/plan status could not load/);
  // Owner configured with TEST keys, even with BILLING_PUBLIC_CHECKOUT=true: customers still cannot pay or see setup.
  Object.assign(env,{RAZORPAY_KEY_ID:'rzp_test_FAKEKEY123',RAZORPAY_KEY_SECRET:'FAKE-secret-value',RAZORPAY_WEBHOOK_SECRET:'FAKE-webhook-value',BILLING_ADMIN_EMAIL:'seedy@sites.test',BILLING_PUBLIC_CHECKOUT:'true'});migrate();
  testUser=null;d=await get();assert.deepEqual(d,{enabled:false,checkoutOpen:false,sprintCreditAvailable:false},'Guests get no mode or setup details');

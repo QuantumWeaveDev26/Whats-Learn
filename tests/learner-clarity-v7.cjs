@@ -13,7 +13,7 @@ test('membership describes review allowances separately from ordinary mentor que
  const s=fs.readFileSync('components/whatslearn/membership.tsx','utf8');
  assert.doesNotMatch(s,/questions or reviews|AI requests\/day/);
  assert.match(s,/Mentor questions have no daily question limit/);
- for(const copy of ['3 AI reviews/day after sign-in','10 AI reviews per day','25 AI reviews per day','five AI reviews per day','First 3 missions in each of four courses'])assert.ok(s.includes(copy));
+ for(const copy of ['3 AI reviews/day after sign-in','10 AI reviews per day','25 AI reviews per day','five AI reviews per day','First 3 tasks in each of four courses'])assert.ok(s.includes(copy));
  assert.match(s,/AI review allowances reset daily at midnight India time/);
  assert.match(s,/English fallback is labelled/);
 });
