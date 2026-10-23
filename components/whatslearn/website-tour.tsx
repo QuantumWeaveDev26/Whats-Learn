@@ -88,7 +88,7 @@ export default function WebsiteTour(){
  const spotlight=layout?.spotlight,position=run?layout?.card:undefined;
  return <>
   <button ref={launcher} className="website-tour-launch" onClick={start} onPointerEnter={preloadStart} onFocus={preloadStart} disabled={!sessionReady} aria-busy={!sessionReady} aria-haspopup="dialog" aria-expanded={!!run}><span className="website-tour-icon" aria-hidden="true"><Compass size={26}/></span><strong>Take a tour</strong></button>
-  {offer&&offerHost&&!run&&createPortal(<section className="website-tour-invitation" aria-label="Quick website tour"><div><strong>New here?</strong><p>Find your mission, saved work and mentor.</p></div><div className="website-tour-actions"><button type="button" onClick={close}>Not now</button><button type="button" className="website-tour-next" onClick={start}>Show me <ArrowRight size={16}/></button></div></section>,offerHost)}
+  {offer&&offerHost&&!run&&createPortal(<section className="website-tour-invitation" aria-label="Quick website tour"><div><strong>New here?</strong><p>Find your mission, saved work and mentor.</p></div><div className="website-tour-actions"><button type="button" onClick={close}>Not now</button><button type="button" className="website-tour-next" onClick={start}>Quick tour <ArrowRight size={16}/></button></div></section>,offerHost)}
   {run&&createPortal(<div className="website-tour-layer">
    <div className="website-tour-shade" style={spotlight&&phase==='ready'?{background:'transparent'}:undefined}/>
    {spotlight&&<div className="website-tour-spotlight" data-pending={phase!=='ready'} style={spotlight}/>}
