@@ -25,6 +25,10 @@ jobs:
       - name: Reject all advisories across the complete dependency tree
         run: pnpm audit --audit-level low
       - run: node scripts/mentor-regression.cjs
+      - name: Billing launch gate and existing-customer management (synthetic only)
+        run: |
+          node tests/billing-setup.cjs
+          node tests/billing.cjs
       - run: node scripts/verify-migrations.cjs
       - run: pnpm exec tsc --noEmit
       - run: npm ci --ignore-scripts --no-audit --no-fund

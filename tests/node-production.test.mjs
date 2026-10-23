@@ -39,8 +39,19 @@ try {
   }
   assert.ok(ready, logs);
   const request = (url, options = {}) => fetch(origin + url, options);
+  const home = await request('/');
+  assert.equal(home.status, 200, (await home.clone().text()).slice(0, 1500) + '\n' + logs.slice(-3000));
+  assert.equal(home.headers.get('x-content-type-options'), 'nosniff', JSON.stringify(Object.fromEntries(home.headers)) + '\n' + logs.slice(-3000));
+  assert.equal(home.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+  assert.equal(home.headers.get('strict-transport-security'), 'max-age=31536000');
+  assert.match(home.headers.get('content-security-policy') || '', /frame-ancestors 'self'/);
+  assert.match(home.headers.get('permissions-policy') || '', /geolocation=\(\)/);
   const guest = await request('/api/session', { headers: { 'oai-authenticated-user-id': 'forged', 'oai-authenticated-user-email': 'forged@example.test' } });
   assert.equal(guest.status, 200); assert.equal((await guest.json()).signedIn, false);
+  assert.equal(guest.headers.get('x-content-type-options'), 'nosniff');
+  assert.match(guest.headers.get('cache-control') || '', /no-store/);
+  const closedBilling = await request('/api/billing');
+  assert.equal((await closedBilling.json()).checkoutOpen, false);
   const guestLearning = await request('/learn');
   assert.equal(guestLearning.status, 200);
   assert.ok((await guestLearning.text()).includes('<aside class="signin-note"'), 'guest guidance is rendered before hydration');
@@ -55,7 +66,7 @@ try {
   const secureHeaders = { origin: `https://${publicHost}`, 'x-forwarded-proto': 'https', 'x-forwarded-host': publicHost, 'content-type': 'application/json' };
   const login = await request('/api/auth/signin', { method: 'POST', headers: secureHeaders, body: JSON.stringify({ email: 'student@example.test', password: 'test-password-only', returnTo: '/learn' }) });
   assert.equal(login.status, 200, await login.clone().text());
-  assert.equal((await login.json()).redirect, '/learn');
+  assert.equal((await login.json()).redirect, '/welcome?next=%2Flearn', 'This fresh test account gets its one-time optional personal setup');
   const loginCookies = login.headers.getSetCookie();
   assert.ok(loginCookies.some(value => value.startsWith('__Host-wl-at=') && /Secure/i.test(value) && /HttpOnly/i.test(value)));
   const cookie = loginCookies.map(value => value.split(';')[0]).join('; ');
@@ -72,7 +83,7 @@ try {
   assert.equal(companion.status, 200);
   const html = await companion.text();
   assert.ok(html.includes('g-683b056072048191a84d71e799ecbc26'));
-  assert.ok(html.includes('wa.me/919187951536'));
+  assert.ok(html.includes('/settings?connect=whatsapp#whatsapp'), 'The current WhatsApp handoff opens verified account linking first');
   const headers = { cookie: 'wl-at=test-token', origin, 'content-type': 'application/json' };
   const work = await request('/api/work', { headers });
   assert.equal(work.status, 200, await work.clone().text());
@@ -89,6 +100,8 @@ try {
 } finally {
   if (child && child.exitCode === null) { const stopped = once(child, 'exit'); child.kill(); await stopped; }
   await new Promise(resolve => auth.close(resolve));
-  rmSync(deployed, { recursive: true, force: true });
-  rmSync(data, { recursive: true, force: true });
+  for (const directory of [deployed, data]) {
+    assert.ok(path.resolve(directory).startsWith(path.resolve(tmpdir()) + path.sep), 'Cleanup stays in the system temporary directory');
+    rmSync(directory, { recursive: true, force: true });
+  }
 }

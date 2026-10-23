@@ -9,7 +9,7 @@ global.fetch=async(url,options={})=>{calls++;const route=String(url).split('/v1/
 if(body&&route==='plans'){result={id:'plan_'+calls,...body};remote.set('plans/'+result.id,result)}
 else if(body&&route==='orders'){result={id:'order_'+calls,status:'created',...body};remote.set('orders/'+result.id,result)}
 else if(body&&route==='subscriptions'){result={id:'sub_'+calls,status:'created',...body};remote.set('subscriptions/'+result.id,result)}
-else if(body&&route.endsWith('/cancel')){assert.equal(body.cancel_at_cycle_end,false,'Test cancellation must be immediate');result=remote.get(route.replace('/cancel',''));result.status='cancelled'}
+else if(body&&route.endsWith('/cancel')){assert.equal(body.cancel_at_cycle_end,env.RAZORPAY_KEY_ID.startsWith('rzp_live_'),'Live stops renewals at the paid period end; test cancellation is immediate');result=remote.get(route.replace('/cancel',''));result.status='cancelled'}
 else result=remote.get(route);
 assert.ok(result,'Unexpected API call '+route);return Response.json(result)};
 const {quote}=require('../lib/billing/catalogue.ts');const api=require('../lib/billing/service.ts');const rzp=require('../lib/billing/razorpay.ts');
@@ -60,6 +60,16 @@ console.log('PASS: route authentication, owner restriction, origin validation, p
 const refund=JSON.stringify({event:'refund.processed',payload:{refund:{entity:{payment_id:'pay_test',amount:14900}}}});await api.processWebhook(refund,sign(env.RAZORPAY_WEBHOOK_SECRET,refund),'event-refund');assert.equal(await api.hasPaidAccess('user-a'),false,'A full sprint refund ends its access');
 env.RAZORPAY_KEY_ID='rzp_live_forbidden';assert.equal(rzp.testReady(),false);await assert.rejects(()=>rzp.razorpay('plans'));
 env.BILLING_LIVE_ENABLED='true';const beforeWrongMode=calls;await assert.rejects(()=>api.ownedSession('user-a',sprint.sessionId).then(api.syncSession),/different billing mode/);assert.equal(calls,beforeWrongMode);assert.equal(rzp.billingMode(),'live','Live keys need the explicit live switch');assert.equal(await api.hasPaidAccess('user-a'),false,'Test access never counts in live mode');delete env.BILLING_LIVE_ENABLED;
-env.RAZORPAY_KEY_ID='rzp_test_example';env.BILLING_PUBLIC_CHECKOUT='true';testUser={userId:'learner',email:'learner@example.test'};assert.equal((await route.POST(req({action:'plans'}))).status,403,'Plan setup stays owner-only');assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,403,'Test mode stays owner-only even with public checkout on');env.RAZORPAY_KEY_ID='rzp_live_example';env.BILLING_LIVE_ENABLED='true';assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,200,'Public checkout opens for signed-in learners in live mode');delete env.BILLING_LIVE_ENABLED;env.RAZORPAY_KEY_ID='rzp_test_example';
+env.RAZORPAY_KEY_ID='rzp_test_example';env.BILLING_PUBLIC_CHECKOUT='true';testUser={userId:'learner',email:'learner@example.test'};assert.equal((await route.POST(req({action:'plans'}))).status,403,'Plan setup stays owner-only');assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,403,'Test mode stays owner-only even with public checkout on');env.RAZORPAY_KEY_ID='rzp_live_example';env.BILLING_LIVE_ENABLED='true';assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,503,'Live switches alone cannot open checkout while policies are pending');
+Object.assign(env,{POLICY_APPROVED_REVISION:'2026-10-23',GRIEVANCE_OFFICER_NAME:'Designated Test Officer',GRIEVANCE_OFFICER_EMAIL:'officer@example.test'});
+assert.equal((await route.POST(req({action:'checkout',sku:'sprint',quantity:1}))).status,200,'Public checkout opens only after exact policy approval and contact configuration');
+await api.provisionPlans();const liveSub=await api.createCheckout('learner','plus_monthly',1);
+delete env.POLICY_APPROVED_REVISION;env.BILLING_PUBLIC_CHECKOUT='false';
+const closed=await route.GET().then(r=>r.json());assert.equal(closed.enabled,false);assert.ok(closed.sessions.some(s=>s.id===liveSub.sessionId),'Existing customers can still see their own sessions while sales are closed');
+const blockedCalls=calls;assert.equal((await route.POST(req({action:'checkout',sku:'pro_monthly',quantity:1}))).status,503);assert.equal(calls,blockedCalls,'The closed gate creates no provider order');
+assert.equal((await route.POST(req({action:'refresh',sessionId:liveSub.sessionId}))).status,200,'Closing sales must not block status checks');
+assert.equal((await route.POST(req({action:'cancel',sessionId:liveSub.sessionId}))).status,200,'Closing sales must not block cancellation');
+testUser={userId:'stranger',email:'stranger@example.test'};assert.equal((await route.POST(req({action:'cancel',sessionId:liveSub.sessionId}))).status,404,'The management exception does not bypass ownership');
+delete env.BILLING_LIVE_ENABLED;env.RAZORPAY_KEY_ID='rzp_test_example';
 console.log('PASS: pricing, quantity checks, owner restriction, signatures, plan reuse, duplicate checkout protection, cross-user ownership, callback verification, webhook replay, cancellation, live-key rejection, paid access, refunds, public checkout.');
 })().catch(e=>{console.error(e);process.exitCode=1});

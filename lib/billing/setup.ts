@@ -1,11 +1,12 @@
 import {database} from '@/lib/storage';
 import {billingConfig,billingMode} from './razorpay';
 import {billingCatalogue} from './catalogue';
+import {policyReadiness} from '@/lib/policy-readiness';
 /**
  * Plain-language checklist of what checkout still needs. Shows setting NAMES only, never values.
  * Used by the membership page and the owner test page so a missing key, webhook secret, database migration or sign-in is obvious.
  */
-export type SetupStep={id:'signin'|'key'|'secret'|'webhook'|'owner'|'database'|'plans';ok:boolean;label:string;fix:string};
+export type SetupStep={id:'signin'|'key'|'secret'|'webhook'|'owner'|'database'|'plans'|'policies';ok:boolean;label:string;fix:string};
 export async function billingSetup(email:string|null):Promise<{steps:SetupStep[];ready:boolean}>{
  const c=billingConfig();const mode=billingMode();
  const steps:SetupStep[]=[
@@ -15,6 +16,7 @@ export async function billingSetup(email:string|null):Promise<{steps:SetupStep[]
   {id:'webhook',ok:!!c.webhookSecret,label:'Webhook secret (RAZORPAY_WEBHOOK_SECRET)',fix:'Add RAZORPAY_WEBHOOK_SECRET to .env.local. Locally any long random text works, because Razorpay cannot reach your computer; payments are confirmed by signature instead. On the hosted site, use the same secret you type into Razorpay → Webhooks.'},
   {id:'owner',ok:!!c.adminEmail&&!!email&&email.toLowerCase()===c.adminEmail,label:'You are the billing owner (BILLING_ADMIN_EMAIL)',fix:c.adminEmail?'You are signed in with a different account from BILLING_ADMIN_EMAIL.':'Set BILLING_ADMIN_EMAIL in .env.local. For local testing use seedy@sites.test, the local test user.'},
  ];
+ if(mode==='live')steps.push({id:'policies',ok:policyReadiness().ready,label:'Reviewed policies and confirmed grievance contact',fix:'Confirm the actual GRIEVANCE_OFFICER_NAME and GRIEVANCE_OFFICER_EMAIL. After legal review of the current published policies, set POLICY_APPROVED_REVISION='+policyReadiness().revision+' in the hosting dashboard. Never set approval before review.'});
  let tables=false,plans=0;const needed=Object.values(billingCatalogue).filter(p=>p.period).length;
  try{const db=database();await db.prepare('SELECT 1 FROM billing_sessions LIMIT 1').first();await db.prepare('SELECT 1 FROM entitlements LIMIT 1').first();tables=true;
   const r=await db.prepare(`SELECT COUNT(*) AS n FROM billing_plans WHERE state='ready' AND sku ${mode==='live'?'':'NOT '}LIKE 'live:%'`).first<{n:number}>();plans=Number(r?.n||0)}catch{}

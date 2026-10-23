@@ -20,6 +20,9 @@ v37 adds the points balance. Apply `drizzle/0008_points_ledger.sql` too (table `
 | `BILLING_ADMIN_EMAIL` | Your ChatGPT sign-in email; only this account can create plans |
 | `BILLING_PUBLIC_CHECKOUT` | `true` lets every signed-in learner pay, in live mode only. Test mode is always owner-only, whatever this says |
 | `BILLING_LIVE_ENABLED` | Must be `true` for a `rzp_live_` key to work. A live key alone never charges anyone |
+| `GRIEVANCE_OFFICER_NAME` | Actual designated officer's name, confirmed by the owner |
+| `GRIEVANCE_OFFICER_EMAIL` | Approved grievance contact email displayed in Privacy |
+| `POLICY_APPROVED_REVISION` | Set to `2026-10-23` only after the current Privacy, Terms and Refunds policies are reviewed and approved. Missing, older or incomplete contact settings keep real checkout closed for everyone, including the owner |
 | `RAZORPAY_SPRINT_CREDIT_OFFER_ID` | Optional. A Razorpay subscription offer worth ₹149 off the first Plus/Pro month; applied automatically within 7 days of a paid sprint |
 
 Steps:
@@ -27,7 +30,10 @@ Steps:
 2. Settings → Webhooks → add `https://whatslearn.in/api/billing/webhook` with events `order.paid`, `payment.captured`, `payment.failed`, all `subscription.*`, and `refund.processed`. Copy the secret.
 3. Sign in on the site with `BILLING_ADMIN_EMAIL`, open `/billing/setup`, press **Create test plans**.
 4. Pay with Razorpay test details (card `4111 1111 1111 1111`, any future date, any CVV; or UPI `success@razorpay`). The membership page then shows "Your plan … (test)".
-5. To go live: repeat steps 1–3 with live keys, set `BILLING_LIVE_ENABLED=true` and `BILLING_PUBLIC_CHECKOUT=true`, and create the live plans again (test and live plans are stored separately).
+5. Before real checkout: complete the policy review and confirm the officer contact. Configure those three settings only with the actual approved information. Redeploy after changing hosting environment settings. A revision change requires fresh approval.
+6. The owner must validate payment activation, webhook delivery, cancellation and refund handling before inviting paying learners. Repeat steps 1–3 with live keys and create the live plans again (test and live plans are stored separately). Real checkout also needs `BILLING_LIVE_ENABLED=true` and public sales need `BILLING_PUBLIC_CHECKOUT=true`. Do not mark provider acceptance complete from synthetic tests alone.
+
+Closing new checkout does not disable existing customers' signed status refresh, payment verification, cancellation, webhooks or already-paid access. Those operations retain authentication, origin, signature and ownership checks. The owner-only `/billing/setup` checklist shows policy readiness without exposing setting values to customers. Test payments remain owner-only and cannot grant live access.
 
 What happens after payment: the server checks Razorpay's signature and amount, then writes an `entitlements` row. Sprint = 7 days of access. Subscriptions = until Razorpay's current period end, renewed by webhooks. Cancel = renewal stops, access lasts to period end (test mode cancels immediately). Full sprint refund or a halted subscription ends access. Use `hasPaidAccess(userId)` in `lib/billing/service.ts` to gate future paid features; today paid access raises the AI review allowance.
 
@@ -81,7 +87,7 @@ The public GPT link is set in `lib/companion.ts` (`companionInstallUrl`, v34). E
 
 ## 6. Policies
 
-`/privacy`, `/terms` and the new `/refunds` are drafts marked for legal review. Fill in the Grievance Officer's name in `/privacy` and confirm every point marked "Proposed" in `/refunds`.
+`/privacy`, `/terms` and `/refunds` remain drafts until their review and actual grievance contact are confirmed. The Privacy page reads the designated name/email from the settings above. Do not invent a contact, remove a draft notice by hand, or set approval in advance of review. Name and optional nickname use are included in the current personal-setup disclosure.
 
 ## 7. Languages
 

@@ -8,7 +8,7 @@ test('journey rows use real expandable buttons with named content panels',()=>{
  assert.match(s,/hidden=\{!expanded\}/);
  assert.match(s,/onClick=/);
  assert.match(s,/expanded\?<Minus/);
- assert.match(fs.readFileSync('app/page.tsx','utf8'),/<JourneySteps\/>/);
+ assert.match(fs.readFileSync('app/page.tsx','utf8'),/<JourneySteps hasCourse=\{hasCourse\}\/>/);
 });
 
 test('WhatsApp links have a wrapping layout with a visible gap',()=>{

@@ -6,8 +6,8 @@ test('the homepage keeps the recommended starting journey without an extra examp
  const hero=read('components/whatslearn/visual-start.tsx'),home=read('app/page.tsx');
  assert.match(hero,/Start with a free challenge\. Then choose your course/);
  assert.doesNotMatch(hero,/hero-creation-example|YOU COULD MAKE|starterExamples\[track\]/);
- assert.match(home,/href="#start" className="pill-button ink-button">Try the free starter/);
- assert.match(home,/href="#start" className="pill-button ink-button">Try my free challenge/);
+ assert.match(home,/href=\{hasCourse\?nextAction.href:"#start"\} className="pill-button ink-button">\{hasCourse\?nextAction.label:"Try the free starter"/);
+ assert.match(home,/href=\{hasCourse\?nextAction.href:"#start"\} className="pill-button ink-button">\{hasCourse\?nextAction.label:"Try my free challenge"/);
 });
 test('starter practice is distinguished from course work without changing scoring',()=>{
  const hero=read('components/whatslearn/visual-start.tsx');
@@ -27,7 +27,7 @@ test('all four course outcomes are visible before expanding the course',()=>{
  const {programmes}=h.load('lib/programmes.ts');assert.equal(programmes.length,4);
  for(const p of programmes)assert.ok(p.finishedOutcome.length>25,p.id);
  const explorer=read('components/whatslearn/programme-explorer.tsx');
- assert.ok(explorer.indexOf('Create: {p.finishedOutcome}')<explorer.indexOf('selected===p.id&&'));
+ assert.ok(explorer.indexOf('Create: {p.finishedOutcome}')<explorer.indexOf('open===p.id&&'));
  assert.match(explorer,/FIRST 3 TASKS FREE/);
 });
 test('learning, human support and account assistance have distinct accessible destinations',()=>{

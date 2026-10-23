@@ -5,7 +5,7 @@ const path=require('node:path');
 const src=f=>fs.readFileSync(path.resolve(__dirname,'..',f),'utf8');
 
 test('UI grooming keeps the four course names and defines responsive visual-system hooks',()=>{
- const home=src('lib/programmes.ts');assert.match(src('app/page.tsx'),/<ProgrammeExplorer\/>/);
+ const home=src('lib/programmes.ts');assert.match(src('app/page.tsx'),/<ProgrammeExplorer learner=\{learner\}\/>/);
  for(const name of ['AI Digital Marketing','AI Full-Stack Development','AI Filmmaking','AI-powered Visual Storytelling'])assert.ok(home.includes(name),name);
  const css=src('app/globals.css'),motion=src('app/motion.css');
  for(const hook of ['ui-card-primary','ui-card-secondary','mission-progress-map','daily-return-cue'])assert.ok(css.includes('.'+hook)||motion.includes('.'+hook),hook);

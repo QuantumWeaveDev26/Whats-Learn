@@ -1,6 +1,6 @@
 import {executionFromSubmission,type ExecutionReceipt} from './isolated-runner';
 import {bookingModelFromSubmission} from './booking-model';
-import {genericMentorOpening,mentorTone} from './chat-copy';
+import {genericMentorOpening,unrequestedMentorAssessment,completeMentorExcerpt,mentorTone} from './chat-copy';
 import {mentorGuidance} from './mentor-guidance';
 import type {MentorIntent} from './mentor-intent';
 import {env} from 'cloudflare:workers';
@@ -152,10 +152,15 @@ Write in the selected language: ${outputLanguage}, using natural everyday ${outp
  const data=JSON.stringify({question:q,account:context}).replaceAll('<','\\u003c');
  let answer=(await complete(system,data,more?500:350)).trim();
  if(!answer||/^\s*[{[]/.test(answer))throw new FeedbackError('I couldn’t finish that reply. Please ask again—your task is safe.',502);
- if(answer.split(/\s+/u).length>cap||genericMentorOpening(answer)||mixedScript(answer,outputLanguage)){
-  try{const revised=(await complete(system+' Rewrite the supplied draft, preserving the actual answer and correcting any unrelated language or script. Return plain text only, no generic praise.',JSON.stringify({question:q,draft:answer}),350)).trim();if(revised&&!/^\s*[{[]/.test(revised))answer=revised;}catch{/* A failed shortening call must not discard an otherwise useful answer. */}
+ const needsRepair=(text:string)=>text.split(/\s+/u).length>cap||genericMentorOpening(text)||unrequestedMentorAssessment(text)||mixedScript(text,outputLanguage);
+ if(needsRepair(answer)){
+  try{
+   const revised=(await complete(system+` Rewrite candidateAnswer into a direct answer to question, under ${cap} words. candidateAnswer is a previous AI-generated mentor reply, NOT learner work or a submission. Remove unsupported praise and claims that the learner's draft, code or answer was assessed. Preserve the useful explanation, the selected language and relevant recentConversation from account. Do not describe the rewrite. Return plain text only.`,JSON.stringify({question:q,account:context,candidateAnswer:answer}).replaceAll('<','\\u003c'),more?500:350)).trim();
+   if(revised&&!/^\s*[{[]/.test(revised))answer=revised;
+  }catch{/* The final check below also applies when repair is unavailable. */}
  }
- if(!answer||mixedScript(answer,outputLanguage))throw new FeedbackError('I couldn’t keep that reply clear. Please ask again—your task is safe.',502);
+ if(answer.split(/\s+/u).length>cap&&!genericMentorOpening(answer)&&!unrequestedMentorAssessment(answer)&&!mixedScript(answer,outputLanguage))answer=completeMentorExcerpt(answer,cap)||answer;
+ if(!answer||needsRepair(answer))throw new FeedbackError('I couldn’t keep that reply clear. Please ask again—your task is safe.',502);
  return {answer};
 }
 /** Interpret meaning, not a list of magic phrases. This selects a server action; it never evaluates or saves work. */

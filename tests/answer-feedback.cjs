@@ -30,7 +30,7 @@ test('no vague wrong-answer wording is left anywhere a multiple-choice answer is
  assert.deepEqual(hits,[]);
 });
 test('homepage keeps one starter with explicit correct and retry feedback for all courses',()=>{
- const page=fs.readFileSync(path.join(ROOT,'app/page.tsx'),'utf8');assert.match(page,/<VisualStart\/>/);assert.doesNotMatch(page,/30-SECOND WARM-UP/);
+ const page=fs.readFileSync(path.join(ROOT,'app/page.tsx'),'utf8');assert.match(page,/<VisualStart onLearnerChange=\{setLearner\}\/>/);assert.doesNotMatch(page,/30-SECOND WARM-UP/);
  const hero=fs.readFileSync(path.join(ROOT,'components/whatslearn/visual-start.tsx'),'utf8');assert.match(hero,/choice===0\?t.correct:t.retry/);assert.match(hero,/choice===0\?t.feedback/);
 });
 test('agency starter (14 languages): wrong says not correct and invites a retry; right says correct and why',()=>{

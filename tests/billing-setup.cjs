@@ -30,7 +30,9 @@ const migrate=()=>{for(const f of fs.readdirSync(path.resolve(__dirname,'../driz
  env.RAZORPAY_KEY_ID='rzp_live_FAKELIVE';d=await get();assert.equal(d.enabled,false);assert.equal(d.config.testKey,false);assert.match(d.setup.steps.find(s=>s.id==='key').fix,/BILLING_LIVE_ENABLED/);
  testUser=CUSTOMER;d=await get();customerSafe(d,'customer, live key without flag');assert.equal(d.enabled,false);
  // Only live mode + BILLING_LIVE_ENABLED + BILLING_PUBLIC_CHECKOUT opens checkout to customers (still without setup details).
- env.BILLING_LIVE_ENABLED='true';d=await get();customerSafe(d,'customer, live open');assert.equal(d.enabled,true);assert.equal(d.mode,'live');
+ env.BILLING_LIVE_ENABLED='true';d=await get();customerSafe(d,'customer, policies pending');assert.equal(d.enabled,false);assert.equal(d.checkoutOpen,false);
+ Object.assign(env,{POLICY_APPROVED_REVISION:'2026-10-23',GRIEVANCE_OFFICER_NAME:'Designated Test Officer',GRIEVANCE_OFFICER_EMAIL:'officer@example.test'});
+ d=await get();customerSafe(d,'customer, live open');assert.equal(d.enabled,true);assert.equal(d.mode,'live');
  testUser=null;d=await get();assert.equal(d.signInRequired,true);assert.equal(d.checkoutOpen,true);customerSafe(d,'guest, live open');
  env.RAZORPAY_SPRINT_CREDIT_OFFER_ID='offer_private_credit';d=await get();assert.equal(d.sprintCreditAvailable,true);assert.ok(!JSON.stringify(d).includes('offer_private_credit'));delete env.RAZORPAY_SPRINT_CREDIT_OFFER_ID;
  delete env.BILLING_LIVE_ENABLED;env.RAZORPAY_KEY_ID='rzp_test_FAKEKEY123';

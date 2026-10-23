@@ -1,6 +1,6 @@
 import {database} from '@/lib/storage';
 import {billingCatalogue,quote,type SKU} from './catalogue';
-import {razorpay,BillingError,billingConfig,billingMode,verifyHmac,type BillingMode} from './razorpay';
+import {razorpay,BillingError,billingConfig,billingMode,verifyHmac,assertPaymentLaunchReady,type BillingMode} from './razorpay';
 export type BillingSession={id:string;user_id:string;sku:SKU;kind:string;quantity:string;amount:string;provider_id:string|null;state:string;created_at:string;updated_at:string;mode?:string;payment_id?:string|null};
 const OPEN="('creating','created','authenticated','active','pending','halted')";
 function currentMode():BillingMode{const m=billingMode();if(!m)throw new BillingError('Checkout is not configured yet. No payment was taken.',503);return m}
@@ -31,6 +31,7 @@ async function sprintCreditOffer(userId:string,sku:SKU,mode:BillingMode){
  return earlier?null:offer;
 }
 export async function createCheckout(userId:string,sku:SKU,quantity:number){
+ assertPaymentLaunchReady();
  let p:ReturnType<typeof quote>;
  try{p=quote(sku,quantity)}catch{throw new BillingError(sku==='teams_monthly'?'Choose between 5 and 100 learners for Teams.':'Choose one learner for an individual plan.',400)}
  if(sku==='teams_monthly')throw new BillingError('Teams enrolment is assisted by the WhatsLearn team until individual learner seats are available. No checkout was created.',409);
