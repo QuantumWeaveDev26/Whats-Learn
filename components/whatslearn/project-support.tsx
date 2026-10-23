@@ -4,7 +4,7 @@ import {useState} from 'react';
 import {Handshake,MessageCircle,Mail,ArrowUpRight} from 'lucide-react';
 import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
 import {programmeNames} from '@/lib/programmes';
-const links=[['BrandMint AI','AI solutions and custom projects','https://brandmintai.io/'],['InstaSkills','AI digital marketing','https://instaskills.academy/'],['FullAI','AI full-stack development','https://yellowgreen-grasshopper-738538.hostingersite.com/'],['AI Filmmaking','Hybrid filmmaking','https://aifilmmaking.tech/']];
+const links=[['BrandMint Academy','Practical AI learning and mentoring','https://brandmintai.io/academy'],['InstaSkills','AI digital marketing','https://instaskills.academy/'],['FullAI','AI full-stack development','https://yellowgreen-grasshopper-738538.hostingersite.com/'],['AI Filmmaking','Hybrid filmmaking','https://aifilmmaking.tech/']];
 export default function ProjectSupport({track='marketing'}:{track?:string}){
  const [open,setOpen]=useState(false),[project,setProject]=useState(''),[goal,setGoal]=useState('');
  const message=`Hello BrandMint AI team. I would like to explore learning and building a real project with you.\nProgramme: ${programmeNames[track]||'Custom AI solution'}\nProject: ${project.trim()||'I would like help choosing a project'}\nOutcome: ${goal.trim()||'Please help me define a useful outcome'}\nPlease discuss project-led learning, skilling, upskilling and support to improve my work.`;
