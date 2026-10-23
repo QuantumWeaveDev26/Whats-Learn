@@ -22,3 +22,11 @@ The remaining finding is [`braces` 3.0.3 / CVE-2026-93687](https://github.com/ad
 Production audit success is a dependency check, not a penetration test or a public-launch certification. Post-install regression/build results, deployed release marker and runtime browser checks must be verified separately. Node.js runtime patching is separate from these package updates. The full project sandbox service, if activated later, needs its own isolated runtime review.
 
 A separate `npm audit --omit=dev` for `services/project-sandbox` also returned zero advisories. This does not activate or operationally certify that service.
+
+## Local defence for the remaining development advisory
+
+A reproducible pnpm patch in `patches/braces@3.0.3.patch` now bounds parser nesting to 128 and adds an iterative AST preflight before compile, expand and stringify. The preflight rejects excessive depth, oversized trees and cycles before recursive walkers run. Normal file/glob patterns, numeric ranges, escaped/quoted literal braces and shared acyclic AST leaves retain their behaviour.
+
+Eleven focused regressions check the installed dependency reached through the actual build-tool chain, including an 8,001-character pattern with 4,000 nested braces and direct deeply nested ASTs. The supplied payloads produce controlled syntax errors rather than stack exhaustion. The patch is integrity-bound in the frozen lockfile and reapplied in CI/hosting installs.
+
+This is a local mitigation for the reported recursion issue, not an upstream patched release or a guarantee about every possible regular-expression complexity issue. The complete registry audit still reports one high finding for version 3.0.3; it is intentionally not suppressed. Hostinger may continue to display that upstream-version finding until a patched upstream release or a manual assessment recognises the local defence. Production and the separate sandbox service audit remain zero at all severities.

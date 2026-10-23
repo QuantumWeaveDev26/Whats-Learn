@@ -1,6 +1,6 @@
 # Mentor access and learning layout — 23 October 2026
 
-Release marker: `2026-10-23-mentor-layout-v8`.
+Release marker: `2026-10-23-mentor-layout-v8.1`.
 
 ## Learner-facing changes
 
@@ -12,15 +12,15 @@ Release marker: `2026-10-23-mentor-layout-v8`.
 
 ## Security updates
 
-The dependency review prompted by the reported Hostinger scan is documented in [the advisory report](security-dependencies-2026-10-23.md). The three critical findings were reproduced in the original lockfile and the affected package versions updated. Fresh scans show no production advisories and one remaining high development-tool advisory with no upstream patch. It remains disclosed, not suppressed. The separate sandbox service audit also reports no advisories; the service still requires its operational setup before use.
+The dependency review prompted by the reported Hostinger scan is documented in [the advisory report](security-dependencies-2026-10-23.md). The three critical findings were reproduced in the original lockfile and the affected package versions updated. Fresh scans show no production advisories and one remaining high development-tool advisory with no upstream release. A local depth/AST guard mitigates the reported recursion issue; its registry finding remains disclosed, not suppressed. The separate sandbox service audit also reports no advisories; the service still requires its operational setup before use.
 
 ## Verification
 
-- 620 non-payment regressions passed against the freshly installed patched dependency tree. TypeScript and all 27 in-memory migration checks passed.
+- 631 non-payment regressions passed against the freshly installed patched dependency tree. TypeScript and all 27 in-memory migration checks passed.
 - Pre-release browser measurements showed equal learning-card heights and matching action positions at desktop size. Final desktop/phone screenshots, production build result and deployed marker are retained with task evidence.
 - The owner signed in through the real live website. Settings and the mission page retained that authenticated session, displayed the saved English preference, and did not repeat personal setup. No password, code, profile choice, mission answer or completed creation was fabricated for this check.
 - This signed-in account displayed the WhatsApp linking form. The available n8n connector returned no executions after 22 October, with its latest available scheduled execution dated 16 October. These records do not establish current delivery or prove the service is broken. The user explicitly declined sending a test WhatsApp message; no such send is authorised in this release.
-- Real hosted mentor questions are checked through the deployed UI after deployment. Their sampled results belong in task evidence; simulated regressions do not certify every AI answer.
+- Four real hosted mentor questions succeeded on the live website in English: a customer persona, full-stack booking flow, a reaction shot and a three-picture neighbourhood clean-up story. Replies addressed the questions without repeated greetings or a course switch; the fourth ordinary question was not blocked by review limits. Progress remained 0/10 and no mission answer or completion was submitted. These are sampled answers, not certification of every reply or graded evaluation.
 
 ## Launch boundary
 

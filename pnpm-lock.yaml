@@ -21,6 +21,9 @@ overrides:
   source-map-js@>=1.0.0 <1.2.2: 1.2.2
   sharp@<0.35.5: 0.35.5
 
+patchedDependencies:
+  braces@3.0.3: 5bd4aa9aae112f3a4e03e9e9c416e42a88f557ac4ced6ad58f6c339d9efcfade
+
 importers:
 
   .:
@@ -6395,7 +6398,7 @@ snapshots:
     dependencies:
       balanced-match: 4.0.4
 
-  braces@3.0.3:
+  braces@3.0.3(patch_hash=5bd4aa9aae112f3a4e03e9e9c416e42a88f557ac4ced6ad58f6c339d9efcfade):
     dependencies:
       fill-range: 7.1.1
 
@@ -7506,7 +7509,7 @@ snapshots:
 
   micromatch@4.0.8:
     dependencies:
-      braces: 3.0.3
+      braces: 3.0.3(patch_hash=5bd4aa9aae112f3a4e03e9e9c416e42a88f557ac4ced6ad58f6c339d9efcfade)
       picomatch: 2.3.2
 
   mime-db@1.54.0: {}
