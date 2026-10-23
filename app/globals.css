@@ -456,3 +456,5 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 
 /* Both floating actions share the same baseline at every breakpoint. */
 .whatsapp-mentor-widget{height:var(--floating-action-height);bottom:var(--floating-action-bottom)}
+
+.starter-sample,.course-example{margin:16px 0;padding:18px;border:1px solid #c9ded1;border-radius:14px;background:#f1f8ee;overflow-wrap:anywhere}.starter-sample p,.course-example p{margin:12px 0!important}.starter-sample h3{margin:10px 0}.starter-next-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center}.course-example summary{cursor:pointer;margin-bottom:12px}

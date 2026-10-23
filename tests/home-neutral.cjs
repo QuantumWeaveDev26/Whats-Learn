@@ -25,7 +25,7 @@ test('guests choose a subject while accounts restore saved course',()=>{
  assert.match(source,/const stored=readAgencyDrafts\(starterScope.current\)\[value\]/);
  assert.match(source,/startSavedProgressSync\(loadAccount,/);
  assert.match(source,/accountTrack.current!==selected.id/);
- assert.match(source,/setTrack\(selected.id\);setChosen\(true\)/);
+ assert.match(source,/setTrack\(requestedStarter\?\.id\|\|selected.id\);setChosen\(true\)/);
 });
 
 test('old saved starter cannot preselect an answer or mark a new attempt saved',()=>{
