@@ -4,6 +4,14 @@ const resolve=linked(new Function('$input','$',fs.readFileSync('n8n/code/wa-reso
 const context=linked(new Function('$input','$',fs.readFileSync('n8n/code/wa-bridge-reply-context.js','utf8')));
 const item=json=>({json}),snapshot=name=>item({action:'reply',text:`Hey ${name}! 👋\nCourse: AI Full-Stack Development\nLanguage: English · 15 min/day`});
 function routed(text,kind,track=null){const rows=resolve({all:()=>[item({output:JSON.stringify({kind,track})})]},name=>({all:()=>name==='One Item Per Message'?[item({text,wamid:'m1',from:'919990000087'})]:[snapshot('Pavana')]}));return rows[0].json;}
+
+test('opening greetings reach the server greeting without ASK or task resumption',()=>{
+ for(const text of ['Hi','Hello!','hey mentor','Helo','Hiii'])for(const classifierGuess of ['question','continue','learn','answer']){
+  const out=routed(text,classifierGuess);assert.equal(out.mentorIntent,'greeting');
+  assert.doesNotMatch(out.bridgeText,/^ASK |^TODAY$/i);assert.ok(/^(?:hi|hello!?|hey mentor)$/i.test(out.bridgeText));
+ }
+ for(const text of ['Hi, explain AI','Hello, I want to continue my task'])assert.equal(routed(text,'question').bridgeText,'ASK '+text);
+});
 test('semantic intents map to bounded website actions while explicit commands and actual work stay unchanged',()=>{
  for(const [text,kind,expected] of [['Where were we yesterday?','continue','TODAY'],['I wanna learn','learn','ASK I wanna learn'],['Ready to hand this in','save','SAVE'],['that went over my head','clarify','ASK that went over my head'],['Tell me about myself','profile','ASK Tell me about myself'],['Wia','question','ASK Wia']])assert.equal(routed(text,kind).bridgeText,expected);
  for(const text of ['STOP','LINK ABCDEFGH','ANSWER my source code','COURSE 2','SAVE'])assert.equal(routed(text,'question').bridgeText,text);

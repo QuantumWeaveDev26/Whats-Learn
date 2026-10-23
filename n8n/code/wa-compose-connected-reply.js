@@ -25,6 +25,8 @@ return $input.all().map((it,i)=>{
  }
  const greeting=/^(?:hi|hey|hello|namaste|namaskara)(?:\s+mentor)?[!.\s]*$/i.test(String(prior.input||"").trim());
  const name=String(prior.material?.name||prior.material?.addressAs||"").replace(/[\r\n*_~`<>]/g," ").trim().slice(0,60);
+ // A model fallback must not turn an English hello into a course introduction.
+ if(greeting&&['en','English'].includes(chosen))text=`Hey${name?' '+name:''}! 👋 What’s on your mind?`;
  if(!greeting){
   const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   if(escaped)text=text.replace(new RegExp('^(?:(?:hi|hey|hello|sure|okay|ok)[,!.\\s]+)?'+escaped+'[,!:.\\s]+(?:[👋✨⚡]+\\s*)?','iu'),'');

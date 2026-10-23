@@ -9,6 +9,15 @@ async function setup(){
  calls=[];
 }
 const say=text=>h.load('lib/bridge/whatsapp-chat.ts').handleBridgeMessage({wamid:'semantic-'+Date.now()+'-'+(++seq),from:phone,text,type:'text'});
+
+test('a hello with an open task stays one short greeting and never starts teaching or assessment',async()=>{
+ await setup();await say('TODAY');const before=h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body;
+ provider('continue','Start fixing your booking code.');calls=[];
+ const out=await say('Hi');assert.equal(out.action,'reply');assert.match(out.text,/^Hey Pavana!/);
+ assert.ok(out.text.split(/\s+/u).length<=10);assert.doesNotMatch(out.text,/mission|booking|code|server|price|draft/i);
+ assert.equal(calls.length,0);assert.equal(h.db.prepare('SELECT body FROM whatsapp_drafts WHERE user_id=?').get(uid).body,before);
+ assert.equal(h.db.prepare('SELECT COUNT(*) n FROM work').get().n,0);
+});
 test('an old draft outside Explore access does not expose locked prompts through question, edit or profile routes',async()=>{
  await setup();await say('TODAY');h.db.prepare('UPDATE whatsapp_drafts SET mission_id=? WHERE user_id=?').run('d4',uid);
  for(const text of ['Tell me the qns','I need to edit that']){const out=await say(text);assert.equal(out.action,'reply');assert.match(out.text,/membership/);}

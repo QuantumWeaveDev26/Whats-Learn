@@ -1,6 +1,12 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const compose=new Function('$input','$',fs.readFileSync('n8n/code/wa-compose-connected-reply.js','utf8'));
 function reply(question,text,maxWords=35,name='Pavana',mentorIntent='question'){return compose({all:()=>[{json:{output:text}}]},()=>({all:()=>[{json:{input:question,maxWords,material:{name,mentorIntent}}}]}))[0].json.reply;}
+
+test('a greeting cannot deliver the reported unsolicited coding mission introduction',()=>{
+ const long='Hi! Ready to help you with your AI Full-Stack Development mission about reviewing AI-generated booking code. Want to start fixing that code so it checks the signed-in user and price on the server';
+ const out=reply('Hi',long);assert.equal(out,'Hey Pavana! 👋 What’s on your mind?');
+ assert.doesNotMatch(out,/mission|code|server|price/i);assert.ok(out.split(/\s+/).length<=10);
+});
 test('only a greeting message gets a greeting; follow-ups never force the name',()=>{
  assert.equal(reply('Hi','Hey Pavana! 👋 What’s on your mind?'),'Hey Pavana! 👋 What’s on your mind?');
  assert.equal(reply('What is AI','Hi Pavana! AI helps software recognise patterns.'),'AI helps software recognise patterns.');

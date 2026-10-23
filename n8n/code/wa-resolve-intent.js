@@ -9,6 +9,8 @@ return $input.all().map((it,i)=>{
  const control=raw.trim().toLowerCase().replace(/\s+/g," ").replace(/[\s.!?,;:…]+$/u,"");
  if(["stop","unsubscribe","end","optout","opt out","pause","रुको","बंद","ನಿಲ್ಲಿಸಿ","support"].includes(control))return {json:{...m,bridgeText:raw,mentorIntent:"answer"},pairedItem:{item:i}};
  const natural=raw.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/g,'');
+ // Greetings never become ASK or resume requests, even if classification sees an old draft.
+ if(/^(?:hi|hii+|hey|hello|helo|namaste|namaskara)(?:\s+mentor)?$/i.test(natural))kind="greeting";
  if(natural.length<160&&!/[{};\n]/.test(natural)&&(/^(?:(?:please )?(?:add|use|include|remove|fewer|less|more|no|keep).*(?:emojis?|casual|formal).*|i.*(?:learn|teach|talk|style).*gen.?z.*|(?:but )?(?:u|you(?:'re| are)?)? ?rushing|slow down|go slower|less formal|more casual|not too many(?: just (?:a )?few)?(?: is enough)?|just (?:a )?few(?: is enough)?)$/.test(natural)||/^(?:not too many just few|keep it short|shorter please|don't rush|do not rush)$/.test(natural)))kind="preference";
  if(/^(?:(?:i )?(?:need|want) to |(?:can you |please )?)edit(?: (?:my|the|this|that)(?: (?:task|draft|answer|part))?)?$/.test(natural))kind="edit";
  if(/^(?:tell|show|give)(?: me)? (?:the |my )?(?:qns?|questions?|current question|next question)$/.test(natural))kind="task-question";
@@ -24,6 +26,6 @@ return $input.all().map((it,i)=>{
  const arguments=/^(?:link\s+[a-z0-9-]{6,12}|(?:ask|answer|practice)\s+.+|edit\s+\d+|style\s+(?:[1-4]|casual|game|story|facts)|course\s+(?:[1-4]|marketing|development|filmmaking|storytelling)|resume\s+[mdfv]\d+|check\s+[a-f1-6]\s+[a-f1-6]|remind\s+(?:on|off|quiet|\d).*)$/i;
  if(exact.test(raw.trim())||arguments.test(raw.trim()))kind="answer";
  const track=["marketing","development","filmmaking","storytelling"].includes(choice.track)?choice.track:"";
- const commands={question:"ASK "+raw,preference:"ASK "+raw,clarify:"ASK "+raw,learn:"ASK "+raw,continue:"TODAY",edit:"EDIT","task-question":"QUESTION",save:"SAVE","keep-draft":"PROFILE",draft:"DRAFT",progress:"PERFORMANCE",points:"POINTS",journey:"ROADMAP",course:"COURSE"+(track?" "+track:""),roadmap:"ROADMAP",profile:"ASK "+raw};
+ const commands={greeting:"Hi",question:"ASK "+raw,preference:"ASK "+raw,clarify:"ASK "+raw,learn:"ASK "+raw,continue:"TODAY",edit:"EDIT","task-question":"QUESTION",save:"SAVE","keep-draft":"PROFILE",draft:"DRAFT",progress:"PERFORMANCE",points:"POINTS",journey:"ROADMAP",course:"COURSE"+(track?" "+track:""),roadmap:"ROADMAP",profile:"ASK "+raw};
  return {json:{...m,bridgeText:commands[kind]||raw,mentorIntent:kind,profileSnapshot:profile.action==="reply"?String(profile.text||"").slice(0,5000):"",profileContext:profile.action==="reply"&&profile.context&&typeof profile.context==="object"?profile.context:{}},pairedItem:{item:i}};
 });
