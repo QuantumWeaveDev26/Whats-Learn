@@ -1,6 +1,6 @@
 # Account and journey release — 23 October 2026
 
-Release marker: `2026-10-23-account-journey-v5`.
+Release marker: `2026-10-23-account-journey-v5.1` (includes matching full-width name/nickname field styling).
 
 ## Changes
 
