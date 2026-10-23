@@ -45,7 +45,7 @@ def settings_nodes():
     js=open(os.path.join(H,'code','wa-resolve-settings.js')).read().rstrip('\n')
     r+="const resolveSettings = node({ type: 'n8n-nodes-base.code', version: 2, config: { name: 'Resolve Settings', parameters: { mode: 'runOnceForAllItems', language: 'javaScript', jsCode: %s }, position: [720, 1000] }, output: [{ cfg: {} }] });\n"%json.dumps(js)
     def rule(k,n): return "{ outputKey: '%s', conditions: { options: { caseSensitive: true, leftValue: '', typeValidation: 'strict' }, conditions: [ { leftValue: expr('{{ $(\"%s\").isExecuted }}'), operator: { type: 'boolean', operation: 'true', singleValue: true }, rightValue: '' } ], combinator: 'and' } }"%(k,n)
-    rules=', '.join([rule('verify','Meta Webhook GET (verify)'),rule('messages','Meta Webhook POST (messages)'),rule('sync','Every 2 Minutes'),rule('reminders','Hourly At 7 Past')])
+    rules=', '.join([rule('verify','Meta Webhook GET (verify)'),rule('messages','Meta Webhook POST (messages)'),rule('sync','Every 2 Minutes'),rule('reminders','Due Reminders Every 2 Minutes')])
     r+="const whichPart = switchCase({ version: 3.4, config: { name: 'Which Part Is Running?', parameters: { mode: 'rules', rules: { values: [ "+rules+" ] }, options: {} }, position: [960, 1000] } });\n"
     return r
 import json

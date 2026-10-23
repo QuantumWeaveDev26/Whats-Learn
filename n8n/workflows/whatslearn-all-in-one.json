@@ -1117,7 +1117,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $(\"Hourly At 7 Past\").isExecuted }}",
+                    "leftValue": "={{ $(\"Due Reminders Every 2 Minutes\").isExecuted }}",
                     "operator": {
                       "type": "boolean",
                       "operation": "true",

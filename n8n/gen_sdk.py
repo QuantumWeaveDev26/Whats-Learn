@@ -58,8 +58,8 @@ def wf1():
 def loop_wf(kind):
     N=kind=='notices'
     s=HEAD
-    cron="'*/2 * * * *'" if N else "'7 * * * *'"
-    s+=f"""const schedule = trigger({{ type: 'n8n-nodes-base.scheduleTrigger', version: 1.3, config: {{ name: '{'Every 2 Minutes' if N else 'Hourly At 7 Past'}', parameters: {{ rule: {{ interval: [ {{ field: 'cronExpression', expression: {cron} }} ] }} }}, position: [240, 300] }}, output: [{{}}] }});\n"""
+    cron="'*/2 * * * *'"
+    s+=f"""const schedule = trigger({{ type: 'n8n-nodes-base.scheduleTrigger', version: 1.3, config: {{ name: '{'Every 2 Minutes' if N else 'Due Reminders Every 2 Minutes'}', parameters: {{ rule: {{ interval: [ {{ field: 'cronExpression', expression: {cron} }} ] }} }}, position: [240, 300] }}, output: [{{}}] }});\n"""
     if N:
         s+=code('signClaim','Sign Claim Request','notices-sign-claim.js',[480,300],"{ url: 'https://whatslearn.example/api/bridge/whatsapp/outbox', body: '{}', ts: '1', nonce: 'n', signature: 's' }")
         s+=signed_http('claim','Claim Website Notices',[720,300],"","{ items: [{ id: 1, to: '919876543210', text: 'You completed a mission on the website.' }] }")

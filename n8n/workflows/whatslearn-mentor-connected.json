@@ -185,7 +185,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $(\"Hourly At 7 Past\").isExecuted && !$json.cfg.standalone }}",
+                    "leftValue": "={{ $(\"Due Reminders Every 2 Minutes\").isExecuted && !$json.cfg.standalone }}",
                     "operator": {
                       "operation": "true",
                       "singleValue": true,
