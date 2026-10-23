@@ -2,10 +2,10 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const h=require('./helpers/harness.cjs');
 const read=file=>fs.readFileSync(file,'utf8');
 
-test('the homepage gives one recommended free starting journey and a tangible example',()=>{
+test('the homepage keeps the recommended starting journey without an extra example card',()=>{
  const hero=read('components/whatslearn/visual-start.tsx'),home=read('app/page.tsx');
  assert.match(hero,/Start with a free challenge\. Then choose your course/);
- assert.match(hero,/starterExamples\[track\]\.after/);assert.match(hero,/Illustrative example/);
+ assert.doesNotMatch(hero,/hero-creation-example|YOU COULD MAKE|starterExamples\[track\]/);
  assert.match(home,/href="#start" className="pill-button ink-button">Try the free starter/);
  assert.match(home,/href="#start" className="pill-button ink-button">Try my free challenge/);
 });
