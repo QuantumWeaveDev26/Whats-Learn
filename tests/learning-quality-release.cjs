@@ -1,5 +1,5 @@
 // Synthetic records only; no real accounts, providers or outbound WhatsApp messages.
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),cp=require('node:child_process'),ts=require('typescript');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto'),ts=require('typescript');
 const h=require('./helpers/harness.cjs');
 const {supportedPracticalReview,reviewAccepted}=h.load('lib/review-summary.ts');
 const {adaptiveSkills}=h.load('lib/adaptive-skills.ts'),{improvementStory}=h.load('lib/improvement-story.ts');
@@ -65,6 +65,9 @@ test('quality breakdown aggregates existing metadata rather than exposing new tr
 });
 test('existing workspace and layout JSX are byte-identical: no card, text, class or styling changes',()=>{
  const jsx=source=>{const file=ts.createSourceFile('page.tsx',source.replace(/\r\n/g,'\n'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),out=[];function visit(n){if(ts.isJsxElement(n)||ts.isJsxSelfClosingElement(n)||ts.isJsxFragment(n))out.push(n.getText(file));ts.forEachChild(n,visit);}visit(file);return out;};
- for(const file of ['app/learn/workspace.tsx','app/layout.tsx'])assert.deepEqual(jsx(fs.readFileSync(file,'utf8')),jsx(cp.execFileSync('git',['show','4f3b350786fda1f40f16a8add08ba4e8f8f507a5:'+file],{encoding:'utf8'})));
- assert.equal(fs.readFileSync('lib/curriculum.ts','utf8').replace(/\r\n/g,'\n'),cp.execFileSync('git',['show','4f3b350786fda1f40f16a8add08ba4e8f8f507a5:lib/curriculum.ts'],{encoding:'utf8'}).replace(/\r\n/g,'\n'));
+ // Hashes from 4f3b350; do not depend on Git history being present in a shallow CI checkout.
+ const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
+ const baseline={'app/learn/workspace.tsx':'ae5459871df5740031f1b5480fa3b113cad073717b7511adec53e090f6009b1b','app/layout.tsx':'98e4aee781f8608f33cbeb96292ba9940e55a3917f990bdc47743a84a6f3d587'};
+ for(const [file,expected] of Object.entries(baseline))assert.equal(hash(JSON.stringify(jsx(fs.readFileSync(file,'utf8')))),expected);
+ assert.equal(hash(fs.readFileSync('lib/curriculum.ts','utf8').replace(/\r\n/g,'\n')),'5df69a05b07ae54cfc152dc4d601185a7a484dd28daafd1d1c0f29ef5ca80e46');
 });
