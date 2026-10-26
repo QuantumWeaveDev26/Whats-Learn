@@ -71,7 +71,12 @@ export async function listQualityItems(_owner:Owner,raw:unknown){
  const reports=await db.prepare("SELECT COUNT(*) n FROM quality_reports WHERE status IN ('received','acknowledged')").first<{n:number}>();
  const support=await db.prepare("SELECT COUNT(*) n FROM quality_support WHERE status IN ('received','acknowledged')").first<{n:number}>();
  const failures=await db.prepare('SELECT COUNT(*) n FROM quality_events WHERE created_at>?').bind(cutoff(new Date(),30)).first<{n:number}>();
- return {counts:{reports:Number(reports?.n||0),support:Number(support?.n||0),failures:Number(failures?.n||0)},items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
+ const since=cutoff(new Date(),30);
+ const [byReason,byFailure]=await Promise.all([
+  db.prepare('SELECT reason,COUNT(*) count FROM quality_reports WHERE created_at>? GROUP BY reason').bind(since).all<{reason:string;count:number}>(),
+  db.prepare('SELECT category,channel,COUNT(*) count FROM quality_events WHERE created_at>? GROUP BY category,channel').bind(since).all<{category:string;channel:string;count:number}>()
+ ]);
+ return {counts:{reports:Number(reports?.n||0),support:Number(support?.n||0),failures:Number(failures?.n||0)},breakdown:{windowDays:30,reportsByReason:byReason.results,failuresByChannel:byFailure.results,note:'Counts from existing retained reports and failure records; not failure rates, response times or conversion tracking.'},items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
 }
 export async function updateQualityItem(owner:Owner,raw:unknown){
  const p=parse(qualityUpdate,raw),db=database(),table=tableFor[p.kind];await pruneQualityRecords();

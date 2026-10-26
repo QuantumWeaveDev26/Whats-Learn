@@ -1,7 +1,8 @@
+import {curriculumFor} from './curriculum-context';
 import {adaptiveSkills} from './adaptive-skills';
 import {programmeNames} from './programmes';
 import {skillTask,type SkillPracticeRecord} from './skill-practice';
-import {skillKey} from './review-summary';
+import {skillKey,supportedPracticalReview} from './review-summary';
 import type {LearningEvidence} from './learning-memory';
 import {goals} from './personalization';
 import {lessonLanguage} from './languages';
@@ -26,7 +27,7 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const weak=skillReview?.review.blockingIssue?{item:'Correctness of the current work',met:false,note:skillReview.review.blockingIssue}:skillReview?.review.checks.find(c=>!c.met);
   const skills=adaptiveSkills(latest,practice);
   const repeated=weak?(skills[weak.item==='Correctness of the current work'?'correctness':skillKey(weak.item)]?.consecutiveMistakes||0):0;
-  const strongEvidence=skillReview?.review.answerAssessment?.onTopic===true&&skillReview.review.answerAssessment.correct===true&&skillReview.review.practicalTest?.reported===true&&skillReview.review.checks.every(c=>c.met);
+  const strongEvidence=!!skillReview&&supportedPracticalReview(skillReview.review)&&skillReview.review.checks.length>0&&skillReview.review.checks.every(c=>c.met);
   let focus=weak?{skill:weak.item,instruction:weak.note,repeated,mastered:false}:strongEvidence?{skill:'Apply the skill to a new constraint',instruction:'Test a different audience, failure case or constraint and explain what changed.',repeated:0,mastered:true}:null;
   const task=weak&&skillReview?skillTask(skillReview.mission_id,weak.item,weak.note,skillReview.reviewKey||skillReview.created_at,!!skillReview.review.blockingIssue,missions.find(m=>m.id===skillReview.mission_id)?.brief||''):null;
   const practiceState=task?practice.find(p=>p.task_key===task.key):undefined;
@@ -54,7 +55,7 @@ export function learningPath(profile:Profile=defaultProfile,work:PracticeRecord[
   const firstChallengeWhy='Start here: '+localized.title+'. '+(practiceLevel==='experienced'?'You will test a real constraint and explain the trade-off, rather than repeat the basics.':practiceLevel==='practising'?'You will apply what you know, compare a result and improve one decision.':'It starts with one guided decision, then a small practical trial.');
   const firstField=localized.practical?.fields[0];
   const firstAction=firstField?'First action: '+firstField.label+'. '+firstField.hint:'First action: '+localized.task.split(/[.!]\s/)[0]+'.';
-  return {version:'1.2.0',nextTask:{kind:remediation?'focused-practice':passed||transferred?'apply-fix':strongEvidence?'stretch':'mission',missionId:remediation?.missionId||next.id,skill:remediation?.skill||focus?.skill||next.skill,reason},firstChallengeWhy,firstAction,remediation,practicePassed:passed||null,profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
+  return {version:'1.2.0',curriculum:curriculumFor(profile.track),nextTask:{kind:remediation?'focused-practice':passed||transferred?'apply-fix':strongEvidence?'stretch':'mission',missionId:remediation?.missionId||next.id,skill:remediation?.skill||focus?.skill||next.skill,reason},firstChallengeWhy,firstAction,remediation,practicePassed:passed||null,profile,contentLanguage:lessonLanguage(profile.language),translationAvailable:lessonLanguage(profile.language)===profile.language,nextMissionId:next.id,practiceLevel,fit,skills,focus,lastFeedback:skillReview?.review||null,revisit:!!revisit,level,reason,sessionMinutes,estimatedMissionMinutes:next.minutes,
     sessionHint:minutes<next.minutes?'Use this session for the first part of this task. Keep your draft and return to finish the full practical trial.':'Create, check and improve one practical response.',
     challenge:{...challenge,outcome:outcomePrompt(profile.goal,profile.language),guidance:challengeInstruction(level,profile.language,!!next.practical)},
     steps:pool.map(m=>({id:m.id,title:localizeMission(m,profile.language).title,completed:completed.has(m.id)})),

@@ -24,7 +24,7 @@ overrides:
   # Patched floors for the 2026-10-23 advisory review; keep the release-age policy above.
   'esbuild@<0.28.1': 0.28.1
   'ws@>=8.0.0 <8.21.0': 8.21.0
-  'undici@>=7.0.0 <7.29.1': 7.29.1
+  'undici@>=7.0.0 <7.30.1': 7.30.1
   'js-yaml@>=4.0.0 <4.3.2': 4.3.2
   '@babel/core@>=7.0.0 <7.29.6': 7.29.6
   'brace-expansion@>=1.0.0 <1.1.21': 1.1.21
@@ -33,7 +33,8 @@ overrides:
   'fflate@>=0.7.0 <0.7.5': 0.7.5
   'baseline-browser-mapping@<2.11.0': 2.11.0
   'image-size@>=2.0.0 <2.0.3': 2.0.3
-  'fast-uri@>=3.0.0 <3.1.8': 3.1.8
+  'fast-uri@>=3.0.0 <3.1.9': 3.1.9
+  'zod@<4.6.6': 4.6.6
   'source-map-js@>=1.0.0 <1.2.2': 1.2.2
   'sharp@<0.35.5': 0.35.5
 patchedDependencies:
@@ -45,3 +46,8 @@ packageExtensions:
     dependencies:
       picomatch: 2.3.2
       brace-expansion: 5.0.12
+
+# Exact reviewed security fix (GHSA-wjr9-j795-jxcr and related fast-uri advisories).
+# Keep the seven-day release-age policy for every other package/version.
+minimumReleaseAgeExclude:
+  - 'fast-uri@3.1.9'

@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const manifest=JSON.parse(fs.readFileSync('package.json','utf8'));
-for(const [name,minimum] of [['next','16.4.1'],['react','19.2.8'],['react-dom','19.2.8'],['react-server-dom-webpack','19.2.8'],['vite','8.1.6']])test(name+' installs the reviewed security patch version',()=>{
+for(const [name,minimum] of [['next','16.4.1'],['react','19.2.8'],['react-dom','19.2.8'],['react-server-dom-webpack','19.2.8'],['vite','8.1.6'],['zod','4.6.6']])test(name+' installs the reviewed security patch version',()=>{
  const pin=manifest.dependencies[name]||manifest.devDependencies[name];
  assert.match(pin,/^\d+\.\d+\.\d+$/);
  const actual=require(name+'/package.json').version;assert.equal(actual,pin);
@@ -8,7 +8,7 @@ for(const [name,minimum] of [['next','16.4.1'],['react','19.2.8'],['react-dom','
 });
 test('transitive patch floors retain install policies and do not suppress advisories',()=>{
  const policy=fs.readFileSync('pnpm-workspace.yaml','utf8');assert.match(policy,/minimumReleaseAge: 10080/);assert.match(policy,/strictDepBuilds: true/);
- assert.match(policy,/miniflare>sharp: 0.35.5/);assert.match(policy,/undici@>=7.0.0 <7.29.1/);
- assert.doesNotMatch(policy,/audit\.ignore|ignoreCves|ignore-cves/);
+ assert.match(policy,/miniflare>sharp: 0.35.5/);assert.match(policy,/undici@>=7.0.0 <7.30.1/);
+ assert.doesNotMatch(policy,/audit\.ignore|ignoreCves|ignore-cves/);assert.match(policy,/fast-uri@>=3.0.0 <3.1.9/);assert.match(policy,/zod@<4.6.6/);assert.match(policy,/minimumReleaseAgeExclude:\s*\n\s*- 'fast-uri@3.1.9'/);
  const workflow=fs.readFileSync('.github/workflows/mentor-regression.yml','utf8');assert.match(workflow,/pnpm audit --prod --audit-level high/);assert.match(workflow,/pnpm audit --audit-level low/);
 });

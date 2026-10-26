@@ -1,5 +1,7 @@
 import type {Review} from './ai-feedback';
-export function reviewAccepted(r:Review){return r.answerAssessment?.onTopic===true&&r.answerAssessment.correct===true&&r.practicalTest?.created===true&&r.practicalTest.performed===true&&r.practicalTest.reported===true&&r.checks.filter(c=>c.met).length>=3}
+/** Only correct, on-topic practical evidence can establish a demonstrated skill. */
+export function supportedPracticalReview(r:Review){return !r.blockingIssue?.trim()&&r.answerAssessment?.onTopic===true&&r.answerAssessment.correct===true&&r.practicalTest?.created===true&&r.practicalTest.performed===true&&r.practicalTest.reported===true}
+export function reviewAccepted(r:Review){return supportedPracticalReview(r)&&r.checks.filter(c=>c.met).length>=3}
 const sameText=(a:string,b:string)=>a.toLocaleLowerCase().replace(/[\p{P}\p{S}\s]+/gu,'')===b.toLocaleLowerCase().replace(/[\p{P}\p{S}\s]+/gu,'');
 /** Safe display fallback for old reviews whose next step repeats the verdict. No new assessment. */
 function actionCopy(r:Review){
