@@ -33,7 +33,9 @@ Open Razorpay's webhook settings and add:
 
 - URL: `https://whatslearn.in/api/billing/webhook`
 - Secret: exactly the same value stored as `RAZORPAY_WEBHOOK_SECRET` above.
-- Events: `order.paid`, `payment.captured`, `payment.failed`, `subscription.authenticated`, `subscription.activated`, `subscription.charged`, `subscription.pending`, `subscription.halted`, `subscription.cancelled`, `subscription.completed`, `subscription.paused`, `subscription.resumed`.
+- Events: `order.paid`, `payment.captured`, `payment.failed`, `subscription.authenticated`, `subscription.activated`, `subscription.charged`, `subscription.pending`, `subscription.halted`, `subscription.cancelled`, `subscription.completed`, `subscription.paused`, `subscription.resumed`, `refund.processed`.
+
+`refund.processed` is needed so a full Skill Sprint refund ends that learner's paid access.
 
 If an event is unavailable in your account, record which one; do not invent or substitute event names. Enable delivery. Validation uses the unchanged request body and `X-Razorpay-Signature`. Duplicate deliveries are identified by `x-razorpay-event-id`. Status refresh reads current Razorpay state instead of trusting webhook arrival order.
 
@@ -44,13 +46,13 @@ Visit https://whatslearn.in/billing/setup. Sign in using the configured billing 
 | Offer | Price | Razorpay type |
 | --- | ---: | --- |
 | Skill Sprint | ₹149 once | Order, no recurring mandate |
-| Plus monthly | ₹499/month | Monthly plan |
-| Plus annual | ₹4,999/year | Yearly plan |
-| Pro monthly | ₹999/month | Monthly plan |
-| Pro annual | ₹9,999/year | Yearly plan |
+| Plus monthly | ₹199/month | Monthly plan |
+| Plus annual | ₹1,999/year | Yearly plan |
+| Pro monthly | ₹499/month | Monthly plan |
+| Pro annual | ₹4,999/year | Yearly plan |
 | Teams | ₹399/learner/month, 5 minimum | Monthly plan with quantity |
 
-Amounts are calculated in paise on the server. Teams starts at ₹1,995/month. The plan creator reuses its stored plans; it does not create duplicates on repeat clicks. If a creation fails after reaching Razorpay, the row stays locked pending reconciliation; do not delete or retry blindly.
+Amounts are calculated in paise on the server. Teams starts at ₹1,995/month. Prices come from `lib/billing/catalogue.ts`; after a price change press **Create live plans** again so Razorpay gets plans at the new price. The plan creator reuses its stored plans; it does not create duplicates on repeat clicks. If a creation fails after reaching Razorpay, the row stays locked pending reconciliation; do not delete or retry blindly.
 
 Test subscriptions use 12 monthly cycles or 5 yearly cycles and allow cancellation. This is a bounded testing configuration, not a promise of indefinite renewal.
 
