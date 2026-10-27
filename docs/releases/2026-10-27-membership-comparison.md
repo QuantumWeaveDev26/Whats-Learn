@@ -1,6 +1,6 @@
 # Membership comparison and shorter homepage copy
 
-Release: `2026-10-27-learner-pages-v10.1`.
+Release: `2026-10-27-learner-pages-v10.2`.
 
 ## Scope
 

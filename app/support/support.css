@@ -4,6 +4,7 @@
 .support-page .support-heading h1{font-size:clamp(34px,4.5vw,50px);letter-spacing:-.035em;line-height:1.12;margin:14px 0;color:#173d29}
 .support-page .support-heading>p{font-size:16px;color:#607166;margin:0}
 .support-page .support-workspace,.support-page .support-guest-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,1fr);gap:24px;align-items:start;margin:0}
+.support-page .support-workspace{width:100%;max-width:none}
 .support-page .support-guest-grid{align-items:stretch}
 .support-page .support-guest-grid>.support-email{align-items:center}
 .support-page .support-compose,.support-page .support-sidebar{min-width:0}
