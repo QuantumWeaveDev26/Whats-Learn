@@ -22,3 +22,24 @@ test('owner test mode keeps the checkout explicitly labelled as a test',async()=
 test('failed status check keeps the payment action disabled and explains recovery',async()=>{
  global.fetch=async()=>Response.json({error:'Status unavailable'},{status:503});const ui=mount();ui.render();await tick();const tree=ui.render();assert.equal(nodes(tree).find(n=>n.type==='button').props.disabled,true);assert.match(text(tree),/Reopen this plan to retry/);ui.unmount();
 });
+
+test('enabled action opens checkout and verifies its callback using simulated provider responses only',async()=>{
+ const calls=[],redirects=[];let options,opened=0;
+ const oldWindow=global.window;
+ global.window={Razorpay:function(o){options=o;this.on=()=>{};this.open=()=>{opened++}},location:{assign:url=>redirects.push(url)}};
+ global.fetch=async(url,opts)=>{
+  assert.equal(url,'/api/billing','No external network endpoint is permitted in this test');
+  if(!opts?.method)return Response.json({enabled:true,mode:'live'});
+  const body=JSON.parse(opts.body);calls.push(body);
+  if(body.action==='checkout')return Response.json({sessionId:'synthetic-session',key:'synthetic-public-key',amount:19900,currency:'INR',name:'WhatsLearn',description:'Plus monthly',subscription_id:'sub_synthetic'});
+  assert.equal(body.action,'verify');return Response.json({paidAccessActivated:true,message:'Synthetic verification confirmed'});
+ };
+ const ui=mount();try{
+  ui.render();await tick();await nodes(ui.render()).find(n=>n.type==='button').props.onClick();
+  assert.equal(opened,1);assert.deepEqual(calls,[{action:'checkout',sku:'plus_monthly',quantity:1}]);assert.equal(options.subscription_id,'sub_synthetic');
+  assert.deepEqual(redirects,[],'Opening checkout alone never grants access');
+  await options.handler({razorpay_payment_id:'pay_synthetic',razorpay_signature:'synthetic-signature'});
+  assert.deepEqual(calls[1],{action:'verify',sessionId:'synthetic-session',paymentId:'pay_synthetic',signature:'synthetic-signature'});
+  assert.deepEqual(redirects,['/learn?personalise=1']);
+ }finally{ui.unmount();if(oldWindow===undefined)delete global.window;else global.window=oldWindow}
+});
