@@ -560,3 +560,38 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 html .website-tour-launch:where(:not(:hover):not(:focus-visible)),html .whatsapp-mentor-widget:where(:not(:hover):not(:focus-visible)){width:var(--floating-action-height);padding:7px;justify-content:center;gap:0}
 html .website-tour-launch:where(:not(:hover):not(:focus-visible))>strong{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 html .whatsapp-mentor-widget:where(:not(:hover):not(:focus-visible))>:where(span:not(.mentor-widget-icon),svg){display:none}
+
+/* Phone layout: one tidy header row, menus that wrap instead of running off screen, a neat footer grid,
+   one pricing plan per row and comfortable tap targets. Desktop is unchanged. */
+.session-signout>svg{display:none}
+@media(max-width:700px){
+ html body .session-links{flex-direction:row!important;align-items:center;gap:8px!important}
+ html body .session-links>.session-signout{width:40px;height:40px;min-height:40px;padding:0;border:1px solid #b7cabb;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#365e43;background:#fff}
+ html body .session-signout>svg{display:block}
+ html body .session-signout>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ html body .account-nav nav{flex-wrap:wrap;overflow:visible;white-space:normal;justify-content:flex-start;gap:0 20px}
+ html body .account-nav nav a{min-height:36px;display:inline-flex;align-items:center}
+ html body .site-header nav>button{display:none}
+ html body .site-header{display:flex;flex-wrap:wrap;column-gap:16px;row-gap:0;align-items:center;justify-content:flex-start}
+ html body .site-header>.wl-brand{order:0}
+ html body .site-header>.session-links,html body .site-header>.preview-pill{order:1;margin-left:auto}
+ html body .site-header>nav{order:2;width:auto;flex:0 0 auto;overflow:visible;gap:0}
+ html body .site-header>a[href="/companion"]{order:3}
+ html body .site-header>a[href="/settings"]{order:4}
+ html body .site-header>nav a,html body .site-header>a:not(.wl-brand){font-size:13px;white-space:nowrap}
+ html body .site-header>a:not(.wl-brand),html body .site-header nav a{min-height:40px;display:inline-flex;align-items:center}
+ html body .workspace-tabbar{display:grid!important;grid-template-columns:1fr 1fr;height:auto!important;gap:0 12px;overflow:visible}
+ html body .workspace-tabbar [data-slot=tabs-trigger]{min-height:44px;height:44px;justify-content:flex-start;width:100%}
+ html body .membership-grid,html body .membership-page .plan-column-grid{grid-template-columns:1fr}
+ html body .membership-page .plan-column{border-right:0;border-top:0}
+ html body .membership-page .plan-column+.plan-column{border-top:1px solid var(--border)}
+ html body .brand-footer-bottom{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;justify-items:start;text-align:left}
+ html body .brand-footer-bottom>span{grid-column:1/-1;padding:8px 0}
+ html body .brand-footer-bottom a,html body .account-footer nav a,html body .path-footer a{min-height:40px;display:inline-flex;align-items:center}
+ html body .account-footer nav,html body .path-footer .site-legal-links{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+ html body .account-footer{align-items:flex-start;text-align:left}
+ html body .workspace>footer{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;justify-items:start;text-align:left}
+ html body .workspace>footer>.wl-brand,html body .workspace>footer>span{grid-column:1/-1}
+ html body .workspace>footer a:not(.wl-brand){min-height:40px;display:inline-flex;align-items:center}
+ html body .text-button{min-height:40px}
+}

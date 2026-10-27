@@ -1,5 +1,6 @@
  'use client';
 import {useEffect,useState} from 'react';
+import {LogOut} from 'lucide-react';
 import {usePathname} from 'next/navigation';
 import {safeReturnTo,signInHref,signOutHref} from '@/lib/return-to';
 import {fetchWithTimeout} from '@/lib/fetch-timeout';
@@ -11,6 +12,6 @@ export default function SessionLinks({className='preview-pill',initialSignedIn}:
  void check();const refresh=()=>{void check()};window.addEventListener('pageshow',refresh);window.addEventListener('focus',refresh);return()=>{alive=false;window.removeEventListener('pageshow',refresh);window.removeEventListener('focus',refresh)}},[pathname]);
  if(state==='loading')return <span className={className} role="status">Checking account…</span>;
  if(state==='error')return <a className={className} href="/settings">Account status unavailable</a>;
- if(state==='signed-in')return <span className="session-links" style={{display:'inline-flex',alignItems:'center',gap:'12px'}}><a className={className} href="/settings">My account</a><a href={signOutHref('/')} target="_top">Sign out</a></span>;
+ if(state==='signed-in')return <span className="session-links" style={{display:'inline-flex',alignItems:'center',gap:'12px'}}><a className={className} href="/settings">My account</a><a className="session-signout" href={signOutHref('/')} target="_top" aria-label="Sign out"><LogOut size={18} aria-hidden="true"/><span>Sign out</span></a></span>;
  return <a className={className} href={signInHref(here)} target="_top">Sign up / Sign in</a>;
 }
