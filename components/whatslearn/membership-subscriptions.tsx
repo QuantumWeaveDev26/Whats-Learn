@@ -5,7 +5,7 @@ import {billingPlanName} from '@/lib/billing/display';
 export type MembershipSession={id:string;sku:string;kind:string;state:string;mode?:string;canManage?:boolean;provider_id?:string|null};
 export type MembershipBilling={accountKey?:string;mode?:'test'|'live';enabled?:boolean;admin?:boolean;signInRequired?:boolean;checkoutOpen?:boolean;sprintCreditAvailable?:boolean;sessions?:MembershipSession[];entitlement?:{plan:string;endsAt:string;mode:string}|null};
 const ended=new Set(['cancelled','completed','expired','superseded','not_configured']);
-const statusLabel=(state:string)=>(({created:'Not activated',authenticated:'Awaiting activation',active:'Active',pending:'Payment pending',halted:'Payment stopped',cancelled:'Ended',completed:'Completed',expired:'Expired',creating:'Being created'} as Record<string,string>)[state]||'Needs review');
+const statusLabel=(state:string)=>(({created:'Not activated',authenticated:'Awaiting activation',active:'Active',pending:'Payment pending',halted:'Payment stopped',paused:'Paused',cancelled:'Ended',completed:'Completed',expired:'Expired',creating:'Being created'} as Record<string,string>)[state]||'Needs review');
 
 /** Manage only the requesting account's subscriptions, even while new sales are closed. */
 export default function MembershipSubscriptions({billing,onReload}:{billing:MembershipBilling|null;onReload:()=>Promise<void>}){
