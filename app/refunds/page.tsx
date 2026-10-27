@@ -2,15 +2,14 @@ import {whatsappChatUrl,whatsappLinkProps} from '@/lib/contact';
 import type {Metadata} from 'next';
 import LegalPage from '@/components/whatslearn/legal-page';
 export const metadata:Metadata={title:'Refund and cancellation policy · WhatsLearn',description:'How cancellations, renewals and refunds work for WhatsLearn sprints and memberships.'};
-export default function Refunds(){return <LegalPage kicker="CLEAR MONEY. NO SURPRISES." title={<>Refunds and <em>cancellation.</em></>} updated="10 October 2026">
+export default function Refunds(){return <LegalPage kicker="CLEAR MONEY. NO SURPRISES." title={<>Refunds and <em>cancellation.</em></>} updated="27 October 2026">
 <p>This policy applies to payments made to BrandMint AI Pvt. Ltd. for WhatsLearn through Razorpay. It forms part of our <a href="/terms">Terms of use</a>. Nothing here limits your rights under the Consumer Protection Act, 2019.</p>
-<p className="small muted">Points marked “Proposed” are suggested starting values. The owner must confirm them before paid plans open.</p>
 <h2>1. Free plan</h2>
 <p>Explore is free. Nothing is charged and nothing needs cancelling.</p>
 <h2>2. Skill Sprint (₹149, one-time)</h2>
 <ul>
 <li>Your seven days of sprint access start when Razorpay confirms the payment.</li>
-<li><strong>Proposed:</strong> if you have not opened any sprint challenge, you can ask for a full refund within 48 hours of paying.</li>
+<li>if you have not opened any sprint challenge, you can ask for a full refund within 48 hours of paying.</li>
 <li>Once you have started the sprint, it is not refundable, but you keep access for the full seven days.</li>
 <li>First-sprint credit: if you buy your first monthly Plus or Pro membership within seven days of a sprint, the ₹149 counts towards that first month, as stated on the Membership page. The credit is not paid out as cash.</li>
 </ul>
@@ -18,9 +17,9 @@ export default function Refunds(){return <LegalPage kicker="CLEAR MONEY. NO SURP
 <ul>
 <li>Memberships renew automatically: monthly plans every month, annual plans every year, Teams every month.</li>
 <li>You can cancel future renewals at any time from the Membership page, or by writing to us. Cancelling stops the next charge; you keep access until the end of the period you have already paid for.</li>
-<li><strong>Proposed:</strong> for your first payment on a membership, you can ask for a full refund within 7 days if you have used no more than two AI feedback rounds in that period.</li>
+<li>for your first payment on a membership, you can ask for a full refund within 7 days if you have used no more than two AI feedback rounds in that period.</li>
 <li>We do not give partial refunds for unused days, sprints or AI feedback rounds after that, and unused monthly allowances do not carry over.</li>
-<li><strong>Proposed:</strong> annual plans cancelled within 14 days of the first annual payment can be refunded in full, less any monthly allowance already used at the monthly price.</li>
+<li>annual plans cancelled within 14 days of the first annual payment can be refunded in full, less any monthly allowance already used at the monthly price.</li>
 </ul>
 <h2>4. Charges we always refund</h2>
 <ul>
