@@ -63,11 +63,25 @@ test('quality breakdown aggregates existing metadata rather than exposing new tr
  const data=await listQualityItems({userId:'owner',email:'owner@example.test'},{});
  assert.equal(data.breakdown.windowDays,30);assert.deepEqual(data.breakdown.reportsByReason,[]);assert.match(data.breakdown.note,/not failure rates/);
 });
-test('existing workspace and layout JSX are byte-identical: no card, text, class or styling changes',()=>{
+test('workspace permits only the approved learning-path move and note removal; other JSX stays identical',()=>{
  const jsx=source=>{const file=ts.createSourceFile('page.tsx',source.replace(/\r\n/g,'\n'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),out=[];function visit(n){if(ts.isJsxElement(n)||ts.isJsxSelfClosingElement(n)||ts.isJsxFragment(n))out.push(n.getText(file));ts.forEachChild(n,visit);}visit(file);return out;};
  // Hashes from 4f3b350; do not depend on Git history being present in a shallow CI checkout.
  const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
+ // The user approved moving this unchanged roadmap to the sidebar and removing the practice note.
+ // Restore only those edits before checking the original fingerprint; keep every other JSX byte protected.
+ const restoreApprovedWorkspace=source=>{
+  const prefix='<section className="learning-path-panel" aria-labelledby="journey-learning-path-title">';
+  const start=source.indexOf(prefix),end=source.indexOf('</section><details className="learning-details extra-rewards">',start);
+  assert.ok(start>source.indexOf('<aside className="right-column">'));assert.ok(end>start);
+  assert.equal(source.includes('A lesson is a start. Your work is the proof.'),false);
+  const path=source.slice(start+prefix.length,end).replace('<div className="section-heading"><h2 id="journey-learning-path-title">','<div className="section-heading lower"><h2>');
+  const rest=source.slice(0,start)+source.slice(end+'</section>'.length);
+  const anchor='</section>\n<aside className="right-column">';
+  const note='<div className="practice-note"><span className="note-icon">↗</span><div><h3>A lesson is a start. Your work is the proof.</h3><p>Use short lessons to start. Set time aside for deeper practice.</p></div></div>';
+  assert.ok(rest.includes(anchor));
+  return rest.replace(anchor,path+note+anchor);
+ };
  const baseline={'app/learn/workspace.tsx':'ae5459871df5740031f1b5480fa3b113cad073717b7511adec53e090f6009b1b','app/layout.tsx':'98e4aee781f8608f33cbeb96292ba9940e55a3917f990bdc47743a84a6f3d587'};
- for(const [file,expected] of Object.entries(baseline))assert.equal(hash(JSON.stringify(jsx(fs.readFileSync(file,'utf8')))),expected);
+ for(const [file,expected] of Object.entries(baseline)){const source=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');assert.equal(hash(JSON.stringify(jsx(file==='app/learn/workspace.tsx'?restoreApprovedWorkspace(source):source))),expected);}
  assert.equal(hash(fs.readFileSync('lib/curriculum.ts','utf8').replace(/\r\n/g,'\n')),'5df69a05b07ae54cfc152dc4d601185a7a484dd28daafd1d1c0f29ef5ca80e46');
 });

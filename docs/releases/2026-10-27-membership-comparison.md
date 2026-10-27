@@ -45,3 +45,5 @@ The user then requested a simpler Settings page and balanced Support page in the
 
 - Your learning path moves to the top of the right column on the learning dashboard, with the existing roadmap and mini-challenge actions retained. Narrow layouts stack it below the main mission. The redundant “A lesson is a start…” panel is removed.
 - Membership uses compact, equally sized plan choices and a shared feature table, with a selected-plan summary on phones. Repeated labels, promotional ribbons and per-plan slogans are removed. Prices, review allowances, payment review and subscription management remain.
+
+The existing JSX preservation check restores only the approved learning-path move and note removal before comparing the original fingerprint. The protected workspace fingerprint, root-layout check and curriculum check remain unchanged.
