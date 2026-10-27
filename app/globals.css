@@ -508,3 +508,8 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 @media(min-width:981px){.workspace-today .learning-grid{grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}}
 
 .workspace-today .learning-grid>.right-column{display:flex;flex-direction:column;gap:18px;padding-top:0}
+
+.workspace-today .right-column>.learning-details{margin:0}
+.learning-topics{list-style:none;display:grid;gap:12px;padding:18px;margin:0;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;line-height:1.5;color:var(--foreground)}
+.learning-topics li{display:flex;align-items:flex-start;gap:10px}
+.learning-topics svg{flex:none;color:var(--primary);margin-top:3px}

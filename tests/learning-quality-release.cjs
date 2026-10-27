@@ -63,18 +63,20 @@ test('quality breakdown aggregates existing metadata rather than exposing new tr
  const data=await listQualityItems({userId:'owner',email:'owner@example.test'},{});
  assert.equal(data.breakdown.windowDays,30);assert.deepEqual(data.breakdown.reportsByReason,[]);assert.match(data.breakdown.note,/not failure rates/);
 });
-test('workspace permits only the approved learning-path move and note removal; other JSX stays identical',()=>{
+test('workspace permits the approved learning-topic sidebar and note removal; other JSX stays identical',()=>{
  const jsx=source=>{const file=ts.createSourceFile('page.tsx',source.replace(/\r\n/g,'\n'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX),out=[];function visit(n){if(ts.isJsxElement(n)||ts.isJsxSelfClosingElement(n)||ts.isJsxFragment(n))out.push(n.getText(file));ts.forEachChild(n,visit);}visit(file);return out;};
  // Hashes from 4f3b350; do not depend on Git history being present in a shallow CI checkout.
  const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
- // The user approved moving this unchanged roadmap to the sidebar and removing the practice note.
+ // The user approved a short knowledge outline in the sidebar and removal of the practice note.
  // Restore only those edits before checking the original fingerprint; keep every other JSX byte protected.
  const restoreApprovedWorkspace=source=>{
   const prefix='<section className="learning-path-panel" aria-labelledby="journey-learning-path-title">';
   const start=source.indexOf(prefix),end=source.indexOf('</section><details className="learning-details extra-rewards">',start);
   assert.ok(start>source.indexOf('<aside className="right-column">'));assert.ok(end>start);
   assert.equal(source.includes('A lesson is a start. Your work is the proof.'),false);
-  const path=source.slice(start+prefix.length,end).replace('<div className="section-heading"><h2 id="journey-learning-path-title">','<div className="section-heading lower"><h2>');
+  const approved=source.slice(start+prefix.length,end);
+  assert.equal(hash(approved),'dd086c5a1c6e9894ab58fe8af863dacdf1bf0a8e7a48d2686e29eff61764849c');
+  const path="<div className=\"section-heading lower\"><h2>Your learning path</h2><button className=\"text-button\" onClick={()=>setView('paths')}>Explore paths <ArrowRight size={15}/></button></div><details className=\"learning-details\"><summary>Full course roadmap · {count}/{current.length} saved</summary><CourseRoadmap paidAccess={paidAccess} track={track} completed={doneIds} cleared={cleared} onOpen={openMission} onCheckpoint={(t,a)=>{const c=checkpointFor(t,a);if(c)setCp(c)}}/></details><details className=\"learning-details\"><summary>Mini challenges</summary><CheckpointRow track={track} done={doneIds} cleared={cleared} onOpen={c=>setCp(c)}/></details>";
   const rest=source.slice(0,start)+source.slice(end+'</section>'.length);
   const anchor='</section>\n<aside className="right-column">';
   const note='<div className="practice-note"><span className="note-icon">↗</span><div><h3>A lesson is a start. Your work is the proof.</h3><p>Use short lessons to start. Set time aside for deeper practice.</p></div></div>';
