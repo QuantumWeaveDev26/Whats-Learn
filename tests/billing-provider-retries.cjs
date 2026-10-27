@@ -43,3 +43,10 @@ for(const failure of [408,409,500,502,'timeout','network','invalid-success'])tes
  setup();let calls=0;global.fetch=async()=>{calls++;if(failure==='timeout')throw new DOMException('Timed out','TimeoutError');if(failure==='network')throw new TypeError('Network failed');return failure==='invalid-success'?Response.json({}):rejection(failure)};
  await assert.rejects(()=>api.provisionPlans());await assert.rejects(()=>api.provisionPlans(),/needs reconciliation/);assert.equal(calls,1);assert.equal(h.db.prepare('SELECT state FROM billing_plans').get().state,'creating');
 });
+
+test('membership checkout creates its missing Razorpay plan once, without an owner setup step',async()=>{
+ setup();const routes=[];global.fetch=async(url,options)=>{const route=String(url).split('/v1/')[1];routes.push(route);if(route==='plans')return Response.json({id:'plan_auto'});return Response.json({id:'sub_auto'+routes.length,plan_id:JSON.parse(options.body).plan_id})};
+ const result=await api.createCheckout('member','plus_monthly',1);assert.equal(result.subscription_id,'sub_auto2');assert.deepEqual(routes,['plans','subscriptions']);
+ assert.equal(h.db.prepare("SELECT provider_id FROM billing_plans WHERE sku='plus_monthly:19900'").get().provider_id,'plan_auto');
+ await api.createCheckout('other-member','plus_monthly',1);assert.deepEqual(routes,['plans','subscriptions','subscriptions'],'Plan is reused');
+});
