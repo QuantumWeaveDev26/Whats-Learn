@@ -1,6 +1,6 @@
 # Membership comparison and shorter homepage copy
 
-Release: `2026-10-27-learner-pages-v10.4`.
+Release: `2026-10-27-learner-pages-v10.5`.
 
 ## Scope
 
@@ -40,3 +40,5 @@ The user then requested a simpler Settings page and balanced Support page in the
 - Price-specific provider plan keys keep old subscriptions on their original provider plans. New purchases require matching new provider plans through the existing owner setup flow. Old checkout sessions at a different price cannot be reopened through the new-price flow. Existing paid subscriptions and their management are retained. Paid checkout is not enabled by this release.
 
 - Expanded homepage course cards now show one short skill description and a clear course action. The repeated headlines, long portfolio paragraphs, first-three-step lists, example disclosures, task badges, sample-challenge links and roadmap links are removed from these cards. Course content, mission questions and assessment rules remain available inside learning. Returning-learner progress and continuation links remain.
+
+- Both floating launchers are smaller: 56px desktop height and 48px on phones, with smaller icons, 13px shared labels and tighter padding. Right alignment and the 12px vertical gap remain.
