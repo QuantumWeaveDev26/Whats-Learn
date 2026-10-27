@@ -528,3 +528,17 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 /* Keep related links visually consistent and arrows next to their labels. */
 .whatsapp-note .whatsapp-note-actions a{color:var(--primary);font-weight:500;text-decoration:underline}
 .brand-footer-top a{justify-content:flex-start;align-items:center;gap:12px}
+
+/* Narrow learner sidebar: readable rows instead of five squeezed cards. */
+.learning-path-panel .checkpoint-row>h3{display:none}
+.learning-path-panel .checkpoint-row>p{margin:12px 0;font-size:13px;line-height:1.5}
+.learning-path-panel .checkpoint-list{grid-template-columns:1fr;gap:6px}
+.learning-path-panel .checkpoint-stop{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;min-height:46px}
+.learning-path-panel .checkpoint-stop strong{font-size:14px;font-weight:600}
+.learning-path-panel .checkpoint-stop small{font-size:12px;white-space:nowrap}
+.learning-path-panel .checkpoint-icon{width:26px;height:26px}
+.extra-rewards .reward-card{padding:12px 0 0;border:0;background:transparent;box-shadow:none}
+.extra-rewards .reward-card>h3{font-size:16px;margin:0 0 12px}
+.extra-rewards .reward-card>details{margin:0;padding:11px 0;border:0;border-top:1px solid var(--border);border-radius:0;background:transparent}
+.extra-rewards .reward-card>details>summary{font-size:14px;font-weight:500;cursor:pointer}
+.extra-rewards .reward-card>details p{font-size:13px;line-height:1.55}

@@ -8,12 +8,12 @@ const letters=['A','B','C'];
 /** The row of mini challenges for one course. Each is ready once its mission is done, and cleared once passed. */
 export function CheckpointRow({track,done,cleared,onOpen}:{track:string;done:ReadonlySet<string>;cleared:ReadonlySet<string>;onOpen:(c:Checkpoint)=>void}){
  const list=missions.filter(m=>m.track===track);
- return <section className="checkpoint-row" aria-label="Mini challenges"><h3>Mini challenges</h3><p className="small muted">Clear one after every two missions to open the next pair. They are not missions and add no points. Each earns a badge.</p>
+ return <section className="checkpoint-row" aria-label="Mini challenges"><h3>Mini challenges</h3><p className="small muted">A quick check after every two tasks. Earn a badge, not points.</p>
   <div className="checkpoint-list">{trackCheckpoints(track).map(c=>{const m=list[c.after-1];const isDone=cleared.has(checkpointKey(c.track,c.after));const ready=!!m&&done.has(m.id);
    return <button key={c.after} className={`checkpoint-stop${isDone?' cleared':''}`} disabled={!ready&&!isDone} onClick={()=>onOpen(c)} aria-label={`${isFinale(c)?'Course finale':`Mini challenge after mission ${c.after}`}: ${isDone?'cleared':ready?'ready':'locked until mission '+c.after+' is done'}`}>
     <span className="checkpoint-icon" aria-hidden="true">{isDone?<Award size={18}/>:ready?<Check size={18}/>:<LockKeyhole size={16}/>}</span>
-    <strong>{isFinale(c)?'Course finale':`After mission ${c.after}`}</strong>
-    <small>{isDone?'Badge earned':ready?'Ready. Start it.':`Finish mission ${c.after} first`}</small></button>})}</div></section>;
+    <strong>{isFinale(c)?'Course finale':`After task ${c.after}`}</strong>
+    <small>{isDone?'Badge earned':ready?'Start →':'Locked'}</small></button>})}</div></section>;
 }
 /** The dialog content for one mini challenge. Picks are kept between tries. */
 export default function CheckpointBody({cp,cleared,guest,onAttempt,onNext}:{cp:Checkpoint;cleared:boolean;guest:boolean;onAttempt:(answers:number[])=>Promise<CheckpointAttempt>;onNext?:()=>void}){
