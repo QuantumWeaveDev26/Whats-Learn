@@ -1,6 +1,6 @@
 # Membership comparison and shorter homepage copy
 
-Release: `2026-10-27-learner-pages-v10.3`.
+Release: `2026-10-27-learner-pages-v10.4`.
 
 ## Scope
 
@@ -35,3 +35,8 @@ The user then requested a simpler Settings page and balanced Support page in the
 - Support places the request form beside request history and email contact on desktop, stacking them on phones. Request details are expandable; ownership, request attachment, idempotency and team-reply handling remain. No support request, WhatsApp message, payment, account deletion or real learner name change is submitted during visual checks.
 
 - At the user's request, Take a tour is now stacked 12px above WhatsLearn Mentor at the same right edge on desktop and phones. Both retain their shared height, green theme and safe-area bottom anchor.
+
+- The user set new monthly prices: Plus ₹199, Pro ₹499, Teams ₹399 per learner. Annual Plus/Pro are ₹1,999/₹4,999, preserving approximately 17% savings. The cards derive prices from the billing catalogue; the homepage FAQ matches. Fine-pointer hover lifts cards gently, with reduced-motion support.
+- Price-specific provider plan keys keep old subscriptions on their original provider plans. New purchases require matching new provider plans through the existing owner setup flow. Old checkout sessions at a different price cannot be reopened through the new-price flow. Existing paid subscriptions and their management are retained. Paid checkout is not enabled by this release.
+
+- Expanded homepage course cards now show one short skill description and a clear course action. The repeated headlines, long portfolio paragraphs, first-three-step lists, example disclosures, task badges, sample-challenge links and roadmap links are removed from these cards. Course content, mission questions and assessment rules remain available inside learning. Returning-learner progress and continuation links remain.

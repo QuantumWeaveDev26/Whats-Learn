@@ -1,16 +1,16 @@
 import {database} from '@/lib/storage';
-import {billingCatalogue,quote,type SKU} from './catalogue';
+import {billingCatalogue,quote,billingPlanKey as planKey,type SKU} from './catalogue';
 import {razorpay,BillingError,billingConfig,billingMode,verifyHmac,assertPaymentLaunchReady,type BillingMode} from './razorpay';
 export type BillingSession={id:string;user_id:string;sku:SKU;kind:string;quantity:string;amount:string;provider_id:string|null;state:string;created_at:string;updated_at:string;mode?:string;payment_id?:string|null};
 const OPEN="('creating','created','authenticated','active','pending','halted')";
 function currentMode():BillingMode{const m=billingMode();if(!m)throw new BillingError('Checkout is not configured yet. No payment was taken.',503);return m}
 /** Test and live plans live side by side, so switching keys never reuses a plan from the other mode. */
-const planKey=(sku:string,mode:BillingMode)=>mode==='live'?'live:'+sku:sku;
+
 const label=(mode:BillingMode)=>mode==='live'?'WhatsLearn':'WhatsLearn — TEST';
 export async function provisionPlans(){
  const db=database();const mode=currentMode();const output=[];
  for(const [sku,p] of Object.entries(billingCatalogue)){
-  if(!p.period)continue;const key=planKey(sku,mode);
+  if(!p.period)continue;const key=planKey(sku as SKU,mode);
   const row=await db.prepare('SELECT * FROM billing_plans WHERE sku=?').bind(key).first();
   if(row?.provider_id){output.push({sku,id:row.provider_id});continue;}
   if(row)throw new BillingError('A previous plan creation needs reconciliation in Razorpay before retrying. No duplicate plan was created.',409);
@@ -38,7 +38,7 @@ export async function createCheckout(userId:string,sku:SKU,quantity:number){
  const db=database();const mode=currentMode();
  const prior=await db.prepare(`SELECT * FROM billing_sessions WHERE user_id=? AND sku=? AND quantity=? AND state IN ${OPEN} ORDER BY created_at DESC LIMIT 1`).bind(userId,sku,String(quantity)).first<BillingSession>();
  if(prior&&(prior.mode||'test')!==mode){await db.prepare('UPDATE billing_sessions SET state=?,updated_at=? WHERE id=?').bind('superseded',new Date().toISOString(),prior.id).run()}
- else if(prior){if(prior.state==='created'&&prior.provider_id)return checkoutResult(prior);throw new BillingError(prior.state==='active'?'You already have this plan. Manage it from the membership page.':'A checkout or subscription already exists for this plan. Refresh its status or cancel it before starting another.',409)}
+ else if(prior){if(prior.state==='created'&&Number(prior.amount)!==p.total)throw new BillingError('Your earlier checkout has a different price. Contact support before trying again. No new payment was created.',409);if(prior.state==='created'&&prior.provider_id)return checkoutResult(prior);throw new BillingError(prior.state==='active'?'You already have this plan. Manage it from the membership page.':'A checkout or subscription already exists for this plan. Refresh its status or cancel it before starting another.',409)}
  // One immutable row per open user/plan/quantity prevents concurrent duplicate creation.
  const id=crypto.randomUUID();const now=new Date().toISOString();
  const lock=await db.prepare('INSERT OR IGNORE INTO billing_sessions(id,user_id,sku,kind,quantity,amount,state,created_at,updated_at,mode) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(id,userId,sku,p.period?'subscription':'order',String(quantity),String(p.total),'creating',now,now,mode).run();
@@ -83,7 +83,7 @@ export async function syncSession(row:BillingSession){
  const entity=await razorpay((row.kind==='order'?'orders/':'subscriptions/')+encodeURIComponent(row.provider_id));
  if(row.kind==='order'&&(entity.currency!=='INR'||entity.amount!==Number(row.amount)))throw new BillingError('Order amount verification failed.',409);
  if(row.kind==='subscription'){
-  const plan=await database().prepare('SELECT provider_id FROM billing_plans WHERE sku=?').bind(planKey(row.sku,(row.mode||'test') as BillingMode)).first();
+  const plan=await database().prepare('SELECT provider_id FROM billing_plans WHERE sku=?').bind(planKey(row.sku,(row.mode||'test') as BillingMode,Number(row.amount)/Number(row.quantity))).first();
   if(entity.plan_id!==plan?.provider_id||entity.quantity!==Number(row.quantity))throw new BillingError('Subscription verification failed.',409);
  }
  const state=String(entity.status||'unknown');

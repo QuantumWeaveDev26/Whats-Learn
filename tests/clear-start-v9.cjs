@@ -37,12 +37,12 @@ test('learning, human support and account assistance have distinct accessible de
  assert.match(home,/href="\/support">Help/);
  assert.match(read('components/whatslearn/account-shell.tsx'),/href="\/support">Help/);
 });
-test('membership explains free access and paid continuation without changing pricing',()=>{
+test('membership explains free access and uses the current billing prices',()=>{
  const membership=read('components/whatslearn/membership.tsx');
  assert.match(membership,/First 3 tasks free in every course/);assert.match(membership,/tasks 4–10/);
  assert.match(membership,/saved work stays in My Creations when paid access ends/);
  assert.match(membership,/Selecting a plan shows its price and terms before payment/);
- for(const amount of [499,999,149])assert.ok(membership.includes(String(amount)));
+ const {billingCatalogue}=h.load('lib/billing/catalogue.ts');assert.equal(billingCatalogue.plus_monthly.amount,19900);assert.equal(billingCatalogue.pro_monthly.amount,49900);assert.equal(billingCatalogue.teams_monthly.amount,39900);assert.match(membership,/billingCatalogue.plus_monthly.amount/);
 });
 test('saved work remains directly available in the learner dashboard',()=>{
  const workspace=read('app/learn/workspace.tsx');

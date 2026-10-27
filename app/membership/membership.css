@@ -54,6 +54,10 @@
 .membership-page .pricing-terms>summary{font-size:13px}
 .membership-page .billing-note{align-items:flex-start;color:#607166;font-size:12px;line-height:1.5;margin-top:18px}
 .membership-page .billing-note svg{flex:none;width:17px;height:17px;margin-top:1px}
+@media(hover:hover) and (pointer:fine){
+ .membership-page .plan-choice:hover{z-index:2}
+ .membership-page .plan-choice:hover .plan-choice-surface{transform:translateY(-6px) scale(1.015);box-shadow:0 16px 32px #123e2626}
+}
 @media(max-width:1000px){
  .membership-page .plan-choice-grid{gap:10px}
  .membership-page .plan-choice-title{padding:15px 10px}
@@ -83,4 +87,4 @@
  .membership-page .plan-shared-benefits>span{width:100%}
  .membership-page .plan-next-step{margin-top:24px}
 }
-@media(prefers-reduced-motion:reduce){.membership-page .plan-choice-surface{transition:none}}
+@media(prefers-reduced-motion:reduce){.membership-page .plan-choice-surface{transition:none}.membership-page .plan-choice:hover .plan-choice-surface{transform:none}}

@@ -1,13 +1,12 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {ArrowUpRight,Plus,Minus,Check} from 'lucide-react';
-import {courseOutcomes} from '@/lib/course-roadmap';
-import {courseExamples} from '@/lib/starter-examples';
 import {programmes} from '@/lib/programmes';
 import {homePrimaryAction,type HomeLearner} from '@/lib/home-learner';
 export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?:HomeLearner}={}){
  const currentId=learner.status==='account'?learner.courseId:null;
  const outcomes:Record<string,string>={marketing:'Create a local business campaign.',development:'Build and test a booking app.',filmmaking:'Shoot and edit a short film.',storytelling:'Tell a story through visuals.'};
+ const skills:Record<string,string>={marketing:'Write offers and ads for a real business.',development:'Build pages, connect data and test your app.',filmmaking:'Plan scenes, film shots and edit your story.',storytelling:'Turn an idea into a story people can follow.'};
  const [selected,setSelected]=useState<string|null>(null);
  useEffect(()=>setSelected(null),[currentId]);
  const open=selected===null?currentId||'':selected;
@@ -26,14 +25,11 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
       {!current&&progress&&progress.saved>0&&<span className="current-course-badge">{progress.saved}/{progress.total} saved</span>}
       <span className="course-outcome">{outcomes[p.id]}</span></h3>
      {open===p.id?<Minus size={25}/>:<Plus size={25}/>}</button>
-    {open===p.id&&<div id={'programme-'+p.id} className="programme-detail"><div><h4>{current?progress&&progress.saved===progress.total?'You finished this course.':'Your next step is in My Journey.':p.headline}</h4>
-     <p>{courseOutcomes[p.id]}</p><p className="small">Make it. Test it. Improve it.</p>
-     <details className="course-example" lang="en"><summary>See an example you could create</summary><strong>{courseExamples[p.id]?.title}</strong><p>{courseExamples[p.id]?.artifact}</p><small>Illustrative project in English, not a learner submission or a tested result.</small></details>
-     <span className="programme-preview">You’ll build: {p.steps[0]}</span>
+    {open===p.id&&<div id={'programme-'+p.id} className="programme-detail programme-detail-brief"><div>
+     <p>{current?progress&&progress.saved===progress.total?'Course complete. Revisit your work or try another skill.':'Your progress is saved. Pick up where you left off.':skills[p.id]}</p>
+    </div><div className="programme-course-actions">
      <a className={current||!currentId?'wl-button':'text-button'} href={current?nextAction.href:currentId?'/learn?view=paths&track='+p.id+'#course-roadmap':'/find-my-path?track='+p.id}>{current?nextAction.label:currentId?'Explore this course':'Choose this course'} <ArrowUpRight size={18}/></a>
      {current&&<a className="text-button" href="/find-my-path">Change my course <ArrowUpRight size={16}/></a>}
-    </div><div className="programme-roadmap"><span>YOUR FIRST THREE STEPS</span>{p.steps.map((s,i)=><p key={s}><b>0{i+1}</b>{s}</p>)}
-     <a href={'/learn?view=paths&track='+p.id+'#course-roadmap'}>See the 10-day roadmap →</a>{!current&&<a href={'/learn?mission='+p.first}>Try a sample challenge <ArrowUpRight size={16}/></a>}
     </div></div>}
    </article>;
   })}</div>

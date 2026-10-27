@@ -15,7 +15,7 @@ assert.ok(result,'Unexpected API call '+route);return Response.json(result)};
 const {quote}=require('../lib/billing/catalogue.ts');const api=require('../lib/billing/service.ts');const rzp=require('../lib/billing/razorpay.ts');
 const sign=(s,m)=>createHmac('sha256',s).update(m).digest('hex');
 (async()=>{
-assert.equal(quote('teams_monthly',5).total,199500);assert.equal(quote('plus_annual',1).total,499900);assert.throws(()=>quote('teams_monthly',4));assert.throws(()=>quote('plus_monthly',2));assert.throws(()=>rzp.assertTestAdmin('other@example.test'));
+assert.equal(quote('teams_monthly',5).total,199500);assert.equal(quote('plus_annual',1).total,199900);assert.throws(()=>quote('teams_monthly',4));assert.throws(()=>quote('plus_monthly',2));assert.throws(()=>rzp.assertTestAdmin('other@example.test'));
 assert.equal(await rzp.verifyHmac('key','message',sign('key','message')),true);assert.equal(await rzp.verifyHmac('key','changed',sign('key','message')),false);
 const plans=await api.provisionPlans();assert.equal(plans.length,5);const n=calls;await api.provisionPlans();assert.equal(calls,n);
 const sprint=await api.createCheckout('user-a','sprint',1);const again=await api.createCheckout('user-a','sprint',1);assert.equal(sprint.order_id,again.order_id);
