@@ -70,6 +70,7 @@ test('workspace permits the approved learning-topic sidebar and note removal; ot
  // The user approved a short knowledge outline in the sidebar and removal of the practice note.
  // Restore only those edits before checking the original fingerprint; keep every other JSX byte protected.
  const restoreApprovedWorkspace=source=>{
+ source=source.replace("Drafts sync to your account and linked WhatsApp. A task counts as complete after your work passes review.","Signed in: practical drafts sync to your account and linked WhatsApp, with a device backup when available. Concept steps and new starters also sync. AI reviews your submitted work; only accepted practical work saves as a completed mission to your account.");
   source=source.replace("<p>{profile.minutes==='flexible'?'Practise when it suits you.':`Aim for ${profile.minutes} minutes a day.`}</p><p className=\"small muted\">Take breaks. Your saved work stays here.</p>","<p className=\"eyebrow\">YOUR LEARNING RHYTHM</p><h2>Your next reason<br/>to come back.</h2><p>Keep going, or improve a saved creation.</p><p>{profile.minutes==='flexible'?'Make space when you can.':`Make space for ${profile.minutes} minutes.`} {Number(profile.minutes)<next.minutes?'Split a longer mission into two short sessions.':'Build, reflect, and try again.'}</p><p>Help is welcome. A missed day never removes your saved work.</p>");
   source=source.replace('<PracticeRewards work={work}','<p>Asking for help and taking a break are part of learning. Your completed creations stay saved.</p><PracticeRewards work={work}');
 

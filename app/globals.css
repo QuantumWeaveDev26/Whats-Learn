@@ -544,3 +544,12 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .extra-rewards .reward-card>details p{font-size:13px;line-height:1.55}
 
 .learning-details .rhythm-card{display:block;padding:12px 0 0;background:transparent;color:inherit;border:0}.learning-details .rhythm-card:after{display:none}.learning-details .rhythm-card>p{margin:0 0 8px;color:inherit}
+
+/* Compact optional reward details without changing their content or unlock rules. */
+.extra-rewards .badge-collection{gap:6px}
+.extra-rewards .badge-token{padding:9px 10px;gap:9px;border-radius:9px}
+.extra-rewards .badge-token>svg{width:18px;height:18px;flex-shrink:0}
+.extra-rewards .badge-token strong{font-size:13px;line-height:1.4}
+.extra-rewards .badge-token span{font-size:12px;line-height:1.45}
+.extra-rewards .star-learner{padding:12px;margin:10px 0}
+.extra-rewards .improvement-story h3{font-size:14px;margin:12px 0 6px}
