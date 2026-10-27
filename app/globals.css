@@ -484,3 +484,27 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 
 .programme-detail.programme-detail-brief{align-items:center;padding-bottom:28px}.programme-detail-brief p{margin:0;max-width:45ch}.programme-course-actions{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap}.programme-course-actions>.text-button{font-size:13px}
 @media(max-width:800px){.programme-course-actions{justify-content:flex-start}}
+
+.workspace-today .learning-path-panel{min-width:0;grid-column:1/-1}
+.learning-path-panel .section-heading{margin:0 0 16px;gap:12px;flex-wrap:wrap}
+.learning-path-panel .section-heading h2{font-size:18px}
+.learning-path-panel .section-heading .text-button{font-size:13px}
+.learning-path-panel>.learning-details{margin:12px 0 0;padding:14px 16px}
+.learning-path-panel .learning-details>summary{font-size:14px;line-height:1.5}
+.learning-path-panel .course-roadmap{margin:16px 0 0;padding:16px;min-width:0}
+.learning-path-panel .roadmap-heading{flex-wrap:wrap;gap:10px}
+.learning-path-panel .roadmap-heading h2{font-size:18px}
+.learning-path-panel .roadmap-heading p,.learning-path-panel .course-roadmap>.small,.learning-path-panel .roadmap-access{font-size:13px}
+.learning-path-panel .roadmap-heading>strong{font-size:22px}
+.learning-path-panel .roadmap-phases{grid-template-columns:1fr;gap:8px}
+.learning-path-panel .roadmap-phases>div{padding:10px}
+.learning-path-panel .roadmap-day{flex-wrap:wrap;align-items:flex-start;padding:12px;gap:10px}
+.learning-path-panel .roadmap-day>div{flex:1 1 calc(100% - 48px)}
+.learning-path-panel .roadmap-day h3{font-size:14px}
+.learning-path-panel .roadmap-day .outline{margin-left:0;max-width:100%;white-space:normal}
+.learning-path-panel .roadmap-next{padding:12px}
+.learning-path-panel .roadmap-next h3{font-size:16px}
+.learning-path-panel .checkpoint-row{padding:0;margin:14px 0 0}
+@media(min-width:981px){.workspace-today .learning-grid{grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}}
+
+.workspace-today .learning-grid>.right-column{display:flex;flex-direction:column;gap:18px;padding-top:0}

@@ -1,90 +1,83 @@
-/* Membership page only. Other pages and the dashboard keep their existing cards. */
+/* Scoped to the membership page. */
 .membership-page{background:#fff}
-.membership-page .account-main{max-width:1220px;padding:48px 32px 56px}
-.membership-page .membership-heading-comparison{max-width:none;margin:0 0 28px;text-align:left;display:grid;grid-template-columns:max-content max-content;column-gap:16px}
-.membership-page .membership-heading-comparison>.label,.membership-page .membership-heading-comparison>h1,.membership-page .membership-heading-comparison>p{grid-column:1 / -1}
-.membership-page .membership-heading-comparison>.label{font-size:11px;letter-spacing:.12em;color:#46725d}
-.membership-page .membership-heading-comparison h1{font-size:clamp(28px,3.5vw,40px);font-weight:700;line-height:1.15;letter-spacing:-.035em;margin:14px 0 10px;color:#142c22}
-.membership-page .membership-heading-comparison>p{margin:10px 0 20px;color:#5b6b62;font-size:16px;line-height:1.55}
-.membership-page .membership-heading-comparison>[data-slot=tabs]{display:inline-flex;vertical-align:middle;margin:0;grid-column:1;grid-row:4}
+.membership-page .account-main{max-width:1120px;padding:38px 32px 44px}
+.membership-page .membership-heading-comparison{margin:0 0 22px;text-align:left;display:grid;grid-template-columns:max-content max-content;gap:0 14px;max-width:none}
+.membership-page .membership-heading-comparison>.label,.membership-page .membership-heading-comparison>h1,.membership-page .membership-heading-comparison>p{grid-column:1/-1}
+.membership-page .membership-heading-comparison>.label{font-size:11px;color:#52705f;letter-spacing:.1em}
+.membership-page .membership-heading-comparison h1{font-size:clamp(28px,3vw,36px);font-weight:650;line-height:1.2;letter-spacing:-.03em;margin:12px 0 8px;color:#183b29}
+.membership-page .membership-heading-comparison>p{font-size:14px;color:#617267;margin:8px 0 18px;line-height:1.5}
+.membership-page .membership-heading-comparison>[data-slot=tabs]{display:inline-flex;width:fit-content;margin:0;grid-column:1;grid-row:4}
 .membership-page .membership-heading-comparison>[data-slot=tabs]:last-child{grid-column:2}
-.membership-page .membership-heading-comparison [data-slot=tabs-list]{margin:0;background:#f1f5f1;border:1px solid #dce6de;height:44px;border-radius:9px;padding:4px}
-.membership-page .membership-heading-comparison [data-slot=tabs-trigger]{min-height:34px;padding:6px 16px;border-radius:6px;font-size:13px;font-weight:600}
-.membership-page .membership-heading-comparison [data-slot=tabs-trigger][data-state=active]{background:#fff;color:#096941;box-shadow:0 1px 4px #143b2515}
-.membership-page .membership-heading-comparison .membership-availability{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:13px;min-height:22px;color:#52655b;grid-row:5}
-.membership-page .membership-availability::before{content:'';display:block;flex:none;width:6px;height:6px;border-radius:50%;background:#8b9c8f}
-.membership-page .membership-current{max-width:none}
-.membership-page .plan-picker{margin:0}
-.membership-page .plan-choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch}
-.membership-page .plan-choice{display:flex;flex-direction:column;position:relative;min-width:0;cursor:pointer;isolation:isolate;color:#223d2d}
-.membership-page .plan-choice-input{position:absolute;opacity:0;inset:34px 0 0;width:100%;height:calc(100% - 34px);margin:0;cursor:pointer;z-index:2}
-.membership-page .plan-choice-ribbon{display:flex;align-items:center;justify-content:center;min-height:28px;margin:0 0 5px;border-radius:9px 9px 0 0;font-size:11px;font-weight:650;letter-spacing:.02em;color:#52715d}
-.membership-page .plan-choice-plus .plan-choice-ribbon{color:#fff;background:#0b7650}
-.membership-page .plan-choice-surface{display:flex;flex:1;flex-direction:column;background:#fff;border:1px solid #d4e0d7;border-radius:14px;padding:7px;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
-.membership-page .plan-choice.is-selected .plan-choice-surface{border-color:#0c8055;box-shadow:0 0 0 1px #0c8055,0 8px 24px #1256380c}
-.membership-page .plan-choice:hover .plan-choice-surface{border-color:#438868;box-shadow:0 6px 18px #123e2610}
-.membership-page .plan-choice:focus-within .plan-choice-surface{outline:3px solid #25855e;outline-offset:4px}
-.membership-page .plan-choice-title{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;min-height:92px;padding:17px 14px;border-radius:9px;background:linear-gradient(120deg,#eff6e9,#dfeedd);color:#224d37}
-.membership-page .plan-choice-plus .plan-choice-title{background:linear-gradient(115deg,#087c54,#29a270);color:#fff}
-.membership-page .plan-choice-pro .plan-choice-title{background:linear-gradient(115deg,#123c31,#1f6b55);color:#fff}
-.membership-page .plan-choice-teams .plan-choice-title{background:linear-gradient(115deg,#29433e,#3e6660);color:#fff}
-.membership-page .plan-choice-title strong{display:block;font-size:21px;letter-spacing:-.02em;font-weight:700;line-height:1.2}
-.membership-page .plan-choice-title>span>span{display:block;margin-top:7px;font-size:12px;line-height:1.4;opacity:.85}
-.membership-page .plan-choice-check{align-self:flex-start;flex:none;display:grid;place-items:center;width:23px;height:23px;margin-top:1px}
-.membership-page .plan-choice-check>span{width:18px;height:18px;border:1px solid currentColor;border-radius:50%;opacity:.45}
-.membership-page .plan-choice-facts{display:grid;flex:1;grid-template-rows:112px 88px 76px 80px;padding:0 12px}
-.membership-page .plan-choice-facts>span{display:flex;flex-direction:column;justify-content:center;padding:12px 0;border-bottom:1px solid #e3e9e4;min-width:0}
-.membership-page .plan-choice-facts>span:last-child{border:0}
-.membership-page .plan-choice-facts>span>span{display:block;font-size:12px;line-height:1.4;font-weight:400;color:#617267}
-.membership-page .plan-choice-facts strong{font-weight:600;font-size:14px;line-height:1.4;margin-top:4px}
-.membership-page .plan-choice-facts small{font-size:11px;line-height:1.4;color:#617267;margin-top:4px}
-.membership-page .plan-choice-facts .plan-choice-price>strong{font-size:28px;line-height:1.2;letter-spacing:-.025em;color:#173e2b}
-.membership-page .plan-shared-benefits{display:flex;justify-content:center;gap:14px 26px;flex-wrap:wrap;margin:26px 0 0;color:#4c6656;font-size:13px;line-height:1.5}
-.membership-page .plan-shared-benefits>span{display:flex;align-items:center;gap:7px}
-.membership-page .plan-shared-benefits svg{color:#0a7d51;flex:none}
-.membership-page .plan-next-step{text-align:center;margin:30px auto 0;max-width:500px}
-.membership-page .plan-selection-summary{display:flex;flex-direction:column;gap:5px;margin:0 0 14px;font-size:14px}
-.membership-page .plan-selection-summary>span{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#607467}
-.membership-page .plan-selection-summary>strong{font-weight:650;color:#1e4731}
-.membership-page .plan-selection-summary strong>span{padding:0 5px;color:#8c9b91}
-.membership-page .plan-selection-summary small{font-size:13px;font-weight:400}
-.membership-page .plan-next-action{display:flex;justify-content:center;align-items:center;gap:12px;width:100%;min-height:54px;border-radius:9px;font-size:16px;font-weight:650}
-.membership-page .plan-next-step>p{color:#64766b;font-size:12px;line-height:1.5;margin-top:12px}
-.membership-page .pricing-terms{max-width:none;border-top:1px solid #e1e8e2;padding-top:18px;margin-top:32px;font-size:14px;color:#526358}
+.membership-page .membership-heading-comparison [data-slot=tabs-list]{height:40px;background:#f3f6f3;border:1px solid #e0e7e1;padding:3px;border-radius:8px}
+.membership-page .membership-heading-comparison [data-slot=tabs-trigger]{font-size:12px;min-height:32px;padding:7px 12px;border-radius:5px}
+.membership-page .membership-heading-comparison .membership-availability{grid-row:5;margin:12px 0 0;font-size:12px}
+.membership-page .membership-availability:before{content:'•';margin-right:6px;color:#7a9684}
+.membership-page .membership-manage{max-width:none;padding:16px 18px;margin:20px 0;border-radius:12px;background:#f6f9f5}
+.membership-page .membership-manage>h2{font-size:18px;margin:0 0 6px}
+.membership-page .membership-manage>p{font-size:12px;margin:7px 0;line-height:1.5}
+.membership-page .membership-manage article{padding:12px 0;margin-top:12px}
+.membership-page .membership-manage article strong{font-size:14px}
+.membership-page .membership-manage .small{font-size:12px}
+.membership-page .membership-manage-actions .outline{font-size:12px;padding:9px 12px;min-height:44px}
+.membership-page .plan-picker{--comparison-label-width:136px;margin-top:22px}
+.membership-page .plan-choice-grid{display:grid;grid-template-columns:var(--comparison-label-width) repeat(4,minmax(0,1fr));gap:10px;align-items:stretch}
+.membership-page .plan-comparison-label{font-size:13px;font-weight:600;align-self:end;padding:0 0 14px;color:#455f50}
+.membership-page .plan-choice{position:relative;display:block;min-width:0;cursor:pointer}
+.membership-page .plan-choice-input{position:absolute;inset:0;opacity:0;z-index:1;width:100%;height:100%;margin:0;cursor:pointer}
+.membership-page .plan-choice-surface{display:flex;flex-direction:column;box-sizing:border-box;min-height:124px;padding:15px;border:1px solid #d8e2da;border-radius:10px;background:#fff;color:#213f2d;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.membership-page .plan-choice.is-selected .plan-choice-surface{background:#087a4b;color:#fff;border-color:#087a4b}
+.membership-page .plan-choice-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.membership-page .plan-choice-heading>strong{font-size:16px;font-weight:600;line-height:1.3}
+.membership-page .plan-choice-check{display:grid;place-items:center;flex:none;width:18px;height:18px}
+.membership-page .plan-choice-check>span{display:block;width:15px;height:15px;border:1px solid currentColor;border-radius:50%;opacity:.35}
+.membership-page .plan-choice-price{font-size:26px;font-weight:650;line-height:1.2;letter-spacing:-.025em;margin-top:12px}
+.membership-page .plan-choice.is-selected .plan-choice-period{opacity:1}
+.membership-page .plan-choice-period{font-size:11px;line-height:1.4;margin-top:4px;opacity:.8}
+.membership-page .plan-choice:focus-within .plan-choice-surface{outline:3px solid #25855e;outline-offset:3px}
+.membership-page .plan-comparison-table{width:calc(100% + 20px);table-layout:fixed;border-collapse:separate;border-spacing:10px 0;margin:14px -10px 0;font-size:13px}
+.membership-page .plan-feature-column{width:var(--comparison-label-width)}
+.membership-page .plan-comparison-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.membership-page .plan-comparison-table th,.membership-page .plan-comparison-table td{padding:15px 10px;border-bottom:1px solid #e4eae5;line-height:1.5;text-align:center;vertical-align:middle;overflow-wrap:anywhere}
+.membership-page .plan-comparison-table tbody th{font-weight:500;color:#5b7061;text-align:left;padding-left:0}
+.membership-page .plan-comparison-table td{color:#274a33}
+.membership-page .plan-comparison-table td.is-selected{background:#f2f7ee;font-weight:600}
+.membership-page .plan-comparison-table small,.membership-page .plan-mobile-features small{display:block;font-size:11px;font-weight:400;color:#6d7e72;margin-top:3px}
+.membership-page .plan-mobile-features{display:none}
+.membership-page .plan-shared-benefits{margin:18px 0 0;color:#667b6c;font-size:12px;line-height:1.6;text-align:right}
+.membership-page .plan-shared-benefits>span{padding:0 9px;color:#94a398}
+.membership-page .plan-next-step{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;border-top:1px solid #e1e8e2;padding-top:18px;margin-top:18px;max-width:none}
+.membership-page .plan-selection-summary{display:flex;flex-direction:column;gap:5px;font-size:14px;line-height:1.5}
+.membership-page .plan-selection-summary>span{font-size:12px;color:#728275}
+.membership-page .plan-selection-summary>strong{font-weight:600;color:#244831}
+.membership-page .plan-selection-summary small{font-weight:400;font-size:12px}
+.membership-page .plan-next-action{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:46px;min-width:190px;padding:12px 20px;border-radius:8px;font-size:14px}
+.membership-page .pricing-terms{border-top:1px solid #e1e8e2;padding-top:16px;margin-top:22px;font-size:13px;color:#526756;max-width:none}
 .membership-page .pricing-terms>summary{font-size:13px}
-.membership-page .billing-note{align-items:flex-start;color:#607166;font-size:12px;line-height:1.5;margin-top:18px}
-.membership-page .billing-note svg{flex:none;width:17px;height:17px;margin-top:1px}
-@media(hover:hover) and (pointer:fine){
- .membership-page .plan-choice:hover{z-index:2}
- .membership-page .plan-choice:hover .plan-choice-surface{transform:translateY(-6px) scale(1.015);box-shadow:0 16px 32px #123e2626}
-}
-@media(max-width:1000px){
- .membership-page .plan-choice-grid{gap:10px}
- .membership-page .plan-choice-title{padding:15px 10px}
- .membership-page .plan-choice-facts{padding:0 8px}
- .membership-page .account-main{padding-right:24px;padding-left:24px}
-}
+.membership-page .billing-note{align-items:flex-start;color:#687c6f;font-size:12px;line-height:1.5;margin-top:16px}
+.membership-page .billing-note svg{flex:none;width:16px;height:16px;margin-top:2px}
+@media(hover:hover) and (pointer:fine){.membership-page .plan-choice:hover{z-index:2}.membership-page .plan-choice:hover .plan-choice-surface{transform:translateY(-4px);box-shadow:0 8px 20px #163e291a;border-color:#287b51}}
+@media(max-width:1000px){.membership-page .plan-picker{--comparison-label-width:116px}.membership-page .plan-choice-surface{padding:13px}.membership-page .plan-choice-price{font-size:24px}}
 @media(max-width:700px){
+ .membership-page .account-nav{flex-wrap:wrap;gap:14px}
+ .membership-page .account-nav nav{order:3;display:flex;width:100%;max-width:100%;overflow-x:auto;white-space:nowrap;justify-content:flex-start;gap:18px;scrollbar-width:thin}
+ .membership-page .account-nav nav>a{display:flex;align-items:center;min-height:44px;flex:none}
  .membership-page .account-main{padding:28px 18px 40px}
- .membership-page .membership-heading-comparison{margin-bottom:18px;display:block}
- .membership-page .membership-heading-comparison h1{font-size:30px}
- .membership-page .membership-heading-comparison>p{font-size:14px}
+ .membership-page .membership-heading-comparison{display:block;margin-bottom:18px}
+ .membership-page .membership-heading-comparison h1{font-size:29px}
  .membership-page .membership-heading-comparison [data-slot=tabs]{display:flex;width:fit-content;margin:10px 0}
- .membership-page .membership-heading-comparison .membership-availability{font-size:12px;margin-top:12px}
- .membership-page .plan-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
- .membership-page .plan-choice-title{min-height:94px}
- .membership-page .plan-choice-title strong{font-size:20px}
- .membership-page .plan-choice-title>span>span{font-size:11px}
- .membership-page .plan-choice-check{width:19px;height:19px}
- .membership-page .plan-choice-check svg{width:19px;height:19px}
- .membership-page .plan-choice-facts{grid-template-rows:105px 85px 76px 80px}
- .membership-page .plan-choice-facts .plan-choice-price>strong{font-size:26px}
- .membership-page .plan-choice-facts strong{font-size:13px}
- .membership-page .plan-choice-facts small{font-size:11px}
- .membership-page .plan-choice-ribbon{min-height:25px;font-size:10px}
- .membership-page .plan-choice-input{inset:30px 0 0;height:calc(100% - 30px)}
- .membership-page .plan-shared-benefits{justify-content:flex-start;gap:10px;font-size:12px;margin-top:22px}
- .membership-page .plan-shared-benefits>span{width:100%}
- .membership-page .plan-next-step{margin-top:24px}
+ .membership-page .membership-heading-comparison .membership-availability{margin:10px 0}
+ .membership-page .plan-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .membership-page .plan-comparison-label,.membership-page .plan-comparison-table{display:none}
+ .membership-page .plan-choice-surface{min-height:112px;padding:13px}
+ .membership-page .plan-choice-price{font-size:25px;margin-top:10px}
+ .membership-page .plan-mobile-features{display:block;margin:18px 0 0}
+ .membership-page .plan-mobile-features>div{display:flex;justify-content:space-between;align-items:start;gap:16px;padding:12px 0;border-bottom:1px solid #e4eae5;font-size:13px;line-height:1.5}
+ .membership-page .plan-mobile-features dt{color:#63776a}
+ .membership-page .plan-mobile-features dd{margin:0;text-align:right;font-weight:600;color:#214a30}
+ .membership-page .plan-shared-benefits{text-align:left;font-size:11px;margin-top:15px}
+ .membership-page .plan-shared-benefits>span{padding:0 4px}
+ .membership-page .plan-next-step{margin-top:16px;padding-top:16px;gap:12px}
+ .membership-page .plan-next-action{width:100%}
+ .membership-page .membership-manage{padding:14px;margin:16px 0}
 }
 @media(prefers-reduced-motion:reduce){.membership-page .plan-choice-surface{transition:none}.membership-page .plan-choice:hover .plan-choice-surface{transform:none}}

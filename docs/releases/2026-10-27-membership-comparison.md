@@ -1,6 +1,6 @@
 # Membership comparison and shorter homepage copy
 
-Release: `2026-10-27-learner-pages-v10.5`.
+Release: `2026-10-27-learner-pages-v10.6`.
 
 ## Scope
 
@@ -42,3 +42,6 @@ The user then requested a simpler Settings page and balanced Support page in the
 - Expanded homepage course cards now show one short skill description and a clear course action. The repeated headlines, long portfolio paragraphs, first-three-step lists, example disclosures, task badges, sample-challenge links and roadmap links are removed from these cards. Course content, mission questions and assessment rules remain available inside learning. Returning-learner progress and continuation links remain.
 
 - Both floating launchers are smaller: 56px desktop height and 48px on phones, with smaller icons, 13px shared labels and tighter padding. Right alignment and the 12px vertical gap remain.
+
+- Your learning path moves to the top of the right column on the learning dashboard, with the existing roadmap and mini-challenge actions retained. Narrow layouts stack it below the main mission. The redundant “A lesson is a start…” panel is removed.
+- Membership uses compact, equally sized plan choices and a shared feature table, with a selected-plan summary on phones. Repeated labels, promotional ribbons and per-plan slogans are removed. Prices, review allowances, payment review and subscription management remain.
