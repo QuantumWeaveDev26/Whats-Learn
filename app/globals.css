@@ -553,3 +553,6 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .extra-rewards .badge-token span{font-size:12px;line-height:1.45}
 .extra-rewards .star-learner{padding:12px;margin:10px 0}
 .extra-rewards .improvement-story h3{font-size:14px;margin:12px 0 6px}
+
+/* Match peer panel labels without changing headings, body copy or help buttons. */
+.workspace-today .right-column>.learning-details>summary,.workspace-today .right-column .learning-path-panel>.learning-details>summary{font-size:16px;font-weight:650;line-height:1.5}
