@@ -32,6 +32,7 @@ function mount(){
   if(id==='react')return hooks;
   if(id==='@/lib/billing/catalogue')return catalogue;
   if(id==='@/lib/contact')return {whatsappChatUrl:()=> '#',whatsappLinkProps:{}};
+  if(id==='@/lib/fetch-timeout')return {fetchWithTimeout:(input,init)=>fetch(input,init)};
   if(id==='@/components/ui/dialog')return {Dialog,DialogContent:container,DialogTitle:container,DialogDescription:container};
   if(id==='@/components/ui/tabs')return {Tabs:container,TabsList:container,TabsTrigger:container};
   if(id==='lucide-react')return {Check:nothing,ArrowRight:nothing,ShieldCheck:nothing};

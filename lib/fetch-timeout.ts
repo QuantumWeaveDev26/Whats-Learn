@@ -1,0 +1,2 @@
+/** fetch that gives up after `ms`, so a slow or blocked status check falls through to the caller's error state instead of leaving "Checking…" on screen forever. */
+export async function fetchWithTimeout(input:RequestInfo|URL,init:RequestInit={},ms=8000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),ms);try{return await fetch(input,{...init,signal:controller.signal})}finally{clearTimeout(timer)}}
