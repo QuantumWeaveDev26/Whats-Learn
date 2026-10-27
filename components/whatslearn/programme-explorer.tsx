@@ -7,6 +7,7 @@ import {programmes} from '@/lib/programmes';
 import {homePrimaryAction,type HomeLearner} from '@/lib/home-learner';
 export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?:HomeLearner}={}){
  const currentId=learner.status==='account'?learner.courseId:null;
+ const outcomes:Record<string,string>={marketing:'Create a local business campaign.',development:'Build and test a booking app.',filmmaking:'Shoot and edit a short film.',storytelling:'Tell a story through visuals.'};
  const [selected,setSelected]=useState<string|null>(null);
  useEffect(()=>setSelected(null),[currentId]);
  const open=selected===null?currentId||'':selected;
@@ -15,7 +16,7 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
  return <section id="paths" className="programme-section">
   <div className="programme-heading"><p className="chapter-label">{currentId?'YOUR COURSE. YOUR PROGRESS.':'FOUR PROGRAMMES. YOUR KIND OF POSSIBILITY.'}</p>
    <h2>{currentId?<>Keep building.<br/><em>Your course is ready.</em></>:learner.status==='loading'?<>Practical skills.<br/><em>Real possibilities.</em></>:<>What do you want<br/>to <em>be able to do?</em></>}</h2>
-   <p>{currentId?'Continue your current course, or explore another when you’re ready.':<>10 days. 10 practical tasks.<br/>One new task a day. Take longer if you need.</>}</p>
+   <p>10 days · 10 tasks · First 3 free.<br/>One new task a day. Go at your pace.</p>
   </div>
   <div className="programme-list">{visibleProgrammes.map(p=>{
    const current=p.id===currentId,progress=learner.status==='account'?learner.progress?.[p.id]:undefined;
@@ -23,10 +24,10 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
     <button aria-expanded={open===p.id} aria-controls={'programme-'+p.id} onClick={()=>setSelected(open===p.id?'':p.id)}><span>{p.number}</span>
      <h3>{p.name}{current&&<span className="current-course-badge"><Check size={15} aria-hidden="true"/> Your course{progress?` · ${progress.saved}/${progress.total} saved`:''}</span>}
       {!current&&progress&&progress.saved>0&&<span className="current-course-badge">{progress.saved}/{progress.total} saved</span>}
-      <small>10-DAY COURSE · 10 PRACTICAL TASKS · FIRST 3 TASKS FREE</small><span className="course-outcome">Create: {p.finishedOutcome}</span></h3>
+      <span className="course-outcome">{outcomes[p.id]}</span></h3>
      {open===p.id?<Minus size={25}/>:<Plus size={25}/>}</button>
     {open===p.id&&<div id={'programme-'+p.id} className="programme-detail"><div><h4>{current?progress&&progress.saved===progress.total?'You finished this course.':'Your next step is in My Journey.':p.headline}</h4>
-     <span className="play-label">10-DAY FOUNDATION COURSE · FIRST 3 MISSIONS FREE</span><p>{courseOutcomes[p.id]}</p><p className="small">Make it. Test it. Improve it.</p>
+     <p>{courseOutcomes[p.id]}</p><p className="small">Make it. Test it. Improve it.</p>
      <details className="course-example" lang="en"><summary>See an example you could create</summary><strong>{courseExamples[p.id]?.title}</strong><p>{courseExamples[p.id]?.artifact}</p><small>Illustrative project in English, not a learner submission or a tested result.</small></details>
      <span className="programme-preview">You’ll build: {p.steps[0]}</span>
      <a className={current||!currentId?'wl-button':'text-button'} href={current?nextAction.href:currentId?'/learn?view=paths&track='+p.id+'#course-roadmap':'/find-my-path?track='+p.id}>{current?nextAction.label:currentId?'Explore this course':'Choose this course'} <ArrowUpRight size={18}/></a>

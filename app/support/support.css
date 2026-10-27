@@ -1,0 +1,76 @@
+.support-page .account-main{max-width:1120px;padding-top:44px;padding-bottom:48px}
+.support-page .support-heading{margin-bottom:32px}
+.support-page .support-heading>.label{font-size:11px;color:#52715d}
+.support-page .support-heading h1{font-size:clamp(34px,4.5vw,50px);letter-spacing:-.035em;line-height:1.12;margin:14px 0;color:#173d29}
+.support-page .support-heading>p{font-size:16px;color:#607166;margin:0}
+.support-page .support-workspace,.support-page .support-guest-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,1fr);gap:24px;align-items:start;margin:0}
+.support-page .support-guest-grid{align-items:stretch}
+.support-page .support-guest-grid>.support-email{align-items:center}
+.support-page .support-compose,.support-page .support-sidebar{min-width:0}
+.support-page .support-sidebar{display:grid;gap:20px}
+.support-page .account-card{padding:26px;border-radius:20px;margin:0;min-width:0}
+.support-page .account-card h2{font-size:20px;line-height:1.3;margin:0 0 22px;display:block}
+.support-page .support-form{display:flex;flex-direction:column;gap:22px}
+.support-page .support-form>h2{margin:0}
+.support-page .support-form>label{font-size:13px;font-weight:600;color:#3a5744;display:flex;flex-direction:column;gap:10px;margin:0}
+.support-page .support-form select,.support-page .support-form textarea{font:inherit;font-size:15px;font-weight:400;color:#203f2c;background:#fff;border:1px solid #cbd8ce;border-radius:10px;padding:12px 14px;width:100%;box-sizing:border-box;margin:0}
+.support-page .support-form select{min-height:46px}
+.support-page .support-form textarea{min-height:180px;resize:vertical;line-height:1.6}
+.support-page .support-form textarea:focus,.support-page .support-form select:focus{outline:2px solid #238056;outline-offset:2px}
+.support-page .support-form textarea::placeholder{color:#8a978e}
+.support-page .support-send{border-top:1px solid #e2e9e3;padding-top:20px;display:flex;flex-direction:column;align-items:stretch;gap:16px}
+.support-page .support-send>.small{font-size:12px;line-height:1.5;color:#65776b}
+.support-page .support-send>.primary{min-height:48px;border-radius:10px;justify-content:center;font-size:14px}
+.support-page .support-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.support-page .support-history-heading h2{margin:0}
+.support-page .support-history-heading button{font-size:12px;padding:8px 0;min-height:40px;color:#21734a}
+.support-page .support-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:190px;background:#f3f8ef;border:1px dashed #d1e0cc;border-radius:14px;padding:24px 16px;gap:10px;color:#5d765f}
+.support-page .support-empty>strong{font-size:14px;color:#2e583c}
+.support-page .support-empty>p{font-size:12px;margin:0;line-height:1.5}
+.support-page .support-history-note{font-size:11px;color:#7c8b80;line-height:1.6;margin:18px 0 0}
+.support-page .support-email{display:flex;align-items:flex-start;gap:14px;background:#edf5e7;border-color:#d2e1ca}
+.support-page .support-email>svg{flex:none;color:#277447;margin-top:2px}
+.support-page .support-email h2{font-size:16px;margin:0 0 9px}
+.support-page .support-email a{font-size:13px;line-height:1.6;overflow-wrap:anywhere;text-decoration:underline;text-underline-offset:3px;color:#2d603d}
+.support-page .support-email p{font-size:12px;margin:10px 0 0;color:#617260}
+.support-page .support-records{display:grid;gap:16px}
+.support-page .support-record{border-top:1px solid #e0e9e1;padding-top:16px;min-width:0}
+.support-page .support-record>div:first-child{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.support-page .support-record strong{font-size:13px}
+.support-page .support-record>.small{font-size:11px;color:#748478;margin:7px 0 12px}
+.support-page .support-status{font-size:10px;padding:4px 8px;border-radius:20px;background:#edf4e9;color:#456349}
+.support-page .support-status-resolved{background:#ddf1e4;color:#16623c}
+.support-page .support-record details{font-size:12px;line-height:1.65}
+.support-page details>summary{cursor:pointer;color:#336c47;font-weight:600}
+.support-page .support-record details p,.support-page .support-record .support-resolution{font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0 0}
+.support-page .support-reports{margin-top:20px;border-top:1px solid #e0e8e1;padding-top:16px;font-size:12px}
+.support-page .support-attachment{font-size:13px;line-height:1.6}
+.support-page .support-attachment>label{display:flex;gap:9px;align-items:flex-start}
+.support-page .support-attachment input{flex:none;width:16px;height:16px;margin-top:3px}
+.support-page .support-attachment details{font-size:12px;margin-top:10px}
+.support-page .support-attachment blockquote{margin:12px 0 0;padding:12px 14px;background:#f3f7f0;border-left:2px solid #7c9e75;overflow-wrap:anywhere}
+.support-page .support-received>svg{color:#22824f;margin-bottom:14px}
+.support-page .support-received h2{margin-bottom:12px}
+.support-page .support-received p{font-size:14px;line-height:1.6}
+.support-page .support-received button{min-height:44px;font-size:13px;margin:16px 0}
+.support-page .support-received details{font-size:12px;overflow-wrap:anywhere}
+.support-page .support-error{font-size:13px;color:#9b3030;line-height:1.6}
+.support-page .support-signin{min-height:270px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:16px}
+.support-page .support-signin>svg{color:#25744a}
+.support-page .support-signin h2,.support-page .support-signin p{margin:0}
+.support-page .support-signin p{font-size:14px;line-height:1.6;color:#65766a}
+.support-page .support-signin a{min-height:46px;font-size:14px;border-radius:10px}
+.support-page .support-page-footer{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid #e0e7df;font-size:13px;color:#406449}
+.support-page .support-page-footer>a{display:flex;align-items:center;gap:8px}
+@media(max-width:800px){
+ .support-page .account-nav{flex-wrap:wrap;gap:14px}
+ .support-page .account-nav nav{order:3;display:flex;width:100%;max-width:100%;overflow-x:auto;white-space:nowrap;justify-content:flex-start;gap:18px;scrollbar-width:thin}
+ .support-page .account-nav nav>a{display:flex;align-items:center;min-height:44px;flex:none}
+
+ .support-page .account-main{padding-top:30px}
+ .support-page .support-heading{margin-bottom:24px}
+ .support-page .support-workspace,.support-page .support-guest-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+ .support-page .account-card{padding:22px 20px}
+ .support-page .support-form textarea{min-height:160px}
+ .support-page .support-empty{min-height:150px}
+}

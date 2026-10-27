@@ -27,13 +27,13 @@ test('all four course outcomes are visible before expanding the course',()=>{
  const {programmes}=h.load('lib/programmes.ts');assert.equal(programmes.length,4);
  for(const p of programmes)assert.ok(p.finishedOutcome.length>25,p.id);
  const explorer=read('components/whatslearn/programme-explorer.tsx');
- assert.ok(explorer.indexOf('Create: {p.finishedOutcome}')<explorer.indexOf('open===p.id&&'));
- assert.match(explorer,/FIRST 3 TASKS FREE/);
+ assert.ok(explorer.indexOf('{outcomes[p.id]}')<explorer.indexOf('open===p.id&&'));
+ assert.match(explorer,/10 days · 10 tasks · First 3 free/);assert.equal(explorer.includes('10-DAY COURSE · 10 PRACTICAL TASKS'),false);
 });
 test('learning, human support and account assistance have distinct accessible destinations',()=>{
  const home=read('app/page.tsx');
- assert.match(home,/Account &amp; plan support/);assert.match(home,/Set up the learning mentor/);
- assert.match(home,/WhatsApp learning is optional/);
+ assert.match(home,/Account &amp; plan help/);assert.match(home,/Connect mentor/);
+ assert.match(home,/Same course\. Synced progress\. Always optional/);
  assert.match(home,/href="\/support">Help/);
  assert.match(read('components/whatslearn/account-shell.tsx'),/href="\/support">Help/);
 });
