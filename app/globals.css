@@ -542,3 +542,5 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .extra-rewards .reward-card>details{margin:0;padding:11px 0;border:0;border-top:1px solid var(--border);border-radius:0;background:transparent}
 .extra-rewards .reward-card>details>summary{font-size:14px;font-weight:500;cursor:pointer}
 .extra-rewards .reward-card>details p{font-size:13px;line-height:1.55}
+
+.learning-details .rhythm-card{display:block;padding:12px 0 0;background:transparent;color:inherit;border:0}.learning-details .rhythm-card:after{display:none}.learning-details .rhythm-card>p{margin:0 0 8px;color:inherit}
