@@ -1,6 +1,6 @@
 # Membership comparison and shorter homepage copy
 
-Release: `2026-10-27-learner-pages-v10.2`.
+Release: `2026-10-27-learner-pages-v10.3`.
 
 ## Scope
 
@@ -33,3 +33,5 @@ The user then requested a simpler Settings page and balanced Support page in the
 - Settings discards stale profile responses after an identity change. Account writes remain disabled until a successful account read. Guest names are not saved or treated as account data.
 - WhatsApp consent, verification, opt-out, pause/resume, recap and sync actions are retained. The Settings view uses shorter introductions, avoids duplicate headings, and keeps additional connection details under “More WhatsApp options”.
 - Support places the request form beside request history and email contact on desktop, stacking them on phones. Request details are expandable; ownership, request attachment, idempotency and team-reply handling remain. No support request, WhatsApp message, payment, account deletion or real learner name change is submitted during visual checks.
+
+- At the user's request, Take a tour is now stacked 12px above WhatsLearn Mentor at the same right edge on desktop and phones. Both retain their shared height, green theme and safe-area bottom anchor.
