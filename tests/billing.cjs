@@ -9,7 +9,7 @@ global.fetch=async(url,options={})=>{calls++;const route=String(url).split('/v1/
 if(body&&route==='plans'){result={id:'plan_'+calls,...body};remote.set('plans/'+result.id,result)}
 else if(body&&route==='orders'){result={id:'order_'+calls,status:'created',...body};remote.set('orders/'+result.id,result)}
 else if(body&&route==='subscriptions'){result={id:'sub_'+calls,status:'created',...body};remote.set('subscriptions/'+result.id,result)}
-else if(body&&route.endsWith('/cancel')){assert.equal(body.cancel_at_cycle_end,env.RAZORPAY_KEY_ID.startsWith('rzp_live_'),'Live stops renewals at the paid period end; test cancellation is immediate');result=remote.get(route.replace('/cancel',''));result.status='cancelled'}
+else if(body&&route.endsWith('/cancel')){result=remote.get(route.replace('/cancel',''));assert.equal(body.cancel_at_cycle_end,env.RAZORPAY_KEY_ID.startsWith('rzp_live_')&&!['created','authenticated'].includes(result.status),'Only activated live plans wait for the paid period end');result.status='cancelled'}
 else result=remote.get(route);
 assert.ok(result,'Unexpected API call '+route);return Response.json(result)};
 const {quote}=require('../lib/billing/catalogue.ts');const api=require('../lib/billing/service.ts');const rzp=require('../lib/billing/razorpay.ts');

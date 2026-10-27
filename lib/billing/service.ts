@@ -38,7 +38,7 @@ export async function createCheckout(userId:string,sku:SKU,quantity:number){
  const db=database();const mode=currentMode();
  const prior=await db.prepare(`SELECT * FROM billing_sessions WHERE user_id=? AND sku=? AND quantity=? AND state IN ${OPEN} ORDER BY created_at DESC LIMIT 1`).bind(userId,sku,String(quantity)).first<BillingSession>();
  if(prior&&(prior.mode||'test')!==mode){await db.prepare('UPDATE billing_sessions SET state=?,updated_at=? WHERE id=?').bind('superseded',new Date().toISOString(),prior.id).run()}
- else if(prior){if(prior.state==='created'&&Number(prior.amount)!==p.total)throw new BillingError('Your earlier checkout has a different price. Contact support before trying again. No new payment was created.',409);if(prior.state==='created'&&prior.provider_id)return checkoutResult(prior);throw new BillingError(prior.state==='active'?'You already have this plan. Manage it from the membership page.':'A checkout or subscription already exists for this plan. Refresh its status or cancel it before starting another.',409)}
+ else if(prior){if(prior.state==='created'&&Number(prior.amount)!==p.total)throw new BillingError('Your earlier checkout has a different price. Open Manage my subscription, cancel the unused checkout, then choose this plan again. No new payment was created.',409);if(prior.state==='created'&&prior.provider_id)return checkoutResult(prior);throw new BillingError(prior.state==='active'?'You already have this plan. Manage it from the membership page.':'A checkout or subscription already exists for this plan. Refresh its status or cancel it before starting another.',409)}
  // One immutable row per open user/plan/quantity prevents concurrent duplicate creation.
  const id=crypto.randomUUID();const now=new Date().toISOString();
  const lock=await db.prepare('INSERT OR IGNORE INTO billing_sessions(id,user_id,sku,kind,quantity,amount,state,created_at,updated_at,mode) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(id,userId,sku,p.period?'subscription':'order',String(quantity),String(p.total),'creating',now,now,mode).run();
@@ -107,10 +107,11 @@ export async function cancelSubscription(userId:string,id:string){
  const fresh=await syncSession(row);
  if(['cancelled','completed','expired'].includes(fresh.state))return {...fresh,message:'This subscription has already ended.'};
  const live=(row.mode||'test')==='live';
- // Live: stop future renewals and keep access to the end of the paid period (matches the refund policy).
- // Test: cancel now so the integration can be verified immediately.
- await razorpay('subscriptions/'+encodeURIComponent(row.provider_id)+'/cancel',{cancel_at_cycle_end:live});
+ // Unactivated checkouts have no paid billing cycle to wait for. Active live plans keep their paid period.
+ const unused=['created','authenticated'].includes(fresh.state);
+ await razorpay('subscriptions/'+encodeURIComponent(row.provider_id)+'/cancel',{cancel_at_cycle_end:live&&!unused});
  const verified=await syncSession(row);
+ if(live&&unused)return {...verified,message:verified.state==='cancelled'?'Razorpay confirmed the unused checkout is cancelled. Choose a plan at its current price.':'Razorpay accepted the checkout cancellation request, but cancellation is not yet confirmed. Refresh status before retrying.'};
  if(live)return {...verified,message:verified.state==='cancelled'?'Razorpay confirmed this subscription has ended.':'Razorpay accepted your request to stop future renewals at the end of the paid period. Your plan can remain active until then. Contact support if you need confirmation.'};
  if(verified.state!=='cancelled')return {...verified,message:'Razorpay accepted the cancellation request, but has not yet confirmed cancelled status. Refresh status before retrying.'};
  return {...verified,message:'Razorpay confirmed: test subscription cancelled immediately. No real payment was made.'};

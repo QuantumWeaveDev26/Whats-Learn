@@ -29,3 +29,8 @@ test('guest sessions are hidden and test cancellation is labelled as test-only',
  assert.equal(mount(null).render(),null);assert.equal(mount({...billing,accountKey:undefined}).render(),null);
  const ui=mount({...billing,sessions:[{...billing.sessions[0],mode:'test'}]});const tree=ui.render();assert.match(text(tree),/Plus monthly · test/);assert.ok(button(tree,'Cancel test subscription'));ui.unmount();
 });
+
+test('unused checkout has a distinct cancellation action that requires confirmation',async()=>{
+ const ui=mount({...billing,sessions:[{...billing.sessions[0],state:'created'}]});let calls=0;global.fetch=async()=>{calls++;return Response.json({message:'Unused checkout cancelled.'})};
+ let tree=ui.render();const cancel=button(tree,'Cancel unused checkout');assert.ok(cancel);cancel.props.onClick();assert.equal(calls,0);tree=ui.render();assert.match(text(tree),/choose a plan at its current price/);await button(tree,'Confirm cancel checkout').props.onClick();assert.equal(calls,1);ui.unmount();
+});

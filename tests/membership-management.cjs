@@ -29,3 +29,13 @@ test('starter and first development task use everyday wording without changing s
  const s=fs.readFileSync('components/whatslearn/visual-start.tsx','utf8');assert.match(s,/Try a different idea without changing your course/);assert.match(s,/Back to my course/);assert.match(s,/setExtraStarter\(false\)/);
  const {missions}=h.load('lib/missions.ts'),d=missions.find(m=>m.id==='d1');assert.equal(d.title,'Build a trial-class booking page');assert.equal(d.practical.fields.find(f=>f.id==='accept').label,'Three acceptance checks','Existing saved text must still parse');assert.match(h.load('lib/course-roadmap.ts').deliverables.development[0],/working booking page/);
 });
+
+test('unused live checkout cancels without asking for a nonexistent billing-cycle end',async()=>{
+ const id=setup();h.db.prepare("UPDATE billing_sessions SET state='created' WHERE id=?").run(id);
+ h.db.prepare('INSERT INTO billing_plans(sku,provider_id,state,updated_at) VALUES (?,?,?,?)').run('live:plus_monthly','plan_synthetic','ready','2026-10-27');
+ let state='created',cancelCalls=0;global.fetch=async(url,options={})=>{
+  if(String(url).endsWith('/cancel')){assert.equal(JSON.parse(options.body).cancel_at_cycle_end,false);cancelCalls++;state='cancelled'}
+  return Response.json({id:'sub_synthetic',plan_id:'plan_synthetic',quantity:1,status:state,current_end:null});
+ };
+ const r=await post(id);assert.equal(r.status,200);assert.equal(r.json.state,'cancelled');assert.equal(cancelCalls,1);assert.match(r.json.message,/unused checkout/);assert.equal(await h.load('lib/billing/service.ts').activeEntitlement('member-a'),null);
+});
