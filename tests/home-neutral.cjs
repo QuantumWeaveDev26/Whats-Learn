@@ -20,7 +20,7 @@ test('guests choose a subject while accounts restore saved course',()=>{
  const source=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/visual-start.tsx'),'utf8');
  assert.match(source,/\[chosen,setChosen\]=useState\(false\)/);
  assert.match(source,/function selectTrack[\s\S]*setChosen\(true\)/);
- assert.match(source,/chosen\?'agency-first-choice':'agency-first-subject'/);
+ assert.match(source,/if\(!chosen\)selectTrack\(track\)/);assert.match(source,/getElementById\('agency-first-choice'\)\|\|document\.getElementById\('agency-first-subject'\)/);
  assert.doesNotMatch(source,/const initial=agencyTracks|removeItem|localStorage\.clear/);
  assert.match(source,/const stored=readAgencyDrafts\(starterScope.current\)\[value\]/);
  assert.match(source,/startSavedProgressSync\(loadAccount,/);

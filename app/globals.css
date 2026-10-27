@@ -556,3 +556,7 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 
 /* Match peer panel labels without changing headings, body copy or help buttons. */
 .workspace-today .right-column>.learning-details>summary,.workspace-today .right-column .learning-path-panel>.learning-details>summary{font-size:16px;font-weight:650;line-height:1.5}
+/* Floating actions stay as compact icons so they do not cover page content; the label shows on hover or keyboard focus. */
+html .website-tour-launch:where(:not(:hover):not(:focus-visible)),html .whatsapp-mentor-widget:where(:not(:hover):not(:focus-visible)){width:var(--floating-action-height);padding:7px;justify-content:center;gap:0}
+html .website-tour-launch:where(:not(:hover):not(:focus-visible))>strong{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+html .whatsapp-mentor-widget:where(:not(:hover):not(:focus-visible))>:where(span:not(.mentor-widget-icon),svg){display:none}
