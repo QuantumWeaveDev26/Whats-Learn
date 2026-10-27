@@ -33,3 +33,10 @@ test('security headers cover pages and APIs without overriding private upload CS
  assert.equal(headers['x-content-type-options'],'nosniff');assert.equal(headers['strict-transport-security'],'max-age=31536000');assert.equal(headers['referrer-policy'],'strict-origin-when-cross-origin');assert.match(headers['permissions-policy'],/geolocation=\(\)/);assert.equal(headers['content-security-policy'],undefined);
  const home=rows.find(r=>r.source==='/');assert.match(home.headers[0].value,/frame-ancestors 'self'/);assert.match(home.headers[0].value,/https:\/\/chatgpt\.com/);assert.equal(rows.some(r=>r.source.startsWith('/api')),false);
 });
+
+test('owner-confirmed public grievance contact is available without pretending policies were approved',()=>{
+ h.reset({env:live});const r=policy.policyReadiness();
+ assert.equal(r.name,'Vishak B Kashyap');assert.equal(r.email,'connect@brandmintai.io');
+ assert.equal(r.contactReady,true);assert.equal(r.approvedRevision,false);assert.equal(r.ready,false);
+ assert.equal(billing.publicCheckoutOpen(),false);
+});
