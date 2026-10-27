@@ -58,9 +58,9 @@ test('signed-out visitors do not get an account resume link from device work',()
  assert.match(html,/First 3 tasks in each course free/);
 });
 
-test('every collapsed programme shows its duration and practical mission count',()=>{
+test('course duration and task count appear once above the collapsed programmes',()=>{
  const Explorer=require('../components/whatslearn/programme-explorer.tsx').default;
  const html=renderToStaticMarkup(React.createElement(Explorer));
- assert.equal((html.match(/10-DAY COURSE · 10 PRACTICAL TASKS/g)||[]).length,4);
- assert.match(html,/Take longer if you need/);
+ assert.equal((html.match(/10 days · 10 tasks · First 3 free/g)||[]).length,1);
+ assert.match(html,/Go at your pace/);
 });

@@ -9,7 +9,7 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
  const skills:Record<string,string>={marketing:'Write offers and ads for a real business.',development:'Build pages, connect data and test your app.',filmmaking:'Plan scenes, film shots and edit your story.',storytelling:'Turn an idea into a story people can follow.'};
  const [selected,setSelected]=useState<string|null>(null);
  useEffect(()=>setSelected(null),[currentId]);
- const open=selected===null?currentId||'':selected;
+ const open=selected||'';
  const nextAction=homePrimaryAction(learner);
  const visibleProgrammes=[...programmes].sort((a,b)=>Number(b.id===currentId)-Number(a.id===currentId));
  return <section id="paths" className="programme-section">
@@ -26,7 +26,7 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
       <span className="course-outcome">{outcomes[p.id]}</span></h3>
      {open===p.id?<Minus size={25}/>:<Plus size={25}/>}</button>
     {open===p.id&&<div id={'programme-'+p.id} className="programme-detail programme-detail-brief"><div>
-     <p>{current?progress&&progress.saved===progress.total?'Course complete. Revisit your work or try another skill.':'Your progress is saved. Pick up where you left off.':skills[p.id]}</p>
+     <p>{current?progress&&progress.saved===progress.total?'Course complete. Revisit your work or try another skill.':progress&&progress.saved>0?'Your progress is saved. Pick up where you left off.':'Your course is ready. Start your first task.':skills[p.id]}</p>
     </div><div className="programme-course-actions">
      <a className={current||!currentId?'wl-button':'text-button'} href={current?nextAction.href:currentId?'/learn?view=paths&track='+p.id+'#course-roadmap':'/find-my-path?track='+p.id}>{current?nextAction.label:currentId?'Explore this course':'Choose this course'} <ArrowUpRight size={18}/></a>
      {current&&<a className="text-button" href="/find-my-path">Change my course <ArrowUpRight size={16}/></a>}

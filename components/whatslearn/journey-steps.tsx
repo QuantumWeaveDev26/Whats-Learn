@@ -9,7 +9,7 @@ const steps=[
 ];
 
 export default function JourneySteps({hasCourse=false}:{hasCourse?:boolean}={}){
- const [open,setOpen]=useState<string[]>(['01']);
+ const [open,setOpen]=useState<string[]>([]);
  return <>{steps.map(step=>{
   const expanded=open.includes(step.n);
   return <div className="how-step" key={step.n}>

@@ -160,7 +160,7 @@ test('guests: order, retries and limits are enforced on this device and explaine
 });
 test('the lock is visible: locked missions are disabled and say what to finish; deep links and the assistant tool open the locked panel, not the lesson',()=>{
  const src=fs.readFileSync(path.resolve(__dirname,'../app/learn/workspace.tsx'),'utf8');
- assert.equal((src.match(/<CourseRoadmap /g)||[]).length,2,'both course views share the same roadmap');const roadmap=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/course-roadmap.tsx'),'utf8');assert.match(roadmap,/disabled=\{r\.lock\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions within your plan stay open to practise/);
+ assert.equal((src.match(/<CourseRoadmap /g)||[]).length,1,'the paths view uses one roadmap; the dashboard uses short learning topics');const roadmap=fs.readFileSync(path.resolve(__dirname,'../components/whatslearn/course-roadmap.tsx'),'utf8');assert.match(roadmap,/disabled=\{r\.lock\.locked\}/);assert.match(src,/This mission is locked\./);assert.match(src,/Finished missions within your plan stay open to practise/);
  assert.match(src,/active&&lockOf\(active\)\.locked\?/,'the lesson is replaced by the locked panel whatever opened it');
 });
 test('structured answers: parts round-trip, links are https only and never fetched, code is never run, the starter must change',()=>{

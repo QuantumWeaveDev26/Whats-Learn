@@ -27,10 +27,10 @@ test('another account response cannot populate course progress and no identity m
  assert.deepEqual(accountHomeState({profile:{track:'development'},hasStarted:true}),{status:'unavailable'});
 });
 
-test('the actual returning course card opens first, shows progress and does not ask to choose it again',()=>{
+test('the returning course is listed first with progress but stays collapsed until clicked',()=>{
  const learner=accountHomeState(account,{accountKey:'account-a',work:[]});const html=renderToStaticMarkup(React.createElement(Explorer,{learner}));
- assert.match(html,/YOUR COURSE\. YOUR PROGRESS/);assert.match(html,/Your course.*0\/10 saved/);assert.match(html,/href="\/learn"[^>]*>Continue Learning/);assert.doesNotMatch(html,/Choose this course/);
- assert.ok(html.indexOf('AI Full-Stack Development')<html.indexOf('AI Digital Marketing'));assert.match(html,/Change my course/);
+ assert.match(html,/YOUR COURSE\. YOUR PROGRESS/);assert.match(html,/Your course.*0\/10 saved/);assert.doesNotMatch(html,/aria-expanded="true"/);assert.doesNotMatch(html,/Choose this course/);
+ assert.ok(html.indexOf('AI Full-Stack Development')<html.indexOf('AI Digital Marketing'));assert.doesNotMatch(html,/programme-detail/);
 });
 
 test('visitors still get the original course-discovery flow and loading does not ask them to choose a course again',()=>{

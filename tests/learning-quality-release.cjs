@@ -70,6 +70,19 @@ test('workspace permits the approved learning-topic sidebar and note removal; ot
  // The user approved a short knowledge outline in the sidebar and removal of the practice note.
  // Restore only those edits before checking the original fingerprint; keep every other JSX byte protected.
  const restoreApprovedWorkspace=source=>{
+  source=source.replace("<div className=\"learning-assistance\" data-assistance-dock aria-label=\"Learning help\"/>","<section className=\"chat-card\"><div className=\"chat-title\"><MessageCircle size={20}/><div><strong>Prefer learning in chat?</strong><span>Continue on WhatsApp</span></div></div><div className=\"chat-bubble\">Optional: continue the same course in WhatsApp.</div><a className=\"chat-reply\" href={waLinked?whatsappLearningUrl(\"TODAY\"):\"/settings?connect=whatsapp#whatsapp\"} {...(waLinked?whatsappLinkProps:{})}>{waLabel} <ArrowRight size={16}/></a>{waStatus==='error'&&<button className=\"text-button\" onClick={()=>void retryWa()}>Retry connection check</button>}</section>");
+  source=source.replace('{next.minutes} min task{path.sessionMinutes<next.minutes?` · try ${path.sessionMinutes} min now`:null}','{path.sessionMinutes} min session · {next.minutes} min full mission');
+  source=source.replaceAll("Your next task","Your next mission");
+  source=source.replaceAll("Start this task","Start this mission");
+  source=source.replaceAll("Continue task","Continue mission");
+  source=source.replaceAll("Unlock my next task","Unlock my next mission");
+  source=source.replaceAll("Why this task?","Why this mission?");
+  source=source.replaceAll("tasks saved","missions saved");
+  source=source.replaceAll("First 3 tasks free","First 3 missions free");
+  source=source.replaceAll("Your first three tasks are complete.","Your first three missions are complete.");
+  source=source.replaceAll("Continue with tasks 4–10 on a paid plan.","Unlock missions 4–10 with a plan.");
+  source=source.replaceAll("Finish a task. Your creation appears here.","Finish a mission. Your creation appears here.");
+
   const prefix='<section className="learning-path-panel" aria-labelledby="journey-learning-path-title">';
   const start=source.indexOf(prefix),end=source.indexOf('</section><details className="learning-details extra-rewards">',start);
   assert.ok(start>source.indexOf('<aside className="right-column">'));assert.ok(end>start);

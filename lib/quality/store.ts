@@ -1,6 +1,7 @@
 import {randomUUID,createHash} from 'node:crypto';
 import {z} from 'zod';
 import {database} from '@/lib/storage';
+import {learningSummary} from './learning-summary';
 
 export class QualityError extends Error{constructor(message:string,public status=400){super(message)}}
 export const reportReasons={wrong_answer:'Wrong answer',wrong_language:'Wrong language',too_long:'Too long',not_helpful:'Not helpful',other:'Other'} as const;
@@ -76,7 +77,8 @@ export async function listQualityItems(_owner:Owner,raw:unknown){
   db.prepare('SELECT reason,COUNT(*) count FROM quality_reports WHERE created_at>? GROUP BY reason').bind(since).all<{reason:string;count:number}>(),
   db.prepare('SELECT category,channel,COUNT(*) count FROM quality_events WHERE created_at>? GROUP BY category,channel').bind(since).all<{category:string;channel:string;count:number}>()
  ]);
- return {counts:{reports:Number(reports?.n||0),support:Number(support?.n||0),failures:Number(failures?.n||0)},breakdown:{windowDays:30,reportsByReason:byReason.results,failuresByChannel:byFailure.results,note:'Counts from existing retained reports and failure records; not failure rates, response times or conversion tracking.'},items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
+ const learning=await learningSummary().catch(()=>null);
+ return {learning,counts:{reports:Number(reports?.n||0),support:Number(support?.n||0),failures:Number(failures?.n||0)},breakdown:{windowDays:30,reportsByReason:byReason.results,failuresByChannel:byFailure.results,note:'Counts from existing retained reports and failure records; not failure rates, response times or conversion tracking.'},items,nextCursor:more&&last?Buffer.from(JSON.stringify({at:last.created_at,id:last.id})).toString('base64url'):null};
 }
 export async function updateQualityItem(owner:Owner,raw:unknown){
  const p=parse(qualityUpdate,raw),db=database(),table=tableFor[p.kind];await pruneQualityRecords();

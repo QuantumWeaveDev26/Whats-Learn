@@ -513,3 +513,18 @@ body:not(:has(.whatsapp-mentor-widget)) .account-footer{padding-bottom:24px}
 .learning-topics{list-style:none;display:grid;gap:12px;padding:18px;margin:0;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;line-height:1.5;color:var(--foreground)}
 .learning-topics li{display:flex;align-items:flex-start;gap:10px}
 .learning-topics svg{flex:none;color:var(--primary);margin-top:3px}
+
+/* Reserve space for help so the buttons cannot cover the learning cards. */
+.learning-assistance{display:flex;flex-direction:column;align-items:flex-end;gap:12px;min-height:calc(var(--floating-action-height)*2 + 12px);padding-top:4px}
+.learning-assistance .website-tour-launch,.learning-assistance .whatsapp-mentor-widget{position:static;inset:auto;max-width:100%;width:auto;transform:none}
+.learning-assistance .website-tour-launch{order:0}
+.learning-assistance .whatsapp-mentor-widget{order:1;justify-content:flex-start;padding:10px 14px 10px 10px}
+.learning-assistance .whatsapp-mentor-widget>span:not(.mentor-widget-icon),.learning-assistance .whatsapp-mentor-widget>svg{display:block}
+.roadmap-task-details{margin-top:20px;border-top:1px solid var(--border);padding-top:18px}
+.roadmap-task-details>summary{cursor:pointer;font-weight:700;color:var(--primary);padding:10px 0}
+.roadmap-phases>div{display:flex;flex-direction:column;gap:6px}
+.roadmap-phases p{margin:0;font-size:14px;line-height:1.5}
+
+/* Keep related links visually consistent and arrows next to their labels. */
+.whatsapp-note .whatsapp-note-actions a{color:var(--primary);font-weight:500;text-decoration:underline}
+.brand-footer-top a{justify-content:flex-start;align-items:center;gap:12px}

@@ -3,6 +3,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {usePathname,useRouter} from 'next/navigation';
 import {observeTourTarget} from '@/lib/tour-target';
+import {useAssistanceDock} from './use-assistance-dock';
 import {tourLayout} from '@/lib/tour-layout';
 import {createPortal} from 'react-dom';
 import {Compass,X,ArrowRight,ArrowLeft} from 'lucide-react';
@@ -10,18 +11,18 @@ import './website-tour.css';
 
 type Step={id:string;url:string;target:string;title:string;text:string};
 const learnerSteps:Step[]=[
- {id:'journey',url:'/learn',target:'.workspace .intro',title:'Your next step lives here',text:'My Journey shows your current course and the mission to do next.'},
- {id:'mission',url:'/learn',target:'.mission-card',title:'Make something real',text:'Choose Start or Continue mission. Read the brief, then build and test your work.'},
- {id:'review',url:'/learn',target:'.mission-card .primary',title:'Review happens inside a mission',text:'Open a mission, make and test your work, then review it. Choose Tour this screen inside the mission for help with the controls available there.'},
- {id:'roadmap',url:'/learn?view=paths',target:'#course-roadmap .roadmap-heading',title:'See your 10-day roadmap',text:'See completed missions, your next task, and what you’ll build. The first 3 missions per course are free.'},
+ {id:'journey',url:'/learn',target:'.workspace .intro',title:'Your next step lives here',text:'My Journey shows your current course and the task to do next.'},
+ {id:'mission',url:'/learn',target:'.mission-card',title:'Make something real',text:'Open your task, try it, then ask for feedback.'},
+ {id:'review',url:'/learn',target:'.mission-card .primary',title:'Get feedback on your work',text:'Open a task and submit your work for review. Use Tour this screen for help.'},
+ {id:'roadmap',url:'/learn?view=paths',target:'#course-roadmap .roadmap-heading',title:'See your 10-day roadmap',text:'Follow Basics, Practice and Final project. Expand task details when you need them.'},
  {id:'creations',url:'/learn?view=portfolio',target:'.workspace-tabbar',title:'Find your saved work',text:'My Creations keeps your accepted submissions. Open a piece to review or improve it.'},
- {id:'settings',url:'/settings',target:'[data-tour="direction"]',title:'Change your direction',text:'Edit your course, goal, starting point or daily time here. Choose Save my settings when finished.'},
+ {id:'settings',url:'/settings',target:'[data-tour="direction"]',title:'Change your direction',text:'Edit your course, goal, starting point or daily time here. Choose Save changes when finished.'},
  {id:'language',url:'/settings',target:'[data-tour="language"]',title:'Choose your language',text:'Lesson and mentor language controls replies on the website and linked WhatsApp.'},
  {id:'whatsapp',url:'/settings?connect=whatsapp#whatsapp',target:'#whatsapp',title:'Take your learning to WhatsApp',text:'Link your number using the steps here. Then ask the mentor to show, resume or review your task. Website learning stays available.'},
  {id:'options',url:'/companion',target:'.account-main',title:'Choose how to learn',text:'Continue on the website or in your linked WhatsApp chat. If the optional ChatGPT companion is available, open it here for separate guidance.'},
 ];
 const guestSteps:Step[]=[
- {id:'courses',url:'/',target:'.programme-row > button',title:'Find your course',text:'Explore four courses. Each has 10 practical missions, with the first 3 free.'},
+ {id:'courses',url:'/',target:'.programme-row > button',title:'Find your course',text:'Explore four courses. Each has 10 practical tasks, with the first 3 free.'},
  {id:'starter',url:'/',target:'.agency-lanes',title:'Try a small challenge',text:'Choose a subject in the starter to try it. You can explore before creating an account.'},
  learnerSteps[0],learnerSteps[3],
  {id:'signin',url:'/',target:'.public-nav .nav-cta',title:'Keep your learning together',text:'Choose Sign up / Sign in to save progress and connect WhatsApp. Personal setup is offered once after sign-in.'},
@@ -32,7 +33,7 @@ type Run={index:number;guest:boolean;accountKey:string};
 function restore():Run|null{try{const r=JSON.parse(sessionStorage.getItem(runKey)||'null');return r&&Number.isInteger(r.index)&&r.index>=0&&r.index<(r.guest?guestSteps:learnerSteps).length&&typeof r.guest==='boolean'&&typeof r.accountKey==='string'?r:null}catch{return null}}
 
 export default function WebsiteTour(){
- const pathname=usePathname(),router=useRouter();
+ const pathname=usePathname(),router=useRouter(),dock=useAssistanceDock();
  const [mounted,setMounted]=useState(false),[run,setRun]=useState<Run|null>(null),[offer,setOffer]=useState(false),[guest,setGuest]=useState(true),[sessionReady,setSessionReady]=useState(false);
  const [rect,setRect]=useState<DOMRect|null>(null),[size,setSize]=useState({width:0,height:0}),[phase,setPhase]=useState<'moving'|'ready'|'unavailable'>('moving'),[attempt,setAttempt]=useState(0),[cardHeight,setCardHeight]=useState(320);
  const [offerHost,setOfferHost]=useState<HTMLElement|null>(null);
@@ -86,8 +87,9 @@ export default function WebsiteTour(){
  if(!mounted||hidden)return null;
  const layout=rect?tourLayout(rect,size,cardHeight):null;
  const spotlight=layout?.spotlight,position=run?layout?.card:undefined;
+ const launchButton=<button ref={launcher} className="website-tour-launch" onClick={start} onPointerEnter={preloadStart} onFocus={preloadStart} disabled={!sessionReady} aria-busy={!sessionReady} aria-haspopup="dialog" aria-expanded={!!run}><span className="website-tour-icon" aria-hidden="true"><Compass size={26}/></span><strong>Take a tour</strong></button>;
  return <>
-  <button ref={launcher} className="website-tour-launch" onClick={start} onPointerEnter={preloadStart} onFocus={preloadStart} disabled={!sessionReady} aria-busy={!sessionReady} aria-haspopup="dialog" aria-expanded={!!run}><span className="website-tour-icon" aria-hidden="true"><Compass size={26}/></span><strong>Take a tour</strong></button>
+  {dock?createPortal(launchButton,dock):launchButton}
   {offer&&offerHost&&!run&&createPortal(<section className="website-tour-invitation" aria-label="Quick website tour"><div><strong>New here?</strong><p>Find your mission, saved work and mentor.</p></div><div className="website-tour-actions"><button type="button" onClick={close}>Not now</button><button type="button" className="website-tour-next" onClick={start}>Quick tour <ArrowRight size={16}/></button></div></section>,offerHost)}
   {run&&createPortal(<div className="website-tour-layer">
    <div className="website-tour-shade" style={spotlight&&phase==='ready'?{background:'transparent'}:undefined}/>
