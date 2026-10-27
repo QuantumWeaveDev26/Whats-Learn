@@ -1,6 +1,6 @@
 import {database} from '@/lib/storage';
 import {billingCatalogue,quote,billingPlanKey as planKey,type SKU} from './catalogue';
-import {razorpay,BillingError,billingConfig,billingMode,verifyHmac,assertPaymentLaunchReady,type BillingMode} from './razorpay';
+import {razorpay,BillingError,RazorpayRequestError,billingConfig,billingMode,verifyHmac,assertPaymentLaunchReady,type BillingMode} from './razorpay';
 export type BillingSession={id:string;user_id:string;sku:SKU;kind:string;quantity:string;amount:string;provider_id:string|null;state:string;created_at:string;updated_at:string;mode?:string;payment_id?:string|null};
 const OPEN="('creating','created','authenticated','active','pending','halted','paused')";
 function currentMode():BillingMode{const m=billingMode();if(!m)throw new BillingError('Checkout is not configured yet. No payment was taken.',503);return m}
@@ -11,11 +11,17 @@ export async function provisionPlans(){
  const db=database();const mode=currentMode();const output=[];
  for(const [sku,p] of Object.entries(billingCatalogue)){
   if(!p.period)continue;const key=planKey(sku as SKU,mode);
-  const row=await db.prepare('SELECT * FROM billing_plans WHERE sku=?').bind(key).first();
-  if(row?.provider_id){output.push({sku,id:row.provider_id});continue;}
-  if(row)throw new BillingError('A previous plan creation needs reconciliation in Razorpay before retrying. No duplicate plan was created.',409);
-  await db.prepare('INSERT INTO billing_plans(sku,state,updated_at) VALUES (?,?,?)').bind(key,'creating',new Date().toISOString()).run();
-  const plan=await razorpay('plans',{period:p.period,interval:1,item:{name:(mode==='live'?'WhatsLearn — ':'WhatsLearn TEST — ')+p.name,amount:p.amount,currency:'INR'},notes:{whatslearn_sku:sku,mode}});
+  const inserted=await db.prepare('INSERT OR IGNORE INTO billing_plans(sku,state,updated_at) VALUES (?,?,?)').bind(key,'creating',new Date().toISOString()).run();
+  if(!inserted.meta.changes){
+   const row=await db.prepare('SELECT * FROM billing_plans WHERE sku=?').bind(key).first();
+   if(row?.provider_id){output.push({sku,id:row.provider_id});continue;}
+   // One owner request may reserve a definitively rejected plan; concurrent requests must stop.
+   const reserved=await db.prepare("UPDATE billing_plans SET state='creating',updated_at=? WHERE sku=? AND state='rejected' AND provider_id IS NULL").bind(new Date().toISOString(),key).run();
+   if(!reserved.meta.changes)throw new BillingError('A previous plan creation needs reconciliation in Razorpay before retrying. No duplicate plan was created.',409);
+  }
+  let plan;
+  try{plan=await razorpay('plans',{period:p.period,interval:1,item:{name:(mode==='live'?'WhatsLearn — ':'WhatsLearn TEST — ')+p.name,amount:p.amount,currency:'INR'},notes:{whatslearn_sku:sku,mode}})}
+  catch(error){if(error instanceof RazorpayRequestError&&error.creationRejected)await db.prepare("UPDATE billing_plans SET state='rejected',updated_at=? WHERE sku=? AND state='creating' AND provider_id IS NULL").bind(new Date().toISOString(),key).run();throw error}
   if(typeof plan.id!=='string'||!plan.id.startsWith('plan_'))throw new BillingError('Unexpected plan response.',502);
   await db.prepare('UPDATE billing_plans SET provider_id=?,state=?,updated_at=? WHERE sku=?').bind(plan.id,'ready',new Date().toISOString(),key).run();output.push({sku,id:plan.id});
  }
@@ -48,12 +54,17 @@ export async function createCheckout(userId:string,sku:SKU,quantity:number){
   const plan=await db.prepare('SELECT provider_id FROM billing_plans WHERE sku=? AND state=?').bind(planKey(sku,mode),'ready').first();
   if(!plan){await db.prepare('UPDATE billing_sessions SET state=? WHERE id=?').bind('not_configured',id).run();throw new BillingError(mode==='live'?'Paid plans are not set up yet. No payment was taken.':'Create the test plans on the payment setup page first.',503)}
   const offer=await sprintCreditOffer(userId,sku,mode);
-  entity=await razorpay('subscriptions',{plan_id:plan.provider_id,total_count:p.cycles,quantity,customer_notify:0,...(offer?{offer_id:offer}:{}),notes:{whatslearn_checkout:id,mode}});
+  try{entity=await razorpay('subscriptions',{plan_id:plan.provider_id,total_count:p.cycles,quantity,customer_notify:0,...(offer?{offer_id:offer}:{}),notes:{whatslearn_checkout:id,mode}})}
+  catch(error){await releaseRejectedCheckout(error,id);throw error}
  }
- else entity=await razorpay('orders',{amount:p.total,currency:'INR',receipt:id,notes:{whatslearn_checkout:id,mode}});
+ else try{entity=await razorpay('orders',{amount:p.total,currency:'INR',receipt:id,notes:{whatslearn_checkout:id,mode}})}
+ catch(error){await releaseRejectedCheckout(error,id);throw error}
  const prefix=p.period?'sub_':'order_';if(typeof entity.id!=='string'||!entity.id.startsWith(prefix))throw new BillingError('Unexpected checkout response.',502);
  await db.prepare('UPDATE billing_sessions SET provider_id=?,state=?,updated_at=? WHERE id=?').bind(entity.id,'created',new Date().toISOString(),id).run();
  return checkoutResult({id,sku,kind:p.period?'subscription':'order',amount:String(p.total),provider_id:entity.id,mode} as BillingSession);
+}
+async function releaseRejectedCheckout(error:unknown,id:string){
+ if(error instanceof RazorpayRequestError&&error.creationRejected)await database().prepare("UPDATE billing_sessions SET state='rejected',updated_at=? WHERE id=? AND state='creating' AND provider_id IS NULL").bind(new Date().toISOString(),id).run();
 }
 function checkoutResult(s:BillingSession){const mode=(s.mode||'test') as BillingMode;return {sessionId:s.id,key:billingConfig().keyId,amount:Number(s.amount),currency:'INR',name:label(mode),description:billingCatalogue[s.sku].name,mode,...(s.kind==='order'?{order_id:s.provider_id}:{subscription_id:s.provider_id})}}
 export async function ownedSession(userId:string,id:string){const row=await database().prepare('SELECT * FROM billing_sessions WHERE id=? AND user_id=?').bind(id,userId).first<BillingSession>();if(!row)throw new BillingError('Checkout not found.',404);return row}

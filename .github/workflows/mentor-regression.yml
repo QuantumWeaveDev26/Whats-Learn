@@ -29,7 +29,7 @@ jobs:
         run: |
           node tests/billing-setup.cjs
           node tests/billing.cjs
-          node --test tests/membership-management.cjs tests/membership-management-ui.cjs tests/policy-readiness.cjs tests/style-account-safety.cjs tests/mentor-view-lifecycle.cjs tests/mentor-answer-repair.cjs
+          node --test tests/membership-management.cjs tests/membership-management-ui.cjs tests/policy-readiness.cjs tests/billing-provider-retries.cjs tests/membership-dialog.test.cjs tests/checkout-visibility.cjs tests/billing-paused.cjs tests/style-account-safety.cjs tests/mentor-view-lifecycle.cjs tests/mentor-answer-repair.cjs
       - run: node scripts/verify-migrations.cjs
       - run: pnpm exec tsc --noEmit
       - run: npm ci --ignore-scripts --no-audit --no-fund

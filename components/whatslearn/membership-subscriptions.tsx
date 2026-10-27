@@ -11,7 +11,7 @@ const statusLabel=(state:string)=>(({created:'Not activated',authenticated:'Awai
 export default function MembershipSubscriptions({billing,onReload}:{billing:MembershipBilling|null;onReload:()=>Promise<void>}){
  const [confirm,setConfirm]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState(false);
  const alive=useRef(true),pending=useRef(false);useEffect(()=>{alive.current=true;return()=>{alive.current=false}},[]);
- const sessions=(billing?.sessions||[]).filter(s=>s.kind==='subscription'&&!['superseded','not_configured'].includes(s.state));
+ const sessions=(billing?.sessions||[]).filter(s=>s.kind==='subscription'&&!['superseded','not_configured','rejected'].includes(s.state));
  if(!billing?.accountKey||!sessions.length)return null;
  async function act(action:'refresh'|'cancel',id:string){
   if(pending.current||!billing?.accountKey)return;pending.current=true;setBusy(true);setNotice('');setError(false);

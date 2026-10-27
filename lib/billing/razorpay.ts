@@ -1,6 +1,12 @@
 import {env} from 'cloudflare:workers';
 import {policyReadiness} from '@/lib/policy-readiness';
 export class BillingError extends Error {constructor(message:string,public status=400){super(message)}}
+/** Only explicit validation, authentication and rate-limit rejections prove creation did not happen.
+ * Timeouts, conflicts, server failures and malformed successes require reconciliation instead. */
+export class RazorpayRequestError extends BillingError {
+ readonly creationRejected:boolean;
+ constructor(public providerStatus:number){super('Razorpay could not complete the request. Check the keys and Subscriptions access in your Razorpay dashboard.',502);this.creationRejected=[400,401,403,422,429].includes(providerStatus)}
+}
 export type BillingMode='test'|'live';
 export function billingConfig(){const e=env as unknown as Record<string,string|undefined>;return {keyId:e.RAZORPAY_KEY_ID||'',keySecret:e.RAZORPAY_KEY_SECRET||'',webhookSecret:e.RAZORPAY_WEBHOOK_SECRET||'',adminEmail:(e.BILLING_ADMIN_EMAIL||'').trim().toLowerCase(),liveEnabled:e.BILLING_LIVE_ENABLED==='true',publicCheckout:e.BILLING_PUBLIC_CHECKOUT==='true',sprintOfferId:e.RAZORPAY_SPRINT_CREDIT_OFFER_ID||''}}
 /** Test keys always work. Live keys work only when BILLING_LIVE_ENABLED=true is also set, so a pasted live key alone never takes real money. */
@@ -19,7 +25,7 @@ export function assertCanCheckout(email:string){const admin=isBillingAdmin(email
 export async function razorpay(path:string,body?:unknown){
  const c=billingConfig();if(!billingMode()||!c.keySecret)throw new BillingError('Only Razorpay test keys are accepted unless live billing is explicitly enabled.',503);
  const response=await fetch('https://api.razorpay.com/v1/'+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Basic '+btoa(c.keyId+':'+c.keySecret),'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
- if(!response.ok)throw new BillingError('Razorpay could not complete the request. Check the keys and Subscriptions access in your Razorpay dashboard.',502);
+ if(!response.ok)throw new RazorpayRequestError(response.status);
  return await response.json() as Record<string,any>;
 }
 export async function verifyHmac(secret:string,message:string,signature:string){if(!/^[a-f0-9]{64}$/i.test(signature))return false;const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);const bytes=Uint8Array.from(signature.match(/../g)!,h=>parseInt(h,16));return crypto.subtle.verify('HMAC',key,bytes,new TextEncoder().encode(message))}
