@@ -427,3 +427,40 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-tt-icon{width:44px;height:44px;flex:none;border-radius:14px;background:#F6C445;color:#5A3D00;display:inline-flex;align-items:center;justify-content:center}
 .wla-rank{display:inline-flex;align-items:center;gap:8px;margin:0;padding:8px 16px;border-radius:999px;background:#FFF1D6;color:#7A4E00;font-weight:700}
 .wla-sent{justify-content:flex-start}
+
+/* ---- Rewards: levels, daily missions, badges, delight ---- */
+.wla-lv{margin-right:6px;padding:2px 7px;border-radius:999px;background:#F6C445;color:#5A3D00;font-size:11px}
+.wla-level{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:#fff;box-shadow:var(--card-shadow)}
+.wla-level-badge{width:56px;height:56px;flex:none;border-radius:18px;background:conic-gradient(from 210deg,#F6C445,#FFB27A,#F6C445);color:#5A3D00;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 3px rgba(255,255,255,.6)}
+.wla-level-badge small{font-size:10px;font-weight:700;letter-spacing:.08em}.wla-level-badge strong{font-size:22px;line-height:1}
+.wla-level small{font-size:12px}.wla-xp{height:10px;margin:6px 0 4px;border-radius:5px;background:#EEF2ED;overflow:hidden}
+.wla-xp span{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#087A4B,#2FB57A);transition:width .8s ease-out;position:relative;overflow:hidden}
+.wla-xp span::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:wlaShine 2.4s ease-in-out infinite}
+@keyframes wlaShine{60%,100%{transform:translateX(100%)}}
+.wla-daily{position:relative;overflow:hidden;padding:16px;border-radius:22px;background:#fff;box-shadow:var(--card-shadow)}
+.wla-daily.all{background:linear-gradient(160deg,#FFF8E1,#fff 55%);box-shadow:0 0 0 2px #F6C445,var(--card-shadow)}
+.wla-daily-head{display:flex;align-items:center;gap:12px}.wla-daily-head strong{font-size:16px}
+.wla-daily ul{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wla-daily li button{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 12px;border:0;border-radius:14px;background:#F6F9F2;text-align:left;font-size:15px}
+.wla-daily li button small{color:var(--g);font-weight:700}.wla-daily li button.done{background:var(--mint);color:var(--gdd);opacity:1}.wla-daily li button.done .wla-grow{text-decoration:line-through;text-decoration-color:rgba(12,56,37,.4)}
+.wla-dm-icon{width:30px;height:30px;flex:none;border-radius:50%;background:#fff;color:var(--g);display:inline-flex;align-items:center;justify-content:center}
+.wla-daily li button.done .wla-dm-icon{background:var(--g);color:#fff;animation:wlaPop .4s ease-out}
+.wla-badges .wla-section{margin:0}
+.wla-badge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px}
+.wla-badge{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:18px;background:#fff;text-align:center;box-shadow:var(--card-shadow);opacity:.55;filter:grayscale(1)}
+.wla-badge span{width:46px;height:46px;border-radius:50%;background:#EEF2ED;color:#6B7D71;display:inline-flex;align-items:center;justify-content:center}
+.wla-badge strong{font-size:12.5px;line-height:1.2}.wla-badge small{font-size:11px;color:var(--mut);line-height:1.25}
+.wla-badge.got{opacity:1;filter:none}.wla-badge.got span{background:conic-gradient(from 200deg,#F6C445,#2FB57A,#9FB8FF,#F6C445);color:#fff;box-shadow:0 4px 12px rgba(246,196,69,.45)}
+.wla-toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:12px;width:min(92vw,420px);padding:12px 8px 12px 14px;border-radius:18px;background:#0C3825;color:#fff;box-shadow:0 14px 34px rgba(0,0,0,.28);animation:wlaDrop .45s cubic-bezier(.2,1.2,.4,1) both}
+.wla-toast>span{width:44px;height:44px;flex:none;border-radius:50%;background:#F6C445;color:#5A3D00;display:inline-flex;align-items:center;justify-content:center}
+.wla-toast div{flex:1;display:flex;flex-direction:column}.wla-toast small{font-size:11px;letter-spacing:.06em;color:#D2F7DF}.wla-toast div small:last-child{letter-spacing:0;font-size:12px}
+.wla-toast button{width:40px;height:40px;border:0;background:transparent;color:#fff}
+@keyframes wlaDrop{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.wla-streak.on svg{animation:wlaFlame 1.6s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes wlaFlame{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg)}}
+.wla-screen>.wla-stack>*{animation:wlaRise .45s ease-out both}
+.wla-screen>.wla-stack>*:nth-child(2){animation-delay:.04s}.wla-screen>.wla-stack>*:nth-child(3){animation-delay:.08s}.wla-screen>.wla-stack>*:nth-child(4){animation-delay:.12s}.wla-screen>.wla-stack>*:nth-child(5){animation-delay:.16s}.wla-screen>.wla-stack>*:nth-child(6){animation-delay:.2s}.wla-screen>.wla-stack>*:nth-child(n+7){animation-delay:.24s}
+@keyframes wlaRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wla-mint{position:relative;overflow:hidden}.wla-mint::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);transform:translateX(-120%);animation:wlaShine 3s ease-in-out infinite}
+.wla-game,.wla-ccard,.wla-today{transition:transform .15s,box-shadow .15s}.wla-game:active,.wla-ccard:active,.wla-today:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.wla-xp span::after,.wla-mint::after,.wla-streak.on svg,.wla-screen>.wla-stack>*{animation:none!important}}

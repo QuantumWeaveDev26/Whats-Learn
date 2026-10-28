@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeft,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
 import {api,readLocal,writeLocal} from './api';
+import {markGameDay} from './rewards';
 import {courseLook} from './tabs';
 import {games,hookFeed,channels,budgetRounds,bugRounds,flowRounds,shotRounds,shotTypes,shotQuiz,diceItems,captionRounds,type GameId,type GameMeta} from './games-data';
 
@@ -48,7 +49,7 @@ function GameScreen({meta,who,beat,tournament,onExit,onAgain}:{meta:GameMeta;who
  const posted=useRef<Promise<unknown>|null>(null);
  /** Leaving waits for the score to finish saving, so the board never shows an old rank. */
  const exit=async()=>{try{await posted.current}catch{}onExit()};
- const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games');if(b.ok&&b.data.me)setRank(b.data.me.rank)}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));setScore(v)};
+ const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games');if(b.ok&&b.data.me)setRank(b.data.me.rank)}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));markGameDay(who);setScore(v)};
  return <div className="wla-stack wla-game-screen">
   <button type="button" className="wla-back" onClick={exit}><ArrowLeft size={18}/>All games</button>
   <div className={'wla-game-head '+L.cls}><span className="wla-ccard-icon"><L.Icon size={22}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>

@@ -42,6 +42,7 @@ function mountApp(s=snapshot,storage=new Map()){
   if(['./intro','./onboarding','./practice'].includes(id))return components;
   if(id==='./games')return {GamesHub:function GamesHub(){return null}};
   if(id==='./games-data')return {games:[]};
+  if(id==='./rewards')return {levelOf:()=>({lv:1,xp:0,into:0,need:200,title:'Curious'})};
   return require(id);
  });
  const render=()=>{h.start();return module.default()};

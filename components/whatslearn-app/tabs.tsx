@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {games as allGames} from './games-data';
+import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,CountUp,markMentorDay} from './rewards';
 const gameMeta=(id:string)=>allGames.find(g=>g.id===id);
 import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star} from 'lucide-react';
 import {missions,type Mission} from '@/lib/missions';
@@ -11,7 +12,7 @@ import {checkpointPositions,checkpointKey,checkpointFor} from '@/lib/checkpoints
 import {readableBody} from '@/lib/practical';
 import {agencyStory,agencyTracks,type AgencyTrack} from '@/lib/agency-story';
 import {languages} from '@/lib/languages';
-import {api,readLocal,type Snapshot} from './api';
+import {api,currentAccount,readLocal,type Snapshot} from './api';
 import {feedbackOf,historyKey,versionsOf} from './learning-state';
 import {FeedbackCard} from './feedback';
 import {useCourseSwipe} from './swipe';
@@ -43,6 +44,9 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
   <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">Continue learning</h2></div>
    <span className={'wla-streak'+(streak?' on':'')} aria-label={`${streak}-day streak`}><Flame size={18}/>{streak}</span></div>
   <p className="wla-goal"><Target size={16}/>{s.profile?.minutes&&s.profile.minutes!=='flexible'?`Today’s goal: ${s.profile.minutes} minutes`:'Today’s goal: learn at your own pace'}</p>
+  <LevelCard s={s}/>
+  <DailyMissions s={s} who={s.accountKey} onTask={()=>next.kind==='mission'||next.kind==='plan'||next.kind==='checkpoint'?onOpen(next):onTab('courses')} onGame={()=>onTab('play')} onMentor={()=>onTab('mentor')}/>
+  <BadgeToast s={s} who={s.accountKey}/>
 
   {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
@@ -63,7 +67,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
 
   <div className="wla-stats">
    <div><BookMarked size={18}/><strong>{saved}/10</strong><span>tasks saved</span></div>
-   <div><Trophy size={18}/><strong>{s.points?.balance??'—'}</strong><span>points</span></div>
+   <div><Trophy size={18}/><strong>{s.points?<CountUp value={s.points.balance}/>:'—'}</strong><span>points</span></div>
    <div><Sparkles size={18}/><strong>{reviewsLeft??'—'}</strong><span>reviews left</span></div>
   </div>
 
@@ -108,7 +112,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
  useEffect(()=>{end.current?.scrollIntoView({block:'end'})},[msgs,busy]);
  const m=missions.find(x=>x.id===missionId);
  const ideas=['Explain this task simply','Show me an example','What should I do first?'];
- async function ask(text:string){const t=text.trim();if(!t||busy)return;setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
+ async function ask(text:string){const t=text.trim();if(!t||busy)return;markMentorDay(currentAccount());setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
   const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language}});setBusy(false);
   setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
  if(!signedIn)return <div className="wla-stack"><div className="wla-card"><strong>Sign in to chat with your mentor</strong><p className="wla-muted">The mentor uses your current task and progress.</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button>}</div></div>;
@@ -143,6 +147,7 @@ export function Me({s,signedIn,onSignIn,onCreations,onPrefs,onLanguage,onPlans,o
  return <div className="wla-stack">
   {signedIn&&s?<div className="wla-profile"><span>{(s.name||'W').slice(0,1).toUpperCase()}</span><div><strong>{s.name||'Your account'}</strong><small>{s.paidAccess?'Paid plan':'Explore plan · Free'} · {s.points?.balance??0} points</small><small>{s.work.length} task{s.work.length===1?'':'s'} saved{(s.points?.streak?.current||0)>0?` · ${s.points!.streak.current}-day streak`:''}</small></div></div>
   :<div className="wla-card"><strong>You’re exploring as a guest</strong><p className="wla-muted">Sign in to save your work and keep your points.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div>}
+  {signedIn&&s&&<><LevelCard s={s}/><BadgeGrid s={s} who={s.accountKey}/></>}
   <p className="wla-section">LEARNING</p>
   <details className="wla-disclosure"><summary>Points, reviews and saved work</summary><p className="wla-read">Points record completed practice. A new task can earn up to 100 points, with one new scored task per day. Points are not money.</p><p className="wla-read">AI reviews are a separate daily allowance. Explore includes 3 reviews per day after sign-in; paid plans provide more. The allowance resets at midnight India time.</p><p className="wla-read">The app’s teaching examples are free. Drafts stay on this device; accepted work and its saved feedback are stored in your account.</p></details>
   <div className="wla-list">

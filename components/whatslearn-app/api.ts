@@ -3,6 +3,7 @@
 export type Json=Record<string,unknown>;
 export type ApiResult<T=Json>={ok:boolean;status:number;data:T&{error?:string}};
 let account='';
+export const currentAccount=()=>account;
 export const setAccountKey=(key:string)=>{account=key};
 export async function api<T=Json>(url:string,init?:{method?:string;body?:unknown;timeoutMs?:number;accountKey?:string}):Promise<ApiResult<T>>{
  const controller=init?.timeoutMs?new AbortController():undefined;
@@ -23,7 +24,7 @@ export async function api<T=Json>(url:string,init?:{method?:string;body?:unknown
 }
 export type Profile={goal:string;track:string;level:string;language:string;minutes:string;style?:string};
 export type WorkRow={mission_id:string;body:string;updated_at:string;evaluation?:string|null;quiz:number};
-export type Points={balance:number;streak:{current:number;best:number};todayUsed:boolean;today:string;scores:{mission_id:string;points:number;day:string}[]};
+export type Points={balance:number;totalPoints?:number;streak:{current:number;best:number};todayUsed:boolean;today:string;scores:{mission_id:string;points:number;day:string}[]};
 export type EvidenceRow={mission_id:string;review:unknown;created_at:string;reviewKey?:string};
 export type Snapshot={accountKey:string;name:string;profile:Profile|null;work:WorkRow[];points:Points|null;paidAccess:boolean;checkpoints:string[];hasContext:boolean;evidence?:EvidenceRow[]};
 /** Loads everything the signed-in screens need in one go. */
