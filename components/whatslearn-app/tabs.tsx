@@ -222,5 +222,5 @@ function TournamentTeaser({onPlay}:{onPlay:()=>void}){
  const [b,setB]=useState<{game:string;players:number;me:null|{rank:number;score:number}}|null>(null);
  useEffect(()=>{let live=true;void api<{game:string;players:number;me:null|{rank:number;score:number}}>('/api/games').then(r=>{if(live&&r.ok)setB(r.data)});return()=>{live=false}},[]);
  if(!b)return null;const g=gameMeta(b.game);if(!g)return null;
- return <button type="button" className="wla-tourney-teaser" onClick={onPlay}><span className="wla-tt-icon"><Trophy size={22}/></span><span className="wla-grow"><small>WEEKLY TOURNAMENT</small><strong>{g.name}</strong><small>{b.me?`You’re #${b.me.rank} with ${b.me.score}`:`${b.players} playing · join this week`}</small></span><ChevronRight size={20}/></button>;
+ return <button type="button" className="wla-tourney-teaser" onClick={onPlay}><span className="wla-tt-icon"><Trophy size={22}/></span><span className="wla-grow"><small>WEEKLY TOURNAMENT</small><strong>{g.name}</strong><small>{b.me?`You’re #${b.me.rank} with ${b.me.score}`:b.players>0?`${b.players} playing · join this week`:'Be the first on the board this week'}</small></span><ChevronRight size={20}/></button>;
 }
