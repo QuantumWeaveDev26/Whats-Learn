@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send} from 'lucide-react';
+import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame} from 'lucide-react';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
 import {lockFor,missionsOfCourse} from '@/lib/progression';
@@ -34,6 +34,7 @@ export function Home({s,onOpen,onTab,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>v
   :<div className="wla-hero-card">
    <div className="wla-hero-kicker wla-split"><span>{prog.name.toUpperCase()}</span><span>TASK {String(next.position).padStart(2,'0')} / 10</span></div>
    <p className="wla-hero-title">{next.mission.title}</p>
+   <div className="wla-bar" role="img" aria-label={`${saved} of 10 tasks saved`}><span style={{width:`${saved*10}%`}}/></div>
    <p className="wla-hero-sub">About {next.mission.minutes} minutes · Learn → Make → Review · up to 100 points</p>
    {doneToday&&next.kind==='mission'&&<p className="wla-hero-sub">You saved a task today. New tasks earn points once a day, so this one is for tomorrow. You can still read and draft it.</p>}
    <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:'Open task'}</button>
@@ -43,7 +44,7 @@ export function Home({s,onOpen,onTab,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>v
    <div><strong>{s.points?.balance??'—'}</strong><span>points</span></div>
    <div><strong>{reviewsLeft??'—'}</strong><span>AI reviews left today</span></div>
   </div>
-  {(s.points?.streak?.current||0)>0&&<p className="wla-note">{s.points!.streak.current}-day streak. Keep it going.</p>}
+  {(s.points?.streak?.current||0)>0&&<p className="wla-note"><Flame size={16}/>{s.points!.streak.current}-day streak. Keep it going.</p>}
   <button type="button" className="wla-tile" onClick={()=>onTab('courses')}><span><strong>Explore all 4 courses</strong><small>Marketing · Full-stack · Film · Visual stories</small></span><ChevronRight size={20}/></button>
   <button type="button" className="wla-tile wla-tile-tint" onClick={()=>onTab('mentor')}><span className="wla-icon"><MessageCircle size={20}/></span><span><strong>Stuck? Ask your mentor</strong><small>Here in the app or on WhatsApp</small></span></button>
  </div>;
@@ -97,21 +98,27 @@ export function Creations({s,onBack,view,setView}:{s:Snapshot;onBack:()=>void;vi
 }
 
 export function Me({s,signedIn,onSignIn,onCreations,onPrefs,onLanguage,onSignOut}:{s:Snapshot|null;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onPrefs:()=>void;onLanguage:()=>void;onSignOut:()=>void}){
- const ext=(href:string,label:string,extra?:React.ReactNode)=><a className="wla-row" href={href} target="_blank" rel="noopener">{label}{extra||<ArrowUpRight size={18}/>}</a>;
+ const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{label}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
  return <div className="wla-stack">
   {signedIn&&s?<div className="wla-profile"><span>{(s.name||'W').slice(0,1).toUpperCase()}</span><div><strong>{s.name||'Your account'}</strong><small>{s.paidAccess?'Paid plan':'Explore plan · Free'} · {s.points?.balance??0} points</small></div></div>
   :<div className="wla-card"><strong>You’re exploring as a guest</strong><p className="wla-muted">Sign in to save your work and keep your points.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div>}
+  <p className="wla-section">LEARNING</p>
   <div className="wla-list">
-   {signedIn&&<button type="button" className="wla-row" onClick={onCreations}>My Creations<span className="wla-muted">{s?.work.length||0}</span></button>}
-   {ext('/membership','Membership & plans')}
-   {signedIn&&<button type="button" className="wla-row" onClick={onPrefs}>Learning preferences<ChevronRight size={18}/></button>}
-   <button type="button" className="wla-row" onClick={onLanguage}>Language<span className="wla-muted">{languages[s?.profile?.language||'en']}</span></button>
-   {signedIn&&ext('/settings?connect=whatsapp#whatsapp','Connect WhatsApp reminders')}
-   {ext('/support','Help & support')}
+   {signedIn&&<button type="button" className="wla-row" onClick={onCreations}><BookMarked size={20}/>My Creations<span className="wla-end">{s?.work.length||0}<ChevronRight size={18}/></span></button>}
+   {signedIn&&<button type="button" className="wla-row" onClick={onPrefs}><SlidersHorizontal size={20}/>Learning preferences<span className="wla-end"><ChevronRight size={18}/></span></button>}
+   <button type="button" className="wla-row" onClick={onLanguage}><Languages size={20}/>Language<span className="wla-end">{languages[s?.profile?.language||'en']}<ChevronRight size={18}/></span></button>
+   {signedIn&&ext('/settings?connect=whatsapp#whatsapp','Connect WhatsApp reminders',MessageCircle)}
   </div>
+  <p className="wla-section">ACCOUNT</p>
   <div className="wla-list">
-   {ext('/privacy','Privacy policy')}{ext('/terms','Terms of use')}{ext('/refunds','Refunds')}
-   {signedIn&&<><button type="button" className="wla-row" onClick={onSignOut}>Sign out</button>{ext('/settings','Delete my account',<ArrowUpRight size={18}/>)}</>}
+   {ext('/membership','Membership & plans',CreditCard)}
+   {ext('/support','Help & support',LifeBuoy)}
+   {signedIn&&<button type="button" className="wla-row" onClick={onSignOut}><LogOut size={20}/>Sign out</button>}
+  </div>
+  <p className="wla-section">LEGAL</p>
+  <div className="wla-list">
+   {ext('/privacy','Privacy policy',Shield)}{ext('/terms','Terms of use',FileText)}{ext('/refunds','Refunds',Receipt)}
+   {signedIn&&ext('/settings','Delete my account',Trash2,true)}
   </div>
   <p className="wla-muted wla-center">WhatsLearn · A venture of BrandMint AI Pvt. Ltd.</p>
  </div>;
@@ -126,7 +133,7 @@ export function GuestHome({language,onSignIn}:{language:string;onSignIn:()=>void
  return <div className="wla-stack">
   <div><p className="wla-kicker">FROM CHAT TO CHANGE</p><h2 className="wla-h1 wla-tight">Play a little.<br/><em>Build a real skill.</em></h2></div>
   {!track?<div className="wla-hero-card"><p className="wla-hero-kicker">FREE STARTER CHALLENGE</p><p className="wla-hero-title">Try a skill in 3 minutes.</p><p className="wla-hero-sub">One free AI review of your answer. No account needed.</p>
-   <div className="wla-grid2">{agencyTracks.map((t,i)=><button key={t.id} type="button" className="wla-white" onClick={()=>{setTrack(t.id);setFb(null);setBody('')}}><strong>{t.label}</strong><small>{['Find the hook','Make it work','Set the scene','Tell it in frames'][i]}</small></button>)}</div></div>
+   <div className="wla-grid2">{agencyTracks.map((t,i)=>{const Icon=[Megaphone,Code,Clapperboard,Images][i];return <button key={t.id} type="button" className="wla-white" onClick={()=>{setTrack(t.id);setFb(null);setBody('')}}><Icon size={20}/><strong>{t.label}</strong><small>{['Find the hook','Make it work','Set the scene','Tell it in frames'][i]}</small></button>})}</div></div>
   :<div className="wla-stack"><button type="button" className="wla-back" onClick={()=>setTrack('')}><ArrowLeft size={18}/>Choose another skill</button>
    <label htmlFor="wla-starter" className="wla-q">{task}</label>
    <textarea id="wla-starter" rows={5} maxLength={400} value={body} onChange={e=>{setBody(e.target.value);setFb(null)}}/>
