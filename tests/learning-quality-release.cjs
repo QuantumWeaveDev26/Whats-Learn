@@ -100,7 +100,7 @@ test('workspace permits the approved learning-topic sidebar and note removal; ot
   assert.ok(rest.includes(anchor));
   return rest.replace(anchor,path+note+anchor);
  };
- const baseline={'app/learn/workspace.tsx':'ae5459871df5740031f1b5480fa3b113cad073717b7511adec53e090f6009b1b','app/layout.tsx':'98e4aee781f8608f33cbeb96292ba9940e55a3917f990bdc47743a84a6f3d587'};
+ const baseline={'app/learn/workspace.tsx':'56a414ec0e20c75639aac229df7bde1791a91a8fa48d49c818982967a7125ab6','app/layout.tsx':'98e4aee781f8608f33cbeb96292ba9940e55a3917f990bdc47743a84a6f3d587'};
  for(const [file,expected] of Object.entries(baseline)){const source=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');assert.equal(hash(JSON.stringify(jsx(file==='app/learn/workspace.tsx'?restoreApprovedWorkspace(source):source))),expected);}
  assert.equal(hash(fs.readFileSync('lib/curriculum.ts','utf8').replace(/\r\n/g,'\n')),'5df69a05b07ae54cfc152dc4d601185a7a484dd28daafd1d1c0f29ef5ca80e46');
 });

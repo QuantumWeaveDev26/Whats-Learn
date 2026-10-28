@@ -1,5 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import {games as allGames} from './games-data';
+const gameMeta=(id:string)=>allGames.find(g=>g.id===id);
 import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star} from 'lucide-react';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
@@ -56,6 +58,8 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
    <div className="wla-split"><strong>This week</strong><small>{days.filter(d=>d.on).length}/7 days</small></div>
    <div className="wla-days">{days.map((d,i)=><span key={i} className={(d.on?'on ':'')+(d.today?'today':'')}><i>{d.on?<Check size={14}/>:null}</i>{d.label}</span>)}</div>
   </div>
+
+  <TournamentTeaser onPlay={()=>onTab('play')}/>
 
   <div className="wla-stats">
    <div><BookMarked size={18}/><strong>{saved}/10</strong><span>tasks saved</span></div>
@@ -182,4 +186,12 @@ export function GuestHome({language,onSignIn}:{language:string;onSignIn:()=>void
   </div>}
   <div className="wla-card"><strong>Save your progress</strong><p className="wla-muted">Sign in to start a full course, save your work, get 3 AI reviews a day and connect WhatsApp.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div>
  </div>;
+}
+
+/** Home teaser for the weekly tournament: this week's game and your place, one tap to Play. */
+function TournamentTeaser({onPlay}:{onPlay:()=>void}){
+ const [b,setB]=useState<{game:string;players:number;me:null|{rank:number;score:number}}|null>(null);
+ useEffect(()=>{let live=true;void api<{game:string;players:number;me:null|{rank:number;score:number}}>('/api/games').then(r=>{if(live&&r.ok)setB(r.data)});return()=>{live=false}},[]);
+ if(!b)return null;const g=gameMeta(b.game);if(!g)return null;
+ return <button type="button" className="wla-tourney-teaser" onClick={onPlay}><span className="wla-tt-icon"><Trophy size={22}/></span><span className="wla-grow"><small>WEEKLY TOURNAMENT</small><strong>{g.name}</strong><small>{b.me?`You’re #${b.me.rank} with ${b.me.score}`:`${b.players} playing · join this week`}</small></span><ChevronRight size={20}/></button>;
 }

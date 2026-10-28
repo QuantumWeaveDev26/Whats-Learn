@@ -47,6 +47,7 @@ export function LanguageStep({value,onChange,onNext,onBack,step}:{value:string;o
 
 /** Real sign-in and sign-up through the website's own account endpoints. */
 export function AuthScreen({onSignedIn,onGuest}:{onSignedIn:()=>void;onGuest:()=>void}){
+ const [sent,setSent]=useState(''),[resent,setResent]=useState('');
  const [mode,setMode]=useState<'in'|'up'>('in');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[show,setShow]=useState(false);
  const [busy,setBusy]=useState(false),[err,setErr]=useState(''),[info,setInfo]=useState(''),[google,setGoogle]=useState(false);
@@ -57,9 +58,18 @@ export function AuthScreen({onSignedIn,onGuest}:{onSignedIn:()=>void;onGuest:()=
    :await api<{ok?:boolean;message?:string}>('/api/auth/signup',{method:'POST',body:{name,email,password,returnTo:'/app'}});
   setBusy(false);
   if(!r.ok){setErr(r.data.error||'That did not work. Please try again.');return}
-  if(mode==='up'){setInfo(r.data.message||'Check your email to confirm your address, then sign in.');setMode('in');return}
+  if(mode==='up'){setSent(email);return}
   onSignedIn();
  }
+ if(sent)return <div className="wla-page wla-sent">
+  <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>From chat to change</small></div></div>
+  <p className="wla-kicker">ONE LAST STEP</p><h1 className="wla-h1">Check your <em>email.</em></h1>
+  <p className="wla-muted">We sent a confirmation link to <strong>{sent}</strong>. Open it on this phone and you’ll come straight back to the app.</p>
+  {resent&&<p className="wla-ok" role="status">{resent}</p>}
+  <button type="button" className="wla-outline wla-full" disabled={busy} onClick={async()=>{setBusy(true);const r=await api<{message?:string}>('/api/auth/resend',{method:'POST',body:{email:sent,returnTo:'/app'}});setBusy(false);setResent(r.ok?(r.data.message||'Sent again. Check your inbox and spam folder.'):(r.data.error||'Could not resend just now. Try again in a minute.'))}}>{busy?'Sending…':'Resend the email'}</button>
+  <button type="button" className="wla-primary wla-full" onClick={()=>{setSent('');setResent('');setMode('in')}}>I’ve confirmed. Sign in</button>
+  <button type="button" className="wla-link wla-center" onClick={()=>{setSent('');setMode('up')}}>Use a different email</button>
+ </div>;
  return <div className="wla-page">
   <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>From chat to change</small></div></div>
   <p className="wla-kicker">{mode==='in'?'WELCOME BACK':'CREATE YOUR ACCOUNT'}</p>

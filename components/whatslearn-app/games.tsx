@@ -44,14 +44,17 @@ export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:
 }
 
 function GameScreen({meta,who,beat,tournament,onExit,onAgain}:{meta:GameMeta;who:string;beat?:number;tournament?:boolean;onExit:()=>void;onAgain:()=>void}){
- const [score,setScore]=useState<number|null>(null);const L=courseLook[meta.track];
- const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)void api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));setScore(v)};
+ const [score,setScore]=useState<number|null>(null),[rank,setRank]=useState<number|null>(null);const L=courseLook[meta.track];
+ const posted=useRef<Promise<unknown>|null>(null);
+ /** Leaving waits for the score to finish saving, so the board never shows an old rank. */
+ const exit=async()=>{try{await posted.current}catch{}onExit()};
+ const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games');if(b.ok&&b.data.me)setRank(b.data.me.rank)}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));setScore(v)};
  return <div className="wla-stack wla-game-screen">
-  <button type="button" className="wla-back" onClick={onExit}><ArrowLeft size={18}/>All games</button>
+  <button type="button" className="wla-back" onClick={exit}><ArrowLeft size={18}/>All games</button>
   <div className={'wla-game-head '+L.cls}><span className="wla-ccard-icon"><L.Icon size={22}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>
   {beat!==undefined&&score===null&&<p className="wla-note"><Crown size={16}/>Your friend scored {beat}. Can you beat it?</p>}
   {tournament&&score===null&&<p className="wla-note"><Trophy size={16}/>This week’s tournament game{who?': your best score this week counts.':'. Sign in to get on the board.'}</p>}
-  {score===null?<Game id={meta.id} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} onAgain={onAgain} onExit={onExit}/>}
+  {score===null?<Game id={meta.id} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} rank={rank} tournament={!!tournament} onAgain={async()=>{try{await posted.current}catch{}onAgain()}} onExit={exit}/>}
  </div>;
 }
 function Game({id,onDone}:{id:GameId;onDone:(s:number)=>void}){
@@ -61,7 +64,7 @@ function Game({id,onDone}:{id:GameId;onDone:(s:number)=>void}){
   case 'guess-the-shot':return <GuessTheShot onDone={onDone}/>;case 'story-dice':return <StoryDice onDone={onDone}/>;default:return <CaptionIt onDone={onDone}/>}
 }
 
-function Result({meta,score,who,beat,onAgain,onExit}:{meta:GameMeta;score:number;who:string;beat?:number;onAgain:()=>void;onExit:()=>void}){
+function Result({meta,score,who,beat,rank,tournament,onAgain,onExit}:{meta:GameMeta;score:number;who:string;beat?:number;rank?:number|null;tournament?:boolean;onAgain:()=>void;onExit:()=>void}){
  const best=Number(readLocal(bestKey(who,meta.id))||0);const isBest=score>=best&&score>0;
  const text=`I scored ${score} in ${meta.name} on WhatsLearn. Can you beat it? ${gameLink(meta.id,score)}`;
  return <div className="wla-stack wla-center wla-celebrate">
@@ -70,6 +73,7 @@ function Result({meta,score,who,beat,onAgain,onExit}:{meta:GameMeta;score:number
   <h2 className="wla-h1 wla-tight">{score>=80?<>Brilliant. <em>Sharp eye.</em></>:score>=50?<>Good run. <em>Go again?</em></>:<>Warming up. <em>Try once more.</em></>}</h2>
   {beat!==undefined&&<p className={score>beat?'wla-win':'wla-note'}>{score>beat?`You beat your friend’s ${beat}!`:score===beat?`A tie with your friend’s ${beat}.`:`Your friend’s ${beat} still stands.`}</p>}
   <p className="wla-muted">{isBest?'New personal best on this phone.':`Your best: ${best}`}</p>
+  {tournament&&(who?<p className="wla-rank"><Trophy size={18}/>{rank?`You’re #${rank} in this week’s tournament`:'Saving your tournament score…'}</p>:<p className="wla-note"><Trophy size={16}/>Sign in to put this score on the weekly board.</p>)}
   <a className="wla-primary wla-full" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener"><Share2 size={18}/>Challenge a friend on WhatsApp</a>
   <button type="button" className="wla-outline wla-full" onClick={onAgain}><RotateCcw size={18}/>Play again</button>
   <button type="button" className="wla-link wla-center" onClick={onExit}>Back to all games</button>
@@ -78,6 +82,7 @@ function Result({meta,score,who,beat,onAgain,onExit}:{meta:GameMeta;score:number
 
 function Progress({at,of,label}:{at:number;of:number;label?:string}){return <div className="wla-gprog"><div className="wla-split"><small>{label||`Round ${Math.min(at+1,of)} of ${of}`}</small></div><div className="wla-progress"><span style={{width:`${at*100/of}%`}}/></div></div>}
 function Explain({ok,why,onNext,last}:{ok:boolean;why:string;onNext:()=>void;last:boolean}){
+ useEffect(()=>{try{navigator.vibrate?.(ok?25:[50,40,50])}catch{}},[ok]);
  return <div className={'wla-explain '+(ok?'ok':'no')} role="status"><strong>{ok?<><Check size={18}/>Correct</>:<><X size={18}/>Not this time</>}</strong><p>{why}</p><button type="button" className="wla-primary wla-full" onClick={onNext}>{last?'See my score':'Next'}</button></div>;
 }
 
@@ -157,7 +162,7 @@ function Frame({type}:{type:number}){const t=shotTypes[type];const s=t.scale;
 }
 function GuessTheShot({onDone}:{onDone:(s:number)=>void}){
  const [r,setR]=useState(0),[pick,setPick]=useState<number|null>(null),[right,setRight]=useState(0);const type=shotQuiz[r];
- const options=useMemo(()=>shuffle([type,...shuffle(shotTypes.map((_,n)=>n).filter(n=>n!==type)).slice(0,3)]),[type,r]);
+ const options=useMemo(()=>shuffle([type,...shuffle(shotTypes.map((_,n)=>n).filter(n=>n!==type)).slice(0,3)]),[type]);
  const answer=(n:number)=>{if(pick!==null)return;setPick(n);if(n===type)setRight(x=>x+1)};
  const next=()=>{if(r+1>=shotQuiz.length){onDone(right*100/shotQuiz.length);return}setR(r+1);setPick(null)};
  return <div className="wla-stack">
@@ -172,13 +177,15 @@ const diceIcons:Record<string,React.ComponentType<{size?:number}>>={coffee:Coffe
 const synonyms:Record<string,string[]>={coffee:['coffee','chai','cup','tea'],bike:['bike','cycle','scooter','ride'],umbrella:['umbrella','rain'],phone:['phone','mobile','call','message'],key:['key','lock','door'],dog:['dog','puppy','pup'],rocket:['rocket','space','launch'],book:['book','read','page','novel'],music:['music','song','sing','tune'],camera:['camera','photo','picture','film'],tree:['tree','branch','leaf','forest'],cake:['cake','bake','birthday','dessert']};
 function StoryDice({onDone}:{onDone:(s:number)=>void}){
  const roll=()=>shuffle(diceItems).slice(0,3);const [items,setItems]=useState<string[]>(roll),[rerolls,setRerolls]=useState(1),[frames,setFrames]=useState(['','','']);
- const all=frames.join(' ').toLowerCase();const used=items.map(it=>synonyms[it].some(w=>all.includes(w)));const filled=frames.map(f=>f.trim().split(/\s+/).filter(Boolean).length>=4);
+ const all=frames.join(' ').toLowerCase();const used=items.map(it=>synonyms[it].some(w=>all.includes(w)));
+ // A frame counts when it has at least 6 words and is not a copy of another frame.
+ const norm=frames.map(f=>f.trim().toLowerCase().replace(/\s+/g,' '));const filled=frames.map((f,n)=>f.trim().split(/\s+/).filter(Boolean).length>=6&&norm.indexOf(norm[n])===n);
  const score=filled.filter(Boolean).length*20+used.filter(Boolean).length*(40/3);
  return <div className="wla-stack">
   <div className="wla-dice">{items.map(it=>{const I=diceIcons[it];return <span key={it}><I size={30}/><small>{it}</small></span>})}</div>
   <button type="button" className="wla-ghost" disabled={!rerolls} onClick={()=>{setItems(roll());setRerolls(0)}}><Dices size={18}/>{rerolls?'Roll again (1 left)':'No rolls left'}</button>
   {['Beginning: who wants what?','Change: what happens?','Ending: how does it land?'].map((label,n)=><div key={n} className="wla-field"><label htmlFor={'sd'+n}>Frame {n+1} · {label}</label><textarea id={'sd'+n} rows={2} maxLength={200} value={frames[n]} onChange={e=>setFrames(frames.map((f,k)=>k===n?e.target.value:f))}/></div>)}
-  <ul className="wla-checklist">{filled.map((f,n)=><li key={'f'+n} className={f?'met':''}>{f?<Check size={14}/>:'•'} Frame {n+1} has at least 4 words</li>)}{items.map((it,n)=><li key={it} className={used[n]?'met':''}>{used[n]?<Check size={14}/>:'•'} Uses the {it}</li>)}</ul>
+  <ul className="wla-checklist">{filled.map((f,n)=><li key={'f'+n} className={f?'met':''}>{f?<Check size={14}/>:'•'} Frame {n+1} has 6+ words of its own</li>)}{items.map((it,n)=><li key={it} className={used[n]?'met':''}>{used[n]?<Check size={14}/>:'•'} Uses the {it}</li>)}</ul>
   <button type="button" className="wla-primary wla-full" disabled={!filled.some(Boolean)} onClick={()=>onDone(score)}>Finish my story</button>
  </div>;
 }
