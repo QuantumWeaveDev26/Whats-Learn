@@ -1,0 +1,17 @@
+{
+  "name": "WhatsLearn",
+  "short_name": "WhatsLearn",
+  "description": "Learn AI skills in 15 minutes a day. Real tasks, AI feedback and your WhatsApp mentor.",
+  "id": "/app",
+  "start_url": "/app",
+  "scope": "/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#125C43",
+  "theme_color": "#125C43",
+  "icons": [
+    {"src": "/images/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/images/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/images/app-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
