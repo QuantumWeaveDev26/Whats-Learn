@@ -464,3 +464,14 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-mint{position:relative;overflow:hidden}.wla-mint::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);transform:translateX(-120%);animation:wlaShine 3s ease-in-out infinite}
 .wla-game,.wla-ccard,.wla-today{transition:transform .15s,box-shadow .15s}.wla-game:active,.wla-ccard:active,.wla-today:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){.wla-xp span::after,.wla-mint::after,.wla-streak.on svg,.wla-screen>.wla-stack>*{animation:none!important}}
+/* App review polish (2026-10-28): course pill no longer shares the badge-grid class; tidy disclosure marker; matching plan cards; calmer locked badges. */
+.wla-course-pill{display:inline-flex;align-items:center;gap:2px;padding:6px 6px 6px 12px;border-radius:999px;background:rgba(255,255,255,.75);font-size:12px;font-weight:700;color:var(--cink,var(--g));white-space:nowrap}
+.wla-state{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.wla-state svg{flex:none}
+.wla-disclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none}
+.wla-disclosure>summary::-webkit-details-marker{display:none}
+.wla-disclosure>summary::after{content:"";flex:none;width:8px;height:8px;margin-right:4px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);opacity:.55;transition:transform .15s}
+.wla-disclosure[open]>summary::after{transform:rotate(-135deg)}
+.wla-plan-alt{border:1px solid var(--line)}.wla-plan-alt small{color:var(--mut);font-size:13px}
+.wla-badge-grid .wla-badge{opacity:.7}.wla-badge-grid .wla-badge.got{opacity:1}
+.wla-perks{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}.wla-perks li{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.35}.wla-perks svg{flex:none;margin-top:2px}
+.wla-chat-demo{pointer-events:none;opacity:.92}.wla-chat-demo .wla-msgs{min-height:0}

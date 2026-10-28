@@ -30,7 +30,7 @@ export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:
   return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} tournament={board?.game===meta.id} onExit={()=>{setPlaying(null);setBeat(undefined);onChallengeDone();void loadBoard()}} onAgain={()=>setTick(t=>t+1)}/>}
  const today=todaysGame();const tl=courseLook[today.track];const TI=tl.Icon;
  return <div className="wla-stack">
-  <div><h2 className="wla-h1 wla-tight">Play a little. <em>Learn a lot.</em></h2><p className="wla-muted">Two-minute games from each course. {plays?`${plays} game${plays===1?'':'s'} played on this phone.`:'Beat your best, then challenge a friend.'}</p></div>
+  <div><h2 className="wla-h1 wla-tight">Play a little. <em>Learn a lot.</em></h2><p className="wla-muted">Quick 1–2 minute games from each course. {plays?`${plays} game${plays===1?'':'s'} played on this phone.`:'Beat your best, then challenge a friend.'}</p></div>
   <Tournament board={board} error={boardErr} who={who} onPlay={id=>setPlaying(id)} onSignIn={onSignIn}/>
   <Squad board={board} who={who} joinCode={joinCode} onChanged={loadBoard} onSignIn={onSignIn}/>
   <button type="button" className={'wla-today '+tl.cls} onClick={()=>setPlaying(today.id)}>
@@ -211,7 +211,7 @@ function Tournament({board,error,who,onPlay,onSignIn}:{board:Board|null;error:st
  if(!board)return error?<p className="wla-note">{error}</p>:<div className="wla-card wla-skel" aria-busy="true">Loading this week’s tournament…</div>;
  const meta=games.find(g=>g.id===board.game)!;const L=courseLook[meta.track];const rows=all?board.top:board.top.slice(0,3);
  return <section className="wla-tourney" aria-labelledby="wla-tourney-t">
-  <div className="wla-split"><p className="wla-kicker"><Trophy size={14}/> WEEKLY TOURNAMENT · {daysLeft(board.endsAt).toUpperCase()}</p><small className="wla-muted">{board.players} playing</small></div>
+  <div className="wla-split"><p className="wla-kicker"><Trophy size={14}/> WEEKLY TOURNAMENT · {daysLeft(board.endsAt).toUpperCase()}</p>{board.players>0&&<small className="wla-muted">{board.players} playing</small>}</div>
   <h3 id="wla-tourney-t" className="wla-h2">{meta.name}</h3>
   {board.me?<p className="wla-tourney-me">You’re <strong>#{board.me.rank}</strong> with {board.me.score}</p>:<p className="wla-muted">{who?'Play once to get on the board. Your best score this week counts.':'Sign in to get on the board.'}</p>}
   {rows.length?<ol className="wla-board">{rows.map(r=><li key={r.rank} className={r.me?'me':''}><span className={'wla-medal m'+r.rank}>{r.rank}</span><span className="wla-grow">{r.name}{r.me?' (you)':''}</span><b>{r.score}</b></li>)}</ol>:<p className="wla-muted">No scores yet this week. Be the first.</p>}
