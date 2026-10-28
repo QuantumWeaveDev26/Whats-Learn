@@ -54,7 +54,7 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
  return <div className="wla-stack">
   <button type="button" className="wla-back" onClick={()=>step==='learn'||step==='check'?onBack():setLeaving(true)}><ArrowLeft size={18}/>All tasks</button>
   {leaving&&<div className="wla-card wla-confirm" role="alertdialog" aria-labelledby="wla-leave-t"><strong id="wla-leave-t">Leave this task?</strong><p className="wla-muted">Your draft is saved on this phone. You can finish it later.</p><div className="wla-row-btns"><button type="button" className="wla-ghost" onClick={()=>setLeaving(false)}>Stay</button><button type="button" className="wla-outline" onClick={onBack}>Leave</button></div></div>}
-  <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} className={i<=at?'on':''}/>)}</div>
+  <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} className={(i<=at?'on':'')+(i===at?' now':'')}><i/>{['Learn','Check','Make','Self-check','Review'][i]}</span>)}</div>
   <p className="wla-kicker">TASK {String(position).padStart(2,'0')} / 10 · {['LEARN','CHECK','MAKE','SELF-CHECK','REVIEW'][at]}</p>
   <h2 className="wla-h2">{mission.title}</h2>
   <p className="wla-meta"><Clock size={15}/>About {mission.minutes} min · up to 100 points</p>

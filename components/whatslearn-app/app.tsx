@@ -97,7 +97,7 @@ export default function WhatsLearnApp(){
   <header className="wla-top"><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts">{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
   {!online&&<p className="wla-banner" role="status">You’re offline. Reconnect to save work and get AI reviews.</p>}
-  <main className="wla-main" ref={mainRef}>{body}</main>
+  <main className="wla-main" ref={mainRef}><div key={tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen">{body}</div></main>
   <nav className="wla-tabs" aria-label="App sections">{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>{setTab(id);setOverlay('');setSaved(null);if(id!=='practice')setOpen(null)}}><Icon size={24}/>{label}</button>)}</nav>
   {sheet&&<div className="wla-scrim" onClick={()=>setSheet(false)}><div className="wla-sheet" role="dialog" aria-modal="true" aria-labelledby="wla-sheet-t" onClick={e=>e.stopPropagation()}>
    <span className="wla-grab"/><p className="wla-kicker">KEEP GOING</p><h2 id="wla-sheet-t" className="wla-h2">Unlock all 10 tasks with <em>Plus.</em></h2>
@@ -122,6 +122,7 @@ function Celebrate({s,snap,onHome}:{s:Saved;snap:Snapshot|null;onHome:()=>void})
  const track=snap?.profile?.track||'marketing';const done=snap?missionsOfCourse(track).filter(m=>snap.work.some(w=>w.mission_id===m.id)).length:0;
  const awarded=s.status==='awarded';const pct=Math.min(1,done/10);const c=2*Math.PI*64;
  return <div className="wla-stack wla-center wla-celebrate">
+  <div className="wla-confetti" aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%6)*0.12}s`,background:['#087A4B','#D5F4DE','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>
   <div className="wla-ring"><svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="64" fill="none" stroke="#E4F8ED" strokeWidth="14"/><circle cx="75" cy="75" r="64" fill="none" stroke="#087A4B" strokeWidth="14" strokeLinecap="round" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 75 75)"/></svg><div><strong>{done}/10</strong><small>tasks saved</small></div></div>
   <h2 className="wla-h1 wla-tight">Task saved. <em>Nice work.</em></h2>
   {awarded&&s.points!==undefined?<p className="wla-win">+{s.points} points{s.balance!==undefined?` · ${s.balance} total`:''}</p>:null}
