@@ -26,14 +26,17 @@ const fallback={kind:'mission',mission:{id:'m2',track:'marketing',title:'Marketi
 const fullStack={kind:'mission',mission:{id:'d1',track:'development',title:'Booking page'},position:1};
 const snapshot={accountKey:'synthetic-a',name:'Synthetic learner',profile:{track:'marketing',language:'en',level:'beginner'},work:[],points:null,paidAccess:false,checkpoints:[],hasContext:true};
 const components=Object.fromEntries(['Home','Courses','Mentor','Me','Creations','GuestHome','MissionFlow','CheckpointFlow','Splash','Welcome','LanguageStep','AuthScreen','PersonalSetup','PathSetup'].map(name=>[name,{[name]:function(){return null}}[name]]));
-function mountApp(s=snapshot){
+function mountApp(s=snapshot,storage=new Map()){
  const h=hooks();let currentSnapshot=s;
  const module=compile('components/whatslearn-app/app.tsx',id=>{
   if(id==='react')return h.api;
   if(id==='lucide-react')return new Proxy({},{get:()=>nothing});
   if(id==='@/lib/personalization')return {localizeMission:m=>m};
   if(id==='@/lib/progression')return {missionsOfCourse:()=>[fallback.mission,fullStack.mission]};
-  if(id==='./api')return {loadSnapshot:async()=>currentSnapshot,api:async()=>({ok:true,data:{limit:3,used:0}}),readLocal:()=>null,writeLocal(){},setAccountKey(){}};
+  if(id==='@/lib/missions')return loadLocal('lib/missions.ts',h);
+  if(id==='@/lib/practical')return loadLocal('lib/practical.ts',h);
+  if(id==='./api')return {loadSnapshot:async()=>currentSnapshot,api:async()=>({ok:true,data:{limit:3,used:0}}),readLocal:k=>storage.get(k)||null,writeLocal:(k,v)=>{storage.set(k,v);return true},setAccountKey(){}};
+  if(id==='./learning-state')return loadLocal('components/whatslearn-app/learning-state.ts',h);
   if(id==='./tabs')return {...components,nextFor:()=>fallback};
   if(['./intro','./onboarding','./practice'].includes(id))return components;
   return require(id);
@@ -58,6 +61,13 @@ test('the mentor and Practice retain a selected task from another course across 
  assert.ok(find(tree,n=>n.type===components.MissionFlow),'practice stays mounted while hidden');
  nav(tree,'Practice').props.onClick();tree=m.render();
  assert.equal(find(tree,n=>n.type===components.MissionFlow).props.mission.id,'d1');
+});
+
+test('reopening the app restores the last selected task instead of the profile default',async()=>{
+ const storage=new Map(),first=mountApp(snapshot,storage);let tree=await enterApp(first);nav(tree,'Courses').props.onClick();tree=first.render();find(tree,n=>n.type===components.Courses).props.onOpen(fullStack);first.render();await first.flush();
+ const reopened=mountApp(snapshot,storage);tree=await enterApp(reopened);
+ assert.equal(find(tree,n=>n.type===components.MissionFlow)?.props.mission.id,'d1');
+ assert.equal(nav(tree,'Practice').props['aria-current'],'page');
 });
 
 test('guests can reach the course outline without being forced into sign-in',async()=>{

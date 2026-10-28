@@ -3,6 +3,9 @@ import {Component,useCallback,useEffect,useRef,useState,type ReactNode} from 're
 import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock} from 'lucide-react';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
+import {missions} from '@/lib/missions';
+import {parseAnswer} from '@/lib/practical';
+import {restoreResume,resumeKey,resumeRecord} from './learning-state';
 import {api,loadSnapshot,readLocal,writeLocal,setAccountKey,type Snapshot} from './api';
 import {Splash,Welcome,LanguageStep,AuthScreen} from './intro';
 import {PersonalSetup,PathSetup} from './onboarding';
@@ -23,6 +26,7 @@ export default function WhatsLearnApp(){
  const [overlay,setOverlay]=useState<Overlay>('');
  const [open,setOpen]=useState<Next|null>(null);
  const [course,setCourse]=useState<string>();
+ const [resumeAccount,setResumeAccount]=useState('');
  const [sheet,setSheet]=useState(false);
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
@@ -43,7 +47,13 @@ export default function WhatsLearnApp(){
  useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
  useEffect(()=>{mainRef.current?.scrollTo(0,0)},[tab,overlay,open,saved]);
  // A task or draft from a former account must never remain in the active view.
- useEffect(()=>{setOpen(null);setSaved(null);setCourse(undefined);setOverlay('')},[snap?.accountKey]);
+ useEffect(()=>{
+  setSaved(null);setOverlay('');
+  const restored=snap?restoreResume(readLocal(resumeKey(snap.accountKey)),snap):null;
+  setOpen(restored?.target||null);setCourse(restored?.target.kind==='mission'?restored.target.mission.track:restored?.target.kind==='checkpoint'?restored.target.track:undefined);
+  if(restored)setTab(restored.tab);setResumeAccount(snap?.accountKey||'');
+ },[snap?.accountKey]);
+ useEffect(()=>{if(snap&&resumeAccount===snap.accountKey)writeLocal(resumeKey(snap.accountKey),resumeRecord(snap.accountKey,open,tab))},[snap?.accountKey,resumeAccount,open,tab]);
 
  /** Where a person goes next: new visitors see the intro once; signed-in people answer the website's setup questions once, then land on Home. */
  const route=useCallback((s:Snapshot|null)=>{
@@ -61,7 +71,7 @@ export default function WhatsLearnApp(){
   if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
- async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});setAccountKey('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
+ async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});if(snap)writeLocal(resumeKey(snap.accountKey),'');setAccountKey('');setResumeAccount('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
  async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
  function openNext(n:Next){if(n.kind==='plan'){setSheet(true);return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
 
@@ -87,11 +97,13 @@ export default function WhatsLearnApp(){
   else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
   else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>{setOpen(null);setTab('courses')}} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
   else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={()=>setSheet(true)}>See plans</button></div></div>;
-  else practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id} accountKey={snap!.accountKey} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
+  else {const mission=localizeMission(target.mission,language,snap?.profile?.level),work=snap!.work.find(w=>w.mission_id===mission.id);
+   practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
+  }
  }
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
- if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')}/>;
+ if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
  else if(saved)body=<Celebrate s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}}/>;
@@ -119,7 +131,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-learner-flow-v2"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
@@ -128,7 +140,7 @@ class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
 }
 function SignInCard({what,onSignIn}:{what:string;onSignIn:()=>void}){return <div className="wla-stack"><div className="wla-card"><strong>Sign in to {what}</strong><p className="wla-muted">Your work, points and AI reviews are saved to your account.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div></div>}
 function Celebrate({s,snap,onHome}:{s:Saved;snap:Snapshot|null;onHome:()=>void}){
- const track=snap?.profile?.track||'marketing';const done=snap?missionsOfCourse(track).filter(m=>snap.work.some(w=>w.mission_id===m.id)).length:0;
+ const track=s.track||snap?.profile?.track||'marketing';const done=snap?missionsOfCourse(track).filter(m=>snap.work.some(w=>w.mission_id===m.id)).length:0;
  const awarded=s.status==='awarded';const pct=Math.min(1,done/10);const c=2*Math.PI*64;
  return <div className="wla-stack wla-center wla-celebrate">
   <div className="wla-confetti" aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%6)*0.12}s`,background:['#087A4B','#D5F4DE','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>

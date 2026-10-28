@@ -311,3 +311,24 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-meta{font-size:12px}.wla-splash img{width:88px;height:88px;border-radius:20px}.wla-splash p{font-size:19px}
 .wla-screen{animation:none}.wla-confetti{display:none}
 .wla-celebrate .wla-ring{width:112px;height:112px}.wla-celebrate .wla-ring svg{width:112px;height:112px}.wla-celebrate .wla-ring strong{font-size:26px}
+
+/* Learner flow: short sections, honest save status and accessible correction paths. */
+.wla-disclosure{border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 14px}
+.wla-disclosure>summary{min-height:46px;display:list-item;align-content:center;cursor:pointer;font-size:14px;font-weight:600;padding:12px 0}
+.wla-disclosure[open]{padding-bottom:14px}.wla-disclosure>p{margin:8px 0 0}
+.wla-guide-steps{margin:10px 0;padding-left:20px;list-style:decimal;display:flex;flex-direction:column;gap:9px;font-size:14px;line-height:1.55}
+.wla-fieldset{margin:0;padding:0;border:0;min-width:0;display:flex;flex-direction:column;gap:16px}
+.wla-fieldset legend{font-size:16px;font-weight:600;padding:0;margin-bottom:14px}
+.wla-form-progress{display:flex;flex-direction:column;gap:2px;font-size:13px}.wla-form-progress span{font-size:12px;color:var(--mut)}
+.wla-part-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.wla-part-tabs button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 6px;font-size:12px;font-weight:600}
+.wla-part-tabs button[aria-pressed=true]{border-color:var(--g);background:var(--tint);color:var(--gd)}
+.wla-field-error{color:#9A1C11!important}.wla-field [aria-invalid=true]{border-color:#B42318}
+.wla-restored{margin:0;color:var(--gd);font-size:12px}.wla-course-note{margin:0;padding:12px 14px;color:var(--mut);font-size:12px;border-bottom:1px solid var(--line)}
+.wla-history-entry{padding:12px 0;border-top:1px solid var(--line);font-size:13px}.wla-history-entry>small{color:var(--mut)}
+.wla-history-entry>summary{min-height:44px;cursor:pointer;align-content:center}.wla-history-entry>p{margin:8px 0 0}
+.wla-pre{overflow-wrap:anywhere}.wla-help-text>.wla-read+.wla-read{margin-top:10px}
+.wla h2[tabindex="-1"]:focus{outline:none}
+.wla-carousel{cursor:grab;user-select:none;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.wla-carousel.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}.wla-carousel.is-dragging button{cursor:grabbing}
+@media(prefers-reduced-motion:reduce){.wla-carousel{scroll-behavior:auto}}
