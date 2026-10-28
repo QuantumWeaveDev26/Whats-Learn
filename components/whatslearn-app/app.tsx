@@ -10,6 +10,7 @@ import {api,loadSnapshot,readLocal,writeLocal,setAccountKey,type Snapshot} from 
 import {Splash,Welcome,LanguageStep,AuthScreen} from './intro';
 import {PersonalSetup,PathSetup} from './onboarding';
 import {MissionFlow,CheckpointFlow,type Saved} from './practice';
+import {AppSheet} from './sheet';
 import {Home,Courses,Mentor,Me,Creations,GuestHome,nextFor,type Next} from './tabs';
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
@@ -28,20 +29,37 @@ export default function WhatsLearnApp(){
  const [course,setCourse]=useState<string>();
  const [resumeAccount,setResumeAccount]=useState('');
  const [sheet,setSheet]=useState(false);
+ const sheetOpener=useRef<HTMLElement|null>(null);
+ const showPlans=useCallback(()=>{sheetOpener.current=document.activeElement as HTMLElement|null;setSheet(true)},[]);
+ const closePlans=useCallback(()=>setSheet(false),[]);
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
+ const [loadError,setLoadError]=useState('');
+ const [loading,setLoading]=useState(false);
+ const refreshRun=useRef(0);
  const [creation,setCreation]=useState('');
  const mainRef=useRef<HTMLElement>(null);
  const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
  const refresh=useCallback(async()=>{
-  const s=await loadSnapshot();setSnap(s);
-  if(s){setGuest(false);if(s.profile?.language)setLanguage(s.profile.language);
-   const a=await api<{limit?:number;used?:number}>('/api/feedback');if(a.ok&&a.data.limit!==undefined)setReviews(Math.max(0,a.data.limit-(a.data.used||0)));}
-  return s;
+  const run=++refreshRun.current;setLoading(true);
+  try{
+   const s=await loadSnapshot();if(run!==refreshRun.current)return;setAccountKey(s?.accountKey||'');setSnap(s);setLoadError('');
+   if(s){setGuest(false);if(s.profile?.language)setLanguage(s.profile.language);
+    void api<{limit?:number;used?:number}>('/api/feedback',{timeoutMs:15000}).then(a=>{if(run===refreshRun.current&&a.ok&&a.data.limit!==undefined)setReviews(Math.max(0,a.data.limit-(a.data.used||0)))})}
+   return s;
+  }catch(error){
+   if(run===refreshRun.current){
+    const failedAccount=error&&typeof error==='object'&&'accountKey' in error?error.accountKey:undefined;
+    const accountChanged=!!(error&&typeof error==='object'&&'accountChanged' in error&&error.accountChanged);
+    if(accountChanged||(typeof failedAccount==='string'&&failedAccount!==accountRef.current)){setAccountKey('');setSnap(null);setOpen(null);setSaved(null);setCourse(undefined);setCreation('');setOverlay('');setResumeAccount('');setGuest(false);setBooted(false);setStage('splash')}
+    setLoadError('We couldn’t load your latest progress. Check your connection and try again.');
+   }return undefined;
+  }
+  finally{if(run===refreshRun.current)setLoading(false)}
  },[]);
- useEffect(()=>{const l=readLocal('wla-language');if(l)setLanguage(l);refresh().then(()=>setBooted(true))},[refresh]);
+ useEffect(()=>{const l=readLocal('wla-language');if(l)setLanguage(l);refresh().then(s=>{if(s!==undefined)setBooted(true)})},[refresh]);
  /** Coming back to the app (after paying on the website, or learning on WhatsApp) refreshes plan, points and progress. */
  useEffect(()=>{let last=Date.now();const on=()=>{if(document.visibilityState==='visible'&&Date.now()-last>15000){last=Date.now();refresh()}};document.addEventListener('visibilitychange',on);return()=>document.removeEventListener('visibilitychange',on)},[refresh]);
  useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
@@ -56,7 +74,8 @@ export default function WhatsLearnApp(){
  useEffect(()=>{if(snap&&resumeAccount===snap.accountKey)writeLocal(resumeKey(snap.accountKey),resumeRecord(snap.accountKey,open,tab))},[snap?.accountKey,resumeAccount,open,tab]);
 
  /** Where a person goes next: new visitors see the intro once; signed-in people answer the website's setup questions once, then land on Home. */
- const route=useCallback((s:Snapshot|null)=>{
+ const route=useCallback((s:Snapshot|null|undefined)=>{
+  if(s===undefined)return;
   if(s){if(!s.hasContext)return setStage('context');if(!s.profile)return setStage('path');return setStage('app')}
   if(guest)return setStage('app');
   // Signed-out visitors always start with the welcome slides, then language, then sign-in.
@@ -71,9 +90,9 @@ export default function WhatsLearnApp(){
   if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
- async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});if(snap)writeLocal(resumeKey(snap.accountKey),'');setAccountKey('');setResumeAccount('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
+ async function signOut(){++refreshRun.current;setLoading(false);setLoadError('');await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});if(snap)writeLocal(resumeKey(snap.accountKey),'');setAccountKey('');setResumeAccount('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
  async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
- function openNext(n:Next){if(n.kind==='plan'){setSheet(true);return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
+ function openNext(n:Next){if(n.kind==='plan'){showPlans();return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
 
  const track=snap?.profile?.track||'marketing';
  const current=snap?nextFor(track,snap):null;
@@ -81,6 +100,8 @@ export default function WhatsLearnApp(){
  const mentorMission=selected&&(selected.kind==='mission'||selected.kind==='plan')?selected.mission.id:selected?.kind==='checkpoint'?missionsOfCourse(selected.track)[selected.after-1].id:missionsOfCourse(track)[0].id;
  function goTab(id:Tab){setTab(id);setOverlay('');setSaved(null);if(id==='practice'&&!open)setOpen(current)}
 
+ async function retryLoad(){const s=await refresh();if(s!==undefined){setBooted(true);if(stage!=='app')route(s)}}
+ if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert"><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div></Shell>;
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
  if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
  if(stage==='language')return <Shell><LanguageStep step="STEP 1 OF 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
@@ -96,9 +117,9 @@ export default function WhatsLearnApp(){
   if(!signed)practiceBody=<SignInCard what="practise full tasks with AI review" onSignIn={()=>setStage('auth')}/>;
   else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
   else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>{setOpen(null);setTab('courses')}} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
-  else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={()=>setSheet(true)}>See plans</button></div></div>;
+  else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={showPlans}>See plans</button></div></div>;
   else {const mission=localizeMission(target.mission,language,snap?.profile?.level),work=snap!.work.find(w=>w.mission_id===mission.id);
-   practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
+   practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} onUpgrade={showPlans} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
   }
  }
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',mentor:'Mentor',me:'Me'};
@@ -111,27 +132,27 @@ export default function WhatsLearnApp(){
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={()=>setSheet(true)} onSignOut={signOut}/>;
+ else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
-  <header className="wla-top"><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
+  <header className="wla-top" inert={sheet}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts">{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
   {!online&&<p className="wla-banner" role="status">You’re offline. Reconnect to save work and get AI reviews.</p>}
-  <main className="wla-main" ref={mainRef}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
-  <nav className="wla-tabs" aria-label="App sections">{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
-  {sheet&&<div className="wla-scrim" onClick={()=>setSheet(false)}><div className="wla-sheet" role="dialog" aria-modal="true" aria-labelledby="wla-sheet-t" onClick={e=>e.stopPropagation()}>
-   <span className="wla-grab"/><h2 id="wla-sheet-t" className="wla-h2">Membership plans</h2>
+  {loadError&&<div className="wla-banner wla-retry" role="status"><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
+  <main className="wla-main" ref={mainRef} inert={sheet}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  <nav className="wla-tabs" aria-label="App sections" inert={sheet}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
+  {sheet&&<AppSheet title="Membership plans" onClose={closePlans} returnFocusTo={sheetOpener.current}>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>
    <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small></div>
    <div className="wla-card wla-split"><strong>Pro</strong><small>₹499/month · 25 AI reviews a day</small></div>
    <a className="wla-primary wla-full" href="/membership" target="_blank" rel="noopener">See all plans on the website</a>
    <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>Maybe later</button>
-  </div></div>}
+  </AppSheet>}
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-learner-flow-v2"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-mobile-polish-v3"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

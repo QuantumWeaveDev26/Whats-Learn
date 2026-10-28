@@ -332,3 +332,33 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-carousel{cursor:grab;user-select:none;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
 .wla-carousel.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}.wla-carousel.is-dragging button{cursor:grabbing}
 @media(prefers-reduced-motion:reduce){.wla-carousel{scroll-behavior:auto}}
+
+/* Phone grooming: consistent touch targets, readable content and short-screen sheets. */
+.wla{overflow:hidden;isolation:isolate}
+.wla-page{min-height:0;overscroll-behavior-y:contain}
+.wla-main{overscroll-behavior-y:contain;scroll-padding-block:16px}
+.wla-top,.wla-tabs{flex-shrink:0}
+.wla-h1{font-size:24px;line-height:1.25}
+.wla-points,.wla-pts{flex-shrink:0}
+.wla-top>div{min-width:0}.wla-top strong{overflow-wrap:anywhere}
+.wla-pill{min-height:44px}
+.wla-pass button{width:44px;height:44px;top:2px;right:2px}
+.wla-card summary,.wla-help button,.wla-ideas button{min-height:44px}
+.wla-stack,.wla-card,.wla-field,.wla-ask{min-width:0}
+.wla-msgs p,.wla-card p,.wla-read,.wla-muted,.wla-task .wla-grow{overflow-wrap:anywhere}
+.wla-ask input{min-width:0}
+.wla-form input,.wla-field input,.wla-field textarea,.wla-field select,.wla-ask input{scroll-margin-block:20px}
+.wla-load-error{justify-content:center;gap:18px}.wla-load-error>img{border-radius:12px}
+.wla-retry{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-size:12px}
+.wla-retry .wla-link{flex-shrink:0;font-size:13px}
+.wla-scrim{overscroll-behavior:contain}
+.wla-sheet{max-height:calc(100dvh - max(16px,env(safe-area-inset-top)));overflow-y:auto;overscroll-behavior-y:contain;flex-shrink:0;scroll-padding-block:16px}
+.wla-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wla-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;border:1px solid var(--line);border-radius:50%;background:var(--bg);color:var(--ink)}
+.wla-tip{left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));max-width:496px;margin-inline:auto}
+.wla-tip button{width:44px;height:44px;flex-shrink:0}
+@media(orientation:landscape){
+ .wla-main,.wla-top{padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+ .wla-page{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
+ .wla-tabs{margin-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
+}

@@ -27,7 +27,7 @@ const fullStack={kind:'mission',mission:{id:'d1',track:'development',title:'Book
 const snapshot={accountKey:'synthetic-a',name:'Synthetic learner',profile:{track:'marketing',language:'en',level:'beginner'},work:[],points:null,paidAccess:false,checkpoints:[],hasContext:true};
 const components=Object.fromEntries(['Home','Courses','Mentor','Me','Creations','GuestHome','MissionFlow','CheckpointFlow','Splash','Welcome','LanguageStep','AuthScreen','PersonalSetup','PathSetup'].map(name=>[name,{[name]:function(){return null}}[name]]));
 function mountApp(s=snapshot,storage=new Map()){
- const h=hooks();let currentSnapshot=s;
+ const h=hooks();let currentSnapshot=s,accountKey='';
  const module=compile('components/whatslearn-app/app.tsx',id=>{
   if(id==='react')return h.api;
   if(id==='lucide-react')return new Proxy({},{get:()=>nothing});
@@ -35,14 +35,15 @@ function mountApp(s=snapshot,storage=new Map()){
   if(id==='@/lib/progression')return {missionsOfCourse:()=>[fallback.mission,fullStack.mission]};
   if(id==='@/lib/missions')return loadLocal('lib/missions.ts',h);
   if(id==='@/lib/practical')return loadLocal('lib/practical.ts',h);
-  if(id==='./api')return {loadSnapshot:async()=>currentSnapshot,api:async()=>({ok:true,data:{limit:3,used:0}}),readLocal:k=>storage.get(k)||null,writeLocal:(k,v)=>{storage.set(k,v);return true},setAccountKey(){}};
+  if(id==='./api')return {loadSnapshot:async()=>{if(currentSnapshot instanceof Error)throw currentSnapshot;return typeof currentSnapshot==='function'?currentSnapshot():currentSnapshot},api:async()=>({ok:true,data:{limit:3,used:0}}),readLocal:k=>storage.get(k)||null,writeLocal:(k,v)=>{storage.set(k,v);return true},setAccountKey:key=>accountKey=key};
   if(id==='./learning-state')return loadLocal('components/whatslearn-app/learning-state.ts',h);
+  if(id==='./sheet')return loadLocal('components/whatslearn-app/sheet.tsx',h);
   if(id==='./tabs')return {...components,nextFor:()=>fallback};
   if(['./intro','./onboarding','./practice'].includes(id))return components;
   return require(id);
  });
  const render=()=>{h.start();return module.default()};
- return {render,flush:h.flush,setSnapshot:s=>currentSnapshot=s};
+ return {render,flush:h.flush,setSnapshot:s=>currentSnapshot=s,getAccountKey:()=>accountKey};
 }
 const host={window:global.window,document:global.document,history:global.history};
 test.before(()=>{global.window={addEventListener(){},removeEventListener(){}};global.document={visibilityState:'hidden',addEventListener(){},removeEventListener(){}};global.history={pushState(){},back(){}}});
@@ -133,9 +134,10 @@ test('membership opens the app plan sheet while external settings keep their exi
 test('the app plan sheet can close without navigating or changing the website',async()=>{
  const m=mountApp();let tree=await enterApp(m);nav(tree,'Me').props.onClick();tree=m.render();
  find(tree,n=>n.type===components.Me).props.onPlans();tree=m.render();
- assert.ok(find(tree,n=>n.props.role==='dialog'));
+ const sheet=find(tree,n=>n.type?.name==='AppSheet');assert.ok(sheet);
+ assert.equal(find(tree,n=>n.type==='main').props.inert,true,'background content cannot receive focus behind the sheet');
  const website=find(tree,n=>n.type==='a'&&n.props.href==='/membership');assert.equal(website.props.target,'_blank');
- find(tree,n=>n.type==='button'&&text(n)==='Maybe later').props.onClick();tree=m.render();assert.equal(find(tree,n=>n.props.role==='dialog'),undefined);
+ find(tree,n=>n.type==='button'&&text(n)==='Maybe later').props.onClick();tree=m.render();assert.equal(find(tree,n=>n.type?.name==='AppSheet'),undefined);
 });
 
 test('an external account change remounts a retained lesson even when both accounts have the same next task',async()=>{
@@ -176,4 +178,23 @@ test('a different account never restores the former account draft or a legacy un
   find(tree,n=>n.type==='button'&&text(n)===mission.options[mission.answer]).props.onClick();tree=render();
   const input=find(tree,n=>n.props.id==='f-'+field);assert.ok(input);assert.notEqual(input.props.value,'Account A private draft');
  }finally{global.localStorage=previousStorage}
+});
+
+test('a known account switch with a partial load failure unmounts the previous private task',async()=>{
+ const m=mountApp();let tree=await enterApp(m);nav(tree,'Practice').props.onClick();tree=m.render();
+ m.setSnapshot(Object.assign(new Error('Synthetic partial failure'),{accountKey:'synthetic-b'}));find(tree,n=>n.type===components.MissionFlow).props.onPoints();await m.flush();tree=m.render();
+ assert.equal(find(tree,n=>n.type===components.MissionFlow),undefined);assert.ok(find(tree,n=>n.type==='button'&&text(n)==='Try again'));assert.equal(m.getAccountKey(),'');
+});
+
+test('retry after a saved setup refresh failure resumes Home without saving setup twice',async()=>{
+ const m=mountApp({...snapshot,hasContext:false});let tree=await enterApp(m);assert.ok(find(tree,n=>n.type===components.PersonalSetup));
+ m.setSnapshot(new Error('Synthetic refresh failure'));await find(tree,n=>n.type===components.PersonalSetup).props.onDone();tree=m.render();
+ assert.equal(find(tree,n=>n.type===components.PersonalSetup),undefined);const retry=find(tree,n=>n.type==='button'&&text(n)==='Try again');assert.ok(retry);
+ m.setSnapshot(snapshot);await retry.props.onClick();tree=m.render();assert.ok(find(tree,n=>n.type===components.Home));
+});
+
+test('a refresh finishing after sign-out cannot publish the old account again',async()=>{
+ const m=mountApp();let tree=await enterApp(m);nav(tree,'Practice').props.onClick();tree=m.render();let resolve;
+ m.setSnapshot(()=>new Promise(r=>resolve=r));find(tree,n=>n.type===components.MissionFlow).props.onPoints();nav(tree,'Me').props.onClick();tree=m.render();await find(tree,n=>n.type===components.Me).props.onSignOut();
+ resolve(snapshot);await m.flush();tree=m.render();assert.equal(m.getAccountKey(),'');assert.ok(find(tree,n=>n.type===components.AuthScreen));
 });
