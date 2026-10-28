@@ -88,8 +88,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
  </div>;
 }
 
-export function Creations({s,onBack}:{s:Snapshot;onBack:()=>void}){
- const [view,setView]=useState('');const w=s.work.find(x=>x.mission_id===view);const title=(id:string)=>missions.find(m=>m.id===id)?.title||id;
+export function Creations({s,onBack,view,setView}:{s:Snapshot;onBack:()=>void;view:string;setView:(id:string)=>void}){const w=s.work.find(x=>x.mission_id===view);const title=(id:string)=>missions.find(m=>m.id===id)?.title||id;
  if(w)return <div className="wla-stack"><button type="button" className="wla-back" onClick={()=>setView('')}><ArrowLeft size={18}/>My Creations</button><h2 className="wla-h2">{title(w.mission_id)}</h2><p className="wla-muted">Saved {new Date(w.updated_at).toLocaleDateString()}</p><div className="wla-card"><pre className="wla-pre">{readableBody(w.body)}</pre></div></div>;
  return <div className="wla-stack"><button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>Back</button><h2 className="wla-h1 wla-tight">My <em>creations.</em></h2>
   {s.work.length?s.work.map(x=><button key={x.mission_id} type="button" className="wla-tile" onClick={()=>setView(x.mission_id)}><span><strong>{title(x.mission_id)}</strong><small>Saved {new Date(x.updated_at).toLocaleDateString()}</small></span><ChevronRight size={20}/></button>)

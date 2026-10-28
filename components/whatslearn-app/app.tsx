@@ -26,6 +26,7 @@ export default function WhatsLearnApp(){
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
+ const [creation,setCreation]=useState('');
  const mainRef=useRef<HTMLElement>(null);
 
  const refresh=useCallback(async()=>{
@@ -50,9 +51,9 @@ export default function WhatsLearnApp(){
  useEffect(()=>{if(booted&&stage==='splash'){const t=setTimeout(()=>route(snap),1600);return()=>clearTimeout(t)}},[booted,stage,route,snap]);
 
  /** The phone's Back button steps back through the app (sheet, screen, task, tab) before leaving it. */
- const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab};
+ const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab,creation});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab,creation};
  useEffect(()=>{if(stage!=='app')return;history.pushState({wla:1},'');const onPop=()=>{const d=depth.current;
-  if(d.sheet)setSheet(false);else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
+  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
  async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});setAccountKey('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
@@ -73,7 +74,7 @@ export default function WhatsLearnApp(){
  const signed=!!snap;
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
- if(overlay==='creations'&&snap)body=<Creations s={snap} onBack={()=>setOverlay('')}/>;
+ if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
  else if(saved)body=<Celebrate s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}}/>;
@@ -88,7 +89,7 @@ export default function WhatsLearnApp(){
   else body=<MissionFlow key={target.mission.id} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{setSaved(s);await refresh()}} onPoints={()=>{refresh()}}/>;
  }
  else if(tab==='mentor')body=<Mentor missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>setOverlay('creations')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onSignOut={signOut}/>;
+ else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
