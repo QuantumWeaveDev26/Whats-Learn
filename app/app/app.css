@@ -405,3 +405,18 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-score{width:150px;height:150px;border-radius:50%;background:var(--gd);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(12,56,37,.25);animation:wlaPop .6s ease-out both}.wla-score strong{font-size:52px;line-height:1}.wla-score small{color:#D2F7DF}
 .wla-streak-big{display:inline-flex;align-items:center;gap:8px;margin:0;padding:8px 16px;border-radius:999px;background:#FFF1E6;color:#B4540F;font-weight:700}
 .wla-tomorrow{width:100%;text-align:left;display:flex;flex-direction:column;gap:4px}.wla-tomorrow .wla-kicker{display:flex;align-items:center;gap:6px}.wla-tomorrow small{color:var(--mut)}
+
+/* ---- Tournament and squads ---- */
+.wla-tourney{display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:24px;background:#fff;box-shadow:var(--card-shadow);border:1.5px solid #F1D9A8;background:linear-gradient(180deg,#FFF8E8,#fff 60%)}
+.wla-tourney .wla-kicker{display:flex;align-items:center;gap:6px;color:#8A5A00}
+.wla-tourney-me{margin:0;font-size:15px}.wla-tourney-me strong{color:#8A5A00;font-size:18px}
+.wla-board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wla-board li{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 12px;border-radius:14px;background:#F6F9F2}
+.wla-board li.me{background:var(--mint);font-weight:700}.wla-board b{font-size:16px}.wla-board small{color:var(--mut)}
+.wla-medal{width:28px;height:28px;flex:none;border-radius:50%;background:#E4EDE6;color:#4E655A;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.wla-medal.m1{background:#F6C445;color:#5A3D00}.wla-medal.m2{background:#D5DBE0;color:#3A444C}.wla-medal.m3{background:#E8B38A;color:#5A2F12}
+.wla-squad{display:flex;flex-direction:column;gap:10px}.wla-squad>strong,.wla-squad .wla-split strong{display:flex;align-items:center;gap:8px}
+.wla-badge-pill{padding:4px 10px;border-radius:999px;background:var(--mint);color:var(--gdd);font-weight:700;font-size:13px}
+.wla-inline{display:flex;gap:8px}.wla-inline input{flex:1;min-width:0;min-height:48px;padding:0 14px;border:1.5px solid #CFDCD3;border-radius:14px;background:#fff;font-size:16px}.wla-inline button{min-height:48px;padding:0 18px}
+.wla-skel{color:var(--mut);animation:wlaPulse 1.2s ease-in-out infinite}@keyframes wlaPulse{50%{opacity:.55}}
+.wla-row-btns .wla-primary{flex:1}

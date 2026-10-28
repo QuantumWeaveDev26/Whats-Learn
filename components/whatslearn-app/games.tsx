@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {ArrowLeft,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
-import {readLocal,writeLocal} from './api';
+import {ArrowLeft,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
+import {api,readLocal,writeLocal} from './api';
 import {courseLook} from './tabs';
 import {games,hookFeed,channels,budgetRounds,bugRounds,flowRounds,shotRounds,shotTypes,shotQuiz,diceItems,captionRounds,type GameId,type GameMeta} from './games-data';
 
@@ -14,7 +14,11 @@ export function todaysGame(){const d=new Date();const n=Math.floor(Date.UTC(d.ge
 export const gameLink=(id:GameId,score:number)=>`https://whatslearn.in/app?play=${id}&beat=${score}`;
 
 /** The Play tab: today's game, every course game with its best score, and friend challenges. */
-export function GamesHub({who,challenge,onChallengeDone}:{who:string;challenge?:Challenge|null;onChallengeDone:()=>void}){
+type Board={week:string;endsAt:string;game:GameId;players:number;signedIn:boolean;top:{rank:number;name:string;score:number;me:boolean}[];squads:{rank:number;name:string;members:number;total:number}[];me:null|{score:number;rank:number};squad:null|{name:string;code:string;owner:boolean;total:number;rank:number;members:{name:string;score:number;me:boolean}[]}};
+export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:string;challenge?:Challenge|null;onChallengeDone:()=>void;joinCode?:string;onSignIn?:()=>void}){
+ const [board,setBoard]=useState<Board|null>(null),[boardErr,setBoardErr]=useState('');
+ const loadBoard=async()=>{const r=await api<Board>('/api/games');if(r.ok){setBoard(r.data);setBoardErr('')}else setBoardErr(r.data.error||'Leaderboard unavailable.')};
+ useEffect(()=>{void loadBoard()},[who]);
  const [playing,setPlaying]=useState<GameId|null>(challenge?.game||null);
  const [beat,setBeat]=useState<number|undefined>(challenge?.beat);
  const [tick,setTick]=useState(0);
@@ -22,10 +26,12 @@ export function GamesHub({who,challenge,onChallengeDone}:{who:string;challenge?:
  const best=(id:GameId)=>Number(readLocal(bestKey(who,id))||0);
  const plays=Number(readLocal(playsKey(who))||0);
  if(playing){const meta=games.find(g=>g.id===playing)!;
-  return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} onExit={()=>{setPlaying(null);setBeat(undefined);onChallengeDone()}} onAgain={()=>setTick(t=>t+1)}/>}
+  return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} tournament={board?.game===meta.id} onExit={()=>{setPlaying(null);setBeat(undefined);onChallengeDone();void loadBoard()}} onAgain={()=>setTick(t=>t+1)}/>}
  const today=todaysGame();const tl=courseLook[today.track];const TI=tl.Icon;
  return <div className="wla-stack">
   <div><h2 className="wla-h1 wla-tight">Play a little. <em>Learn a lot.</em></h2><p className="wla-muted">Two-minute games from each course. {plays?`${plays} game${plays===1?'':'s'} played on this phone.`:'Beat your best, then challenge a friend.'}</p></div>
+  <Tournament board={board} error={boardErr} who={who} onPlay={id=>setPlaying(id)} onSignIn={onSignIn}/>
+  <Squad board={board} who={who} joinCode={joinCode} onChanged={loadBoard} onSignIn={onSignIn}/>
   <button type="button" className={'wla-today '+tl.cls} onClick={()=>setPlaying(today.id)}>
    <span className="wla-today-tag">TODAY’S GAME</span><span className="wla-ccard-icon"><TI size={24}/></span>
    <strong>{today.name}</strong><small>{today.tagline}</small>
@@ -37,13 +43,14 @@ export function GamesHub({who,challenge,onChallengeDone}:{who:string;challenge?:
  </div>;
 }
 
-function GameScreen({meta,who,beat,onExit,onAgain}:{meta:GameMeta;who:string;beat?:number;onExit:()=>void;onAgain:()=>void}){
+function GameScreen({meta,who,beat,tournament,onExit,onAgain}:{meta:GameMeta;who:string;beat?:number;tournament?:boolean;onExit:()=>void;onAgain:()=>void}){
  const [score,setScore]=useState<number|null>(null);const L=courseLook[meta.track];
- const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));setScore(v)};
+ const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)void api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));setScore(v)};
  return <div className="wla-stack wla-game-screen">
   <button type="button" className="wla-back" onClick={onExit}><ArrowLeft size={18}/>All games</button>
   <div className={'wla-game-head '+L.cls}><span className="wla-ccard-icon"><L.Icon size={22}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>
   {beat!==undefined&&score===null&&<p className="wla-note"><Crown size={16}/>Your friend scored {beat}. Can you beat it?</p>}
+  {tournament&&score===null&&<p className="wla-note"><Trophy size={16}/>This week’s tournament game{who?': your best score this week counts.':'. Sign in to get on the board.'}</p>}
   {score===null?<Game id={meta.id} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} onAgain={onAgain} onExit={onExit}/>}
  </div>;
 }
@@ -187,4 +194,46 @@ function CaptionIt({onDone}:{onDone:(s:number)=>void}){
   <div className="wla-options">{order.map(n=><button key={n} type="button" disabled={pick!==null} className={'wla-option'+(pick!==null&&n===round.best?' on':'')+(pick===n&&n!==round.best?' off':'')} onClick={()=>answer(n)}><span>{round.options[n]}</span></button>)}</div>
   {pick!==null&&<Explain ok={pick===round.best} why={round.why} onNext={next} last={r+1>=captionRounds.length}/>}
  </div>;
+}
+
+function daysLeft(endsAt:string){const ms=new Date(endsAt).getTime()-Date.now();const d=Math.max(0,Math.ceil(ms/864e5));return d<=1?'ends tonight':`${d} days left`}
+/** The weekly tournament: one game for everyone, best score of the week counts. */
+function Tournament({board,error,who,onPlay,onSignIn}:{board:Board|null;error:string;who:string;onPlay:(id:GameId)=>void;onSignIn?:()=>void}){
+ const [all,setAll]=useState(false);
+ if(!board)return error?<p className="wla-note">{error}</p>:<div className="wla-card wla-skel" aria-busy="true">Loading this week’s tournament…</div>;
+ const meta=games.find(g=>g.id===board.game)!;const L=courseLook[meta.track];const rows=all?board.top:board.top.slice(0,3);
+ return <section className="wla-tourney" aria-labelledby="wla-tourney-t">
+  <div className="wla-split"><p className="wla-kicker"><Trophy size={14}/> WEEKLY TOURNAMENT · {daysLeft(board.endsAt).toUpperCase()}</p><small className="wla-muted">{board.players} playing</small></div>
+  <h3 id="wla-tourney-t" className="wla-h2">{meta.name}</h3>
+  {board.me?<p className="wla-tourney-me">You’re <strong>#{board.me.rank}</strong> with {board.me.score}</p>:<p className="wla-muted">{who?'Play once to get on the board. Your best score this week counts.':'Sign in to get on the board.'}</p>}
+  {rows.length?<ol className="wla-board">{rows.map(r=><li key={r.rank} className={r.me?'me':''}><span className={'wla-medal m'+r.rank}>{r.rank}</span><span className="wla-grow">{r.name}{r.me?' (you)':''}</span><b>{r.score}</b></li>)}</ol>:<p className="wla-muted">No scores yet this week. Be the first.</p>}
+  {board.top.length>3&&<button type="button" className="wla-link" onClick={()=>setAll(!all)}>{all?'Show top 3':'See top 10'}</button>}
+  <div className="wla-row-btns"><button type="button" className={'wla-primary '+L.cls} onClick={()=>onPlay(meta.id)}>Play {meta.name}</button>{!who&&onSignIn&&<button type="button" className="wla-outline" onClick={onSignIn}>Sign in</button>}</div>
+ </section>;
+}
+/** Squads: up to five friends; their best tournament scores this week add up to a team score. */
+function Squad({board,who,joinCode,onChanged,onSignIn}:{board:Board|null;who:string;joinCode?:string;onChanged:()=>Promise<void>|void;onSignIn?:()=>void}){
+ const [name,setName]=useState(''),[code,setCode]=useState(joinCode||''),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[copied,setCopied]=useState(false);
+ useEffect(()=>{if(joinCode)setCode(joinCode)},[joinCode]);
+ const act=async(body:Record<string,string>)=>{setBusy(true);setMsg('');const r=await api<{error?:string}>('/api/games',{method:'POST',body});setBusy(false);if(!r.ok){setMsg(r.data.error||'That did not work.');return}setName('');setCode('');if(body.action!=='leave')writeLocal('wla-squad-invite','');await onChanged()};
+ if(!who)return <section className="wla-card wla-squad"><strong><Users size={18}/> Squad challenge</strong><p className="wla-muted">Team up with up to 5 friends. Your best scores in the weekly game add up to one team score.{joinCode?` You were invited to squad ${joinCode}.`:''}</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in to {joinCode?'join':'start'} a squad</button>}</section>;
+ const sq=board?.squad;
+ if(sq){const link=`https://whatslearn.in/app?squad=${sq.code}`;const text=`Join my WhatsLearn squad “${sq.name}”. We play one game a week and our scores add up: ${link}`;
+  return <section className="wla-card wla-squad">
+   <div className="wla-split"><strong><Users size={18}/> {sq.name}</strong><span className="wla-badge-pill">#{sq.rank} · {sq.total} pts</span></div>
+   <ol className="wla-board">{sq.members.map((m,i)=><li key={i} className={m.me?'me':''}><span className="wla-medal">{i+1}</span><span className="wla-grow">{m.name}{m.me?' (you)':''}</span><b>{m.score||'—'}</b></li>)}</ol>
+   {sq.members.length<5&&<p className="wla-muted">{5-sq.members.length} spot{5-sq.members.length===1?'':'s'} left. Code <strong>{sq.code}</strong></p>}
+   <a className="wla-primary wla-full" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener"><Share2 size={18}/>Invite friends on WhatsApp</a>
+   <div className="wla-row-btns"><button type="button" className="wla-ghost" onClick={async()=>{try{await navigator.clipboard.writeText(sq.code);setCopied(true)}catch{}}}><Copy size={16}/>{copied?'Copied':'Copy code'}</button><button type="button" className="wla-ghost" disabled={busy} onClick={()=>act({action:'leave'})}><LogOut size={16}/>Leave</button></div>
+   {msg&&<p className="wla-error" role="alert">{msg}</p>}
+   {board&&board.squads.length>1&&<><p className="wla-kicker">TOP SQUADS THIS WEEK</p><ol className="wla-board">{board.squads.slice(0,5).map(s=><li key={s.rank} className={s.name===sq.name?'me':''}><span className={'wla-medal m'+s.rank}>{s.rank}</span><span className="wla-grow">{s.name}<small> · {s.members}</small></span><b>{s.total}</b></li>)}</ol></>}
+  </section>}
+ return <section className="wla-card wla-squad">
+  <strong><Users size={18}/> Squad challenge</strong>
+  <p className="wla-muted">Team up with up to 5 friends. Your best scores in this week’s game add up to one team score.</p>
+  <form className="wla-inline" onSubmit={e=>{e.preventDefault();if(code.trim())void act({action:'join',code})}}><label htmlFor="wla-sq-code" className="wla-sr">Squad code</label><input id="wla-sq-code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Friend’s code" maxLength={6} autoCapitalize="characters"/><button type="submit" className="wla-primary" disabled={busy||code.trim().length<6}>Join</button></form>
+  <form className="wla-inline" onSubmit={e=>{e.preventDefault();if(name.trim())void act({action:'create',name})}}><label htmlFor="wla-sq-name" className="wla-sr">Squad name</label><input id="wla-sq-name" value={name} onChange={e=>setName(e.target.value)} placeholder="New squad name" maxLength={30}/><button type="submit" className="wla-outline" disabled={busy||name.trim().length<2}>Create</button></form>
+  {msg&&<p className="wla-error" role="alert">{msg}</p>}
+  {board&&board.squads.length>0&&<><p className="wla-kicker">TOP SQUADS THIS WEEK</p><ol className="wla-board">{board.squads.slice(0,3).map(s=><li key={s.rank}><span className={'wla-medal m'+s.rank}>{s.rank}</span><span className="wla-grow">{s.name}<small> · {s.members}</small></span><b>{s.total}</b></li>)}</ol></>}
+ </section>;
 }

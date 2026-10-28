@@ -43,7 +43,8 @@ export default function WhatsLearnApp(){
  const [creation,setCreation]=useState('');
  /** A friend's challenge link (/app?play=hook-hunter&beat=80) opens that game straight away, even before sign-in. */
  const [challenge,setChallenge]=useState<Challenge|null>(null);
- useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const g=q.get('play') as GameId|null;if(g&&games.some(x=>x.id===g)){const b=Number(q.get('beat'));setChallenge({game:g,beat:Number.isFinite(b)?Math.max(0,Math.min(100,Math.round(b))):0});history.replaceState(null,'','/app')}}catch{}},[]);
+ const [squadCode,setSquadCode]=useState('');
+ useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const sc=(q.get('squad')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);if(sc.length===6){setSquadCode(sc);writeLocal('wla-squad-invite',sc);history.replaceState(null,'','/app')}else{const kept=readLocal('wla-squad-invite');if(kept&&kept.length===6)setSquadCode(kept)}const g=q.get('play') as GameId|null;if(g&&games.some(x=>x.id===g)){const b=Number(q.get('beat'));setChallenge({game:g,beat:Number.isFinite(b)?Math.max(0,Math.min(100,Math.round(b))):0});history.replaceState(null,'','/app')}}catch{}},[]);
  const mainRef=useRef<HTMLElement>(null);
  const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
@@ -88,7 +89,7 @@ export default function WhatsLearnApp(){
   setStage('welcome');
  },[guest]);
  const challengeRef=useRef<Challenge|null>(null);challengeRef.current=challenge;
- useEffect(()=>{if(challenge&&stage==='app')setTab('play')},[challenge,stage]);
+ useEffect(()=>{if((challenge||squadCode)&&stage==='app')setTab('play')},[challenge,squadCode,stage]);
  const afterSplash=useCallback(()=>{if(booted)route(snap);else setTimeout(()=>setStage(st=>st),300)},[booted,route,snap]);
  useEffect(()=>{if(booted&&stage==='splash'){const t=setTimeout(()=>route(snap),1600);return()=>clearTimeout(t)}},[booted,stage,route,snap]);
 
@@ -139,7 +140,7 @@ export default function WhatsLearnApp(){
  else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);goTab('courses')}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<GamesHub who={snap?.accountKey||''} challenge={challenge} onChallengeDone={()=>setChallenge(null)}/>;
+ else if(tab==='play')body=<GamesHub who={snap?.accountKey||''} challenge={challenge} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
