@@ -44,9 +44,6 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
   <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">Continue learning</h2></div>
    <span className={'wla-streak'+(streak?' on':'')} aria-label={`${streak}-day streak`}><Flame size={18}/>{streak}</span></div>
   <p className="wla-goal"><Target size={16}/>{s.profile?.minutes&&s.profile.minutes!=='flexible'?`Today’s goal: ${s.profile.minutes} minutes`:'Today’s goal: learn at your own pace'}</p>
-  <LevelCard s={s}/>
-  <DailyMissions s={s} who={s.accountKey} onTask={()=>next.kind==='mission'||next.kind==='plan'||next.kind==='checkpoint'?onOpen(next):onTab('courses')} onGame={()=>onTab('play')} onMentor={()=>onTab('mentor')}/>
-  <BadgeToast s={s} who={s.accountKey}/>
 
   {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
@@ -58,6 +55,9 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
    <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:<>Continue <ArrowRight size={18}/></>}</button>
   </div>}
 
+  <LevelCard s={s}/>
+  <DailyMissions s={s} who={s.accountKey} onTask={()=>next.kind==='mission'||next.kind==='plan'||next.kind==='checkpoint'?onOpen(next):onTab('courses')} onGame={()=>onTab('play')} onMentor={()=>onTab('mentor')}/>
+  <BadgeToast s={s} who={s.accountKey}/>
   <div className="wla-week" role="img" aria-label={`Practised on ${days.filter(d=>d.on).length} of the last 7 days`}>
    <div className="wla-split"><strong>This week</strong><small>{days.filter(d=>d.on).length}/7 days</small></div>
    <div className="wla-days">{days.map((d,i)=><span key={i} className={(d.on?'on ':'')+(d.today?'today':'')}><i>{d.on?<Check size={14}/>:null}</i>{d.label}</span>)}</div>
