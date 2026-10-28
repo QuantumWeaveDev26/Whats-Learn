@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
-import {Check,ArrowLeft,Lock} from 'lucide-react';
+import {Check,ArrowLeft,Lock,Clock} from 'lucide-react';
 import type {Mission} from '@/lib/missions';
 import {composeAnswer,emptyAnswer,LIMITS,REASONING_LABEL,type Answer} from '@/lib/practical';
 import {checkpointFor} from '@/lib/checkpoints';
@@ -18,7 +18,7 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
  const [answer,setAnswer]=useState<Answer>(()=>{try{const d=JSON.parse(readLocal(draftKey)||'null');if(d&&d.fields)return d}catch{}return {...emptyAnswer(),fields:Object.fromEntries((mission.practical?.fields||[]).filter(f=>f.starter).map(f=>[f.id,f.starter||'']))}});
  const [checks,setChecks]=useState<boolean[]>([false,false,false,false,false]);
  const [review,setReview]=useState<Review|null>(null),[allow,setAllow]=useState<{limit?:number;used?:number}>({});
- const [busy,setBusy]=useState(''),[err,setErr]=useState('');
+ const [busy,setBusy]=useState(''),[err,setErr]=useState(''),[leaving,setLeaving]=useState(false);
  const [help,setHelp]=useState<''|'simple'|'example'|'hint'>(''),[paid,setPaid]=useState<string[]>([]),[helpMsg,setHelpMsg]=useState('');
  /** Same rules as the website: explaining is free; an example or a hint is a clue that costs 5 points, charged once per mission. */
  async function openHelp(kind:'simple'|'example'|'hint'){
@@ -52,15 +52,17 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
   onSaved({points:r.data.award?.score?.points,balance:r.data.award?.balance,message:r.data.award?.message||'',status:r.data.award?.status||'awarded'});
  }
  return <div className="wla-stack">
-  <button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>All tasks</button>
+  <button type="button" className="wla-back" onClick={()=>step==='learn'||step==='check'?onBack():setLeaving(true)}><ArrowLeft size={18}/>All tasks</button>
+  {leaving&&<div className="wla-card wla-confirm" role="alertdialog" aria-labelledby="wla-leave-t"><strong id="wla-leave-t">Leave this task?</strong><p className="wla-muted">Your draft is saved on this phone. You can finish it later.</p><div className="wla-row-btns"><button type="button" className="wla-ghost" onClick={()=>setLeaving(false)}>Stay</button><button type="button" className="wla-outline" onClick={onBack}>Leave</button></div></div>}
   <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} className={i<=at?'on':''}/>)}</div>
   <p className="wla-kicker">TASK {String(position).padStart(2,'0')} / 10 · {['LEARN','CHECK','MAKE','SELF-CHECK','REVIEW'][at]}</p>
   <h2 className="wla-h2">{mission.title}</h2>
+  <p className="wla-meta"><Clock size={15}/>About {mission.minutes} min · up to 100 points</p>
 
   {step==='learn'&&<>
    <div className="wla-card wla-tint"><p>{mission.brief}</p></div>
    <div className="wla-card"><p className="wla-kicker">THE IDEA</p><p className="wla-read">{mission.lesson}</p></div>
-   <button type="button" className="wla-primary wla-full" onClick={()=>setStep('check')}>Check my understanding</button>
+   <button type="button" className="wla-primary wla-full wla-sticky" onClick={()=>setStep('check')}>Check my understanding</button>
   </>}
 
   {step==='check'&&<>
@@ -88,14 +90,14 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
    </div>{helpMsg&&<p className="wla-muted" role="status">{helpMsg}</p>}
    {help&&<p className="wla-read wla-help-text" role="status">{help==='simple'?mission.lesson:help==='example'?mission.example:mission.checks.find((_,i)=>!checks[i])||mission.checks[0]}</p>}</div>
    <p className="wla-muted">Your draft is saved on this phone as you type.</p>
-   <button type="button" className="wla-primary wla-full" disabled={missing>0} onClick={()=>setStep('self')}>{missing>0?`Fill ${missing} more part${missing>1?'s':''}`:'Next: check your work'}</button>
+   <button type="button" className="wla-primary wla-full wla-sticky" disabled={missing>0} onClick={()=>setStep('self')}>{missing>0?`Fill ${missing} more part${missing>1?'s':''}`:'Next: check your work'}</button>
   </>}
 
   {step==='self'&&<>
    <p className="wla-muted">Tick what your work does. Be honest: the AI review checks it too.</p>
    <div className="wla-options">{mission.checks.slice(0,5).map((c,i)=><button key={i} type="button" className={'wla-option'+(checks[i]?' on':'')} aria-pressed={checks[i]} onClick={()=>setChecks(checks.map((x,n)=>n===i?!x:x))}><span>{c}</span>{checks[i]&&<Check size={18}/>}</button>)}</div>
    {err&&<p className="wla-error" role="alert">{err}</p>}
-   <button type="button" className="wla-primary wla-full" disabled={busy==='review'} onClick={getReview}>{busy==='review'?'Reading your work…':`Get AI review${left!==undefined?` · ${left} left today`:''}`}</button>
+   <button type="button" className="wla-primary wla-full wla-sticky" disabled={busy==='review'} onClick={getReview}>{busy==='review'?'Reading your work…':`Get AI review${left!==undefined?` · ${left} left today`:''}`}</button>
    <button type="button" className="wla-ghost wla-full" onClick={()=>setStep('make')}>Edit my work</button>
   </>}
 
@@ -109,7 +111,7 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
     <small className="wla-muted">AI feedback can be wrong. Saving runs the official review.</small>
    </div>
    {err&&<p className="wla-error" role="alert">{err}</p>}
-   <button type="button" className="wla-primary wla-full" disabled={busy==='save'} onClick={save}>{busy==='save'?'Reviewing & saving…':'Save my task'}</button>
+   <button type="button" className="wla-primary wla-full wla-sticky" disabled={busy==='save'} onClick={save}>{busy==='save'?'Reviewing & saving…':'Save my task'}</button>
    <button type="button" className="wla-ghost wla-full" onClick={()=>setStep('make')}>Improve it first</button>
   </>}
  </div>;

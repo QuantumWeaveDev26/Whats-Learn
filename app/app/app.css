@@ -179,3 +179,22 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-page{gap:18px}
 .wla-auth-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
 .wla-msgs p{box-shadow:0 1px 2px rgba(16,36,26,.05)}
+
+/* ---- Page polish ---- */
+.wla-goal{display:flex;align-items:center;gap:6px;margin:8px 0 0;color:var(--gd);font-size:14px;font-weight:600}
+.wla-stats div{display:flex;flex-direction:column;gap:2px}.wla-stats svg{color:var(--g);margin-bottom:4px}
+.wla-cbar{display:block;height:5px;margin-top:8px;border-radius:3px;background:#E4EDE6;overflow:hidden}.wla-cbar span{display:block;height:100%;border-radius:3px;background:var(--g)}
+.wla-task{font-size:15px;min-height:56px}.wla-task.locked{color:#6B7D71}
+.wla-cp{width:100%;border:0;border-bottom:1px solid #F0F5EE;text-align:left}
+.wla-meta{display:flex;align-items:center;gap:6px;margin:-6px 0 0;color:var(--mut);font-size:14px}
+.wla-sticky{position:sticky;bottom:10px;z-index:3}
+.wla-confirm{border:1.5px solid var(--g)}.wla-row-btns{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.wla-row-btns button{min-height:44px;padding:0 20px}
+.wla-mentor-intro{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:#fff;box-shadow:var(--card-shadow)}
+.wla-mentor-intro>span{width:44px;height:44px;flex:none;border-radius:50%;background:var(--g);color:#fff;display:inline-flex;align-items:center;justify-content:center}
+.wla-mentor-intro div{display:flex;flex-direction:column}.wla-mentor-intro small{color:var(--mut);font-size:13px}
+.wla-ideas{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.wla-ideas::-webkit-scrollbar{display:none}.wla-ideas button{flex:none;white-space:nowrap}
+.wla-msgs p.typing{display:inline-flex;gap:5px;padding:14px 16px}.wla-msgs p.typing span{width:7px;height:7px;border-radius:50%;background:#9DB3A5;animation:wlaDot 1s infinite ease-in-out}
+.wla-msgs p.typing span:nth-child(2){animation-delay:.15s}.wla-msgs p.typing span:nth-child(3){animation-delay:.3s}
+@keyframes wlaDot{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.wla-profile small+small{margin-top:2px}
+.wla-hero-img{background:#F4F6F2}.wla-hero-img img{width:100%;height:100%;object-fit:cover}

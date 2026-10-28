@@ -22,7 +22,8 @@ export function Welcome({onDone}:{onDone:()=>void}){
  return <div className="wla-page wla-welcome">
   <div className="wla-row-end"><button type="button" className="wla-link" onClick={onDone}>Skip</button></div>
   <div className="wla-welcome-body">
-   <div className="wla-hero-art" aria-hidden="true"><span/><div><Icon size={44}/></div></div>
+   {i===0?<div className="wla-hero-art wla-hero-img" aria-hidden="true"><img src="/images/app-welcome.webp" alt="" width={720} height={540}/></div>
+   :<div className="wla-hero-art" aria-hidden="true"><span/><div><Icon size={44}/></div></div>}
    <h1>{s.t}<br/><em>{s.e}</em></h1>
    <p className="wla-muted">{s.b}</p>
   </div>
@@ -36,7 +37,7 @@ export function Welcome({onDone}:{onDone:()=>void}){
 export function LanguageStep({value,onChange,onNext,onBack,step}:{value:string;onChange:(l:string)=>void;onNext:()=>void;onBack?:()=>void;step?:string}){
  return <div className="wla-page">
   {onBack&&<button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>Back</button>}
-  {step&&<p className="wla-kicker">{step}</p>}
+  {step&&<div className="wla-split"><p className="wla-kicker">{step}</p><button type="button" className="wla-link" onClick={()=>{onChange('en');onNext()}}>Skip · keep English</button></div>}
   <h1 className="wla-h1">Pick your <em>language.</em></h1>
   <p className="wla-muted">Lessons and feedback come in this language. Change it any time.</p>
   <div className="wla-grid2">{lessonLanguages.map(code=><button key={code} type="button" className={'wla-chip'+(value===code?' on':'')} aria-pressed={value===code} onClick={()=>onChange(code)}>{languages[code]}</button>)}</div>
