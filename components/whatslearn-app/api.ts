@@ -17,14 +17,15 @@ export async function api<T=Json>(url:string,init?:{method?:string;body?:unknown
 export type Profile={goal:string;track:string;level:string;language:string;minutes:string;style?:string};
 export type WorkRow={mission_id:string;body:string;updated_at:string;evaluation?:string|null;quiz:number};
 export type Points={balance:number;streak:{current:number;best:number};todayUsed:boolean;today:string;scores:{mission_id:string;points:number;day:string}[]};
-export type Snapshot={accountKey:string;name:string;profile:Profile|null;work:WorkRow[];points:Points|null;paidAccess:boolean;checkpoints:string[];hasContext:boolean};
+export type EvidenceRow={mission_id:string;review:unknown;created_at:string;reviewKey?:string};
+export type Snapshot={accountKey:string;name:string;profile:Profile|null;work:WorkRow[];points:Points|null;paidAccess:boolean;checkpoints:string[];hasContext:boolean;evidence?:EvidenceRow[]};
 /** Loads everything the signed-in screens need in one go. */
 export async function loadSnapshot():Promise<Snapshot|null>{
  const p=await api<{accountKey:string;name?:string;profile:Profile|null}>('/api/profile');
  if(!p.ok)return null;
  setAccountKey(p.data.accountKey);
- const [w,c]=await Promise.all([api<{work:WorkRow[];points:Points;paidAccess:boolean;checkpoints:string[]}>('/api/work'),api<{context?:unknown}>('/api/learner-context')]);
- return {accountKey:p.data.accountKey,name:p.data.name||'',profile:p.data.profile,work:w.ok?w.data.work:[],points:w.ok?w.data.points:null,paidAccess:w.ok?!!w.data.paidAccess:false,checkpoints:w.ok?w.data.checkpoints:[],hasContext:c.ok&&!!c.data.context};
+ const [w,c]=await Promise.all([api<{work:WorkRow[];points:Points;paidAccess:boolean;checkpoints:string[];evidence?:EvidenceRow[]}>('/api/work'),api<{context?:unknown}>('/api/learner-context')]);
+ return {accountKey:p.data.accountKey,name:p.data.name||'',profile:p.data.profile,work:w.ok?w.data.work:[],points:w.ok?w.data.points:null,paidAccess:w.ok?!!w.data.paidAccess:false,checkpoints:w.ok?w.data.checkpoints:[],hasContext:c.ok&&!!c.data.context,evidence:w.ok&&Array.isArray(w.data.evidence)?w.data.evidence:[]};
 }
 export function readLocal(key:string){try{return localStorage.getItem(key)}catch{return null}}
-export function writeLocal(key:string,value:string){try{localStorage.setItem(key,value)}catch{}}
+export function writeLocal(key:string,value:string){try{localStorage.setItem(key,value);return true}catch{return false}}

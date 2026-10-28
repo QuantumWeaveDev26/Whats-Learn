@@ -96,7 +96,7 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-cp{background:#FAFCF8}
 .wla-dot{width:28px;height:28px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:#F0F5EE;color:#4E655A}
 .wla-dot.done{background:var(--g);color:#fff}.wla-dot.now{background:var(--mint);color:var(--gdd)}
-.wla-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.wla-steps span{height:6px;border-radius:3px;background:#CFDCD3}.wla-steps span.on{background:var(--g)}
+.wla-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .wla-review{display:flex;flex-direction:column;gap:10px;border:1.5px solid var(--g)}
 .wla-review ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px}
 .wla-checks{list-style:none;padding:0!important}.wla-checks li{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:#FFF6E5}.wla-checks li.met{background:var(--tint)}.wla-checks span{color:var(--mut);font-size:13px}
@@ -187,7 +187,7 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-task{font-size:15px;min-height:56px}.wla-task.locked{color:#6B7D71}
 .wla-cp{width:100%;border:0;border-bottom:1px solid #F0F5EE;text-align:left}
 .wla-meta{display:flex;align-items:center;gap:6px;margin:-6px 0 0;color:var(--mut);font-size:14px}
-.wla-sticky{position:sticky;bottom:10px;z-index:3}
+.wla-sticky{position:static;flex-shrink:0}
 .wla-confirm{border:1.5px solid var(--g)}.wla-row-btns{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.wla-row-btns button{min-height:44px;padding:0 20px}
 .wla-mentor-intro{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:20px;background:#fff;box-shadow:var(--card-shadow)}
 .wla-mentor-intro>span{width:44px;height:44px;flex:none;border-radius:50%;background:var(--g);color:#fff;display:inline-flex;align-items:center;justify-content:center}
@@ -239,7 +239,7 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-state{font-size:11px!important;font-weight:700;padding:3px 8px;border-radius:999px;background:#F0F5EE;color:#5E7466!important}
 .wla-state.s-saved{background:var(--mint);color:var(--gdd)!important}.wla-state.s-open{background:var(--g);color:#fff!important}.wla-state.s-plan{background:#FFF1E6;color:#8A4314!important}
 .wla-dot.star{background:#FFF4D6;color:#9A6B00}
-.wla-steps{gap:4px}.wla-steps span{height:auto;background:none;display:flex;flex-direction:column;gap:6px;font-size:11px;color:#8A9A8F;text-align:center}
+.wla-steps{gap:4px}.wla-steps span{height:auto;background:none;display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--mut);text-align:center}
 .wla-steps span i{display:block;height:6px;border-radius:3px;background:#DCE6DE}.wla-steps span.on i{background:var(--g)}.wla-steps span.now{color:var(--g);font-weight:700}
 .wla-bot{display:flex;align-items:flex-end;gap:8px;max-width:90%}
 .wla-bot>span{width:28px;height:28px;flex:none;border-radius:50%;background:var(--g);color:#fff;display:inline-flex;align-items:center;justify-content:center}
@@ -248,3 +248,87 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-confetti{position:absolute;inset:0 0 auto;height:260px;pointer-events:none}
 .wla-confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:wlaFall 1.6s ease-in forwards}
 @keyframes wlaFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(260px) rotate(540deg);opacity:0}}
+
+/* Compact app presentation: clear hierarchy, modest icons and quiet surfaces. */
+.wla{font-size:15px;line-height:1.5;--card-shadow:none}
+.wla em{font-family:inherit;font-style:normal;font-weight:inherit;color:inherit}
+.wla-h1,.wla-welcome h1{font-size:25px;line-height:1.22;letter-spacing:-.02em}
+.wla-h2{font-size:19px;line-height:1.35}
+.wla-q{font-size:16px;line-height:1.45}
+.wla-muted,.wla-read{font-size:14px;line-height:1.55}
+.wla-kicker{font-size:11px;letter-spacing:.04em}
+.wla-main{padding:18px 18px 24px}
+.wla-stack{gap:14px}
+.wla-card{padding:16px;border-radius:16px}
+.wla-primary,.wla-outline,.wla-ghost,.wla-mint{min-height:46px;padding:8px 18px;font-size:14px;box-shadow:none}
+.wla-primary{transition:background .12s}
+.wla-top{min-height:54px;background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+.wla-top img{width:28px;height:28px;border-radius:8px}
+.wla-top strong{font-size:16px}
+.wla-pts,.wla-pill{font-size:12px}
+.wla-tabs{border-radius:18px;box-shadow:0 0 0 1px var(--line);margin-bottom:max(8px,env(safe-area-inset-bottom))}
+.wla-tabs button{min-height:48px;font-size:11px;gap:2px}
+.wla-tabs button svg{width:21px;height:21px;padding:4px 14px}
+.wla-hero-card{padding:18px;border-radius:18px;box-shadow:none}
+.wla-hero-card::after{display:none}
+.wla-hero-title{font-size:19px;line-height:1.35}
+.wla-hero-kicker,.wla-hero-sub{font-size:12px;letter-spacing:0}
+.wla-hero-title,.wla-hero-kicker,.wla-hero-sub{margin:0}
+.wla-streak{height:32px;min-width:44px;padding:0 9px;font-size:13px;box-shadow:none}
+.wla-streak svg{width:15px;height:15px}
+.wla-goal{font-size:12px;margin-top:0}
+.wla-week{padding:14px;border:1px solid var(--line);border-radius:16px;box-shadow:none;font-size:13px}
+.wla-days i{width:25px;height:25px}.wla-days span{font-size:11px}
+.wla-stats{border-block:1px solid var(--line)}
+.wla-stats div{padding:12px 4px;border:0;border-radius:0;background:transparent;box-shadow:none;align-items:center}
+.wla-stats svg{display:none}.wla-stats strong{font-size:18px}.wla-stats span{font-size:11px}
+.wla-sec-head strong{font-size:16px}
+.wla-carousel{gap:10px}.wla-ccard{width:186px;padding:14px;border-radius:16px}
+.wla-ccard-icon{width:32px;height:32px;border-radius:10px;box-shadow:none}
+.wla-ccard-icon svg{width:18px;height:18px}
+.wla-ccard strong,.wla-course-cover .wla-grow strong{font-size:15px}
+.wla-ccard small,.wla-course-cover .wla-grow small{font-size:12px}
+.wla-course{border:1px solid var(--line);border-radius:16px;box-shadow:none}
+.wla-course-cover{padding:14px;gap:10px}
+.wla-task .wla-grow{font-size:14px}.wla-task .wla-grow small{font-size:11px}
+.wla-white{min-height:72px;padding:12px;border-radius:12px;gap:4px;box-shadow:none}
+.wla-white strong{font-size:14px}.wla-white svg{width:18px;height:18px}
+.wla-profile{padding:14px;border:1px solid var(--line);border-radius:16px;gap:12px;box-shadow:none}
+.wla-profile>span{width:40px;height:40px;font-size:17px}.wla-profile strong{font-size:16px}
+.wla-row{min-height:50px;font-size:14px;gap:12px}.wla-row>svg{width:18px;height:18px}
+.wla-section{font-size:11px;letter-spacing:.04em}
+.wla-mentor-intro{padding:12px;border:1px solid var(--line);border-radius:16px;gap:10px;box-shadow:none}
+.wla-mentor-intro>span{width:32px;height:32px}.wla-mentor-intro strong{font-size:14px}.wla-mentor-intro small{font-size:12px}
+.wla-task-context{font-size:12px}
+.wla-msgs p{font-size:14px;padding:11px 13px;box-shadow:none}
+.wla-ideas button{font-size:13px;padding:0 12px}
+.wla-page{gap:16px;padding-inline:22px}.wla-hero-art{height:170px;border-radius:20px}
+.wla-hero-art span{width:130px;height:130px}.wla-hero-art div{width:60px;height:60px;border-radius:18px}
+.wla-hero-art div svg{width:34px;height:34px}
+.wla-brand img{width:36px;height:36px;border-radius:9px}.wla-brand strong{font-size:16px}
+.wla-chip{font-size:14px;padding:8px 12px}.wla-form input,.wla-field input,.wla-field select,.wla-field textarea,.wla-stack textarea,.wla-ask input{font-size:16px}
+.wla-option{font-size:14px;padding:12px 14px;min-height:48px}
+.wla-meta{font-size:12px}.wla-splash img{width:88px;height:88px;border-radius:20px}.wla-splash p{font-size:19px}
+.wla-screen{animation:none}.wla-confetti{display:none}
+.wla-celebrate .wla-ring{width:112px;height:112px}.wla-celebrate .wla-ring svg{width:112px;height:112px}.wla-celebrate .wla-ring strong{font-size:26px}
+
+/* Learner flow: short sections, honest save status and accessible correction paths. */
+.wla-disclosure{border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 14px}
+.wla-disclosure>summary{min-height:46px;display:list-item;align-content:center;cursor:pointer;font-size:14px;font-weight:600;padding:12px 0}
+.wla-disclosure[open]{padding-bottom:14px}.wla-disclosure>p{margin:8px 0 0}
+.wla-guide-steps{margin:10px 0;padding-left:20px;list-style:decimal;display:flex;flex-direction:column;gap:9px;font-size:14px;line-height:1.55}
+.wla-fieldset{margin:0;padding:0;border:0;min-width:0;display:flex;flex-direction:column;gap:16px}
+.wla-fieldset legend{font-size:16px;font-weight:600;padding:0;margin-bottom:14px}
+.wla-form-progress{display:flex;flex-direction:column;gap:2px;font-size:13px}.wla-form-progress span{font-size:12px;color:var(--mut)}
+.wla-part-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.wla-part-tabs button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 6px;font-size:12px;font-weight:600}
+.wla-part-tabs button[aria-pressed=true]{border-color:var(--g);background:var(--tint);color:var(--gd)}
+.wla-field-error{color:#9A1C11!important}.wla-field [aria-invalid=true]{border-color:#B42318}
+.wla-restored{margin:0;color:var(--gd);font-size:12px}.wla-course-note{margin:0;padding:12px 14px;color:var(--mut);font-size:12px;border-bottom:1px solid var(--line)}
+.wla-history-entry{padding:12px 0;border-top:1px solid var(--line);font-size:13px}.wla-history-entry>small{color:var(--mut)}
+.wla-history-entry>summary{min-height:44px;cursor:pointer;align-content:center}.wla-history-entry>p{margin:8px 0 0}
+.wla-pre{overflow-wrap:anywhere}.wla-help-text>.wla-read+.wla-read{margin-top:10px}
+.wla h2[tabindex="-1"]:focus{outline:none}
+.wla-carousel{cursor:grab;user-select:none;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.wla-carousel.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}.wla-carousel.is-dragging button{cursor:grabbing}
+@media(prefers-reduced-motion:reduce){.wla-carousel{scroll-behavior:auto}}
