@@ -1,8 +1,6 @@
 'use client';
 import {Component,Suspense,lazy,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
-import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check,Award} from 'lucide-react';
-import {programmes} from '@/lib/programmes';
-import {shareCertificate} from './share';
+import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check} from 'lucide-react';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
 import {missions} from '@/lib/missions';
@@ -179,7 +177,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-retention-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-retention-2"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
@@ -200,9 +198,7 @@ function Celebrate({s,snap,onHome,onPlay}:{s:Saved;snap:Snapshot|null;onHome:()=
   <h2 className="wla-h1 wla-tight">Task saved. <em>Nice work.</em></h2>
   {awarded&&s.points!==undefined?<p className="wla-win">+{s.points} points{s.balance!==undefined?` · ${s.balance} total`:''}</p>:null}
   {s.message&&<p className="wla-muted">{s.message}</p>}
-  <p className="wla-muted">It’s in My Creations now.</p>
-  {done>=10&&<button type="button" className="wla-primary wla-full" onClick={()=>void shareCertificate(snap?.name||'',programmes.find(p=>p.id===track)?.name||'WhatsLearn course')}><Award size={18}/>Get my certificate</button>}
-  {(snap?.points?.streak?.current||0)>0&&<p className="wla-streak-big"><Flame size={20}/>{snap!.points!.streak.current}-day streak</p>}
+  <p className="wla-muted">It’s in My Creations now.</p>  {(snap?.points?.streak?.current||0)>0&&<p className="wla-streak-big"><Flame size={20}/>{snap!.points!.streak.current}-day streak</p>}
   {(()=>{const n=snap?nextFor(track,snap):null;return n&&(n.kind==='mission'||n.kind==='plan')?<div className="wla-card wla-tomorrow"><p className="wla-kicker"><CalendarClock size={14}/> TOMORROW · DAY {n.position} OF 10</p><strong>{n.mission.title}</strong><small>{n.mission.minutes} min · up to 100 points</small></div>:n&&n.kind==='checkpoint'?<div className="wla-card wla-tomorrow"><p className="wla-kicker">NEXT · MINI CHALLENGE</p><strong>Clear it to unlock your next task.</strong></div>:null})()}
   <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener"><BellRing size={18}/>Remind me on WhatsApp tomorrow</a>
   <button type="button" className="wla-primary wla-full" onClick={onHome}>Back to Home</button>

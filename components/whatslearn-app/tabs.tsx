@@ -4,7 +4,7 @@ import {games as allGames} from './games-data';
 import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,CountUp,markMentorDay,levelOf} from './rewards';
 const gameMeta=(id:string)=>allGames.find(g=>g.id===id);
 import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
-import {shareStarterCard,shareCertificate} from './share';
+import {shareStarterCard} from './share';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
 import {lockFor,missionsOfCourse} from '@/lib/progression';
@@ -57,7 +57,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
   <p className="wla-goal"><Target size={16}/>{s.profile?.minutes&&s.profile.minutes!=='flexible'?`Today’s goal: ${s.profile.minutes} minutes`:'Today’s goal: learn at your own pace'}</p>
 
   {streakAtRisk&&<p className="wla-risk" role="status"><Flame size={18}/>Your {streak}-day streak ends at midnight. Save today’s task to keep it.</p>}
-  {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>void shareCertificate(s.name,prog.name)}><Award size={18}/>Get my certificate</button><button type="button" className="wla-hero-link" onClick={()=>onTab('courses')}>Choose another course</button></div>
+  {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
   :doneToday&&next.kind==='mission'?<div className="wla-hero-card"><p className="wla-hero-kicker"><Check size={14}/> Done for today · Day {next.position} of 10 next</p><p className="wla-hero-title">Tomorrow: {next.mission.title}</p><p className="wla-hero-sub"><Clock size={14}/> Earns points in <Countdown/>. You can read and draft it now.</p><button type="button" className="wla-mint" onClick={()=>onTab('play')}><Gamepad2 size={18}/>Play today’s game</button><button type="button" className="wla-hero-link" onClick={()=>onOpen(next)}>Start drafting tomorrow’s task</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
   :<div className="wla-hero-card">
