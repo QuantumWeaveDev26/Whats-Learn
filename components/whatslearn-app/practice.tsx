@@ -11,8 +11,9 @@ type Review={summary:string;strengths:string[];checks:{item:string;met:boolean;n
 export type Saved={points?:number;balance?:number;message:string;status:string};
 
 /** The full mission: Learn → understanding check → Make → self-check → AI review → save. Every step uses the website's own rules and endpoints. */
-export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,onPoints}:{mission:Mission;position:number;language:string;onSaved:(s:Saved)=>void;onUpgrade:()=>void;onBack:()=>void;onPoints?:()=>void}){
- const draftKey='wla-draft:'+mission.id;
+export function MissionFlow({accountKey,mission,position,language,onSaved,onUpgrade,onBack,onPoints}:{accountKey:string;mission:Mission;position:number;language:string;onSaved:(s:Saved)=>void;onUpgrade:()=>void;onBack:()=>void;onPoints?:()=>void}){
+ // Legacy mission-only drafts have no verifiable owner and must not be restored.
+ const draftKey='wla-draft:'+accountKey+':'+mission.id;
  const [step,setStep]=useState<'learn'|'check'|'make'|'self'|'review'>('learn');
  const [missed,setMissed]=useState<number[]>([]);
  const [answer,setAnswer]=useState<Answer>(()=>{try{const d=JSON.parse(readLocal(draftKey)||'null');if(d&&d.fields)return d}catch{}return {...emptyAnswer(),fields:Object.fromEntries((mission.practical?.fields||[]).filter(f=>f.starter).map(f=>[f.id,f.starter||'']))}});
@@ -54,7 +55,7 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
  return <div className="wla-stack">
   <button type="button" className="wla-back" onClick={()=>step==='learn'||step==='check'?onBack():setLeaving(true)}><ArrowLeft size={18}/>All tasks</button>
   {leaving&&<div className="wla-card wla-confirm" role="alertdialog" aria-labelledby="wla-leave-t"><strong id="wla-leave-t">Leave this task?</strong><p className="wla-muted">Your draft is saved on this phone. You can finish it later.</p><div className="wla-row-btns"><button type="button" className="wla-ghost" onClick={()=>setLeaving(false)}>Stay</button><button type="button" className="wla-outline" onClick={onBack}>Leave</button></div></div>}
-  <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} className={(i<=at?'on':'')+(i===at?' now':'')}><i/>{['Learn','Check','Make','Self-check','Review'][i]}</span>)}</div>
+  <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} aria-current={i===at?'step':undefined} className={(i<=at?'on':'')+(i===at?' now':'')}><i aria-hidden="true"/>{['Learn','Check','Make','Self-check','Review'][i]}</span>)}</div>
   <p className="wla-kicker">TASK {String(position).padStart(2,'0')} / 10 · {['LEARN','CHECK','MAKE','SELF-CHECK','REVIEW'][at]}</p>
   <h2 className="wla-h2">{mission.title}</h2>
   <p className="wla-meta"><Clock size={15}/>About {mission.minutes} min · up to 100 points</p>

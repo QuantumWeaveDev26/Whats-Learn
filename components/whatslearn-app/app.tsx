@@ -22,12 +22,14 @@ export default function WhatsLearnApp(){
  const [tab,setTab]=useState<Tab>('home');
  const [overlay,setOverlay]=useState<Overlay>('');
  const [open,setOpen]=useState<Next|null>(null);
+ const [course,setCourse]=useState<string>();
  const [sheet,setSheet]=useState(false);
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
  const [creation,setCreation]=useState('');
  const mainRef=useRef<HTMLElement>(null);
+ const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
  const refresh=useCallback(async()=>{
   const s=await loadSnapshot();setSnap(s);
@@ -40,6 +42,8 @@ export default function WhatsLearnApp(){
  useEffect(()=>{let last=Date.now();const on=()=>{if(document.visibilityState==='visible'&&Date.now()-last>15000){last=Date.now();refresh()}};document.addEventListener('visibilitychange',on);return()=>document.removeEventListener('visibilitychange',on)},[refresh]);
  useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
  useEffect(()=>{mainRef.current?.scrollTo(0,0)},[tab,overlay,open,saved]);
+ // A task or draft from a former account must never remain in the active view.
+ useEffect(()=>{setOpen(null);setSaved(null);setCourse(undefined);setOverlay('')},[snap?.accountKey]);
 
  /** Where a person goes next: new visitors see the intro once; signed-in people answer the website's setup questions once, then land on Home. */
  const route=useCallback((s:Snapshot|null)=>{
@@ -54,16 +58,18 @@ export default function WhatsLearnApp(){
  /** The phone's Back button steps back through the app (sheet, screen, task, tab) before leaving it. */
  const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab,creation});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab,creation};
  useEffect(()=>{if(stage!=='app')return;history.pushState({wla:1},'');const onPop=()=>{const d=depth.current;
-  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
+  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
- async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});setAccountKey('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
+ async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});setAccountKey('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
  async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
- function openNext(n:Next){if(n.kind==='plan'){setSheet(true);return}setOpen(n);setTab('practice');setOverlay('')}
+ function openNext(n:Next){if(n.kind==='plan'){setSheet(true);return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
 
  const track=snap?.profile?.track||'marketing';
  const current=snap?nextFor(track,snap):null;
- const mentorMission=current&&(current.kind==='mission'||current.kind==='plan')?current.mission.id:missionsOfCourse(track)[0].id;
+ const selected=open||current;
+ const mentorMission=selected&&(selected.kind==='mission'||selected.kind==='plan')?selected.mission.id:selected?.kind==='checkpoint'?missionsOfCourse(selected.track)[selected.after-1].id:missionsOfCourse(track)[0].id;
+ function goTab(id:Tab){setTab(id);setOverlay('');setSaved(null);if(id==='practice'&&!open)setOpen(current)}
 
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
  if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
@@ -73,38 +79,41 @@ export default function WhatsLearnApp(){
  if(stage==='path')return <Shell><PathSetup initial={snap?.profile||null} language={language} onDone={async()=>{const s=await refresh();setTab('home');route(s)}}/></Shell>;
 
  const signed=!!snap;
+ // Keep practice mounted while visiting other tabs so its step and unsaved work survive.
+ let practiceBody:React.ReactNode=null;
+ if(tab==='practice'||open){
+  const target=open||current;
+  if(!signed)practiceBody=<SignInCard what="practise full tasks with AI review" onSignIn={()=>setStage('auth')}/>;
+  else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
+  else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>{setOpen(null);setTab('courses')}} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
+  else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={()=>setSheet(true)}>See plans</button></div></div>;
+  else practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id} accountKey={snap!.accountKey} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
+ }
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
  if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
  else if(saved)body=<Celebrate s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}}/>;
- else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>setTab(t as Tab)}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
- else if(tab==='courses')body=signed?<Courses s={snap!} onOpen={openNext}/>:<SignInCard what="start a course" onSignIn={()=>setStage('auth')}/>;
- else if(tab==='practice'){
-  const target=open||current;
-  if(!signed)body=<SignInCard what="practise full tasks with AI review" onSignIn={()=>setStage('auth')}/>;
-  else if(!target||target.kind==='finished')body=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
-  else if(target.kind==='checkpoint')body=<CheckpointFlow key={target.track+target.after} track={target.track} after={target.after} onBack={()=>{setOpen(null);setTab('courses')}} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
-  else if(target.kind==='plan')body=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={()=>setSheet(true)}>See plans</button></div></div>;
-  else body=<MissionFlow key={target.mission.id} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{setSaved(s);await refresh()}} onPoints={()=>{refresh()}}/>;
- }
- else if(tab==='mentor')body=<Mentor missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onSignOut={signOut}/>;
+ else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);goTab('courses')}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
+ else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
+ else if(tab==='practice')body=null;
+ else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
+ else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={()=>setSheet(true)} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
   <header className="wla-top"><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts">{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
   {!online&&<p className="wla-banner" role="status">You’re offline. Reconnect to save work and get AI reviews.</p>}
-  <main className="wla-main" ref={mainRef}><div key={tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen">{body}</div></main>
-  <nav className="wla-tabs" aria-label="App sections">{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>{setTab(id);setOverlay('');setSaved(null);if(id!=='practice')setOpen(null)}}><Icon size={24}/>{label}</button>)}</nav>
+  <main className="wla-main" ref={mainRef}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  <nav className="wla-tabs" aria-label="App sections">{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
   {sheet&&<div className="wla-scrim" onClick={()=>setSheet(false)}><div className="wla-sheet" role="dialog" aria-modal="true" aria-labelledby="wla-sheet-t" onClick={e=>e.stopPropagation()}>
-   <span className="wla-grab"/><p className="wla-kicker">KEEP GOING</p><h2 id="wla-sheet-t" className="wla-h2">Unlock all 10 tasks with <em>Plus.</em></h2>
+   <span className="wla-grab"/><h2 id="wla-sheet-t" className="wla-h2">Membership plans</h2>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>
    <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small></div>
    <div className="wla-card wla-split"><strong>Pro</strong><small>₹499/month · 25 AI reviews a day</small></div>
-   <a className="wla-primary wla-full" href="/membership" target="_blank" rel="noopener">See plans and pay securely</a>
+   <a className="wla-primary wla-full" href="/membership" target="_blank" rel="noopener">See all plans on the website</a>
    <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>Maybe later</button>
   </div></div>}
  </Shell>;

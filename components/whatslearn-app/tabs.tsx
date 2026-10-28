@@ -24,26 +24,24 @@ export function nextFor(track:string,s:Snapshot):Next{
 
 /** Each course keeps the website's own colour (mint, ice, peach, lilac) so courses are recognisable at a glance. */
 export const courseLook:Record<string,{Icon:React.ComponentType<{size?:number}>;cls:string}>={marketing:{Icon:Megaphone,cls:'c-mint'},development:{Icon:Code,cls:'c-ice'},filmmaking:{Icon:Clapperboard,cls:'c-peach'},storytelling:{Icon:Images,cls:'c-lilac'}};
-function Ring({value,size=64}:{value:number;size?:number}){const r=size/2-6,c=2*Math.PI*r;return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true"><circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="6"/><circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#D5F4DE" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${c*Math.min(1,value)} ${c}`} transform={`rotate(-90 ${size/2} ${size/2})`}/></svg>}
 /** The last seven practice days, from the scores the website already keeps. */
 function week(s:Snapshot){const today=s.points?.today?new Date(s.points.today+'T00:00:00'):new Date();const active=new Set((s.points?.scores||[]).map(x=>x.day));
  return Array.from({length:7},(_,i)=>{const d=new Date(today);d.setDate(today.getDate()-6+i);const key=d.toISOString().slice(0,10);const local=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return {label:'SMTWTFS'[d.getDay()],on:active.has(local)||active.has(key),today:i===6}})}
 
-export function Home({s,onOpen,onTab,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>void;onTab:(t:string)=>void;reviewsLeft?:number}){
- const track=s.profile?.track||'marketing';const prog=programmes.find(p=>p.id===track)!;const next=nextFor(track,s);const look=courseLook[track];const Icon=look.Icon;
+export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>void;onTab:(t:string)=>void;onCourse:(id:string)=>void;reviewsLeft?:number}){
+ const track=s.profile?.track||'marketing';const prog=programmes.find(p=>p.id===track)!;const next=nextFor(track,s);
  const {completed}=progressOf(s);const saved=missionsOfCourse(track).filter(m=>completed.has(m.id)).length;
  const doneToday=!!s.points?.todayUsed;const hour=new Date().getHours();const greet=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
  const streak=s.points?.streak?.current||0;const days=week(s);
  return <div className="wla-stack wla-home">
-  <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">Your next <em>small win.</em></h2></div>
+  <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">Continue learning</h2></div>
    <span className={'wla-streak'+(streak?' on':'')} aria-label={`${streak}-day streak`}><Flame size={18}/>{streak}</span></div>
   <p className="wla-goal"><Target size={16}/>{s.profile?.minutes&&s.profile.minutes!=='flexible'?`Today’s goal: ${s.profile.minutes} minutes`:'Today’s goal: learn at your own pace'}</p>
 
   {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
   :<div className="wla-hero-card">
-   <div className="wla-hero-top"><span className="wla-hero-icon"><Icon size={26}/></span><div className="wla-ring"><Ring value={saved/10}/><span>{saved}/10</span></div></div>
-   <p className="wla-hero-kicker">{prog.name.toUpperCase()} · TASK {String(next.position).padStart(2,'0')}</p>
+   <p className="wla-hero-kicker">{prog.name} · Task {next.position} of 10</p>
    <p className="wla-hero-title">{next.mission.title}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · up to 100 points</p>
    {doneToday&&next.kind==='mission'&&<p className="wla-hero-sub">You saved a task today. New tasks earn points once a day, so this one is for tomorrow. You can still read and draft it.</p>}
@@ -63,32 +61,33 @@ export function Home({s,onOpen,onTab,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>v
 
   <div className="wla-split wla-sec-head"><strong>Explore courses</strong><button type="button" className="wla-link" onClick={()=>onTab('courses')}>See all</button></div>
   <div className="wla-carousel">{programmes.map(p=>{const L=courseLook[p.id];const I=L.Icon;const done=missionsOfCourse(p.id).filter(m=>completed.has(m.id)).length;
-   return <button key={p.id} type="button" className={'wla-ccard '+L.cls} onClick={()=>onTab('courses')}><span className="wla-ccard-icon"><I size={22}/></span><strong>{p.name}</strong><small>{p.headline}</small><span className="wla-cbar"><span style={{width:`${done*10}%`}}/></span><small className="wla-ccard-foot">{done?`${done}/10 saved`:'10 tasks · start free'}</small></button>})}</div>
+   return <button key={p.id} type="button" className={'wla-ccard '+L.cls} onClick={()=>onCourse(p.id)}><span className="wla-ccard-icon"><I size={22}/></span><strong>{p.name}</strong><small>{p.headline}</small><span className="wla-cbar"><span style={{width:`${done*10}%`}}/></span><small className="wla-ccard-foot">{done?`${done}/10 saved`:'10 tasks · start free'}</small></button>})}</div>
 
   <button type="button" className="wla-tile wla-tile-tint" onClick={()=>onTab('mentor')}><span className="wla-icon"><MessageCircle size={20}/></span><span><strong>Stuck? Ask your mentor</strong><small>Here in the app or on WhatsApp</small></span></button>
  </div>;
 }
 
-export function Courses({s,onOpen}:{s:Snapshot;onOpen:(n:Next)=>void}){
- const [open,setOpen]=useState(s.profile?.track||'marketing');const {completed,cleared}=progressOf(s);const [notice,setNotice]=useState('');
+export function Courses({s,onOpen,onSignIn,initialTrack}:{s:Snapshot|null;onOpen:(n:Next)=>void;onSignIn:()=>void;initialTrack?:string}){
+ const [open,setOpen]=useState(initialTrack||'');const {completed,cleared}=s?progressOf(s):{completed:new Set<string>(),cleared:new Set<string>()};const [notice,setNotice]=useState('');
  return <div className="wla-stack">
-  <div><h2 className="wla-h1 wla-tight">Pick a skill. <em>Make it real.</em></h2><p className="wla-muted">10 days · 10 tasks · first 3 free. One new task a day.</p></div>
+  <div><h2 className="wla-h1 wla-tight">Choose a course</h2><p className="wla-muted">10 tasks per course · first 3 free.</p></div>
+  {!s&&<p className="wla-muted">Browse first. Sign in when you’re ready to start.</p>}
   {notice&&<p className="wla-note" role="status"><Lock size={16}/>{notice}</p>}
   {programmes.map(p=>{const list=missionsOfCourse(p.id);const done=list.filter(m=>completed.has(m.id)).length;const isOpen=open===p.id;const L=courseLook[p.id];const I=L.Icon;
    return <div key={p.id} className={'wla-course '+L.cls}>
     <button type="button" className="wla-course-cover" aria-expanded={isOpen} onClick={()=>{setOpen(isOpen?'':p.id);setNotice('')}}>
      <span className="wla-ccard-icon"><I size={24}/></span>
-     <span className="wla-grow"><small className="wla-cnum">COURSE {p.number}</small><strong>{p.name}</strong><small>{p.headline}</small><span className="wla-cbar"><span style={{width:`${done*10}%`}}/></span></span>
-     <span className="wla-badge">{done?`${done}/10`:'Start'}<ChevronRight size={18} className={isOpen?'wla-rot':''}/></span>
+     <span className="wla-grow"><strong>{p.name}</strong><small>10 practical tasks</small>{done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}</span>
+     <span className="wla-badge">{done?`${done}/10`:s?'Start':'Preview'}<ChevronRight size={18} className={isOpen?'wla-rot':''}/></span>
     </button>
     {isOpen&&<div className="wla-course-body">{list.flatMap((m,i)=>{
-     const isDone=completed.has(m.id);const lock=lockFor(m,completed,cleared);const plan=needsMembership(m,s.paidAccess);
-     const state=isDone?'Saved':plan?'Plan':lock.locked?'Locked':'Open';
-     const row=<button key={m.id} type="button" className={'wla-task'+(lock.locked&&!isDone&&!plan?' locked':'')+(state==='Open'?' current':'')} onClick={()=>{setNotice('');if(lock.locked&&!lock.checkpoint&&!isDone){setNotice(lock.message);return}onOpen(plan&&!isDone?{kind:'plan',mission:m,position:i+1}:lock.checkpoint?{kind:'checkpoint',track:lock.checkpoint.track,after:lock.checkpoint.after}:{kind:'mission',mission:m,position:i+1})}}>
-      <span className={'wla-dot'+(isDone?' done':state==='Open'?' now':'')}>{isDone?<Check size={14}/>:plan||lock.locked?<Lock size={12}/>:i+1}</span><span className="wla-grow">{m.title}<small>{m.minutes} min · {m.skill}</small></span><small className={'wla-state s-'+state.toLowerCase()}>{state}</small></button>;
+     const isDone=completed.has(m.id);const lock=lockFor(m,completed,cleared);const plan=needsMembership(m,s?.paidAccess||false);
+     const state=!s?(plan?'Plan':'Free'):isDone?'Saved':plan?'Plan':lock.locked?'Locked':'Open';
+     const row=<button key={m.id} type="button" className={'wla-task'+(s&&lock.locked&&!isDone&&!plan?' locked':'')+(state==='Open'?' current':'')} onClick={()=>{setNotice('');if(!s){onSignIn();return}if(lock.locked&&!lock.checkpoint&&!isDone){setNotice(lock.message);return}onOpen(plan&&!isDone?{kind:'plan',mission:m,position:i+1}:lock.checkpoint?{kind:'checkpoint',track:lock.checkpoint.track,after:lock.checkpoint.after}:{kind:'mission',mission:m,position:i+1})}}>
+      <span className={'wla-dot'+(isDone?' done':state==='Open'?' now':'')}>{isDone?<Check size={14}/>:plan||(s&&lock.locked)?<Lock size={12}/>:i+1}</span><span className="wla-grow">{m.title}<small>{m.minutes} min · {m.skill}</small></span><small className={'wla-state s-'+state.toLowerCase()}>{state}</small></button>;
      const after=i+1;const cp=(checkpointPositions as readonly number[]).includes(after)?checkpointFor(p.id,after):undefined;
      const cpCleared=cleared.has(checkpointKey(p.id,after));
-     return cp?[row,<button type="button" key={'cp'+after} className="wla-task wla-cp" onClick={()=>{setNotice('');if(cpCleared){setNotice('Mini challenge cleared. Nice work.');return}if(!isDone){setNotice(`This mini challenge opens after you save task ${after}.`);return}onOpen({kind:'checkpoint',track:p.id,after})}}><span className={'wla-dot star'+(cpCleared?' done':'')}>{cpCleared?<Check size={14}/>:<Star size={13}/>}</span><span className="wla-grow">Mini challenge<small>{cp.title}</small></span><small className="wla-state">{cpCleared?'Cleared':isDone?'Open':'After task '+after}</small></button>]:[row];
+     return cp?[row,<button type="button" key={'cp'+after} className="wla-task wla-cp" onClick={()=>{setNotice('');if(!s){onSignIn();return}if(cpCleared){setNotice('Mini challenge cleared. Nice work.');return}if(!isDone){setNotice(`This mini challenge opens after you save task ${after}.`);return}onOpen({kind:'checkpoint',track:p.id,after})}}><span className={'wla-dot star'+(cpCleared?' done':'')}>{cpCleared?<Check size={14}/>:<Star size={13}/>}</span><span className="wla-grow">Mini challenge<small>{cp.title}</small></span><small className="wla-state">{cpCleared?'Cleared':isDone?'Open':'After task '+after}</small></button>]:[row];
     })}</div>}
    </div>})}
  </div>;
@@ -96,7 +95,7 @@ export function Courses({s,onOpen}:{s:Snapshot;onOpen:(n:Next)=>void}){
 
 type Msg={me:boolean;text:string};
 export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;language:string;signedIn:boolean;onSignIn?:()=>void}){
- const [msgs,setMsgs]=useState<Msg[]>([{me:false,text:'Hi! Ask me anything about your current task. I can explain, give an example or help you get unstuck.'}]);
+ const [msgs,setMsgs]=useState<Msg[]>([{me:false,text:'Need a hand? Ask for an explanation, an example, or a next step.'}]);
  const [q,setQ]=useState(''),[busy,setBusy]=useState(false);const end=useRef<HTMLDivElement>(null);
  useEffect(()=>{end.current?.scrollIntoView({block:'end'})},[msgs,busy]);
  const m=missions.find(x=>x.id===missionId);
@@ -106,12 +105,12 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
   setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
  if(!signedIn)return <div className="wla-stack"><div className="wla-card"><strong>Sign in to chat with your mentor</strong><p className="wla-muted">The mentor uses your current task and progress.</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button>}</div></div>;
  return <div className="wla-chat">
-  {m&&<p className="wla-kicker">ABOUT · {m.title.toUpperCase()}</p>}
-  <div className="wla-mentor-intro"><span><MessageCircle size={22}/></span><div><strong>WhatsLearn Mentor</strong><small>Knows your current task · answers in seconds</small></div></div>
+  {m&&<p className="wla-muted wla-task-context">Task: {m.title}</p>}
+  <div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Help with this task</small></div></div>
   <div className="wla-msgs">{msgs.map((x,i)=>x.me?<p key={i} className="me">{x.text}</p>:<div key={i} className="wla-bot"><span><MessageCircle size={14}/></span><p>{x.text}</p></div>)}{busy&&<p className="typing" role="status" aria-label="Mentor is typing"><span/><span/><span/></p>}<div ref={end}/></div>
   {msgs.length<2&&<div className="wla-ideas">{ideas.map(t=><button key={t} type="button" onClick={()=>ask(t)}>{t}</button>)}</div>}
   <form className="wla-ask" onSubmit={e=>{e.preventDefault();ask(q)}}><label htmlFor="wla-ask" className="wla-sr">Ask the mentor</label><input id="wla-ask" value={q} onChange={e=>setQ(e.target.value)} placeholder="Ask about your task…" maxLength={500}/><button type="submit" aria-label="Send" disabled={busy||!q.trim()}><Send size={20}/></button></form>
-  <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp">Continue on WhatsApp</a>
+  <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener">Continue on WhatsApp</a>
  </div>;
 }
 
@@ -123,7 +122,7 @@ export function Creations({s,onBack,view,setView}:{s:Snapshot;onBack:()=>void;vi
  </div>;
 }
 
-export function Me({s,signedIn,onSignIn,onCreations,onPrefs,onLanguage,onSignOut}:{s:Snapshot|null;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onPrefs:()=>void;onLanguage:()=>void;onSignOut:()=>void}){
+export function Me({s,signedIn,onSignIn,onCreations,onPrefs,onLanguage,onPlans,onSignOut}:{s:Snapshot|null;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onPrefs:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){
  const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{label}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
  return <div className="wla-stack">
   {signedIn&&s?<div className="wla-profile"><span>{(s.name||'W').slice(0,1).toUpperCase()}</span><div><strong>{s.name||'Your account'}</strong><small>{s.paidAccess?'Paid plan':'Explore plan · Free'} · {s.points?.balance??0} points</small><small>{s.work.length} task{s.work.length===1?'':'s'} saved{(s.points?.streak?.current||0)>0?` · ${s.points!.streak.current}-day streak`:''}</small></div></div>
@@ -137,7 +136,7 @@ export function Me({s,signedIn,onSignIn,onCreations,onPrefs,onLanguage,onSignOut
   </div>
   <p className="wla-section">ACCOUNT</p>
   <div className="wla-list">
-   {ext('/membership','Membership & plans',CreditCard)}
+   <button type="button" className="wla-row" onClick={onPlans}><CreditCard size={20}/>Membership & plans<span className="wla-end"><ChevronRight size={18}/></span></button>
    {ext('/support','Help & support',LifeBuoy)}
    {signedIn&&<button type="button" className="wla-row" onClick={onSignOut}><LogOut size={20}/>Sign out</button>}
   </div>
@@ -157,8 +156,8 @@ export function GuestHome({language,onSignIn}:{language:string;onSignIn:()=>void
  const idx=agencyTracks.findIndex(t=>t.id===track);const task=track?agencyStory(language,track).copy.tasks[idx]:'';
  async function review(){setBusy(true);setErr('');const r=await api<{feedback?:typeof fb}>('/api/starter-feedback/guest',{method:'POST',body:{track,body,language}});setBusy(false);if(r.ok&&r.data.feedback)setFb(r.data.feedback);else setErr(r.data.error||'AI review is unavailable right now.')}
  return <div className="wla-stack">
-  <div><p className="wla-kicker">FROM CHAT TO CHANGE</p><h2 className="wla-h1 wla-tight">Play a little.<br/><em>Build a real skill.</em></h2></div>
-  {!track?<div className="wla-hero-card"><p className="wla-hero-kicker">FREE STARTER CHALLENGE</p><p className="wla-hero-title">Try a skill in 3 minutes.</p><p className="wla-hero-sub">One free AI review of your answer. No account needed.</p>
+  <div><h2 className="wla-h1 wla-tight">Try a practical AI skill</h2><p className="wla-muted">Start with a short task.</p></div>
+  {!track?<div className="wla-hero-card"><p className="wla-hero-kicker">Free starter task</p><p className="wla-hero-title">About 3 minutes.</p><p className="wla-hero-sub">One AI review included. No account needed.</p>
    <div className="wla-grid2">{agencyTracks.map((t,i)=>{const Icon=[Megaphone,Code,Clapperboard,Images][i];return <button key={t.id} type="button" className="wla-white" onClick={()=>{setTrack(t.id);setFb(null);setBody('')}}><Icon size={20}/><strong>{t.label}</strong><small>{['Find the hook','Make it work','Set the scene','Tell it in frames'][i]}</small></button>})}</div></div>
   :<div className="wla-stack"><button type="button" className="wla-back" onClick={()=>setTrack('')}><ArrowLeft size={18}/>Choose another skill</button>
    <label htmlFor="wla-starter" className="wla-q">{task}</label>
