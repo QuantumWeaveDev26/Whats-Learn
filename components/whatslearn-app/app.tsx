@@ -45,7 +45,8 @@ export default function WhatsLearnApp(){
  const route=useCallback((s:Snapshot|null)=>{
   if(s){if(!s.hasContext)return setStage('context');if(!s.profile)return setStage('path');return setStage('app')}
   if(guest)return setStage('app');
-  setStage(readLocal('wla-intro-seen')?'auth':'welcome');
+  // Signed-out visitors always start with the welcome slides, then language, then sign-in.
+  setStage('welcome');
  },[guest]);
  const afterSplash=useCallback(()=>{if(booted)route(snap);else setTimeout(()=>setStage(st=>st),300)},[booted,route,snap]);
  useEffect(()=>{if(booted&&stage==='splash'){const t=setTimeout(()=>route(snap),1600);return()=>clearTimeout(t)}},[booted,stage,route,snap]);
