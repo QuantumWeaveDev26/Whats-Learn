@@ -16,7 +16,7 @@ export async function api<T=Json>(url:string,init?:{method?:string;body?:unknown
 }
 export type Profile={goal:string;track:string;level:string;language:string;minutes:string;style?:string};
 export type WorkRow={mission_id:string;body:string;updated_at:string;evaluation?:string|null;quiz:number};
-export type Points={balance:number;streak:number;todayUsed:boolean;today:string;scores:{mission_id:string;points:number;day:string}[]};
+export type Points={balance:number;streak:{current:number;best:number};todayUsed:boolean;today:string;scores:{mission_id:string;points:number;day:string}[]};
 export type Snapshot={accountKey:string;name:string;profile:Profile|null;work:WorkRow[];points:Points|null;paidAccess:boolean;checkpoints:string[];hasContext:boolean};
 /** Loads everything the signed-in screens need in one go. */
 export async function loadSnapshot():Promise<Snapshot|null>{

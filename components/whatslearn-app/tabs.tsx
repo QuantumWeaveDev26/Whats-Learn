@@ -43,7 +43,7 @@ export function Home({s,onOpen,onTab,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>v
    <div><strong>{s.points?.balance??'—'}</strong><span>points</span></div>
    <div><strong>{reviewsLeft??'—'}</strong><span>AI reviews left today</span></div>
   </div>
-  {!!s.points?.streak&&<p className="wla-note">{s.points.streak}-day streak. Keep it going.</p>}
+  {(s.points?.streak?.current||0)>0&&<p className="wla-note">{s.points!.streak.current}-day streak. Keep it going.</p>}
   <button type="button" className="wla-tile" onClick={()=>onTab('courses')}><span><strong>Explore all 4 courses</strong><small>Marketing · Full-stack · Film · Visual stories</small></span><ChevronRight size={20}/></button>
   <button type="button" className="wla-tile wla-tile-tint" onClick={()=>onTab('mentor')}><span className="wla-icon"><MessageCircle size={20}/></span><span><strong>Stuck? Ask your mentor</strong><small>Here in the app or on WhatsApp</small></span></button>
  </div>;

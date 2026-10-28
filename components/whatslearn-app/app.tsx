@@ -1,5 +1,5 @@
 'use client';
-import {useCallback,useEffect,useRef,useState} from 'react';
+import {Component,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
 import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock} from 'lucide-react';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
@@ -108,7 +108,13 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla">{children}</div>}
+function Shell({children}:{children:React.ReactNode}){return <div className="wla"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
+ state={failed:false};
+ static getDerivedStateFromError(){return {failed:true}}
+ render(){if(!this.state.failed)return this.props.children;
+  return <div className="wla-page wla-center" role="alert"><img src="/images/app-icon-192.png" alt="" width={72} height={72} style={{borderRadius:18,alignSelf:'center'}}/><h1 className="wla-h1">Something went <em>wrong.</em></h1><p className="wla-muted">Your saved work is safe. Try again, and if it keeps happening, message us from Help.</p><button type="button" className="wla-primary wla-full" onClick={()=>window.location.reload()}>Try again</button></div>}
+}
 function SignInCard({what,onSignIn}:{what:string;onSignIn:()=>void}){return <div className="wla-stack"><div className="wla-card"><strong>Sign in to {what}</strong><p className="wla-muted">Your work, points and AI reviews are saved to your account.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div></div>}
 function Celebrate({s,snap,onHome}:{s:Saved;snap:Snapshot|null;onHome:()=>void}){
  const track=snap?.profile?.track||'marketing';const done=snap?missionsOfCourse(track).filter(m=>snap.work.some(w=>w.mission_id===m.id)).length:0;
