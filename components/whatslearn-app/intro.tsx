@@ -21,6 +21,8 @@ export function Welcome({onDone}:{onDone:()=>void}){
  const [i,setI]=useState(0);const s=slides[i];const Icon=s.Icon;
  // Each slide shows its own illustration; if an image is missing the icon art is shown instead.
  const [missing,setMissing]=useState<Record<string,boolean>>({});
+ // Fetch the later slides' images as soon as the intro opens, so they never appear blank.
+ useEffect(()=>{slides.slice(1).forEach(x=>{const im=new Image();im.decoding='async';im.src=x.img})},[]);
  return <div className="wla-page wla-welcome">
   <div className="wla-row-end"><button type="button" className="wla-link" onClick={onDone}>Skip</button></div>
   <div className="wla-welcome-body">

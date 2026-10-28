@@ -475,3 +475,7 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-badge-grid .wla-badge{opacity:.7}.wla-badge-grid .wla-badge.got{opacity:1}
 .wla-perks{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}.wla-perks li{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.35}.wla-perks svg{flex:none;margin-top:2px}
 .wla-chat-demo{pointer-events:none;opacity:.92}.wla-chat-demo .wla-msgs{min-height:0}
+/* Course cards line up: title and description each reserve two lines; bar and footer sit at the bottom. */
+.wla-ccard>strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wla-ccard>small:not(.wla-ccard-foot){min-height:2.7em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wla-ccard>.wla-cbar{margin-top:auto}
