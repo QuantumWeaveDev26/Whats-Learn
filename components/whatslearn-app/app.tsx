@@ -1,6 +1,8 @@
 'use client';
-import {Component,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
-import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check} from 'lucide-react';
+import {Component,Suspense,lazy,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
+import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check,Award} from 'lucide-react';
+import {programmes} from '@/lib/programmes';
+import {shareCertificate} from './share';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
 import {missions} from '@/lib/missions';
@@ -12,7 +14,9 @@ import {PersonalSetup,PathSetup} from './onboarding';
 import {MissionFlow,CheckpointFlow,type Saved} from './practice';
 import {AppSheet} from './sheet';
 import {Home,Courses,Mentor,Me,Creations,Achievements,GuestHome,nextFor,type Next} from './tabs';
-import {GamesHub,type Challenge} from './games';
+import type {Challenge} from './games';
+// The Play tab's games are the largest part of the app, so they load only when Play is opened.
+const GamesHub=lazy(()=>import('./games').then(m=>({default:m.GamesHub})));
 import {levelOf} from './rewards';
 import {games,type GameId} from './games-data';
 
@@ -46,6 +50,10 @@ export default function WhatsLearnApp(){
  const [challenge,setChallenge]=useState<Challenge|null>(null);
  const [squadCode,setSquadCode]=useState('');
  useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const sc=(q.get('squad')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);if(sc.length===6){setSquadCode(sc);writeLocal('wla-squad-invite',sc);history.replaceState(null,'','/app')}else{const kept=readLocal('wla-squad-invite');if(kept&&kept.length===6)setSquadCode(kept)}const g=q.get('play') as GameId|null;if(g&&games.some(x=>x.id===g)){const b=Number(q.get('beat'));setChallenge({game:g,beat:Number.isFinite(b)?Math.max(0,Math.min(100,Math.round(b))):0});history.replaceState(null,'','/app')}}catch{}},[]);
+ /** Inside the Play Store / App Store apps, plans are not sold with a link to the website (store payment rules).
+  * The store apps open /app?source=store (or Android passes an android-app:// referrer); this is remembered on the phone. */
+ const [storeApp,setStoreApp]=useState(false);
+ useEffect(()=>{try{const q=new URLSearchParams(window.location.search).get('source');if(q==='store'||document.referrer.startsWith('android-app://'))writeLocal('wla-store-app','1');setStoreApp(readLocal('wla-store-app')==='1')}catch{}},[]);
  const mainRef=useRef<HTMLElement>(null);
  const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
@@ -144,7 +152,7 @@ export default function WhatsLearnApp(){
  else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);goTab('courses')}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<GamesHub who={snap?.accountKey||''} challenge={challenge} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub who={snap?.accountKey||''} challenge={challenge} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
@@ -156,7 +164,12 @@ export default function WhatsLearnApp(){
   {loadError&&<div className="wla-banner wla-retry" role="status"><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
   <main className="wla-main" ref={mainRef} inert={sheet}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
   <nav className="wla-tabs" aria-label="App sections" inert={sheet}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
-  {sheet&&<AppSheet title="Membership plans" onClose={closePlans} returnFocusTo={sheetOpener.current}>
+  {sheet&&storeApp&&<AppSheet title="WhatsLearn Plus" onClose={closePlans} returnFocusTo={sheetOpener.current}>
+   <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.</p>
+   <p className="wla-muted">Already a member? Sign in with the same account and your plan is ready here.</p>
+   <button type="button" className="wla-primary wla-full" onClick={()=>setSheet(false)}>Got it</button>
+  </AppSheet>}
+  {sheet&&!storeApp&&<AppSheet title="Membership plans" onClose={closePlans} returnFocusTo={sheetOpener.current}>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>
    <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small></div>
    <div className="wla-card wla-plan-alt"><div className="wla-split"><strong>Pro</strong><span><strong>₹499</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 25 AI reviews a day</small></div>
@@ -166,7 +179,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-app-review-polish-2"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-retention-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
@@ -188,6 +201,7 @@ function Celebrate({s,snap,onHome,onPlay}:{s:Saved;snap:Snapshot|null;onHome:()=
   {awarded&&s.points!==undefined?<p className="wla-win">+{s.points} points{s.balance!==undefined?` · ${s.balance} total`:''}</p>:null}
   {s.message&&<p className="wla-muted">{s.message}</p>}
   <p className="wla-muted">It’s in My Creations now.</p>
+  {done>=10&&<button type="button" className="wla-primary wla-full" onClick={()=>void shareCertificate(snap?.name||'',programmes.find(p=>p.id===track)?.name||'WhatsLearn course')}><Award size={18}/>Get my certificate</button>}
   {(snap?.points?.streak?.current||0)>0&&<p className="wla-streak-big"><Flame size={20}/>{snap!.points!.streak.current}-day streak</p>}
   {(()=>{const n=snap?nextFor(track,snap):null;return n&&(n.kind==='mission'||n.kind==='plan')?<div className="wla-card wla-tomorrow"><p className="wla-kicker"><CalendarClock size={14}/> TOMORROW · DAY {n.position} OF 10</p><strong>{n.mission.title}</strong><small>{n.mission.minutes} min · up to 100 points</small></div>:n&&n.kind==='checkpoint'?<div className="wla-card wla-tomorrow"><p className="wla-kicker">NEXT · MINI CHALLENGE</p><strong>Clear it to unlock your next task.</strong></div>:null})()}
   <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener"><BellRing size={18}/>Remind me on WhatsApp tomorrow</a>

@@ -3,7 +3,8 @@ import {useEffect,useRef,useState} from 'react';
 import {games as allGames} from './games-data';
 import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,CountUp,markMentorDay,levelOf} from './rewards';
 const gameMeta=(id:string)=>allGames.find(g=>g.id===id);
-import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award} from 'lucide-react';
+import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
+import {shareStarterCard,shareCertificate} from './share';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
 import {lockFor,missionsOfCourse} from '@/lib/progression';
@@ -34,24 +35,35 @@ export const courseLook:Record<string,{Icon:React.ComponentType<{size?:number}>;
 function week(s:Snapshot){const today=s.points?.today?new Date(s.points.today+'T00:00:00'):new Date();const active=new Set((s.points?.scores||[]).map(x=>x.day));
  return Array.from({length:7},(_,i)=>{const d=new Date(today);d.setDate(today.getDate()-6+i);const key=d.toISOString().slice(0,10);const local=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;return {label:'SMTWTFS'[d.getDay()],on:active.has(local)||active.has(key),today:i===6}})}
 
+/** Time left until midnight India time, when a new task can earn points again. */
+function Countdown(){
+ const left=()=>{const ist=Date.now()+5.5*3600e3;const ms=864e5-ist%864e5;return `${Math.floor(ms/36e5)}h ${Math.floor(ms%36e5/6e4)}m`};
+ const [t,setT]=useState(left);
+ useEffect(()=>{const id=setInterval(()=>setT(left()),30000);return()=>clearInterval(id)},[]);
+ return <b>{t}</b>;
+}
+
 export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n:Next)=>void;onTab:(t:string)=>void;onCourse:(id:string)=>void;reviewsLeft?:number}){
  const swipe=useCourseSwipe();
  const track=s.profile?.track||'marketing';const prog=programmes.find(p=>p.id===track)!;const next=nextFor(track,s);
  const {completed}=progressOf(s);const saved=missionsOfCourse(track).filter(m=>completed.has(m.id)).length;
  const doneToday=!!s.points?.todayUsed;const hour=new Date().getHours();const greet=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
  const streak=s.points?.streak?.current||0;const days=week(s);
+ // Evening in India and no task saved yet: the streak is about to break.
+ const streakAtRisk=streak>0&&!doneToday&&new Date(Date.now()+5.5*3600e3).getUTCHours()>=17;
  return <div className="wla-stack wla-home">
   <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">Continue learning</h2></div>
    <span className={'wla-streak'+(streak?' on':'')} aria-label={`${streak}-day streak`}><Flame size={18}/>{streak}</span></div>
   <p className="wla-goal"><Target size={16}/>{s.profile?.minutes&&s.profile.minutes!=='flexible'?`Today’s goal: ${s.profile.minutes} minutes`:'Today’s goal: learn at your own pace'}</p>
 
-  {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
+  {streakAtRisk&&<p className="wla-risk" role="status"><Flame size={18}/>Your {streak}-day streak ends at midnight. Save today’s task to keep it.</p>}
+  {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>void shareCertificate(s.name,prog.name)}><Award size={18}/>Get my certificate</button><button type="button" className="wla-hero-link" onClick={()=>onTab('courses')}>Choose another course</button></div>
+  :doneToday&&next.kind==='mission'?<div className="wla-hero-card"><p className="wla-hero-kicker"><Check size={14}/> Done for today · Day {next.position} of 10 next</p><p className="wla-hero-title">Tomorrow: {next.mission.title}</p><p className="wla-hero-sub"><Clock size={14}/> Earns points in <Countdown/>. You can read and draft it now.</p><button type="button" className="wla-mint" onClick={()=>onTab('play')}><Gamepad2 size={18}/>Play today’s game</button><button type="button" className="wla-hero-link" onClick={()=>onOpen(next)}>Start drafting tomorrow’s task</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
   :<div className="wla-hero-card">
    <p className="wla-hero-kicker">{prog.name} · Day {next.position} of 10</p>
    <p className="wla-hero-title">{next.mission.title}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · up to 100 points</p>
-   {doneToday&&next.kind==='mission'&&<p className="wla-hero-sub">You saved a task today. New tasks earn points once a day, so this one is for tomorrow. You can still read and draft it.</p>}
    <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:<>Continue <ArrowRight size={18}/></>}</button>
   </div>}
 
@@ -196,9 +208,12 @@ export function GuestHome({language,onSignIn}:{language:string;onSignIn:()=>void
    <small className="wla-muted">{body.length}/400 · One or two sentences of your own</small>
    {err&&<p className="wla-error" role="alert">{err}</p>}
    <button type="button" className="wla-primary wla-full" disabled={busy||body.trim().length<10} onClick={review}>{busy?'Reading your answer…':'Get my free AI review'}</button>
-   {fb&&<div className="wla-card wla-review"><p className="wla-kicker">AI FEEDBACK ON YOUR ANSWER</p><p className="wla-read"><strong>What worked:</strong> {fb.worked}</p><p className="wla-read"><strong>Improve:</strong> {fb.improve}</p><p className="wla-read"><strong>Next:</strong> {fb.next}</p>{fb.example&&<p className="wla-read"><strong>Example revision:</strong> {fb.example}</p>}</div>}
+   {fb&&<div className="wla-card wla-review"><p className="wla-kicker">AI FEEDBACK ON YOUR ANSWER</p><p className="wla-read"><strong>What worked:</strong> {fb.worked}</p><p className="wla-read"><strong>Improve:</strong> {fb.improve}</p><p className="wla-read"><strong>Next:</strong> {fb.next}</p>{fb.example&&<p className="wla-read"><strong>Example revision:</strong> {fb.example}</p>}
+    <button type="button" className="wla-outline wla-full" onClick={()=>void shareStarterCard(['Marketing','Build','Film','Story'][idx]||'skills',body,fb.worked)}><Share2 size={18}/>Share my answer</button></div>}
   </div>}
-  <div className="wla-card"><strong>Save your progress</strong><p className="wla-muted">Sign in to start a full course, save your work, get 3 AI reviews a day and connect WhatsApp.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div>
+  {/* Right after the first review is when a learner is most likely to want tomorrow's task. */}
+  {fb?<div className="wla-hero-card wla-next-day"><p className="wla-hero-kicker">Nice work</p><p className="wla-hero-title">Day 2 unlocks tomorrow.</p><p className="wla-hero-sub">Create a free account and connect WhatsApp, and we’ll nudge you when it’s ready.</p><button type="button" className="wla-mint" onClick={onSignIn}><BellRing size={18}/>Remind me tomorrow</button></div>
+  :<div className="wla-card"><strong>Save your progress</strong><p className="wla-muted">Sign in to start a full course, save your work, get 3 AI reviews a day and connect WhatsApp.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div>}
  </div>;
 }
 

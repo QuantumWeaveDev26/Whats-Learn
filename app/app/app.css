@@ -479,3 +479,8 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-ccard>strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wla-ccard>small:not(.wla-ccard-foot){min-height:2.7em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wla-ccard>.wla-cbar{margin-top:auto}
+/* Retention: streak warning, done-for-today card and secondary hero links. */
+.wla-risk{display:flex;align-items:center;gap:8px;margin:0;padding:12px 14px;border-radius:14px;background:#FFF1E6;color:#8A4314;font-size:14px;font-weight:600}.wla-risk svg{flex:none}
+.wla-hero-link{align-self:flex-start;margin-top:4px;padding:8px 0;border:0;background:transparent;color:#D2F7DF;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.wla-hero-kicker svg{vertical-align:-2px}
+.wla-hero-card .wla-mint svg{flex:none}
