@@ -35,7 +35,9 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,
  const steps=['learn','check','make','self','review'];const at=steps.indexOf(step);
  async function getReview(){
   setErr('');if(left===0){onUpgrade();return}
-  setBusy('review');const r=await api<{review:Review;limit?:number;used?:number}>('/api/feedback',{method:'POST',body:{action:'review',quiz:mission.answer,missionId:mission.id,body,language}});setBusy('');
+  setBusy('review');const ask=()=>api<{review:Review;limit?:number;used?:number}>('/api/feedback',{method:'POST',body:{action:'review',quiz:mission.answer,missionId:mission.id,body,language}});
+  // An incomplete AI reply uses no allowance; retry once so a learner rarely sees it.
+  let r=await ask();if(!r.ok&&r.status>=500)r=await ask();setBusy('');
   if(r.status===403){onUpgrade();return}
   if(!r.ok){setErr(r.data.error||'AI review could not finish. Your work is safe; please try again.');return}
   setReview(r.data.review);setAllow({limit:r.data.limit,used:r.data.used});setStep('review');
