@@ -11,7 +11,7 @@ type Review={summary:string;strengths:string[];checks:{item:string;met:boolean;n
 export type Saved={points?:number;balance?:number;message:string;status:string};
 
 /** The full mission: Learn → understanding check → Make → self-check → AI review → save. Every step uses the website's own rules and endpoints. */
-export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack}:{mission:Mission;position:number;language:string;onSaved:(s:Saved)=>void;onUpgrade:()=>void;onBack:()=>void}){
+export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack,onPoints}:{mission:Mission;position:number;language:string;onSaved:(s:Saved)=>void;onUpgrade:()=>void;onBack:()=>void;onPoints?:()=>void}){
  const draftKey='wla-draft:'+mission.id;
  const [step,setStep]=useState<'learn'|'check'|'make'|'self'|'review'>('learn');
  const [missed,setMissed]=useState<number[]>([]);
@@ -19,6 +19,13 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack}
  const [checks,setChecks]=useState<boolean[]>([false,false,false,false,false]);
  const [review,setReview]=useState<Review|null>(null),[allow,setAllow]=useState<{limit?:number;used?:number}>({});
  const [busy,setBusy]=useState(''),[err,setErr]=useState('');
+ const [help,setHelp]=useState<''|'simple'|'example'|'hint'>(''),[paid,setPaid]=useState<string[]>([]),[helpMsg,setHelpMsg]=useState('');
+ /** Same rules as the website: explaining is free; an example or a hint is a clue that costs 5 points, charged once per mission. */
+ async function openHelp(kind:'simple'|'example'|'hint'){
+  setHelpMsg('');if(kind==='simple'||paid.includes(kind)){setHelp(help===kind?'':kind);return}
+  setBusy('clue');const r=await api<{allowed?:boolean;message?:string;charged?:number}>('/api/clues',{method:'POST',body:{missionId:mission.id,clue:kind}});setBusy('');
+  if(r.ok&&r.data.allowed!==false){setPaid(paid.concat(kind));setHelp(kind);onPoints?.();if(r.data.charged)setHelpMsg(`−${r.data.charged} points`)}else setHelpMsg(r.data.message||r.data.error||'That clue is not available right now.');
+ }
  useEffect(()=>{writeLocal(draftKey,JSON.stringify(answer))},[answer,draftKey]);
  useEffect(()=>{api<{limit?:number;used?:number}>('/api/feedback').then(r=>{if(r.ok)setAllow(r.data)})},[]);
  const body=useMemo(()=>composeAnswer(mission.practical,answer),[mission.practical,answer]);
@@ -51,7 +58,6 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack}
   {step==='learn'&&<>
    <div className="wla-card wla-tint"><p>{mission.brief}</p></div>
    <div className="wla-card"><p className="wla-kicker">THE IDEA</p><p className="wla-read">{mission.lesson}</p></div>
-   {mission.example&&<details className="wla-card"><summary>See an example</summary><p className="wla-read">{mission.example}</p></details>}
    <button type="button" className="wla-primary wla-full" onClick={()=>setStep('check')}>Check my understanding</button>
   </>}
 
@@ -73,6 +79,12 @@ export function MissionFlow({mission,position,language,onSaved,onUpgrade,onBack}
    <div className="wla-field"><label htmlFor="f-reason">{REASONING_LABEL}: what did you make, try and improve?</label><small>Share real results and the change you made. At least {LIMITS.minReasoning} characters.</small>
     <textarea id="f-reason" rows={5} value={answer.reasoning} maxLength={LIMITS.reasoning} onChange={e=>setAnswer({...answer,reasoning:e.target.value})}/></div>
    {mission.practical?.link&&<div className="wla-field"><label htmlFor="f-link">{mission.practical.link.label}</label><small>{mission.practical.link.hint}</small><input id="f-link" inputMode="url" placeholder="https://" value={answer.link} maxLength={LIMITS.link} onChange={e=>setAnswer({...answer,link:e.target.value})}/></div>}
+   <div className="wla-card"><p className="wla-kicker">NEED HELP?</p><div className="wla-help">
+    <button type="button" aria-pressed={help==='simple'} onClick={()=>openHelp('simple')}>Explain simply</button>
+    <button type="button" aria-pressed={help==='example'} disabled={busy==='clue'} onClick={()=>openHelp('example')}>Show an example{paid.includes('example')?'':' · −5'}</button>
+    <button type="button" aria-pressed={help==='hint'} disabled={busy==='clue'} onClick={()=>openHelp('hint')}>Give me a hint{paid.includes('hint')?'':' · −5'}</button>
+   </div>{helpMsg&&<p className="wla-muted" role="status">{helpMsg}</p>}
+   {help&&<p className="wla-read wla-help-text" role="status">{help==='simple'?mission.lesson:help==='example'?mission.example:mission.checks.find((_,i)=>!checks[i])||mission.checks[0]}</p>}</div>
    <p className="wla-muted">Your draft is saved on this phone as you type.</p>
    <button type="button" className="wla-primary wla-full" disabled={missing>0} onClick={()=>setStep('self')}>{missing>0?`Fill ${missing} more part${missing>1?'s':''}`:'Next: check your work'}</button>
   </>}

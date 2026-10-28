@@ -69,7 +69,7 @@ export function Courses({s,onOpen}:{s:Snapshot;onOpen:(n:Next)=>void}){
 }
 
 type Msg={me:boolean;text:string};
-export function Mentor({missionId,language,signedIn}:{missionId:string;language:string;signedIn:boolean}){
+export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;language:string;signedIn:boolean;onSignIn?:()=>void}){
  const [msgs,setMsgs]=useState<Msg[]>([{me:false,text:'Hi! Ask me anything about your current task. I can explain, give an example or help you get unstuck.'}]);
  const [q,setQ]=useState(''),[busy,setBusy]=useState(false);const end=useRef<HTMLDivElement>(null);
  useEffect(()=>{end.current?.scrollIntoView({block:'end'})},[msgs,busy]);
@@ -78,7 +78,7 @@ export function Mentor({missionId,language,signedIn}:{missionId:string;language:
  async function ask(text:string){const t=text.trim();if(!t||busy)return;setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
   const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language}});setBusy(false);
   setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
- if(!signedIn)return <div className="wla-stack"><div className="wla-card"><strong>Sign in to chat with your mentor</strong><p className="wla-muted">The mentor uses your current task and progress.</p></div></div>;
+ if(!signedIn)return <div className="wla-stack"><div className="wla-card"><strong>Sign in to chat with your mentor</strong><p className="wla-muted">The mentor uses your current task and progress.</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button>}</div></div>;
  return <div className="wla-chat">
   {m&&<p className="wla-kicker">ABOUT · {m.title.toUpperCase()}</p>}
   <div className="wla-msgs">{msgs.map((x,i)=><p key={i} className={x.me?'me':''}>{x.text}</p>)}{busy&&<p className="typing">Thinking…</p>}<div ref={end}/></div>

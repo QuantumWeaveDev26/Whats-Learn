@@ -1,5 +1,5 @@
 'use client';
-import {useCallback,useEffect,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock} from 'lucide-react';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
@@ -25,6 +25,8 @@ export default function WhatsLearnApp(){
  const [sheet,setSheet]=useState(false);
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
+ const [online,setOnline]=useState(true);
+ const mainRef=useRef<HTMLElement>(null);
 
  const refresh=useCallback(async()=>{
   const s=await loadSnapshot();setSnap(s);
@@ -33,6 +35,10 @@ export default function WhatsLearnApp(){
   return s;
  },[]);
  useEffect(()=>{const l=readLocal('wla-language');if(l)setLanguage(l);refresh().then(()=>setBooted(true))},[refresh]);
+ /** Coming back to the app (after paying on the website, or learning on WhatsApp) refreshes plan, points and progress. */
+ useEffect(()=>{let last=Date.now();const on=()=>{if(document.visibilityState==='visible'&&Date.now()-last>15000){last=Date.now();refresh()}};document.addEventListener('visibilitychange',on);return()=>document.removeEventListener('visibilitychange',on)},[refresh]);
+ useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
+ useEffect(()=>{mainRef.current?.scrollTo(0,0)},[tab,overlay,open,saved]);
 
  /** Where a person goes next: new visitors see the intro once; signed-in people answer the website's setup questions once, then land on Home. */
  const route=useCallback((s:Snapshot|null)=>{
@@ -43,6 +49,11 @@ export default function WhatsLearnApp(){
  const afterSplash=useCallback(()=>{if(booted)route(snap);else setTimeout(()=>setStage(st=>st),300)},[booted,route,snap]);
  useEffect(()=>{if(booted&&stage==='splash'){const t=setTimeout(()=>route(snap),1600);return()=>clearTimeout(t)}},[booted,stage,route,snap]);
 
+ /** The phone's Back button steps back through the app (sheet, screen, task, tab) before leaving it. */
+ const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab};
+ useEffect(()=>{if(stage!=='app')return;history.pushState({wla:1},'');const onPop=()=>{const d=depth.current;
+  if(d.sheet)setSheet(false);else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
+  history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
  async function signOut(){await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});setAccountKey('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
  async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
@@ -74,16 +85,17 @@ export default function WhatsLearnApp(){
   else if(!target||target.kind==='finished')body=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
   else if(target.kind==='checkpoint')body=<CheckpointFlow key={target.track+target.after} track={target.track} after={target.after} onBack={()=>{setOpen(null);setTab('courses')}} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
   else if(target.kind==='plan')body=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={()=>setSheet(true)}>See plans</button></div></div>;
-  else body=<MissionFlow key={target.mission.id} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{setSaved(s);await refresh()}}/>;
+  else body=<MissionFlow key={target.mission.id} mission={localizeMission(target.mission,language,snap?.profile?.level)} position={target.position} language={language} onUpgrade={()=>setSheet(true)} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{setSaved(s);await refresh()}} onPoints={()=>{refresh()}}/>;
  }
- else if(tab==='mentor')body=<Mentor missionId={mentorMission} language={language} signedIn={signed}/>;
+ else if(tab==='mentor')body=<Mentor missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>setOverlay('creations')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
   <header className="wla-top"><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts">{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
-  <main className="wla-main">{body}</main>
+  {!online&&<p className="wla-banner" role="status">You’re offline. Reconnect to save work and get AI reviews.</p>}
+  <main className="wla-main" ref={mainRef}>{body}</main>
   <nav className="wla-tabs" aria-label="App sections">{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>{setTab(id);setOverlay('');setSaved(null);if(id!=='practice')setOpen(null)}}><Icon size={24}/>{label}</button>)}</nav>
   {sheet&&<div className="wla-scrim" onClick={()=>setSheet(false)}><div className="wla-sheet" role="dialog" aria-modal="true" aria-labelledby="wla-sheet-t" onClick={e=>e.stopPropagation()}>
    <span className="wla-grab"/><p className="wla-kicker">KEEP GOING</p><h2 id="wla-sheet-t" className="wla-h2">Unlock all 10 tasks with <em>Plus.</em></h2>
