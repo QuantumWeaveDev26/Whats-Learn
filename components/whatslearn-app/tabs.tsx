@@ -45,7 +45,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
   {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{prog.name.toUpperCase()}</p><p className="wla-hero-title">Course complete. All 10 tasks saved.</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>Choose another course</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">MINI CHALLENGE</p><p className="wla-hero-title">{checkpointFor(next.track,next.after)?.title}</p><p className="wla-hero-sub">Clear it to unlock your next task. No points needed.</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>Start mini challenge</button></div>
   :<div className="wla-hero-card">
-   <p className="wla-hero-kicker">{prog.name} · Task {next.position} of 10</p>
+   <p className="wla-hero-kicker">{prog.name} · Day {next.position} of 10</p>
    <p className="wla-hero-title">{next.mission.title}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · up to 100 points</p>
    {doneToday&&next.kind==='mission'&&<p className="wla-hero-sub">You saved a task today. New tasks earn points once a day, so this one is for tomorrow. You can still read and draft it.</p>}

@@ -40,6 +40,8 @@ function mountApp(s=snapshot,storage=new Map()){
   if(id==='./sheet')return loadLocal('components/whatslearn-app/sheet.tsx',h);
   if(id==='./tabs')return {...components,nextFor:()=>fallback};
   if(['./intro','./onboarding','./practice'].includes(id))return components;
+  if(id==='./games')return {GamesHub:function GamesHub(){return null}};
+  if(id==='./games-data')return {games:[]};
   return require(id);
  });
  const render=()=>{h.start();return module.default()};
