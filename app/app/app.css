@@ -548,3 +548,5 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-course-card .wla-course-pill{align-self:flex-start;margin-top:4px;padding:8px 10px 8px 14px;background:var(--tint);color:var(--gd);font-size:13px}
 .wla-course-card .wla-rot{transform:rotate(90deg)}
 .wla-course-body .wla-task{padding-inline:18px}
+.wla-auth>*{flex-shrink:0}
+.wla-tourney .wla-kicker{color:var(--gd)}
