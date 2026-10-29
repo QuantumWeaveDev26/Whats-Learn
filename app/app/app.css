@@ -515,24 +515,14 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-daily .wla-week small{font-size:12px;color:var(--mut)}
 .wla-daily .wla-days{margin-top:10px}
 .wla-challenge-note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;border-radius:14px;background:var(--tint);color:var(--gdd);font-size:14px;font-weight:600;line-height:1.4}.wla-challenge-note svg{flex:none;color:var(--g);margin-top:1px}
-/* Sign-in: green welcome panel + form. Phones stack them; tablets and computers split the screen. */
-.wla-auth{gap:18px}
-.wla-auth-hero{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:20px 20px 0;border-radius:24px;background:linear-gradient(160deg,var(--gd),var(--gdd));color:#fff}
-.wla-auth-hero .wla-brand{margin:0}.wla-auth-hero .wla-brand strong{color:#fff}.wla-auth-hero .wla-brand small{color:#BFE9CF}
-.wla-auth-pitch{margin:4px 0 0;font-size:24px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
-.wla-auth-perks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px;color:#D2F7DF}.wla-auth-perks li{display:flex;gap:8px;align-items:center}.wla-auth-perks svg{flex:none;color:#7FE0A6}
-.wla-auth-art{display:block;width:72%;max-width:280px;height:auto;margin:4px auto -8px;border-radius:18px 18px 0 0;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
-.wla-auth-panel{display:flex;flex-direction:column;gap:14px}
-.wla-auth-panel .wla-h1{font-size:26px}
-@media(min-width:860px){
- .wla.wla-wide{max-width:none}
- .wla-auth{flex-direction:row;gap:0;padding:0;overflow:hidden}
- .wla-auth-hero{flex:1;justify-content:center;gap:18px;padding:56px 64px;border-radius:0}
- .wla-auth-pitch{font-size:40px}.wla-auth-perks{font-size:16px;gap:10px}
- .wla-auth-art{width:100%;max-width:440px;margin:12px 0 0;border-radius:24px;-webkit-mask-image:none;mask-image:none}
- .wla-auth-panel{width:460px;flex:none;overflow-y:auto;justify-content:center;padding:48px 48px;background:#fff}
- .wla-auth-panel .wla-auth-foot{margin-top:8px}
-}
+/* App authentication: one compact form, with the product introduction kept on its own screens. */
+.wla-auth{gap:0;padding:max(28px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom))}
+.wla-auth-panel{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;margin:auto}
+.wla-auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--gd);font-size:17px}
+.wla-auth-brand svg{display:block;flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden}
+.wla-auth-panel .wla-h1{font-size:24px;line-height:1.25;margin:0}
+.wla-auth-panel>.wla-muted{margin:0 0 4px;font-size:14px}
+.wla-auth-panel .wla-auth-foot{margin-top:4px;gap:8px}
 /* Courses: grown-up course cards (number, status, what you'll make, meta, progress, action). */
 .wla-course{border:1px solid var(--line);border-radius:20px;box-shadow:none}
 .wla-course-card{flex-direction:column;align-items:stretch;gap:8px;padding:18px;background:#fff}

@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
-import {ArrowLeft,Clock,PenLine,MessageCircle,Eye,EyeOff,Trophy,Check} from 'lucide-react';
+import {ArrowLeft,Clock,PenLine,MessageCircle,Eye,EyeOff,Trophy} from 'lucide-react';
 import {lessonLanguages,languages} from '@/lib/languages';
 /** Languages the app offers. The website keeps its full list; these ten are hidden in the app only. */
 const hiddenInApp=['brx','doi','ks','mai','sat','sd','ur','as','kok','ne'];
@@ -53,7 +53,7 @@ export function LanguageStep({value,onChange,onNext,onBack,step}:{value:string;o
 }
 
 /** Real sign-in and sign-up through the website's own account endpoints. */
-export function AuthScreen({onSignedIn,onGuest,firstRun,notice,allowGuest=true}:{onSignedIn:()=>void;onGuest:()=>void;firstRun?:boolean;notice?:string;allowGuest?:boolean}){
+export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true}:{onSignedIn:()=>void;onGuest:()=>void;firstRun?:boolean;notice?:string;allowGuest?:boolean}){
  const [sent,setSent]=useState(''),[resent,setResent]=useState('');
  const [mode,setMode]=useState<'in'|'up'>('in');
  const [name,setName]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[show,setShow]=useState(false);
@@ -79,19 +79,13 @@ export function AuthScreen({onSignedIn,onGuest,firstRun,notice,allowGuest=true}:
   <button type="button" className="wla-primary wla-full" onClick={()=>{setSent('');setResent('');setMode('in')}}>I’ve confirmed. Sign in</button>
   <button type="button" className="wla-link wla-center" onClick={()=>{setSent('');setMode('up')}}>Use a different email</button>
  </div>;
- // A green welcome panel above the form on phones; on wider screens it becomes the left half of a split layout.
+ // The introduction already explains the product. Keep authentication focused on the form.
  return <div className="wla-page wla-auth">
-  <aside className="wla-auth-hero">
-   <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>From chat to change</small></div></div>
-   <p className="wla-auth-pitch">Learn AI skills.<br/>15 minutes a day.</p>
-   <ul className="wla-auth-perks"><li><Check size={16}/>Real tasks, reviewed by AI</li><li><Check size={16}/>Your mentor, here or on WhatsApp</li><li><Check size={16}/>In English and 12 Indian languages</li></ul>
-   <img className="wla-auth-art" src="/images/app-welcome.webp" alt="" width={720} height={540}/>
-  </aside>
   <div className="wla-auth-panel">
+  <div className="wla-auth-brand"><svg viewBox="58 22 76 76" role="img" aria-label="WhatsLearn"><image href="/images/app-icon-192.png" width="192" height="192"/></svg><strong>WhatsLearn</strong></div>
   {notice&&<p className="wla-challenge-note" role="status"><Trophy size={18}/>{notice}</p>}
-  <p className="wla-kicker">{mode==='up'?'CREATE YOUR ACCOUNT':notice?'FRIEND CHALLENGE':firstRun?'STEP 2 OF 2':'WELCOME BACK'}</p>
-  <h1 className="wla-h1">{notice&&mode==='in'?<>Take the <em>challenge.</em></>:mode==='in'?<>Save your <em>progress.</em></>:<>Start your <em>journey.</em></>}</h1>
-  <p className="wla-muted">{mode==='in'?'Sign in to keep your work on every device and connect your WhatsApp mentor.':'Free to start. No phone number needed.'}</p>
+  <h1 className="wla-h1">{notice&&mode==='in'?'Join the challenge':mode==='in'?'Sign in to WhatsLearn':'Create your account'}</h1>
+  <p className="wla-muted">{mode==='in'?'Continue learning with your saved progress.':'Free to start. No phone number needed.'}</p>
   {google&&<form action="/api/auth/google" method="post"><input type="hidden" name="return_to" value="/app"/><button className="wla-outline wla-full wla-google" type="submit"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.32 2.98-7.36Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.41l-3.24-2.51c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.07v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.41 13.92A6 6 0 0 1 6.1 12c0-.67.11-1.31.31-1.92V7.49H3.07A10 10 0 0 0 2 12c0 1.61.39 3.14 1.07 4.51l3.34-2.59Z"/><path fill="#EA4335" d="M12 5.96c1.47 0 2.79.5 3.83 1.5l2.87-2.87A9.6 9.6 0 0 0 12 2 10 10 0 0 0 3.07 7.49l3.34 2.59C7.2 7.72 9.4 5.96 12 5.96Z"/></svg>Continue with Google</button></form>}
   {google&&<p className="wla-or">or use email</p>}
   <form className="wla-form" onSubmit={submit} noValidate>
