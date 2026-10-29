@@ -181,7 +181,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-28-retention-3"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-minimal-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
