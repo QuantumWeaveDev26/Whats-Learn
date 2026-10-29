@@ -3,7 +3,7 @@ import {useEffect,useRef,type KeyboardEvent,type ReactNode} from 'react';
 import {X} from 'lucide-react';
 
 /** App-only sheet: keep focus inside it and return to the opening control. */
-export function AppSheet({title,onClose,children,returnFocusTo}:{title:string;onClose:()=>void;children:ReactNode;returnFocusTo?:HTMLElement|null}){
+export function AppSheet({title,onClose,children,returnFocusTo,closeLabel='Close plans'}:{title:string;onClose:()=>void;children:ReactNode;returnFocusTo?:HTMLElement|null;closeLabel?:string}){
  const panel=useRef<HTMLDivElement>(null);
  useEffect(()=>{
   const trigger=returnFocusTo||document.activeElement as HTMLElement|null;
@@ -21,7 +21,7 @@ export function AppSheet({title,onClose,children,returnFocusTo}:{title:string;on
  }
  return <div className="wla-scrim" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
   <div ref={panel} className="wla-sheet" role="dialog" aria-modal="true" aria-labelledby="wla-sheet-t" tabIndex={-1} onKeyDown={onKeyDown}>
-   <span className="wla-grab" aria-hidden="true"/><div className="wla-sheet-head"><h2 id="wla-sheet-t" className="wla-h2">{title}</h2><button type="button" className="wla-close" aria-label="Close plans" data-sheet-close onClick={onClose}><X size={20}/></button></div>
+   <span className="wla-grab" aria-hidden="true"/><div className="wla-sheet-head"><h2 id="wla-sheet-t" className="wla-h2">{title}</h2><button type="button" className="wla-close" aria-label={closeLabel} data-sheet-close onClick={onClose}><X size={20}/></button></div>
    {children}
   </div>
  </div>;

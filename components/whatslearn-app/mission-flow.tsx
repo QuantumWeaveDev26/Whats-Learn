@@ -67,6 +67,7 @@ export function MissionFlow({accountKey,mission,position,language,initialAnswer,
   <div className="wla-practice-progress" aria-label={`Step ${at+1} of 5: ${['Learn','Check','Make','Self-check','Review'][at]}`}><strong>{['Learn','Check','Make','Self-check','Review'][at]} <small>{at+1}/5</small></strong><div className="wla-steps">{steps.map((s,i)=><span key={s} aria-current={s===step?'step':undefined} className={(i<=at?'on':'')+(s===step?' now':'')}><i aria-hidden="true"/><span className="wla-sr">{['Learn','Check','Make','Self-check','Review'][i]}</span></span>)}</div></div>
   <h2 ref={heading} tabIndex={-1} className="wla-h2">{mission.title}</h2>
   <p className="wla-meta"><Clock size={15}/>About {mission.minutes} min · up to 100 points</p>
+  <p className={draftSaved?'wla-draft-status':'wla-error'} role="status">{draftSaved?'Draft saved on this phone. Reconnect to submit if you’re offline.':'This phone could not save the draft. Keep this screen open and copy your work.'}</p>
   {initial.restored&&<p className="wla-restored">Draft restored on this device.</p>}
   {step==='learn'&&<>
    <div className="wla-card wla-tint"><p>{mission.brief}</p></div>
@@ -101,7 +102,6 @@ export function MissionFlow({accountKey,mission,position,language,initialAnswer,
     {help==='example'&&<div className="wla-help-text"><p className="wla-kicker">Illustration{guide.englishExample?' · English':''}</p><p className="wla-read">{guide.example[0]}</p><p className="wla-read"><strong>Try it in your own work:</strong> {guide.example[1]}</p><small className="wla-muted">This is a teaching example, not an executed test or a completed submission. No points or AI reviews are used.</small></div>}
    </details>
    <p className="wla-muted">Evidence and reasoning: {answerBody(answer,evidence).length}/{LIMITS.reasoning} characters. Use concise extracts and actual observations.</p>
-   <p className={draftSaved?'wla-muted':'wla-error'} role="status">{draftSaved?'Draft saved on this device. Accepted work is saved to your account.':'This device could not save the draft. Keep the page open and copy your work.'}</p>
    {missing.length>0?<button type="button" className="wla-primary wla-full" onClick={nextMissing}>Go to next incomplete part · {missing.length} left</button>:<button type="button" className="wla-primary wla-full" onClick={()=>go('self')}>Next: check your work</button>}
   </>}
   {step==='self'&&<>

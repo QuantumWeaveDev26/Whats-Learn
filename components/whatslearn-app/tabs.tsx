@@ -64,7 +64,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
   :<div className="wla-hero-card">
    <p className="wla-hero-kicker">{prog.name} · Day {next.position} of 10</p>
    <p className="wla-hero-title">{next.mission.title}</p>
-   <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · up to 100 points</p>
+   <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · {next.mission.skill}</p>
    <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:<>Continue <ArrowRight size={18}/></>}</button>
   </div>}
 

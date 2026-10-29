@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>WhatsLearn · Offline Dino</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f9f2;color:#173e2e;font:15px/1.5 system-ui,sans-serif}main{max-width:580px;margin:auto;padding:20px 16px}h1{font-size:22px;margin:0 0 6px}p{margin:6px 0 14px}.muted{color:#52685c;font-size:13px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.top span{font-size:13px;white-space:nowrap}#arena{position:relative;aspect-ratio:600/190;min-height:100px;border:1px solid #bdd8c6;border-radius:16px;background:#e7f3e6;overflow:hidden;touch-action:manipulation;cursor:pointer}svg{display:block;width:100%;height:100%}button,a{font:inherit;min-height:44px;padding:10px 16px;border-radius:24px;border:1px solid #087a4b;background:white;color:#087a4b;font-weight:650;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}button:disabled{opacity:.5;cursor:default}button.primary{background:#087a4b;color:white}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}button:focus-visible,a:focus-visible,#arena:focus-visible{outline:3px solid #2b62b9;outline-offset:3px}#status{min-height:42px;font-size:14px}[hidden]{display:none!important}#back{width:100%}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style></head><body><main>
+<div class="top"><h1>Dino break</h1><span>Distance <b id="score">0</b></span></div>
+<p class="muted">A little game while you wait. No course points.</p>
+<div id="arena" tabindex="0" role="group" aria-label="Dino playfield. Tap, Space or Up arrow to jump." data-state="ready">
+<svg viewBox="0 0 600 190" aria-hidden="true"><path d="M0 154H600" stroke="#95b69c" stroke-width="2"/><path d="M420 48h34m-17-17v34M145 35h20" stroke="#b7d6bc" stroke-width="3" stroke-linecap="round"/>
+<g transform="translate(56 114)"><g id="dino" fill="#087a4b"><path d="M0 13h7V4h17V0h14v17H22v7h-7v12h-5v4H4v-9H0zM0 25l-10-9v14l10 5M18 30h6v10h-6z"/><rect x="29" y="5" width="3" height="3" fill="white"/></g></g>
+<g id="obstacle" fill="#578a5c"><path d="M0 154v-32h8v12h6v-19h7v39zm-7-29h7v14h-7z"/></g></svg>
+</div>
+<div class="controls"><button id="start" class="primary" type="button">Start game</button><button id="jump" class="primary" type="button" disabled>Jump</button><button id="pause" type="button" disabled>Pause</button><button id="restart" type="button" hidden>Restart</button></div>
+<p id="status" role="status" aria-live="polite">Tap Start, then tap the playfield or Jump to clear obstacles.</p>
+<p class="muted">Reconnect to submit work or ask your mentor. This game does not read or change your drafts.</p>
+<a id="back" href="/app">Try WhatsLearn again</a>
+<script>
+(()=>{
+ 'use strict';
+ const get=id=>document.getElementById(id),arena=get('arena'),dino=get('dino'),obstacle=get('obstacle'),start=get('start'),jumpButton=get('jump'),pause=get('pause'),restart=get('restart'),score=get('score'),status=get('status');
+ let state='ready',y=0,velocity=0,x=620,distance=0,last=0,frame=0;
+ const paint=()=>{dino.style.transform=`translateY(${-y}px)`;obstacle.style.transform=`translateX(${x}px)`;score.textContent=String(Math.floor(distance/10));arena.dataset.state=state};
+ function stop(){cancelAnimationFrame(frame);frame=0}
+ function setState(next){state=next;arena.dataset.state=next;jumpButton.disabled=next!=='running';pause.disabled=next==='ready'||next==='over';pause.textContent=next==='paused'?'Resume':'Pause';start.hidden=next!=='ready';restart.hidden=next==='ready'}
+ function loop(now){if(state!=='running')return;const dt=Math.min(Math.max((now-last)/1000,0),.05);last=now;
+  const speed=220+Math.min(distance/30,110);x-=speed*dt;distance+=speed*dt;
+  if(y>0||velocity>0){y+=velocity*dt;velocity-=1800*dt;if(y<0){y=0;velocity=0}}
+  if(x<85&&x+21>58&&y<33){setState('over');status.textContent=`Good run! Distance ${Math.floor(distance/10)}. Tap Restart for another try.`;paint();stop();return}
+  if(x< -30)x=620+Math.random()*160;
+  paint();frame=requestAnimationFrame(loop);
+ }
+ function begin(){stop();y=0;velocity=0;x=620;distance=0;last=performance.now();setState('running');status.textContent='Tap to jump. You can pause at any time.';paint();arena.focus();frame=requestAnimationFrame(loop)}
+ function jump(){if(state!=='running'||y>0||velocity>0)return;velocity=620}
+ function togglePause(){if(state==='running'){stop();setState('paused');status.textContent='Paused. Tap Resume when you’re ready.'}else if(state==='paused'){last=performance.now();setState('running');status.textContent='Tap to jump.';frame=requestAnimationFrame(loop)}}
+ start.addEventListener('click',begin);restart.addEventListener('click',begin);jumpButton.addEventListener('click',jump);pause.addEventListener('click',togglePause);arena.addEventListener('pointerdown',jump);
+ arena.addEventListener('keydown',e=>{if(e.target!==arena||e.repeat)return;if(e.key===' '||e.key==='ArrowUp'){e.preventDefault();jump()}else if(e.key==='Escape'){e.preventDefault();if(state==='running')togglePause()}});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='running')togglePause()});
+ window.addEventListener('pagehide',()=>{stop();if(state==='running')setState('paused')});
+ get('back').hidden=window.self!==window.top;
+ paint();
+})();
+</script></main></body></html>

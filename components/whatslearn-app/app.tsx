@@ -44,6 +44,10 @@ export default function WhatsLearnApp(){
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
+ const [offlineGame,setOfflineGame]=useState(false);
+ const dinoOpener=useRef<HTMLElement|null>(null);
+ const showDino=useCallback(()=>{dinoOpener.current=document.activeElement as HTMLElement|null;setOfflineGame(true)},[]);
+ const closeDino=useCallback(()=>setOfflineGame(false),[]);
  const [loadError,setLoadError]=useState('');
  const [loading,setLoading]=useState(false);
  const refreshRun=useRef(0);
@@ -112,9 +116,9 @@ export default function WhatsLearnApp(){
 
  /** The phone's Back button steps back through the app (sheet, screen, task, tab) before leaving it. */
  const taskTrack=open?.kind==='checkpoint'?open.track:open?.kind==='mission'||open?.kind==='plan'?open.mission.track:snap?.profile?.track||'marketing';
- const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab,creation,playView,course,taskTrack});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab,creation,playView,course,taskTrack};
+ const depth=useRef({sheet,offlineGame,overlay,saved:!!saved,open:!!open,tab,creation,playView,course,taskTrack});depth.current={sheet,offlineGame,overlay,saved:!!saved,open:!!open,tab,creation,playView,course,taskTrack};
  useEffect(()=>{if(stage!=='app')return;history.pushState({wla:1},'');const onPop=()=>{const d=depth.current;
-  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setCourse(d.taskTrack);setOpen(null);setTab('courses')}else if(d.tab==='courses'&&d.course)setCourse(undefined);else if(d.tab==='play'&&d.playView!=='games')setPlayView('games');else if(d.tab!=='home')setTab('home');else{history.back();return}
+  if(d.offlineGame)setOfflineGame(false);else if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setCourse(d.taskTrack);setOpen(null);setTab('courses')}else if(d.tab==='courses'&&d.course)setCourse(undefined);else if(d.tab==='play'&&d.playView!=='games')setPlayView('games');else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
  async function paid(){setPayMsg('');await refresh();setPaidNote('Payment confirmed. Your plan is active: all 10 tasks in every course are open.')}
@@ -130,7 +134,8 @@ export default function WhatsLearnApp(){
  function backToCourse(track:string){setCourse(track);setOpen(null);setTab('courses')}
 
  async function retryLoad(){const s=await refresh();if(s!==undefined){setBooted(true);if(stage!=='app')route(s)}}
- if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert"><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div></Shell>;
+ const offlinePanel=offlineGame?<AppSheet title="Dino break" closeLabel="Close Dino game" onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title="Offline Dino game" src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>Return to my app</button></AppSheet>:null;
+ if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>Play offline</button></div>{offlinePanel}</Shell>;
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
  if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
  if(stage==='language')return <Shell><LanguageStep step="STEP 1 OF 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
@@ -161,18 +166,19 @@ export default function WhatsLearnApp(){
  else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);setTab('courses');setOverlay('');setSaved(null)}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onTrackChange={setCourse} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub key={snap?.accountKey||'guest'} who={snap?.accountKey||''} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
-  <header className="wla-top" inert={sheet}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay==='badges'?'Badges':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
+  <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay==='badges'?'Badges':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts"><b className="wla-lv">Lv {levelOf(snap).lv}</b>{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
-  {!online&&<p className="wla-banner" role="status">You’re offline. Reconnect to save work and get AI reviews.</p>}
-  {loadError&&<div className="wla-banner wla-retry" role="status"><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
-  <main className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
-  <nav className="wla-tabs" aria-label="App sections" inert={sheet}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
+  {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">You’re offline. Keep drafting; reconnect to submit or get a review.</p><button type="button" className="wla-link" onClick={showDino}>Play offline</button></div>}
+  {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
+  <main className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  <nav className="wla-tabs" aria-label="App sections" inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
+  {offlinePanel}
   {sheet&&storeApp&&<AppSheet title="WhatsLearn Plus" onClose={closePlans} returnFocusTo={sheetOpener.current}>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.</p>
    <p className="wla-muted">Already a member? Sign in with the same account and your plan is ready here.</p>
@@ -192,7 +198,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-course-mentor-v5"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-learning-offline-v6"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

@@ -39,15 +39,15 @@ export const bugRounds=[
 ];
 
 export const flowRounds=[
- {title:'Book a haircut',steps:['Choose a service','Pick a date and time','Enter your name and phone','Pay or confirm','See the confirmation']},
- {title:'Sign up for a course',steps:['Open the course page','Tap “Start free”','Create an account','Answer setup questions','Start task 1']},
- {title:'Ask for a refund',steps:['Open my orders','Choose the order','Tap “Request refund”','Pick a reason','See the refund status']}
+ {title:'Book a haircut',steps:['Choose a service','Pick a date and time','Enter your name and phone','Pay or confirm','See the confirmation'],why:'Choose what and when before collecting contact details. Confirm after those choices, then show a receipt so the customer knows the booking succeeded.'},
+ {title:'Sign up for a course',steps:['Open the course page','Tap “Start free”','Create an account','Answer setup questions','Start task 1'],why:'Explain the course before asking for an account. Setup then adapts the first task to the learner; it should not interrupt a task already in progress.'},
+ {title:'Ask for a refund',steps:['Open my orders','Choose the order','Tap “Request refund”','Pick a reason','See the refund status'],why:'Identify the correct order before requesting a refund. Collect the reason, then show a status so the customer can distinguish a request from a completed refund.'}
 ];
 
 export const shotRounds=[
- {title:'The first cake',frames:['A nervous baker holds her first cake','A customer walks into the café','The customer takes a bite and smiles','The baker finally relaxes and smiles back']},
- {title:'The lost umbrella',frames:['A girl leaves her umbrella on the bus seat','Rain starts as the bus drives away','A stranger runs after her with the umbrella','She laughs, soaked but grateful']},
- {title:'Morning delivery',frames:['An alarm rings at 5 am','A delivery rider loads hot tiffins','He races through traffic','An office worker opens a warm lunch box']}
+ {title:'The first cake',frames:['A nervous baker holds her first cake','A customer walks into the café','The customer takes a bite and smiles','The baker finally relaxes and smiles back'],why:'Establish the baker’s worry, introduce the customer, show the response, then resolve the worry. The reaction earns the ending.'},
+ {title:'The lost umbrella',frames:['A girl leaves her umbrella on the bus seat','Rain starts as the bus drives away','A stranger runs after her with the umbrella','She laughs, soaked but grateful'],why:'Show the forgotten object before the rain makes it a problem. The stranger’s action changes the situation, so the grateful reaction follows it.'},
+ {title:'Morning delivery',frames:['An alarm rings at 5 am','A delivery rider loads hot tiffins','He races through traffic','An office worker opens a warm lunch box'],why:'Start with preparation, then the journey, then its payoff. Showing the warm lunch last connects the rider’s effort to the customer’s benefit.'}
 ];
 
 /** Framing data for drawn frames: how big the figure is and where it sits. */

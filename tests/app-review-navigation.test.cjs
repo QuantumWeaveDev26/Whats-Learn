@@ -50,6 +50,12 @@ function mountApp(s=snapshot,storage=new Map()){
  return {render,flush:h.flush,setSnapshot:s=>currentSnapshot=s,getAccountKey:()=>accountKey};
 }
 const host={window:global.window,document:global.document,history:global.history};
+test('optional offline Dino retains the practice component and stays open when connection returns',async()=>{
+ const oldWindow=global.window,oldNavigator=Object.getOwnPropertyDescriptor(global,'navigator'),events={};
+ global.window={addEventListener:(n,fn)=>events[n]=fn,removeEventListener(){}};Object.defineProperty(global,'navigator',{configurable:true,value:{onLine:false}});
+ try{const m=mountApp();let tree=await enterApp(m);nav(tree,'Practice').props.onClick();tree=m.render();const before=find(tree,n=>n.type===components.MissionFlow);const play=find(tree,n=>n.type==='button'&&text(n)==='Play offline');assert.ok(play);play.props.onClick();tree=m.render();assert.ok(find(tree,n=>n.type==='iframe'&&n.props.title==='Offline Dino game'));assert.equal(find(tree,n=>n.type===components.MissionFlow).key,before.key);global.navigator.onLine=true;events.online();tree=m.render();assert.ok(find(tree,n=>n.type==='iframe'));find(tree,n=>n.type==='button'&&text(n)==='Return to my app').props.onClick();tree=m.render();assert.equal(find(tree,n=>n.type==='iframe'),undefined);assert.equal(find(tree,n=>n.type===components.MissionFlow).key,before.key)}finally{global.window=oldWindow;if(oldNavigator)Object.defineProperty(global,'navigator',oldNavigator);else delete global.navigator}
+});
+test('Play recommendations receive the selected course',async()=>{const m=mountApp();let tree=await enterApp(m);find(tree,n=>n.type===components.Home).props.onCourse('development');m.render();nav(m.render(),'Play').props.onClick();tree=m.render();assert.equal(find(tree,n=>typeof n.props.onView==='function').props.track,'development')});
 test.before(()=>{global.window={addEventListener(){},removeEventListener(){}};global.document={visibilityState:'hidden',addEventListener(){},removeEventListener(){}};global.history={pushState(){},back(){}}});
 test.after(()=>Object.assign(global,host));
 async function enterApp(m){m.render();await m.flush();const splash=m.render();find(splash,n=>n.type===components.Splash).props.onDone();m.render();await m.flush();return m.render()}
