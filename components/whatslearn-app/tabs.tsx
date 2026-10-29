@@ -50,7 +50,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
  // Evening in India and no task saved yet: the streak is about to break.
  const streakAtRisk=streak>0&&!doneToday&&new Date(Date.now()+5.5*3600e3).getUTCHours()>=17;
  const goal=s.profile?.minutes&&s.profile.minutes!=='flexible'?`${s.profile.minutes} min a day`:'Your own pace';
- // Home stays short: greeting, today's task, today's small wins with the week, then courses.
+ // Home keeps its direct mentor shortcut alongside the task and courses.
  return <div className="wla-stack wla-home">
   <div className="wla-hello"><div><p className="wla-muted">{greet}{s.name?`, ${s.name}`:''}</p><h2 className="wla-h1 wla-tight">{doneToday?'Nice work today':'Continue learning'}</h2>
    <p className="wla-goal"><Target size={14}/>{goal}{reviewsLeft!==undefined?` · ${reviewsLeft} AI review${reviewsLeft===1?'':'s'} left`:''}</p></div>
@@ -73,6 +73,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
     <div className="wla-days">{days.map((d,i)=><span key={i} className={(d.on?'on ':'')+(d.today?'today':'')}><i>{d.on?<Check size={13}/>:null}</i>{d.label}</span>)}</div>
    </div>}/>
   <BadgeToast s={s} who={s.accountKey}/>
+  <button type="button" className="wla-home-mentor" onClick={()=>onTab('mentor')}><span className="wla-home-mentor-icon"><MessageCircle size={20}/></span><span className="wla-grow"><strong>Stuck? Ask your mentor</strong><small>Get help with your current task</small></span><ArrowRight size={18}/></button>
 
   <div className="wla-split wla-sec-head"><strong>Courses</strong><button type="button" className="wla-link" onClick={()=>onTab('courses')}>See all</button></div>
   <div {...swipe.handlers} className={'wla-carousel'+(swipe.dragging?' is-dragging':'')} role="region" aria-label="Explore courses. Swipe or drag horizontally." tabIndex={0}>{programmes.map(p=>{const L=courseLook[p.id];const I=L.Icon;const done=missionsOfCourse(p.id).filter(m=>completed.has(m.id)).length;

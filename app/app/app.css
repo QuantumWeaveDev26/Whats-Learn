@@ -568,3 +568,23 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-game-photo:active{transform:scale(.98)}
 .wla-gimg svg{display:block;width:100%;height:100%}
 .wla-ghead-art{width:64px;height:48px;flex:none;border-radius:12px;overflow:hidden}.wla-ghead-art svg{display:block;width:100%;height:100%}
+
+/* Compact Play entry and separate social screens. */
+.wla-today.wla-today-compact{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:none}
+.wla-today-art{display:block;width:76px;height:84px;border-radius:12px;overflow:hidden;background:var(--tint)}
+.wla-today-art svg{display:block;width:100%;height:100%}
+.wla-today-details{display:flex;flex-direction:column;gap:3px;min-width:0}
+.wla-today-label{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--g)}
+.wla-today-details>strong{font-size:16px;line-height:1.3;color:var(--ink)}
+.wla-today-details>small,.wla-today-bottom>small{font-size:12px;line-height:1.4;color:var(--mut)}
+.wla-today-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:3px}
+.wla-today-play{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:700;color:var(--g)}
+.wla-challenge-links,.wla-challenge-games{display:flex;flex-direction:column;gap:10px}
+.wla-challenge-row{display:flex;align-items:center;gap:12px;min-height:68px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:left;color:var(--ink)}
+.wla-challenge-row>svg{flex:none;color:var(--g)}.wla-challenge-row strong{font-size:14px;line-height:1.35}.wla-challenge-row small{margin-top:3px;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.wla-challenge-screen .wla-squad{display:flex;flex-direction:column;gap:16px}.wla-challenge-screen .wla-squad>p{margin:0}
+.wla-home-mentor{display:flex;align-items:center;gap:12px;min-height:70px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:left}
+.wla-home-mentor-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex:none;border-radius:12px;background:var(--tint);color:var(--g)}
+.wla-home-mentor strong{font-size:14px}.wla-home-mentor small{font-size:12px;margin-top:2px}.wla-home-mentor>svg{flex:none;color:var(--g)}
+.wla-steps{gap:4px}.wla-steps span{gap:3px;font-size:10px;line-height:1.3}.wla-steps span i{height:3px;border-radius:2px}
+.wla-splash-mark{display:block;width:76px;height:76px;overflow:hidden;border-radius:50%;animation:wlaPop .6s ease-out both}

@@ -10,7 +10,7 @@ import {api,readLocal,writeLocal} from './api';
 export function Splash({onDone}:{onDone:()=>void}){
  useEffect(()=>{const t=setTimeout(onDone,1600);return()=>clearTimeout(t)},[onDone]);
  return <div className="wla-splash" onClick={onDone}>
-  <img src="/images/whatslearn-logo-green.png" alt="WhatsLearn — From Chat to Change" width={168} height={168}/>
+  <svg className="wla-splash-mark" viewBox="58 22 76 76" role="img" aria-label="WhatsLearn"><image href="/images/app-icon-192.png" width="192" height="192"/></svg>
   <p>From chat to change.</p>
  </div>;
 }

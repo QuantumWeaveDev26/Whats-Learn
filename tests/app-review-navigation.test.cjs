@@ -38,6 +38,7 @@ function mountApp(s=snapshot,storage=new Map()){
   if(id==='./api')return {loadSnapshot:async()=>{if(currentSnapshot instanceof Error)throw currentSnapshot;return typeof currentSnapshot==='function'?currentSnapshot():currentSnapshot},api:async()=>({ok:true,data:{limit:3,used:0}}),readLocal:k=>storage.get(k)||null,writeLocal:(k,v)=>{storage.set(k,v);return true},setAccountKey:key=>accountKey=key};
   if(id==='./learning-state')return loadLocal('components/whatslearn-app/learning-state.ts',h);
   if(id==='./sheet')return loadLocal('components/whatslearn-app/sheet.tsx',h);
+  if(id==='./checkout')return {BuyButton:function BuyButton(){return null},useBillingStatus:()=>({enabled:false,mode:'live',checked:true})};
   if(id==='./tabs')return {...components,nextFor:()=>fallback};
   if(['./intro','./onboarding','./practice'].includes(id))return components;
   if(id==='./games')return {GamesHub:function GamesHub(){return null}};
@@ -139,7 +140,7 @@ test('the app plan sheet can close without navigating or changing the website',a
  find(tree,n=>n.type===components.Me).props.onPlans();tree=m.render();
  const sheet=find(tree,n=>n.type?.name==='AppSheet');assert.ok(sheet);
  assert.equal(find(tree,n=>n.type==='main').props.inert,true,'background content cannot receive focus behind the sheet');
- const website=find(tree,n=>n.type==='a'&&n.props.href==='/membership');assert.equal(website.props.target,'_blank');
+ assert.ok(find(tree,n=>n.type?.name==='BuyButton'),'the existing in-app plan control remains present; the test never activates checkout');
  find(tree,n=>n.type==='button'&&text(n)==='Maybe later').props.onClick();tree=m.render();assert.equal(find(tree,n=>n.type?.name==='AppSheet'),undefined);
 });
 
@@ -200,4 +201,10 @@ test('a refresh finishing after sign-out cannot publish the old account again',a
  const m=mountApp();let tree=await enterApp(m);nav(tree,'Practice').props.onClick();tree=m.render();let resolve;
  m.setSnapshot(()=>new Promise(r=>resolve=r));find(tree,n=>n.type===components.MissionFlow).props.onPoints();nav(tree,'Me').props.onClick();tree=m.render();await find(tree,n=>n.type===components.Me).props.onSignOut();
  resolve(snapshot);await m.flush();tree=m.render();assert.equal(m.getAccountKey(),'');assert.ok(find(tree,n=>n.type===components.AuthScreen));
+});
+
+test('phone Back returns from a challenge screen to Play before Home',async()=>{
+ const listeners={},old=global.window;global.window={addEventListener:(name,fn)=>listeners[name]=fn,removeEventListener(){}};
+ try{const m=mountApp();let tree=await enterApp(m);nav(tree,'Play').props.onClick();tree=m.render();const play=find(tree,n=>typeof n.props.onView==='function');assert.ok(play);play.props.onView('squad');m.render();listeners.popstate();tree=m.render();assert.equal(find(tree,n=>typeof n.props.onView==='function').props.view,'games');assert.equal(nav(tree,'Play').props['aria-current'],'page')}
+ finally{global.window=old}
 });

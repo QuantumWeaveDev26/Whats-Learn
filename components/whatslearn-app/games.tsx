@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {ArrowLeft,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
 import {api,readLocal,writeLocal} from './api';
 import {markGameDay} from './rewards';
 import {courseLook} from './tabs';
@@ -8,6 +8,7 @@ import {GameArt} from './game-art';
 import {games,hookFeed,channels,budgetRounds,bugRounds,flowRounds,shotRounds,shotTypes,shotQuiz,diceItems,captionRounds,type GameId,type GameMeta} from './games-data';
 
 export type Challenge={game:GameId;beat:number};
+export type PlayView='games'|'weekly'|'squad'|'friend';
 const bestKey=(who:string,id:GameId)=>`wla-game-best:${who||'guest'}:${id}`;
 const playsKey=(who:string)=>`wla-game-plays:${who||'guest'}`;
 function shuffle<T>(list:readonly T[]):T[]{const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -17,35 +18,46 @@ export const gameLink=(id:GameId,score:number)=>`https://whatslearn.in/app?play=
 
 /** The Play tab: today's game, every course game with its best score, and friend challenges. */
 type Board={week:string;endsAt:string;game:GameId;players:number;signedIn:boolean;top:{rank:number;name:string;score:number;me:boolean}[];squads:{rank:number;name:string;members:number;total:number}[];me:null|{score:number;rank:number};squad:null|{name:string;code:string;owner:boolean;total:number;rank:number;members:{name:string;score:number;me:boolean}[]}};
-export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:string;challenge?:Challenge|null;onChallengeDone:()=>void;joinCode?:string;onSignIn?:()=>void}){
+export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn,view,onView}:{who:string;challenge?:Challenge|null;onChallengeDone:()=>void;joinCode?:string;onSignIn?:()=>void;view:PlayView;onView:(view:PlayView)=>void}){
  const [board,setBoard]=useState<Board|null>(null),[boardErr,setBoardErr]=useState('');
  const loadBoard=async()=>{const r=await api<Board>('/api/games');if(r.ok){setBoard(r.data);setBoardErr('')}else setBoardErr(r.data.error||'Leaderboard unavailable.')};
  useEffect(()=>{void loadBoard()},[who]);
  const [playing,setPlaying]=useState<GameId|null>(challenge?.game||null);
  const [beat,setBeat]=useState<number|undefined>(challenge?.beat);
  const [tick,setTick]=useState(0);
+ const previousView=useRef(view),heading=useRef<HTMLHeadingElement>(null);
+ useEffect(()=>{if(previousView.current!==view){setPlaying(null);setBeat(undefined);previousView.current=view}heading.current?.focus({preventScroll:true})},[view]);
  useEffect(()=>{if(challenge){setPlaying(challenge.game);setBeat(challenge.beat)}},[challenge]);
  const best=(id:GameId)=>Number(readLocal(bestKey(who,id))||0);
  const plays=Number(readLocal(playsKey(who))||0);
  if(playing){const meta=games.find(g=>g.id===playing)!;
-  return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} tournament={board?.game===meta.id} onExit={()=>{setPlaying(null);setBeat(undefined);onChallengeDone();void loadBoard()}} onAgain={()=>setTick(t=>t+1)}/>}
+  return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} tournament={board?.game===meta.id} onExit={()=>{setPlaying(null);setBeat(undefined);onView('games');onChallengeDone();void loadBoard()}} onAgain={()=>setTick(t=>t+1)}/>}
+ if(view!=='games')return <div className="wla-stack wla-challenge-screen">
+  <button type="button" className="wla-back" onClick={()=>onView('games')}><ArrowLeft size={18}/>All games</button>
+  <div><h2 ref={heading} tabIndex={-1} className="wla-h1">{view==='weekly'?'Weekly tournament':view==='squad'?'Squad challenge':'Challenge a friend'}</h2><p className="wla-muted">{view==='friend'?'Choose a game, finish a round, then share your score with a friend.':view==='squad'?'Create a squad or join your friends with their six-character code.':'One game each week. Your best score counts.'}</p></div>
+  {view==='friend'?<div className="wla-challenge-games">{games.map(g=><button type="button" key={g.id} className="wla-challenge-row" onClick={()=>setPlaying(g.id)}><span className="wla-ghead-art"><GameArt id={g.id}/></span><span className="wla-grow"><strong>{g.name}</strong><small>{g.minutes} min · {g.tagline}</small></span><ArrowRight size={18}/></button>)}</div>
+   :view==='weekly'?<Tournament board={board} error={boardErr} who={who} onPlay={id=>setPlaying(id)} onSignIn={onSignIn}/>
+   :boardErr?<div className="wla-card"><p className="wla-error" role="alert">{boardErr}</p><button type="button" className="wla-outline wla-full" onClick={()=>void loadBoard()}>Try again</button></div>:<Squad board={board} who={who} joinCode={joinCode} onChanged={loadBoard} onSignIn={onSignIn}/>}
+ </div>;
  const today=todaysGame();
  // Games come first, each with its own bright illustration, so every card invites a tap.
  return <div className="wla-stack">
   <div><h2 className="wla-h1 wla-tight">Play a little. <em>Learn a lot.</em></h2><p className="wla-muted">Quick 1–2 minute games from each course. {plays?`${plays} game${plays===1?'':'s'} played on this phone.`:'Beat your best, then challenge a friend.'}</p></div>
-  <button type="button" className="wla-today wla-game-photo" onClick={()=>setPlaying(today.id)}>
-   <span className="wla-gimg wla-gimg-wide"><GameArt id={today.id}/><span className="wla-today-tag">TODAY’S GAME</span></span>
-   <span className="wla-gbody"><strong>{today.name}</strong><small>{today.tagline}</small>
-    <span className="wla-today-foot">{best(today.id)?<><Crown size={15}/> Best {best(today.id)}</>:'Not played yet'} · Play now</span></span>
+  <button type="button" className="wla-today wla-today-compact" onClick={()=>setPlaying(today.id)}>
+   <span className="wla-today-art"><GameArt id={today.id}/></span>
+   <span className="wla-today-details"><span className="wla-today-label">TODAY’S GAME</span><strong>{today.name}</strong><small>{today.tagline}</small>
+    <span className="wla-today-bottom"><small>{best(today.id)?`Best ${best(today.id)}`:`${today.minutes} min · Not played yet`}</small><span className="wla-today-play">Play<ArrowRight size={14}/></span></span></span>
   </button>
   <p className="wla-section">ALL GAMES</p>
   <div className="wla-games">{games.map(g=>{const b=best(g.id);
    return <button key={g.id} type="button" className="wla-game wla-game-photo" onClick={()=>setPlaying(g.id)}>
     <span className="wla-gimg"><GameArt id={g.id}/><span className="wla-game-best">{b?<><Crown size={13}/>{b}</>:`${g.minutes} min`}</span></span>
     <span className="wla-gbody"><strong>{g.name}</strong><small>{g.tagline}</small></span></button>})}</div>
-  <Tournament board={board} error={boardErr} who={who} onPlay={id=>setPlaying(id)} onSignIn={onSignIn}/>
-  <Squad board={board} who={who} joinCode={joinCode} onChanged={loadBoard} onSignIn={onSignIn}/>
-  <div className="wla-card wla-share-card"><strong><Share2 size={18}/> Challenge a friend</strong><p className="wla-muted">Finish any game, then send your score on WhatsApp. Your friend signs in free and plays the same game.</p></div>
+  <div className="wla-challenge-links" aria-label="Play with friends">
+   <button type="button" className="wla-challenge-row" onClick={()=>onView('weekly')}><Trophy size={20}/><span className="wla-grow"><strong>Weekly tournament</strong><small>See this week’s game and leaderboard</small></span><ArrowRight size={18}/></button>
+   <button type="button" className="wla-challenge-row" onClick={()=>onView('squad')}><Users size={20}/><span className="wla-grow"><strong>Squad challenge</strong><small>Create a team or join with a code</small></span><ArrowRight size={18}/></button>
+   <button type="button" className="wla-challenge-row" onClick={()=>onView('friend')}><Share2 size={20}/><span className="wla-grow"><strong>Challenge a friend</strong><small>Choose a game and share your score</small></span><ArrowRight size={18}/></button>
+  </div>
  </div>;
 }
 
@@ -228,9 +240,10 @@ function Tournament({board,error,who,onPlay,onSignIn}:{board:Board|null;error:st
 function Squad({board,who,joinCode,onChanged,onSignIn}:{board:Board|null;who:string;joinCode?:string;onChanged:()=>Promise<void>|void;onSignIn?:()=>void}){
  const [name,setName]=useState(''),[code,setCode]=useState(joinCode||''),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[copied,setCopied]=useState(false);
  useEffect(()=>{if(joinCode)setCode(joinCode)},[joinCode]);
- const act=async(body:Record<string,string>)=>{setBusy(true);setMsg('');const r=await api<{error?:string}>('/api/games',{method:'POST',body});setBusy(false);if(!r.ok){setMsg(r.data.error||'That did not work.');return}setName('');setCode('');if(body.action!=='leave')writeLocal('wla-squad-invite','');await onChanged()};
+ const act=async(body:Record<string,string>)=>{if(busy)return;setBusy(true);setMsg('');try{const r=await api<{error?:string}>('/api/games',{method:'POST',body});if(!r.ok){setMsg(r.data.error||'That did not work.');return}setName('');setCode('');if(body.action!=='leave')writeLocal('wla-squad-invite','');await onChanged()}finally{setBusy(false)}};
  if(!who)return <section className="wla-card wla-squad"><strong><Users size={18}/> Squad challenge</strong><p className="wla-muted">Team up with up to 5 friends. Your best scores in the weekly game add up to one team score.{joinCode?` You were invited to squad ${joinCode}.`:''}</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in to {joinCode?'join':'start'} a squad</button>}</section>;
- const sq=board?.squad;
+ if(!board)return <div className="wla-card" role="status">Loading your squad…</div>;
+ const sq=board.squad;
  if(sq){const link=`https://whatslearn.in/app?squad=${sq.code}`;const text=`Join my WhatsLearn squad “${sq.name}”. We play one game a week and our scores add up: ${link}`;
   return <section className="wla-card wla-squad">
    <div className="wla-split"><strong><Users size={18}/> {sq.name}</strong><span className="wla-badge-pill">#{sq.rank} · {sq.total} pts</span></div>
@@ -244,8 +257,8 @@ function Squad({board,who,joinCode,onChanged,onSignIn}:{board:Board|null;who:str
  return <section className="wla-card wla-squad">
   <strong><Users size={18}/> Squad challenge</strong>
   <p className="wla-muted">Team up with up to 5 friends. Your best scores in this week’s game add up to one team score.</p>
-  <form className="wla-inline" onSubmit={e=>{e.preventDefault();if(code.trim())void act({action:'join',code})}}><label htmlFor="wla-sq-code" className="wla-sr">Squad code</label><input id="wla-sq-code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Friend’s code" maxLength={6} autoCapitalize="characters"/><button type="submit" className="wla-primary" disabled={busy||code.trim().length<6}>Join</button></form>
-  <form className="wla-inline" onSubmit={e=>{e.preventDefault();if(name.trim())void act({action:'create',name})}}><label htmlFor="wla-sq-name" className="wla-sr">Squad name</label><input id="wla-sq-name" value={name} onChange={e=>setName(e.target.value)} placeholder="New squad name" maxLength={30}/><button type="submit" className="wla-outline" disabled={busy||name.trim().length<2}>Create</button></form>
+  <form className="wla-field" onSubmit={e=>{e.preventDefault();if(!busy&&code.length===6)void act({action:'join',code})}}><label htmlFor="wla-sq-code">Join with a code</label><div className="wla-inline"><input id="wla-sq-code" value={code} onChange={e=>setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6))} placeholder="Six-character code" maxLength={6} autoCapitalize="characters" autoComplete="off" spellCheck={false}/><button type="submit" className="wla-primary" disabled={busy||code.length!==6}>Join</button></div></form>
+  <form className="wla-field" onSubmit={e=>{e.preventDefault();if(!busy&&name.trim().length>=2)void act({action:'create',name:name.trim()})}}><label htmlFor="wla-sq-name">Or create a squad</label><div className="wla-inline"><input id="wla-sq-name" value={name} onChange={e=>setName(e.target.value)} placeholder="Squad name" maxLength={30}/><button type="submit" className="wla-outline" disabled={busy||name.trim().length<2}>Create</button></div></form>
   {msg&&<p className="wla-error" role="alert">{msg}</p>}
   {board&&board.squads.length>0&&<><p className="wla-kicker">TOP SQUADS THIS WEEK</p><ol className="wla-board">{board.squads.slice(0,3).map(s=><li key={s.rank}><span className={'wla-medal m'+s.rank}>{s.rank}</span><span className="wla-grow">{s.name}<small> · {s.members}</small></span><b>{s.total}</b></li>)}</ol></>}
  </section>;

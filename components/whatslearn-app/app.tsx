@@ -13,7 +13,7 @@ import {MissionFlow,CheckpointFlow,type Saved} from './practice';
 import {AppSheet} from './sheet';
 import {BuyButton,useBillingStatus} from './checkout';
 import {Home,Courses,Mentor,Me,Creations,Achievements,GuestHome,nextFor,type Next} from './tabs';
-import type {Challenge} from './games';
+import type {Challenge,PlayView} from './games';
 // The Play tab's games are the largest part of the app, so they load only when Play is opened.
 const GamesHub=lazy(()=>import('./games').then(m=>({default:m.GamesHub})));
 import {levelOf} from './rewards';
@@ -30,6 +30,7 @@ export default function WhatsLearnApp(){
  const [guest,setGuest]=useState(false);
  const [language,setLanguage]=useState('en');
  const [tab,setTab]=useState<Tab>('home');
+ const [playView,setPlayView]=useState<PlayView>('games');
  const [overlay,setOverlay]=useState<Overlay>('');
  const [open,setOpen]=useState<Next|null>(null);
  const [course,setCourse]=useState<string>();
@@ -82,10 +83,10 @@ export default function WhatsLearnApp(){
  /** Coming back to the app (after paying on the website, or learning on WhatsApp) refreshes plan, points and progress. */
  useEffect(()=>{let last=Date.now();const on=()=>{if(document.visibilityState==='visible'&&Date.now()-last>15000){last=Date.now();refresh()}};document.addEventListener('visibilitychange',on);return()=>document.removeEventListener('visibilitychange',on)},[refresh]);
  useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
- useEffect(()=>{mainRef.current?.scrollTo(0,0)},[tab,overlay,open,saved]);
+ useEffect(()=>{mainRef.current?.scrollTo(0,0)},[tab,overlay,open,saved,playView]);
  // A task or draft from a former account must never remain in the active view.
  useEffect(()=>{
-  setSaved(null);setOverlay('');
+  setSaved(null);setOverlay('');setPlayView('games');
   const restored=snap?restoreResume(readLocal(resumeKey(snap.accountKey)),snap):null;
   setOpen(restored?.target||null);setCourse(restored?.target.kind==='mission'?restored.target.mission.track:restored?.target.kind==='checkpoint'?restored.target.track:undefined);
   if(restored)setTab(restored.tab);setResumeAccount(snap?.accountKey||'');
@@ -105,14 +106,14 @@ export default function WhatsLearnApp(){
   setStage('welcome');
  },[guest]);
  const challengeRef=useRef<Challenge|null>(null);challengeRef.current=challenge;
- useEffect(()=>{if((challenge||squadCode)&&stage==='app')setTab('play')},[challenge,squadCode,stage]);
+ useEffect(()=>{if((challenge||squadCode)&&stage==='app'){setTab('play');setPlayView(squadCode&&!challenge?'squad':'games')}},[challenge,squadCode,stage]);
  const afterSplash=useCallback(()=>{if(booted)route(snap);else setTimeout(()=>setStage(st=>st),300)},[booted,route,snap]);
  useEffect(()=>{if(booted&&stage==='splash'){const t=setTimeout(()=>route(snap),1600);return()=>clearTimeout(t)}},[booted,stage,route,snap]);
 
  /** The phone's Back button steps back through the app (sheet, screen, task, tab) before leaving it. */
- const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab,creation});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab,creation};
+ const depth=useRef({sheet,overlay,saved:!!saved,open:!!open,tab,creation,playView});depth.current={sheet,overlay,saved:!!saved,open:!!open,tab,creation,playView};
  useEffect(()=>{if(stage!=='app')return;history.pushState({wla:1},'');const onPop=()=>{const d=depth.current;
-  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
+  if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab==='play'&&d.playView!=='games')setPlayView('games');else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
  async function paid(){setPayMsg('');await refresh();setPaidNote('Payment confirmed. Your plan is active: all 10 tasks in every course are open.')}
@@ -124,7 +125,7 @@ export default function WhatsLearnApp(){
  const current=snap?nextFor(track,snap):null;
  const selected=open||current;
  const mentorMission=selected&&(selected.kind==='mission'||selected.kind==='plan')?selected.mission.id:selected?.kind==='checkpoint'?missionsOfCourse(selected.track)[selected.after-1].id:missionsOfCourse(track)[0].id;
- function goTab(id:Tab){setTab(id);setOverlay('');setSaved(null);if(id==='practice'&&!open)setOpen(current)}
+ function goTab(id:Tab){setTab(id);setOverlay('');setSaved(null);if(id==='play')setPlayView('games');if(id==='practice'&&!open)setOpen(current)}
 
  async function retryLoad(){const s=await refresh();if(s!==undefined){setBooted(true);if(stage!=='app')route(s)}}
  if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert"><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div></Shell>;
@@ -148,7 +149,7 @@ export default function WhatsLearnApp(){
    practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} onUpgrade={showPlans} onBack={()=>{setOpen(null);setTab('courses')}} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
   }
  }
- const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',play:'Play',mentor:'Mentor',me:'Me'};
+ const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',play:playView==='games'?'Play':'Challenges',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
  if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
  else if(overlay==='badges'&&snap)body=<Achievements s={snap} onBack={()=>setOverlay('')}/>;
@@ -158,7 +159,7 @@ export default function WhatsLearnApp(){
  else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);goTab('courses')}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub who={snap?.accountKey||''} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub key={snap?.accountKey||'guest'} who={snap?.accountKey||''} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
@@ -189,7 +190,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-redesign-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-play-cards-v4"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

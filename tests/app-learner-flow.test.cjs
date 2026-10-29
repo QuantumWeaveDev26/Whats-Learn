@@ -34,8 +34,8 @@ test('a saved creation shows its real feedback and next step without fabricating
  h.start();const tree=Creations({s,view:'d1',setView(){},onBack(){},onImprove(){}});assert.ok(text(tree).includes(review.summary));assert.ok(text(tree).includes(review.nextStep));
  h.start();const noReview=Creations({s:{...s,work:[{...s.work[0],evaluation:null}]},view:'d1',setView(){},onBack(){},onImprove(){}});assert.ok(text(noReview).includes('No saved feedback'));assert.ok(!text(noReview).includes(review.summary));
 });
-test('course expansion is labelled View course and does not pretend to start practice',()=>{
- const h=hooks(),{Courses}=load('components/whatslearn-app/tabs.tsx',h);h.start();const tree=Courses({s:null,onOpen(){},onSignIn(){}});assert.ok(all(tree,n=>n.type==='button'&&text(n).includes('View course')).length===4);
+test('course expansion is labelled View tasks and does not pretend to start practice',()=>{
+ const h=hooks(),{Courses}=load('components/whatslearn-app/tabs.tsx',h);h.start();const tree=Courses({s:null,onOpen(){},onSignIn(){}});assert.ok(all(tree,n=>n.type==='button'&&text(n).includes('View tasks')).length===4);
 });
 test('improving saved work restores its structured evidence rather than asking for it again',()=>{
  const {answerBody,restoreDraft}=load('components/whatslearn-app/learning-state.ts'),{emptyAnswer,composeAnswer,parseAnswer}=load('lib/practical.ts');
