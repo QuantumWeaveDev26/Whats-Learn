@@ -40,7 +40,7 @@ export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:
   </button>
   <div className="wla-games">{games.map(g=>{const L=courseLook[g.track];const I=L.Icon;const b=best(g.id);
    return <button key={g.id} type="button" className={'wla-game '+L.cls} onClick={()=>setPlaying(g.id)}><span className="wla-ccard-icon"><I size={20}/></span><strong>{g.name}</strong><small>{g.tagline}</small><span className="wla-game-best">{b?<><Crown size={13}/>{b}</>:`${g.minutes} min`}</span></button>})}</div>
-  <div className="wla-card wla-share-card"><strong><Share2 size={18}/> Challenge a friend</strong><p className="wla-muted">Finish any game, then send your score on WhatsApp. Your friend opens the same game, no account needed.</p></div>
+  <div className="wla-card wla-share-card"><strong><Share2 size={18}/> Challenge a friend</strong><p className="wla-muted">Finish any game, then send your score on WhatsApp. Your friend signs in free and plays the same game.</p></div>
  </div>;
 }
 
@@ -67,7 +67,7 @@ function Game({id,onDone}:{id:GameId;onDone:(s:number)=>void}){
 
 function Result({meta,score,who,beat,rank,tournament,onAgain,onExit}:{meta:GameMeta;score:number;who:string;beat?:number;rank?:number|null;tournament?:boolean;onAgain:()=>void;onExit:()=>void}){
  const best=Number(readLocal(bestKey(who,meta.id))||0);const isBest=score>=best&&score>0;
- const text=`I scored ${score} in ${meta.name} on WhatsLearn. Can you beat it? ${gameLink(meta.id,score)}`;
+ const text=`I scored ${score} in ${meta.name} on WhatsLearn. Can you beat it? Sign in free and play: ${gameLink(meta.id,score)}`;
  return <div className="wla-stack wla-center wla-celebrate">
   {score>=60&&<div className="wla-confetti" aria-hidden="true">{Array.from({length:16},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%6)*0.12}s`,background:['#087A4B','#D5F4DE','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>}
   <div className="wla-score"><strong>{score}</strong><small>out of 100</small></div>

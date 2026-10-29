@@ -44,14 +44,17 @@ export default function WhatsLearnApp(){
  const [loading,setLoading]=useState(false);
  const refreshRun=useRef(0);
  const [creation,setCreation]=useState('');
- /** A friend's challenge link (/app?play=hook-hunter&beat=80) opens that game straight away, even before sign-in. */
- const [challenge,setChallenge]=useState<Challenge|null>(null);
+ /** A friend's challenge link (/app?play=hook-hunter&beat=80) asks the friend to sign in, then opens that game.
+  * It is kept on the phone so it survives email confirmation and Google sign-in. */
+ const [challenge,setChallengeState]=useState<Challenge|null>(()=>{try{const c=JSON.parse(readLocal('wla-challenge')||'null');return c&&games.some(x=>x.id===c.game)?c:null}catch{return null}});
+ const setChallenge=useCallback((c:Challenge|null)=>{setChallengeState(c);writeLocal('wla-challenge',c?JSON.stringify(c):'')},[]);
  const [squadCode,setSquadCode]=useState('');
  useEffect(()=>{try{const q=new URLSearchParams(window.location.search);const sc=(q.get('squad')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);if(sc.length===6){setSquadCode(sc);writeLocal('wla-squad-invite',sc);history.replaceState(null,'','/app')}else{const kept=readLocal('wla-squad-invite');if(kept&&kept.length===6)setSquadCode(kept)}const g=q.get('play') as GameId|null;if(g&&games.some(x=>x.id===g)){const b=Number(q.get('beat'));setChallenge({game:g,beat:Number.isFinite(b)?Math.max(0,Math.min(100,Math.round(b))):0});history.replaceState(null,'','/app')}}catch{}},[]);
  /** Inside the Play Store / App Store apps, plans are not sold with a link to the website (store payment rules).
-  * The store apps open /app?source=store (or Android passes an android-app:// referrer); this is remembered on the phone. */
+  * Only the store apps open /app?source=store; this is remembered on the phone. (Links opened from WhatsApp also
+  * carry an android-app:// referrer, so the referrer is not used. The key changed so phones flagged by that mistake reset.) */
  const [storeApp,setStoreApp]=useState(false);
- useEffect(()=>{try{const q=new URLSearchParams(window.location.search).get('source');if(q==='store'||document.referrer.startsWith('android-app://'))writeLocal('wla-store-app','1');setStoreApp(readLocal('wla-store-app')==='1')}catch{}},[]);
+ useEffect(()=>{try{const q=new URLSearchParams(window.location.search).get('source');if(q==='store')writeLocal('wla-store-app-2','1');setStoreApp(readLocal('wla-store-app-2')==='1')}catch{}},[]);
  const mainRef=useRef<HTMLElement>(null);
  const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
@@ -91,7 +94,8 @@ export default function WhatsLearnApp(){
   if(s===undefined)return;
   if(s){if(!s.hasContext)return setStage('context');if(!s.profile)return setStage('path');return setStage('app')}
   if(guest)return setStage('app');
-  if(challengeRef.current){setGuest(true);setTab('play');return setStage('app')}
+  // A friend's challenge needs an account, so it goes to sign-in even for someone exploring as a guest.
+  if(challengeRef.current)return setStage('auth');
   // A guest who already chose to explore goes straight back in; someone who saw the intro skips to sign-in.
   if(readLocal('wla-guest')==='1'){setGuest(true);return setStage('app')}
   if(readLocal('wla-intro-seen')==='1')return setStage('auth');
@@ -123,7 +127,7 @@ export default function WhatsLearnApp(){
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
  if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
  if(stage==='language')return <Shell><LanguageStep step="STEP 1 OF 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
- if(stage==='auth')return <Shell><AuthScreen firstRun={readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
+ if(stage==='auth')return <Shell wide><AuthScreen firstRun={!challenge&&readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} notice={challenge?`Your friend scored ${challenge.beat} in ${games.find(g=>g.id===challenge.game)?.name||'a WhatsLearn game'}. Sign in or create a free account to take the challenge.`:undefined} allowGuest={!challenge} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
  if(stage==='context')return <Shell><PersonalSetup onDone={async()=>{const s=await refresh();route(s)}}/></Shell>;
  if(stage==='path')return <Shell><PathSetup initial={snap?.profile||null} language={language} onDone={async()=>{const s=await refresh();setTab('home');route(s)}}/></Shell>;
 
@@ -150,7 +154,7 @@ export default function WhatsLearnApp(){
  else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);goTab('courses')}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub who={snap?.accountKey||''} challenge={challenge} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub who={snap?.accountKey||''} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
@@ -177,7 +181,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children}:{children:React.ReactNode}){return <div className="wla" data-app-release="2026-10-28-retention-3"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-28-retention-3"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

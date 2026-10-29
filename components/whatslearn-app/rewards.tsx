@@ -38,7 +38,7 @@ export function LevelCard({s}:{s:Snapshot}){
 }
 
 /** Three small things to do each day. Finishing all three earns a celebration. */
-export function DailyMissions({s,who,onTask,onGame,onMentor}:{s:Snapshot;who:string;onTask:()=>void;onGame:()=>void;onMentor:()=>void}){
+export function DailyMissions({s,who,onTask,onGame,onMentor,footer}:{s:Snapshot;who:string;onTask:()=>void;onGame:()=>void;onMentor:()=>void;footer?:React.ReactNode}){
  const day=todayKey();
  const items=[
   {id:'task',label:'Save today’s task',done:!!s.points?.todayUsed,go:onTask,Icon:PenLine},
@@ -50,9 +50,10 @@ export function DailyMissions({s,who,onTask,onGame,onMentor}:{s:Snapshot;who:str
  useEffect(()=>{if(firstAll){writeLocal(`wla-daily-done:${who}`,day);try{navigator.vibrate?.([30,40,30])}catch{}}},[firstAll,who,day]);
  return <section className={'wla-daily'+(all?' all':'')} aria-labelledby="wla-daily-t">
   {firstAll&&<div className="wla-confetti" aria-hidden="true">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%5)*0.1}s`,background:['#087A4B','#F6C445','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>}
-  <div className="wla-daily-head"><svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="22" fill="none" stroke="#E4EDE6" strokeWidth="6"/><circle cx="27" cy="27" r="22" fill="none" stroke={all?'#F6C445':'#087A4B'} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${c*done/3} ${c}`} transform="rotate(-90 27 27)"/><text x="27" y="32" textAnchor="middle" fontSize="15" fontWeight="700" fill="#202020">{done}/3</text></svg>
-   <div><p className="wla-kicker">DAILY MISSIONS</p><strong id="wla-daily-t">{all?'All done today. Brilliant!':`${3-done} left today`}</strong></div></div>
+  <div className="wla-daily-head"><svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="22" fill="none" stroke="#E4EDE6" strokeWidth="6"/><circle cx="27" cy="27" r="22" fill="none" stroke="#087A4B" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${c*done/3} ${c}`} transform="rotate(-90 27 27)"/><text x="27" y="32" textAnchor="middle" fontSize="15" fontWeight="700" fill="#202020">{done}/3</text></svg>
+   <div><p className="wla-kicker">TODAY</p><strong id="wla-daily-t">{all?'All done today. Brilliant!':`${3-done} small wins left`}</strong></div></div>
   <ul>{items.map(i=><li key={i.id}><button type="button" className={i.done?'done':''} onClick={i.go} disabled={i.done} aria-label={`${i.label}${i.done?', done':''}`}><span className="wla-dm-icon">{i.done?<Check size={16}/>:<i.Icon size={16}/>}</span><span className="wla-grow">{i.label}</span>{!i.done&&<small>Go</small>}</button></li>)}</ul>
+  {footer}
  </section>;
 }
 

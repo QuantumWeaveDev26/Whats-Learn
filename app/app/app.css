@@ -484,3 +484,67 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-hero-link{align-self:flex-start;margin-top:4px;padding:8px 0;border:0;background:transparent;color:#D2F7DF;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .wla-hero-kicker svg{vertical-align:-2px}
 .wla-hero-card .wla-mint svg{flex:none}
+/* Minimal theme (2026-10-29): one palette everywhere. Courses and games use the app's own green on white
+   cards with a thin line; gold, orange and pastel accents are replaced with theme tints. */
+.c-mint,.c-ice,.c-peach,.c-lilac{--cbg:#fff;--cink:var(--gd)}
+.wla-ccard,.wla-game,.wla-today,.wla-game-head{border:1px solid var(--line);box-shadow:none}
+.wla-ccard-icon{background:var(--mint);color:var(--gd);box-shadow:none}
+.wla-ccard .wla-cbar,.wla-course-cover .wla-cbar{background:#EEF2ED}
+.wla-course-pill,.wla-game-best{background:var(--tint)}
+.wla-today-tag{background:var(--g)}
+.wla-state.s-plan{background:var(--tint);color:var(--gd)!important}
+.wla-scene{background:var(--tint)}
+.wla-post-head span{background:var(--mint)}
+.wla-tourney{border:1px solid var(--line);background:#fff;box-shadow:none}
+.wla-medal.m1{background:var(--g);color:#fff}
+.wla-tt-icon,.wla-toast>span{background:var(--mint);color:var(--gd)}
+.wla-lv{background:rgba(255,255,255,.18);color:inherit}
+.wla-top .wla-lv{background:var(--mint);color:var(--gdd)}
+.wla-level,.wla-daily,.wla-week{box-shadow:none;border:1px solid var(--line)}
+.wla-level-badge{background:var(--gd);color:#fff;box-shadow:none}
+.wla-xp span{background:var(--g)}
+.wla-badge.got span{background:var(--g);box-shadow:none}
+.wla-daily.all{background:#fff;box-shadow:0 0 0 2px var(--g)}
+.wla-streak.on,.wla-streak-big,.wla-risk{background:var(--tint);color:var(--gdd)}
+.wla-streak.on svg,.wla-streak-big svg,.wla-risk svg{color:#E0702A}
+/* Home: calm spacing; the week sits inside the Today card. */
+.wla-home{gap:16px}
+.wla-home .wla-goal{margin-top:6px;color:var(--mut);font-weight:500}
+.wla-daily li button{background:var(--bg)}
+.wla-daily .wla-week{margin-top:14px;padding:14px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent}
+.wla-daily .wla-week small{font-size:12px;color:var(--mut)}
+.wla-daily .wla-days{margin-top:10px}
+.wla-challenge-note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;border-radius:14px;background:var(--tint);color:var(--gdd);font-size:14px;font-weight:600;line-height:1.4}.wla-challenge-note svg{flex:none;color:var(--g);margin-top:1px}
+/* Sign-in: green welcome panel + form. Phones stack them; tablets and computers split the screen. */
+.wla-auth{gap:18px}
+.wla-auth-hero{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:20px 20px 0;border-radius:24px;background:linear-gradient(160deg,var(--gd),var(--gdd));color:#fff}
+.wla-auth-hero .wla-brand{margin:0}.wla-auth-hero .wla-brand strong{color:#fff}.wla-auth-hero .wla-brand small{color:#BFE9CF}
+.wla-auth-pitch{margin:4px 0 0;font-size:24px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.wla-auth-perks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px;color:#D2F7DF}.wla-auth-perks li{display:flex;gap:8px;align-items:center}.wla-auth-perks svg{flex:none;color:#7FE0A6}
+.wla-auth-art{display:block;width:72%;max-width:280px;height:auto;margin:4px auto -8px;border-radius:18px 18px 0 0;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.wla-auth-panel{display:flex;flex-direction:column;gap:14px}
+.wla-auth-panel .wla-h1{font-size:26px}
+@media(min-width:860px){
+ .wla.wla-wide{max-width:none}
+ .wla-auth{flex-direction:row;gap:0;padding:0;overflow:hidden}
+ .wla-auth-hero{flex:1;justify-content:center;gap:18px;padding:56px 64px;border-radius:0}
+ .wla-auth-pitch{font-size:40px}.wla-auth-perks{font-size:16px;gap:10px}
+ .wla-auth-art{width:100%;max-width:440px;margin:12px 0 0;border-radius:24px;-webkit-mask-image:none;mask-image:none}
+ .wla-auth-panel{width:460px;flex:none;overflow-y:auto;justify-content:center;padding:48px 48px;background:#fff}
+ .wla-auth-panel .wla-auth-foot{margin-top:8px}
+}
+/* Courses: grown-up course cards (number, status, what you'll make, meta, progress, action). */
+.wla-course{border:1px solid var(--line);border-radius:20px;box-shadow:none}
+.wla-course-card{flex-direction:column;align-items:stretch;gap:8px;padding:18px;background:#fff}
+.wla-course-top{display:flex;align-items:center;gap:10px}
+.wla-course-top .wla-ccard-icon{width:36px;height:36px;border-radius:11px}
+.wla-course-top .wla-cnum{flex:1;font-size:11px!important;letter-spacing:.1em;color:var(--mut)!important}
+.wla-course-status{font-size:12px;font-weight:700;color:var(--gd)}
+.wla-course-name{font-size:18px;line-height:1.3;color:var(--ink)}
+.wla-course-make{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:14px;line-height:1.4;color:var(--ink)}
+.wla-course-make small{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.wla-course-meta{font-size:13px;color:var(--mut)}
+.wla-course-card .wla-cbar{margin-top:2px}
+.wla-course-card .wla-course-pill{align-self:flex-start;margin-top:4px;padding:8px 10px 8px 14px;background:var(--tint);color:var(--gd);font-size:13px}
+.wla-course-card .wla-rot{transform:rotate(90deg)}
+.wla-course-body .wla-task{padding-inline:18px}
