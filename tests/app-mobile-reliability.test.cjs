@@ -33,7 +33,7 @@ function worker(){
 }
 test('app activation leaves website and unrelated caches intact',async()=>{const w=worker();let done;w.events.activate({waitUntil:p=>done=p});await done;assert.deepEqual(w.deleted,['wla-shell-v1'])});
 test('app installation caches only the public offline game, never an authenticated page',async()=>{const w=worker();let done;w.events.install({waitUntil:p=>done=p});await done;assert.deepEqual(w.cached,['/app-offline.html'])});
-test('offline navigation never serves a cached learner page',async()=>{const w=worker();let answer;w.events.fetch({request:{method:'GET',mode:'navigate',url:'https://whatslearn.in/app'},respondWith:p=>answer=p});const r=await answer;assert.equal(r.status,503);assert.match(await r.text(),/offline/i);assert.equal(r.headers.get('cache-control'),'no-store')});
+test('offline navigation never serves a cached learner page',async()=>{const w=worker();let answer;w.events.fetch({request:{method:'GET',mode:'navigate',url:'https://whatslearn.in/app'},waitUntil(){},respondWith:p=>answer=p});const r=await answer;assert.equal(r.status,503);assert.match(await r.text(),/offline/i);assert.equal(r.headers.get('cache-control'),'no-store')});
 for(const url of ['https://whatslearn.in/','https://whatslearn.in/membership','https://whatslearn.in/application','https://example.com/app'])test(`app worker leaves ${url} navigation alone`,()=>{const w=worker();let handled=false;w.events.fetch({request:{method:'GET',mode:'navigate',url},respondWith:()=>handled=true});assert.equal(handled,false)});
 
 test('failed first load offers Retry instead of treating the learner as a new visitor',async()=>{

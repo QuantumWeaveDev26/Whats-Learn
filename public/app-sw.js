@@ -13,7 +13,17 @@ self.addEventListener('fetch',e=>{
  if(url.origin!==self.location.origin)return;
  const publicGame=url.pathname===PUBLIC_GAME&&!url.search;
  if(!publicGame&&(r.mode!=='navigate'||(url.pathname!=='/app'&&!url.pathname.startsWith('/app/'))))return;
- e.respondWith(fetch(r).catch(async()=>{
+ const network=fetch(r);
+ // Repair a failed precache on the next online visit, without holding up the app.
+ // Both paths write only the exact public game, never the navigation response.
+ e.waitUntil(network.then(async response=>{
+  if(!response.ok)return;
+  const cache=await caches.open(PUBLIC_CACHE);
+  if(!publicGame&&await cache.match(PUBLIC_GAME))return;
+  const page=publicGame?response.clone():await fetch(PUBLIC_GAME,{cache:'reload'});
+  if(page.ok&&!page.redirected&&page.headers.get('Content-Type')?.includes('text/html'))await cache.put(PUBLIC_GAME,page);
+ }).catch(()=>{}));
+ e.respondWith(network.catch(async()=>{
   // Read only this named cache and exact public asset, never a cached account page.
   let page;try{page=await (await caches.open(PUBLIC_CACHE)).match(PUBLIC_GAME)}catch{}
   return new Response(page?await page.text():offline,{status:publicGame&&page?200:503,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});
