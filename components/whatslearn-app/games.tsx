@@ -72,13 +72,13 @@ function GameScreen({meta,who,beat,tournament,onExit,onAgain}:{meta:GameMeta;who
  const posted=useRef<Promise<unknown>|null>(null);
  /** Leaving waits for the score to finish saving, so the board never shows an old rank. */
  const exit=async()=>{try{await posted.current}catch{}onExit()};
- const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games');if(b.ok&&b.data.me)setRank(b.data.me.rank)}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));markGameDay(who);setScore(v)};
+ const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v},timeoutMs:10000}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games',{timeoutMs:10000});if(b.ok&&b.data.me)setRank(b.data.me.rank)}}).catch(()=>{});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));markGameDay(who);setScore(v)};
  return <div className="wla-stack wla-game-screen">
   <button type="button" className="wla-back" onClick={exit}><ArrowLeft size={18}/>All games</button>
   <div className={'wla-game-head '+L.cls}><span className="wla-ghead-art"><GameArt id={meta.id}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>
   {beat!==undefined&&score===null&&<p className="wla-note"><Crown size={16}/>Your friend scored {beat}. Can you beat it?</p>}
   {tournament&&score===null&&<p className="wla-note"><Trophy size={16}/>This week’s tournament game{who?': your best score this week counts.':'. Sign in to get on the board.'}</p>}
-  {score===null?<Game run={run} who={who} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} rank={rank} tournament={!!tournament} onAgain={async()=>{try{await posted.current}catch{}onAgain()}} onExit={exit}/>}
+  {score===null?<Game run={run} who={who} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} rank={rank} tournament={!!tournament} onAgain={onAgain} onExit={exit}/>}
  </div>;
 }
 function Game({run,who,onDone}:{run:GameRun;who:string;onDone:(s:number)=>void}){
