@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,markMentorDay,levelOf} from './rewards';
-import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
+import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Mic,Square,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
 import {shareStarterCard} from './share';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
@@ -15,6 +15,7 @@ import {api,currentAccount,readLocal,type Snapshot} from './api';
 import {feedbackOf,historyKey,versionsOf} from './learning-state';
 import {FeedbackCard} from './feedback';
 import {useCourseSwipe} from './swipe';
+import {useDictation} from './dictation';
 
 export type Course={completed:Set<string>;cleared:Set<string>};
 export function progressOf(s:Snapshot):Course{return {completed:new Set(s.work.map(w=>w.mission_id)),cleared:new Set(s.checkpoints)}}
@@ -81,22 +82,26 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
  </div>;
 }
 
-export function Courses({s,onOpen,onSignIn,initialTrack}:{s:Snapshot|null;onOpen:(n:Next)=>void;onSignIn:()=>void;initialTrack?:string}){
- const [open,setOpen]=useState(initialTrack||'');const {completed,cleared}=s?progressOf(s):{completed:new Set<string>(),cleared:new Set<string>()};const [notice,setNotice]=useState('');
+export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange}:{s:Snapshot|null;onOpen:(n:Next)=>void;onSignIn:()=>void;initialTrack?:string;onTrackChange?:(id:string|undefined)=>void}){
+ const [localTrack,setLocalTrack]=useState(initialTrack||'');const requested=onTrackChange?initialTrack||'':localTrack;const open=programmes.some(p=>p.id===requested)?requested:'';
+ const setOpen=(id:string)=>{setLocalTrack(id);onTrackChange?.(id||undefined);setNotice('')};
+ const {completed,cleared}=s?progressOf(s):{completed:new Set<string>(),cleared:new Set<string>()};const [notice,setNotice]=useState('');
+ const heading=useRef<HTMLHeadingElement>(null);useEffect(()=>{heading.current?.focus({preventScroll:true})},[open]);
  return <div className="wla-stack">
-  <div><h2 className="wla-h1 wla-tight">Courses</h2><p className="wla-muted">Practical AI skills. Each course is 10 real tasks; the first 3 are free{s?'':'. Browse now, sign in when you’re ready'}.</p></div>
+  {open&&<button type="button" className="wla-back" onClick={()=>setOpen('')}><ArrowLeft size={18}/>Back to courses</button>}
+  <div><h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{open?programmes.find(p=>p.id===open)!.name:'Courses'}</h2><p className="wla-muted">{open?'Your tasks and mini challenges. Choose an open task to continue.':<>Practical AI skills. Each course is 10 real tasks; the first 3 are free{s?'':'. Browse now, sign in when you’re ready'}.</>}</p></div>
   {notice&&<p className="wla-note" role="status"><Lock size={16}/>{notice}</p>}
-  {programmes.map(p=>{const list=missionsOfCourse(p.id);const done=list.filter(m=>completed.has(m.id)).length;const isOpen=open===p.id;const L=courseLook[p.id];const I=L.Icon;
+  {programmes.filter(p=>!open||p.id===open).map(p=>{const list=missionsOfCourse(p.id);const done=list.filter(m=>completed.has(m.id)).length;const isOpen=open===p.id;const L=courseLook[p.id];const I=L.Icon;
    const hours=Math.round(list.reduce((t,m)=>t+(m.minutes||0),0)/30)/2;
    return <div key={p.id} className={'wla-course '+L.cls}>
-    <button type="button" className="wla-course-cover wla-course-card" aria-expanded={isOpen} onClick={()=>{setOpen(isOpen?'':p.id);setNotice('')}}>
+    {!isOpen?<button type="button" className="wla-course-cover wla-course-card" onClick={()=>setOpen(p.id)}>
      <span className="wla-course-top"><span className="wla-ccard-icon"><I size={20}/></span><small className="wla-cnum">COURSE {p.number}</small><small className="wla-course-status">{done>=10?'Completed':done?`${done}/10 done`:'Free to start'}</small></span>
      <strong className="wla-course-name">{p.name}</strong>
      <span className="wla-course-make"><small>You’ll make</small>{p.finishedOutcome}</span>
      <small className="wla-course-meta">10 tasks · about {hours} hrs · first 3 free</small>
      {done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}
-     <span className="wla-course-pill">{isOpen?'Hide tasks':done?'Continue':'View tasks'}<ChevronRight size={18} className={isOpen?'wla-rot':''}/></span>
-    </button>
+     <span className="wla-course-pill">{done?'Continue':'View tasks'}<ChevronRight size={18}/></span>
+    </button>:<div className="wla-course-summary"><p className="wla-muted"><strong>You’ll make:</strong> {p.finishedOutcome}</p><small>{list.length} tasks · about {hours} hrs · first 3 free</small></div>}
     {isOpen&&<div className="wla-course-body"><p className="wla-course-note">{done}/10 saved · Select an open task to begin. One new task earns points per day.</p>{list.flatMap((m,i)=>{
      const isDone=completed.has(m.id);const lock=lockFor(m,completed,cleared);const plan=needsMembership(m,s?.paidAccess||false);
      const state=!s?(plan?'Plan':'Free'):isDone?'Saved':plan?'Plan':lock.locked?'Locked':'Open';
@@ -114,23 +119,27 @@ type Msg={me:boolean;text:string};
 export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;language:string;signedIn:boolean;onSignIn?:()=>void}){
  const [msgs,setMsgs]=useState<Msg[]>([{me:false,text:'Need a hand? Ask for an explanation, an example, or a next step.'}]);
  const [q,setQ]=useState(''),[busy,setBusy]=useState(false);const end=useRef<HTMLDivElement>(null);
+ const voice=useDictation({language,value:q,onChange:setQ});
  useEffect(()=>{end.current?.scrollIntoView({block:'end'})},[msgs,busy]);
  const m=missions.find(x=>x.id===missionId);
  const ideas=['Explain this task simply','Show me an example','What should I do first?'];
- async function ask(text:string){const t=text.trim();if(!t||busy)return;markMentorDay(currentAccount());setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
+ async function ask(text:string){const t=text.trim();if(!t||busy||voice.listening)return;markMentorDay(currentAccount());setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
   const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language}});setBusy(false);
   setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
  if(!signedIn)return <div className="wla-stack">
   <div className="wla-chat wla-chat-demo" aria-label="Example mentor chat"><div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Example conversation</small></div></div>
    <div className="wla-msgs"><p className="me">I don’t get what a “hook” is.</p><div className="wla-bot"><span><MessageCircle size={14}/></span><p>A hook is the first line that makes the right person stop scrolling. Try: name who it’s for, then the problem you solve for them.</p></div></div></div>
   <div className="wla-card"><strong>Sign in to chat with your mentor</strong><p className="wla-muted">The mentor uses your current task and progress.</p>{onSignIn&&<button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button>}</div></div>;
- return <div className="wla-chat">
+ return <div className="wla-chat wla-mentor-chat"><div className="wla-mentor-feed" role="log" aria-label="Mentor conversation" aria-live="polite">
   {m&&<p className="wla-muted wla-task-context">Task: {m.title}</p>}
   <div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Help with this task</small></div></div>
   <div className="wla-msgs">{msgs.map((x,i)=>x.me?<p key={i} className="me">{x.text}</p>:<div key={i} className="wla-bot"><span><MessageCircle size={14}/></span><p>{x.text}</p></div>)}{busy&&<p className="typing" role="status" aria-label="Mentor is typing"><span/><span/><span/></p>}<div ref={end}/></div>
   {msgs.length<2&&<div className="wla-ideas">{ideas.map(t=><button key={t} type="button" onClick={()=>ask(t)}>{t}</button>)}</div>}
-  <form className="wla-ask" onSubmit={e=>{e.preventDefault();ask(q)}}><label htmlFor="wla-ask" className="wla-sr">Ask the mentor</label><input id="wla-ask" value={q} onChange={e=>setQ(e.target.value)} placeholder="Ask about your task…" maxLength={500}/><button type="submit" aria-label="Send" disabled={busy||!q.trim()}><Send size={20}/></button></form>
+  </div><div className="wla-mentor-compose">
+  <form className="wla-ask" onSubmit={e=>{e.preventDefault();ask(q)}}><label htmlFor="wla-ask" className="wla-sr">Ask the mentor</label><input id="wla-ask" value={q} readOnly={voice.listening} onChange={e=>setQ(e.target.value)} placeholder="Ask about your task…" maxLength={500}/><button type="button" className={'wla-mic'+(voice.listening?' listening':'')} aria-label={voice.listening?'Stop dictation':'Dictate a question'} aria-pressed={voice.listening} aria-describedby="wla-voice-note" disabled={busy} onClick={voice.toggle}>{voice.listening?<Square size={17}/>:<Mic size={19}/>}</button><button type="submit" aria-label="Send" disabled={busy||voice.listening||!q.trim()}><Send size={20}/></button></form>
+  <p id="wla-voice-note" className="wla-voice-note" role="status">{voice.message||'Voice uses your browser’s speech service. Review the text before sending.'}</p>
   <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener">Continue on WhatsApp</a>
+  </div>
  </div>;
 }
 

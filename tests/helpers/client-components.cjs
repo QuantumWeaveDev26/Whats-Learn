@@ -5,7 +5,7 @@ function hooks(){
  const same=(a,b)=>a&&b&&a.length===b.length&&a.every((x,i)=>Object.is(x,b[i]));
  const api={...React,useState(initial){const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return [slots[i],next=>slots[i]=typeof next==='function'?next(slots[i]):next]},useRef(v){const i=cursor++;return slots[i]??={current:v}},useMemo(fn,deps){const i=cursor++;if(!slots[i]||!same(slots[i].deps,deps))slots[i]={deps,value:fn()};return slots[i].value},useEffect(fn,deps){const i=cursor++;if(!same(slots[i]?.deps,deps)){slots[i]?.cleanup?.();slots[i]={deps};effects.push(()=>slots[i].cleanup=fn())}}};
  api.useCallback=(fn,deps)=>api.useMemo(()=>fn,deps);
- return {api,start(){cursor=0},async flush(){while(effects.length)effects.shift()();await new Promise(r=>setImmediate(r))}};
+ return {api,start(){cursor=0},async flush(){while(effects.length)effects.shift()();await new Promise(r=>setImmediate(r))},unmount(){for(const slot of slots)slot?.cleanup?.();effects.length=0}};
 }
 function load(file,h=hooks(),overrides={},cache=new Map()){
  if(cache.has(file))return cache.get(file);

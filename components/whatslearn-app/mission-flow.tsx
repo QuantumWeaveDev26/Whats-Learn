@@ -61,11 +61,10 @@ export function MissionFlow({accountKey,mission,position,language,initialAnswer,
   if(latestBody.current!==body){setErr('The submitted version was saved. Your newer edits remain on this device; review them before saving again.');onPoints?.();return}writeLocal(key,'');
   onSaved({track:mission.track,points:r.data.award?.score?.points,balance:r.data.award?.balance,message:r.data.award?.message||'',status:r.data.award?.status||'saved'});
  }
- return <div className="wla-stack">
-  <button type="button" className="wla-back" disabled={busy==='save'} onClick={()=>step==='learn'||step==='check'?onBack():setLeaving(true)}><ArrowLeft size={18}/>All tasks</button>
+ return <div className="wla-stack wla-practice-flow">
+  <div className="wla-practice-top"><button type="button" className="wla-back" disabled={busy==='save'} onClick={()=>step==='learn'||step==='check'?onBack():setLeaving(true)}><ArrowLeft size={18}/>All tasks</button><span className="wla-kicker">Task {String(position).padStart(2,'0')} / 10</span></div>
   {leaving&&<div className="wla-card wla-confirm" role="alertdialog" aria-labelledby="wla-leave-t"><strong id="wla-leave-t">Leave this task?</strong><p className="wla-muted">{draftSaved?'Your draft and current step are saved on this device.':'This device could not save your draft. Copy your work before leaving.'}</p><div className="wla-row-btns"><button type="button" className="wla-ghost" onClick={()=>setLeaving(false)}>Stay</button><button type="button" className="wla-outline" onClick={onBack}>Leave</button></div></div>}
-  <div className="wla-steps" aria-label={`Step ${at+1} of 5`}>{steps.map((s,i)=><span key={s} aria-current={s===step?'step':undefined} className={(i<=at?'on':'')+(s===step?' now':'')}><i aria-hidden="true"/>{['Learn','Check','Make','Self-check','Review'][i]}</span>)}</div>
-  <p className="wla-kicker">Task {String(position).padStart(2,'0')} / 10 · {['Learn','Check','Make','Self-check','Review'][at]}</p>
+  <div className="wla-practice-progress" aria-label={`Step ${at+1} of 5: ${['Learn','Check','Make','Self-check','Review'][at]}`}><strong>{['Learn','Check','Make','Self-check','Review'][at]} <small>{at+1}/5</small></strong><div className="wla-steps">{steps.map((s,i)=><span key={s} aria-current={s===step?'step':undefined} className={(i<=at?'on':'')+(s===step?' now':'')}><i aria-hidden="true"/><span className="wla-sr">{['Learn','Check','Make','Self-check','Review'][i]}</span></span>)}</div></div>
   <h2 ref={heading} tabIndex={-1} className="wla-h2">{mission.title}</h2>
   <p className="wla-meta"><Clock size={15}/>About {mission.minutes} min · up to 100 points</p>
   {initial.restored&&<p className="wla-restored">Draft restored on this device.</p>}

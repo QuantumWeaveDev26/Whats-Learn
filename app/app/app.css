@@ -588,3 +588,24 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-home-mentor strong{font-size:14px}.wla-home-mentor small{font-size:12px;margin-top:2px}.wla-home-mentor>svg{flex:none;color:var(--g)}
 .wla-steps{gap:4px}.wla-steps span{gap:3px;font-size:10px;line-height:1.3}.wla-steps span i{height:3px;border-radius:2px}
 .wla-splash-mark{display:block;width:76px;height:76px;overflow:hidden;border-radius:50%;animation:wlaPop .6s ease-out both}
+
+/* Dedicated course tasks and a compact practice header. */
+.wla-course-summary{padding:14px 16px;display:flex;flex-direction:column;gap:6px}.wla-course-summary small{font-size:12px;color:var(--mut)}
+.wla-practice-flow{gap:10px}.wla-practice-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wla-practice-progress{display:flex;align-items:center;gap:12px;min-height:20px}
+.wla-practice-progress>strong{font-size:12px;font-weight:600;white-space:nowrap;color:var(--g)}.wla-practice-progress small{font-size:11px;font-weight:400;color:var(--mut);margin-left:4px}
+.wla-practice-progress .wla-steps{flex:1;min-width:0}.wla-practice-progress .wla-steps>span{display:block}.wla-practice-progress .wla-steps i{height:3px}
+.wla-practice-flow>.wla-h2{font-size:18px;line-height:1.35}.wla-practice-flow>.wla-meta{margin:0;font-size:12px}
+
+/* The Mentor conversation scrolls; its composer remains above app navigation. */
+.wla-main.wla-main-mentor{display:flex;flex-direction:column;overflow:hidden;padding:0 18px 8px}
+.wla-main-mentor>.wla-screen:not([hidden]){display:flex;flex:1;min-height:0;flex-direction:column}
+.wla-chat.wla-mentor-chat{flex:1;min-height:0;gap:0;overflow:hidden}
+.wla-mentor-feed{flex:1;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;display:flex;flex-direction:column;gap:12px;padding:16px 0 12px}
+.wla-mentor-compose{flex:none;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px;background:var(--bg)}
+.wla-mentor-compose .wla-ask{gap:6px}.wla-mentor-compose .wla-ask input{min-height:44px;padding:0 12px}
+.wla-mentor-compose .wla-ask button{width:44px;height:44px}
+.wla-mentor-compose .wla-ask .wla-mic{background:var(--tint);color:var(--g);border:1px solid #C8DDCF}
+.wla-mentor-compose .wla-ask .wla-mic.listening{background:#FDECEA;color:#9A1C11;border-color:#EFB4AC}
+.wla-voice-note{margin:0;color:var(--mut);font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.wla-mentor-compose>.wla-outline{min-height:44px;padding-block:6px;font-size:13px}

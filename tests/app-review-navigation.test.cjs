@@ -208,3 +208,12 @@ test('phone Back returns from a challenge screen to Play before Home',async()=>{
  try{const m=mountApp();let tree=await enterApp(m);nav(tree,'Play').props.onClick();tree=m.render();const play=find(tree,n=>typeof n.props.onView==='function');assert.ok(play);play.props.onView('squad');m.render();listeners.popstate();tree=m.render();assert.equal(find(tree,n=>typeof n.props.onView==='function').props.view,'games');assert.equal(nav(tree,'Play').props['aria-current'],'page')}
  finally{global.window=old}
 });
+
+test('Home course links open a dedicated course, and phone Back returns to the catalogue',async()=>{
+ const listeners={},old=global.window;global.window={addEventListener:(name,fn)=>listeners[name]=fn,removeEventListener(){}};
+ try{const m=mountApp();let tree=await enterApp(m);find(tree,n=>n.type===components.Home).props.onCourse('development');tree=m.render();assert.equal(find(tree,n=>n.type===components.Courses).props.initialTrack,'development');listeners.popstate();tree=m.render();assert.equal(find(tree,n=>n.type===components.Courses).props.initialTrack,undefined);assert.equal(nav(tree,'Courses').props['aria-current'],'page')}
+ finally{global.window=old}
+});
+test('returning from a retained task opens its own course even after visiting the catalogue',async()=>{
+ const m=mountApp();let tree=await enterApp(m);nav(tree,'Courses').props.onClick();tree=m.render();find(tree,n=>n.type===components.Courses).props.onOpen(fullStack);tree=m.render();nav(tree,'Courses').props.onClick();tree=m.render();nav(tree,'Practice').props.onClick();tree=m.render();find(tree,n=>n.type===components.MissionFlow).props.onBack();tree=m.render();assert.equal(find(tree,n=>n.type===components.Courses).props.initialTrack,'development');
+});
