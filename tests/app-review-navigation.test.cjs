@@ -61,6 +61,28 @@ test.after(()=>Object.assign(global,host));
 async function enterApp(m){m.render();await m.flush();const splash=m.render();find(splash,n=>n.type===components.Splash).props.onDone();m.render();await m.flush();return m.render()}
 function nav(tree,label){return find(tree,n=>n.type==='button'&&n.props.children?.[1]===label)}
 
+test('a fresh visitor gets the introduction, language choice and sign-in before entering the app',async()=>{
+ const m=mountApp(null);let tree=await enterApp(m);const welcome=find(tree,n=>n.type===components.Welcome);assert.ok(welcome,'fresh visitors must see the introduction');assert.equal(find(tree,n=>n.type===components.Home),undefined);
+ welcome.props.onDone();tree=m.render();const language=find(tree,n=>n.type===components.LanguageStep);assert.ok(language);language.props.onChange('hi');tree=m.render();find(tree,n=>n.type===components.LanguageStep).props.onNext();tree=m.render();assert.ok(find(tree,n=>n.type===components.AuthScreen));assert.equal(find(tree,n=>n.type===components.Home),undefined);
+});
+
+test('a new account still completes personalisation after using this browser as a guest',async()=>{
+ const storage=new Map([['wla-intro-seen','1'],['wla-guest','1']]),m=mountApp(null,storage);let tree=await enterApp(m);assert.ok(find(tree,n=>n.type===components.GuestHome));
+ find(tree,n=>n.type===components.GuestHome).props.onSignIn();tree=m.render();m.setSnapshot({...snapshot,hasContext:false,profile:null});await find(tree,n=>n.type===components.AuthScreen).props.onSignedIn();tree=m.render();assert.ok(find(tree,n=>n.type===components.PersonalSetup));assert.equal(find(tree,n=>n.type===components.Home),undefined);
+ m.setSnapshot({...snapshot,profile:null});await find(tree,n=>n.type===components.PersonalSetup).props.onDone();tree=m.render();assert.ok(find(tree,n=>n.type===components.PathSetup));assert.equal(find(tree,n=>n.type===components.Home),undefined);
+ m.setSnapshot(snapshot);await find(tree,n=>n.type===components.PathSetup).props.onDone();tree=m.render();assert.ok(find(tree,n=>n.type===components.Home));
+});
+
+test('a returning complete account goes to Home and a previously introduced visitor goes to sign-in',async()=>{
+ const complete=mountApp();assert.ok(find(await enterApp(complete),n=>n.type===components.Home));
+ const known=mountApp(null,new Map([['wla-intro-seen','1']]));assert.ok(find(await enterApp(known),n=>n.type===components.AuthScreen));
+});
+
+test('the introduction contains three advancing pages and Continue only completes the third',()=>{
+ const h=hooks(),{Welcome}=require('./helpers/client-components.cjs').load('components/whatslearn-app/intro.tsx',h);let completed=0;const render=()=>{h.start();return Welcome({onDone:()=>completed++})};
+ let tree=render();assert.match(text(tree),/Learn AI skills/);find(tree,n=>n.type==='button'&&text(n)==='Next').props.onClick();tree=render();assert.match(text(tree),/Make real things/);assert.equal(completed,0);find(tree,n=>n.type==='button'&&text(n)==='Next').props.onClick();tree=render();assert.match(text(tree),/or on WhatsApp/);assert.equal(completed,0);find(tree,n=>n.type==='button'&&text(n)==='Get started').props.onClick();assert.equal(completed,1);
+});
+
 test('the mentor and Practice retain a selected task from another course across tab changes',async()=>{
  const m=mountApp();let tree=await enterApp(m);
  nav(tree,'Courses').props.onClick();tree=m.render();
