@@ -20,17 +20,17 @@
 - Unscored retries must remain understandable and not inflate final scores.
 
 ### Task 1: Banks and deck selection
-- [ ] Add failing pure deck tests: unseen-first, cycle boundary, malformed history, impossible counts, same-run uniqueness and new-bank entries.
-- [ ] Expand local banks in an app-only content module. Add bank validity and coverage checks.
-- [ ] Implement pure selection, stable game run data and account-scoped persistence with blocked-storage fallback. Run targeted tests.
+- [x] Add failing pure deck tests: unseen-first, cycle boundary, malformed history, impossible counts, same-run uniqueness and new-bank entries.
+- [x] Expand local banks in an app-only content module. Add bank validity and coverage checks.
+- [x] Implement pure selection, stable game run data and account-scoped persistence with blocked-storage fallback. Run targeted tests.
 
 ### Task 2: Replay integration
-- [ ] Test stable questions on rerender, fresh question sets after remount, account separation and all eight game run types.
-- [ ] Feed selected runs into all game implementations; preserve counts and scoring. Vary shot contexts/compositions and Story Dice prompts.
-- [ ] Run existing game, navigation and new replay tests.
+- [x] Test stable questions on rerender, fresh question sets after remount, account separation and all eight game run types.
+- [x] Feed selected runs into all game implementations; preserve counts and scoring. Vary shot contexts/compositions and Story Dice prompts.
+- [x] Run existing game, navigation and new replay tests.
 
 ### Task 3: Ordering answer and release
-- [ ] Test a numbered reference answer, clear first-attempt score after retry, and preserved final score.
-- [ ] Replace the long arrow paragraph with numbered steps and a short optional explanation; groom app-only CSS.
-- [ ] Run all app tests, broader synthetic checks, TypeScript and production build/package.
+- [x] Test a numbered reference answer, clear first-attempt score after retry, and preserved final score.
+- [x] Replace the long arrow paragraph with numbered steps and a short optional explanation; groom app-only CSS.
+- [x] Run all app tests, broader synthetic checks, TypeScript and production build/package.
 - [ ] Fresh whole-change review and regression fixes, then publish using existing authorized autodeploy and verify app assets and unchanged website routes.
