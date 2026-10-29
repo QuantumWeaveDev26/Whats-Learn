@@ -11,6 +11,7 @@ import {Splash,Welcome,LanguageStep,AuthScreen} from './intro';
 import {PersonalSetup,PathSetup} from './onboarding';
 import {MissionFlow,CheckpointFlow,type Saved} from './practice';
 import {AppSheet} from './sheet';
+import {BuyButton,useBillingStatus} from './checkout';
 import {Home,Courses,Mentor,Me,Creations,Achievements,GuestHome,nextFor,type Next} from './tabs';
 import type {Challenge} from './games';
 // The Play tab's games are the largest part of the app, so they load only when Play is opened.
@@ -37,6 +38,8 @@ export default function WhatsLearnApp(){
  const sheetOpener=useRef<HTMLElement|null>(null);
  const showPlans=useCallback(()=>{sheetOpener.current=document.activeElement as HTMLElement|null;setSheet(true)},[]);
  const closePlans=useCallback(()=>setSheet(false),[]);
+ /** In-app checkout: a successful payment refreshes the plan here and says so in the sheet. */
+ const billing=useBillingStatus();const [payMsg,setPayMsg]=useState('');const [paidNote,setPaidNote]=useState('');
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
@@ -112,6 +115,7 @@ export default function WhatsLearnApp(){
   if(d.sheet)setSheet(false);else if(d.creation)setCreation('');else if(d.overlay)setOverlay('');else if(d.saved){setSaved(null);setOpen(null);setTab('home')}else if(d.open&&d.tab==='practice'){setOpen(null);setTab('courses')}else if(d.tab!=='home')setTab('home');else{history.back();return}
   history.pushState({wla:1},'')};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop)},[stage]);
  async function signedIn(){const s=await refresh();route(s)}
+ async function paid(){setPayMsg('');await refresh();setPaidNote('Payment confirmed. Your plan is active: all 10 tasks in every course are open.')}
  async function signOut(){++refreshRun.current;setLoading(false);setLoadError('');await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});if(snap)writeLocal(resumeKey(snap.accountKey),'');setAccountKey('');setResumeAccount('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
  async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
  function openNext(n:Next){if(n.kind==='plan'){showPlans();return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
@@ -172,16 +176,20 @@ export default function WhatsLearnApp(){
    <button type="button" className="wla-primary wla-full" onClick={()=>setSheet(false)}>Got it</button>
   </AppSheet>}
   {sheet&&!storeApp&&<AppSheet title="Membership plans" onClose={closePlans} returnFocusTo={sheetOpener.current}>
-   <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>
-   <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small></div>
-   <div className="wla-card wla-plan-alt"><div className="wla-split"><strong>Pro</strong><span><strong>₹499</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 25 AI reviews a day</small></div>
-   <a className="wla-primary wla-full" href="/membership" target="_blank" rel="noopener">See all plans on the website</a>
+   {paidNote?<p className="wla-ok" role="status">{paidNote}</p>:snap?.paidAccess?<p className="wla-ok" role="status">You’re on a paid plan. All 10 tasks in every course are open.</p>:<p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>}
+   <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small>
+    {!snap?.paidAccess&&(signed?<BuyButton sku="plus_monthly" label="Get Plus · ₹199/month" status={billing} onPaid={paid} onMessage={setPayMsg}/>:<button type="button" className="wla-primary wla-full" onClick={()=>{setSheet(false);setStage('auth')}}>Sign in to buy</button>)}</div>
+   <div className="wla-card wla-plan-alt"><div className="wla-split"><strong>Pro</strong><span><strong>₹499</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 25 AI reviews a day</small>
+    {!snap?.paidAccess&&signed&&<BuyButton sku="pro_monthly" label="Get Pro · ₹499/month" status={billing} onPaid={paid} onMessage={setPayMsg}/>}</div>
+   {payMsg&&<p className="wla-note" role="status">{payMsg}</p>}
+   {signed&&billing.enabled&&<p className="wla-muted wla-center"><small>Secure payment by Razorpay · UPI, cards and net banking. Renews monthly until you cancel.</small></p>}
+   <a className="wla-link wla-center" href="/membership" target="_blank" rel="noopener">Yearly plans and details on the website</a>
    <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>Maybe later</button>
   </AppSheet>}
  </Shell>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-minimal-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-redesign-1"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

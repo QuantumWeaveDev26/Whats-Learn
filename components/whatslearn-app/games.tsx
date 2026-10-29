@@ -4,6 +4,7 @@ import {ArrowLeft,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut
 import {api,readLocal,writeLocal} from './api';
 import {markGameDay} from './rewards';
 import {courseLook} from './tabs';
+import {GameArt} from './game-art';
 import {games,hookFeed,channels,budgetRounds,bugRounds,flowRounds,shotRounds,shotTypes,shotQuiz,diceItems,captionRounds,type GameId,type GameMeta} from './games-data';
 
 export type Challenge={game:GameId;beat:number};
@@ -28,18 +29,22 @@ export function GamesHub({who,challenge,onChallengeDone,joinCode,onSignIn}:{who:
  const plays=Number(readLocal(playsKey(who))||0);
  if(playing){const meta=games.find(g=>g.id===playing)!;
   return <GameScreen key={playing+tick} meta={meta} who={who} beat={beat} tournament={board?.game===meta.id} onExit={()=>{setPlaying(null);setBeat(undefined);onChallengeDone();void loadBoard()}} onAgain={()=>setTick(t=>t+1)}/>}
- const today=todaysGame();const tl=courseLook[today.track];const TI=tl.Icon;
+ const today=todaysGame();
+ // Games come first, each with its own bright illustration, so every card invites a tap.
  return <div className="wla-stack">
   <div><h2 className="wla-h1 wla-tight">Play a little. <em>Learn a lot.</em></h2><p className="wla-muted">Quick 1–2 minute games from each course. {plays?`${plays} game${plays===1?'':'s'} played on this phone.`:'Beat your best, then challenge a friend.'}</p></div>
+  <button type="button" className="wla-today wla-game-photo" onClick={()=>setPlaying(today.id)}>
+   <span className="wla-gimg wla-gimg-wide"><GameArt id={today.id}/><span className="wla-today-tag">TODAY’S GAME</span></span>
+   <span className="wla-gbody"><strong>{today.name}</strong><small>{today.tagline}</small>
+    <span className="wla-today-foot">{best(today.id)?<><Crown size={15}/> Best {best(today.id)}</>:'Not played yet'} · Play now</span></span>
+  </button>
+  <p className="wla-section">ALL GAMES</p>
+  <div className="wla-games">{games.map(g=>{const b=best(g.id);
+   return <button key={g.id} type="button" className="wla-game wla-game-photo" onClick={()=>setPlaying(g.id)}>
+    <span className="wla-gimg"><GameArt id={g.id}/><span className="wla-game-best">{b?<><Crown size={13}/>{b}</>:`${g.minutes} min`}</span></span>
+    <span className="wla-gbody"><strong>{g.name}</strong><small>{g.tagline}</small></span></button>})}</div>
   <Tournament board={board} error={boardErr} who={who} onPlay={id=>setPlaying(id)} onSignIn={onSignIn}/>
   <Squad board={board} who={who} joinCode={joinCode} onChanged={loadBoard} onSignIn={onSignIn}/>
-  <button type="button" className={'wla-today '+tl.cls} onClick={()=>setPlaying(today.id)}>
-   <span className="wla-today-tag">TODAY’S GAME</span><span className="wla-ccard-icon"><TI size={24}/></span>
-   <strong>{today.name}</strong><small>{today.tagline}</small>
-   <span className="wla-today-foot">{best(today.id)?<><Crown size={15}/> Best {best(today.id)}</>:'Not played yet'} · Play now</span>
-  </button>
-  <div className="wla-games">{games.map(g=>{const L=courseLook[g.track];const I=L.Icon;const b=best(g.id);
-   return <button key={g.id} type="button" className={'wla-game '+L.cls} onClick={()=>setPlaying(g.id)}><span className="wla-ccard-icon"><I size={20}/></span><strong>{g.name}</strong><small>{g.tagline}</small><span className="wla-game-best">{b?<><Crown size={13}/>{b}</>:`${g.minutes} min`}</span></button>})}</div>
   <div className="wla-card wla-share-card"><strong><Share2 size={18}/> Challenge a friend</strong><p className="wla-muted">Finish any game, then send your score on WhatsApp. Your friend signs in free and plays the same game.</p></div>
  </div>;
 }
@@ -52,7 +57,7 @@ function GameScreen({meta,who,beat,tournament,onExit,onAgain}:{meta:GameMeta;who
  const finish=(s:number)=>{const v=Math.max(0,Math.min(100,Math.round(s)));if(who)posted.current=api('/api/games',{method:'POST',body:{action:'score',game:meta.id,score:v}}).then(async r=>{if(tournament&&r.ok){const b=await api<{me:null|{rank:number}}>('/api/games');if(b.ok&&b.data.me)setRank(b.data.me.rank)}});const prev=Number(readLocal(bestKey(who,meta.id))||0);if(v>prev)writeLocal(bestKey(who,meta.id),String(v));writeLocal(playsKey(who),String(Number(readLocal(playsKey(who))||0)+1));markGameDay(who);setScore(v)};
  return <div className="wla-stack wla-game-screen">
   <button type="button" className="wla-back" onClick={exit}><ArrowLeft size={18}/>All games</button>
-  <div className={'wla-game-head '+L.cls}><span className="wla-ccard-icon"><L.Icon size={22}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>
+  <div className={'wla-game-head '+L.cls}><span className="wla-ghead-art"><GameArt id={meta.id}/></span><div><strong>{meta.name}</strong><small>{meta.how}</small></div></div>
   {beat!==undefined&&score===null&&<p className="wla-note"><Crown size={16}/>Your friend scored {beat}. Can you beat it?</p>}
   {tournament&&score===null&&<p className="wla-note"><Trophy size={16}/>This week’s tournament game{who?': your best score this week counts.':'. Sign in to get on the board.'}</p>}
   {score===null?<Game id={meta.id} onDone={finish}/>:<Result meta={meta} score={score} who={who} beat={beat} rank={rank} tournament={!!tournament} onAgain={async()=>{try{await posted.current}catch{}onAgain()}} onExit={exit}/>}
