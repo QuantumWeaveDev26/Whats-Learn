@@ -611,3 +611,14 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla .wla-offline-banner p{margin:0;line-height:1.5;font-size:12px}
 .wla .wla-offline-banner button{flex:none;min-height:44px;font-size:12px;font-weight:700}
 .wla .wla-dino-frame{border:0;border-radius:14px;width:100%;height:410px;flex:none;background:#f6f9f2}
+.wla .wla-order-result{display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff}
+.wla .wla-order-result>strong{font-size:14px;line-height:1.4}
+.wla .wla-order-match{color:#087a4b}.wla .wla-order-miss{color:#8b3d18}
+.wla .wla-order-answer-title{margin:0;font-size:12px;font-weight:700;color:var(--mut)}
+.wla .wla-reference-order{margin:0;padding-left:24px;display:grid;gap:10px;font-size:14px;line-height:1.5}
+.wla .wla-reference-order li{padding-left:5px;overflow-wrap:anywhere}
+.wla .wla-reference-order li::marker{font-weight:700;color:var(--gd)}
+.wla .wla-order-result .wla-disclosure{margin:0;padding:0;border:0;background:none}
+.wla .wla-order-result summary{min-height:44px;padding:10px 0;font-size:13px}
+.wla .wla-order-result>small{font-size:11px;line-height:1.5}
+.wla .wla-order-actions{display:flex;gap:8px}.wla .wla-order-actions button{flex:1;min-height:44px;padding:10px;font-size:13px}
