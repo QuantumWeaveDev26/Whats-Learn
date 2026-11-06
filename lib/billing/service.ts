@@ -54,10 +54,15 @@ export async function createCheckout(userId:string,sku:SKU,quantity:number){
  if(!lock.meta.changes)throw new BillingError('Checkout is already being created.',409);
  let entity;
  if(p.period){
-  let planId:string;
-  try{planId=await provisionPlan(sku,mode)}
-  catch(error){await db.prepare('UPDATE billing_sessions SET state=? WHERE id=?').bind('not_configured',id).run();if(error instanceof BillingError&&!(error instanceof RazorpayRequestError))throw error;throw new BillingError('Paid plans could not be set up with Razorpay right now. No payment was taken. Please retry shortly.',503)}
-  const offer=await sprintCreditOffer(userId,sku,mode);
+  let planId:string,offer:string|null;
+  try{planId=await provisionPlan(sku,mode);offer=await sprintCreditOffer(userId,sku,mode)}
+  catch(error){
+   // No subscription request has started. A failed preparation must not strand the learner's checkout.
+   // An ambiguous provider plan remains separately locked until its outcome is reconciled.
+   await db.prepare("UPDATE billing_sessions SET state='not_configured',updated_at=? WHERE id=? AND state='creating' AND provider_id IS NULL").bind(new Date().toISOString(),id).run();
+   if(error instanceof BillingError)throw error;
+   throw new BillingError('Paid plans could not be set up with Razorpay right now. No payment was taken. Please retry shortly.',503);
+  }
   try{entity=await razorpay('subscriptions',{plan_id:planId,total_count:p.cycles,quantity,customer_notify:0,...(offer?{offer_id:offer}:{}),notes:{whatslearn_checkout:id,mode}})}
   catch(error){await releaseRejectedCheckout(error,id);throw error}
  }
