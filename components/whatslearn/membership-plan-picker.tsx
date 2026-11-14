@@ -3,7 +3,7 @@ import {Check} from 'lucide-react';
 import {planAllowance} from '@/lib/billing/allowances';
 import type {MembershipTier} from './membership';
 const price=(p:MembershipTier,cycle:string)=>p.id==='explore'?'Free':'₹'+(cycle==='annual'&&p.annual?p.annual:p.monthly).toLocaleString('en-IN');
-const period=(p:MembershipTier,cycle:string)=>p.id==='explore'?'No payment needed':p.id==='teams'?'per learner / month':cycle==='annual'?'per year':'per month';
+const period=(p:MembershipTier,cycle:string)=>p.id==='explore'?'No payment needed':p.id==='teams'?(cycle==='annual'?'per learner / month · monthly only':'per learner / month'):cycle==='annual'?'per year':'per month';
 /** Reference-led plan columns. Actions open the existing review, never a payment directly. */
 export default function MembershipPlanPicker({plans,cycle,onReview,signedIn}:{plans:MembershipTier[];cycle:string;onReview:(id:string)=>void;signedIn:boolean}){
  return <section className="plan-picker plan-picker-columns" aria-label="Compare learning plans">

@@ -15,7 +15,7 @@ export default function ProgrammeExplorer({learner={status:'loading'}}:{learner?
  return <section id="paths" className="programme-section">
   <div className="programme-heading"><p className="chapter-label">{currentId?'YOUR COURSE. YOUR PROGRESS.':'FOUR PROGRAMMES. YOUR KIND OF POSSIBILITY.'}</p>
    <h2>{currentId?<>Keep building.<br/><em>Your course is ready.</em></>:learner.status==='loading'?<>Practical skills.<br/><em>Real possibilities.</em></>:<>What do you want<br/>to <em>be able to do?</em></>}</h2>
-   <p>10 days · 10 tasks · First 3 free.<br/>One new task a day. Go at your pace.</p>
+   <p>10 days · 10 tasks · First 3 free.<br/>Go at your pace.</p>
   </div>
   <div className="programme-list">{visibleProgrammes.map(p=>{
    const current=p.id===currentId,progress=learner.status==='account'?learner.progress?.[p.id]:undefined;

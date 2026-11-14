@@ -21,11 +21,11 @@ const nothing=()=>null;
 
 // Keep the real component and its event handlers. Only host hooks and external
 // boundaries: no DOM/test-renderer dependency, network, checkout or animation timer.
-function mount(){
+function mount(billing=null){
  const state=[];let cursor=0;
  const hooks={useEffect(){},useRef:value=>({current:value}),useState(initial){
   const index=cursor++;
-  if(!(index in state))state[index]=initial;
+  if(!(index in state))state[index]=index===4?billing:initial;
   return [state[index],value=>{state[index]=typeof value==='function'?value(state[index]):value}];
  }};
  const {default:Membership}=compile(source,id=>{
@@ -67,4 +67,13 @@ test('closing a plan retains its title and price for the exit render, then anoth
   assert.match(exitMarkup,new RegExp(`₹${price}`));
   assert.doesNotMatch(exitMarkup,/undefined membership|₹0</);
  }
+});
+
+test('open checkout gives signed-out customers a sign-in instruction, not a closed-checkout warning',()=>{
+ const render=mount({enabled:false,checkoutOpen:true,signInRequired:true,mode:'live'});
+ const tree=render();
+ // Card actions use the actual click handler, so price selection and dialog state are retained.
+ const buttons=[];function walk(e){if(!e||typeof e!=='object')return;if(e.type==='button')buttons.push(e);React.Children.forEach(e.props?.children,walk)}walk(tree);
+ const plus=buttons.find(e=>renderToStaticMarkup(e).includes('Choose Plus'));assert.ok(plus);plus.props.onClick();
+ const html=renderToStaticMarkup(render());assert.match(html,/Review your plan, then sign in to continue/);assert.match(html,/Sign in to continue/);assert.doesNotMatch(html,/checkout is not available yet|checkout is temporarily unavailable|Pay securely with Razorpay/);
 });

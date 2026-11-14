@@ -9,7 +9,7 @@ export default function Refunds(){return <LegalPage kicker="CLEAR MONEY. NO SURP
 <h2>2. Skill Sprint (₹149, one-time)</h2>
 <ul>
 <li>Your seven days of sprint access start when Razorpay confirms the payment.</li>
-<li>if you have not opened any sprint challenge, you can ask for a full refund within 48 hours of paying.</li>
+<li>If you have not opened any sprint challenge, you can ask for a full refund within 48 hours of paying.</li>
 <li>Once you have started the sprint, it is not refundable, but you keep access for the full seven days.</li>
 <li>First-sprint credit: if you buy your first monthly Plus or Pro membership within seven days of a sprint, the ₹149 counts towards that first month, as stated on the Membership page. The credit is not paid out as cash.</li>
 </ul>
@@ -17,9 +17,9 @@ export default function Refunds(){return <LegalPage kicker="CLEAR MONEY. NO SURP
 <ul>
 <li>Memberships renew automatically: monthly plans every month, annual plans every year, Teams every month.</li>
 <li>You can cancel future renewals at any time from the Membership page, or by writing to us. Cancelling stops the next charge; you keep access until the end of the period you have already paid for.</li>
-<li>for your first payment on a membership, you can ask for a full refund within 7 days if you have used no more than two AI feedback rounds in that period.</li>
+<li>For your first payment on a membership, you can ask for a full refund within 7 days if you have used no more than two AI feedback rounds in that period.</li>
 <li>We do not give partial refunds for unused days, sprints or AI feedback rounds after that, and unused monthly allowances do not carry over.</li>
-<li>annual plans cancelled within 14 days of the first annual payment can be refunded in full, less any monthly allowance already used at the monthly price.</li>
+<li>Annual plans cancelled within 14 days of the first annual payment are eligible for a refund, less any monthly allowance already used at the monthly price. Ask support for an itemised calculation.</li>
 </ul>
 <h2>4. Charges we always refund</h2>
 <ul>
