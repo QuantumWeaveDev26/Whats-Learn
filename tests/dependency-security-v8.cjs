@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const manifest=JSON.parse(fs.readFileSync('package.json','utf8'));
-for(const [name,minimum] of [['next','16.4.1'],['react','19.2.8'],['react-dom','19.2.8'],['react-server-dom-webpack','19.2.8'],['vite','8.1.6'],['zod','4.6.6']])test(name+' installs the reviewed security patch version',()=>{
+for(const [name,minimum] of [['next','16.4.5'],['react','19.2.9'],['react-dom','19.2.9'],['react-server-dom-webpack','19.2.9'],['vite','8.1.6'],['zod','4.6.6']])test(name+' installs the reviewed security patch version',()=>{
  const pin=manifest.dependencies[name]||manifest.devDependencies[name];
  assert.match(pin,/^\d+\.\d+\.\d+$/);
  const actual=require(name+'/package.json').version;assert.equal(actual,pin);

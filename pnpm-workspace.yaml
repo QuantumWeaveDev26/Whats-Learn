@@ -37,6 +37,10 @@ overrides:
   'zod@<4.6.6': 4.6.6
   'source-map-js@>=1.0.0 <1.2.2': 1.2.2
   'sharp@<0.35.5': 0.35.5
+  # Reviewed November advisory fixes; retain the existing gates and release-age policy.
+  'react-server-dom-webpack@>=19.2.0 <19.2.9': 19.2.9
+  'minimatch@>=7.0.0 <11.0.1': 11.0.1
+  'vinext>@vercel/og': 1.0.3
 patchedDependencies:
   fast-glob@3.3.3: patches/fast-glob@3.3.3.patch
 
@@ -51,3 +55,8 @@ packageExtensions:
 # Keep the seven-day release-age policy for every other package/version.
 minimumReleaseAgeExclude:
   - 'fast-uri@3.1.9'
+
+  # Exact React security patches reviewed against GHSA-xqc2-xf4c-x3h3.
+  - 'react@19.2.9'
+  - 'react-dom@19.2.9'
+  - 'react-server-dom-webpack@19.2.9'
