@@ -65,5 +65,5 @@ export const captionRounds=[
  {scene:'A rain-soaked street at night. One bright yellow umbrella in the crowd.',options:['Nice picture','In a grey city, be the yellow umbrella.','Rain rain rain rain','This is a street'],best:1,why:'It names the visual detail and turns it into a feeling.'},
  {scene:'A tiffin box opened on an office desk, steam rising.',options:['Food','Lunch that still feels like home, even at 1 pm.','Buy now buy now','A box on a desk'],best:1,why:'It speaks to the viewer’s feeling, not just what is in the frame.'},
  {scene:'A small potter’s hands shaping clay on a wheel.',options:['Hands','Slow hands. Real things. Book a Saturday class.','Clay is made of earth','Wow amazing'],best:1,why:'It matches the mood and ends with one clear action.'},
- {scene:'An empty classroom with one student still writing.',options:['Classroom photo','The last one to leave is the first to finish.','Students sit here','Study study'],best:1,why:'It adds a twist that makes people look again.'}
+ {scene:'An otherwise empty classroom with one student still writing.',options:['Classroom photo','One more sentence before the day ends.','Students sit here','Study study'],best:1,why:'It fits the visible writing and quiet room without inventing a result or claiming who finishes first.'}
 ];

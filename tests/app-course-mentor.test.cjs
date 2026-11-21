@@ -1,5 +1,15 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {hooks,load,find,all,text}=require('./helpers/client-components.cjs');
+test('each course mentor sends the selected task and language with a bounded wait',async()=>{
+ for(const missionId of ['m1','d1','f1','s1']){
+  const h=hooks(),requests=[];
+  const {Mentor}=load('components/whatslearn-app/tabs.tsx',h,{'./api':{currentAccount:()=>'',readLocal:()=>null,writeLocal:()=>true,api:async(url,init)=>{requests.push({url,init});return {ok:false,data:{error:'Check your connection and try again.'}}}}});
+  const render=()=>{h.start();return Mentor({missionId,language:'en',signedIn:true})};
+  const idea=find(render(),n=>n.type==='button'&&text(n)==='Explain this task simply');await idea.props.onClick();
+  assert.equal(requests[0].init.body.missionId,missionId);assert.equal(requests[0].init.body.language,'en');assert.ok(requests[0].init.timeoutMs>0);
+  assert.match(text(render()),/Check your connection/);
+ }
+});
 function courses(){const h=hooks(),{Courses}=load('components/whatslearn-app/tabs.tsx',h);return {render(){h.start();return Courses({s:null,onOpen(){},onSignIn(){}})}}}
 test('a course opens its own task screen and Back returns to the four-course catalogue',()=>{const m=courses();let tree=m.render();assert.equal(all(tree,n=>n.type==='button'&&text(n).includes('View tasks')).length,4);find(tree,n=>n.type==='button'&&text(n).includes('AI Full-Stack Development')).props.onClick();tree=m.render();assert.ok(find(tree,n=>n.type==='button'&&text(n)==='Back to courses'));assert.ok(text(tree).includes('Build a trial-class booking page'));assert.ok(!text(tree).includes('A complete campaign for a local business'));find(tree,n=>n.type==='button'&&text(n)==='Back to courses').props.onClick();assert.equal(all(m.render(),n=>n.type==='button'&&text(n).includes('View tasks')).length,4)});
 test('Mentor has a separate bottom composer with an optional mic and keeps manual Send',()=>{const h=hooks(),{Mentor}=load('components/whatslearn-app/tabs.tsx',h);h.start();const tree=Mentor({missionId:'m1',language:'en',signedIn:true});const composer=find(tree,n=>n.props.className==='wla-mentor-compose');assert.ok(composer);assert.ok(find(composer,n=>n.type==='button'&&n.props['aria-label']?.includes('Dictate')));assert.equal(find(composer,n=>n.type==='button'&&n.props['aria-label']==='Send').props.disabled,true)});

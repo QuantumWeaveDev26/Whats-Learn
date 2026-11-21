@@ -124,7 +124,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
  const m=missions.find(x=>x.id===missionId);
  const ideas=['Explain this task simply','Show me an example','What should I do first?'];
  async function ask(text:string){const t=text.trim();if(!t||busy||voice.listening)return;markMentorDay(currentAccount());setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
-  const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language}});setBusy(false);
+  const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language},timeoutMs:30000});setBusy(false);
   setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
  if(!signedIn)return <div className="wla-stack">
   <div className="wla-chat wla-chat-demo" aria-label="Example mentor chat"><div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Example conversation</small></div></div>
