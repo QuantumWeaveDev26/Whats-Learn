@@ -1,5 +1,21 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {hooks,load,find,all,text}=require('./helpers/client-components.cjs');
+test('retrying an unanswered mentor question keeps one copy in the conversation',async()=>{
+ const h=hooks(),sent=[];
+ const api=async(_url,init)=>{sent.push(init.body.question);return sent.length===1
+  ?{ok:false,status:0,data:{error:'Connection lost'}}
+  :{ok:true,status:200,data:{answer:'Start with one concrete benefit.'}}};
+ const {Mentor}=load('components/whatslearn-app/tabs.tsx',h,{'./api':{api,currentAccount:()=>'',readLocal:()=>null,writeLocal:()=>true}});
+ const render=()=>{h.start();return Mentor({missionId:'m1',language:'en',signedIn:true})};
+ const question='Explain this task simply';
+ await find(render(),n=>n.type==='button'&&text(n)===question).props.onClick();
+ await find(render(),n=>n.type==='button'&&text(n)==='Retry question').props.onClick();
+ const screen=render();
+ assert.deepEqual(sent,[question,question]);
+ assert.equal(all(screen,n=>n.type==='p'&&text(n)===question).length,1);
+ assert.match(text(screen),/Start with one concrete benefit/);
+ assert.doesNotMatch(text(screen),/Retry question/);
+});
 test('each course mentor sends the selected task and language with a bounded wait',async()=>{
  for(const missionId of ['m1','d1','f1','s1']){
   const h=hooks(),requests=[];

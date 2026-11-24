@@ -18,6 +18,7 @@ import type {Challenge,PlayView} from './games';
 const GamesHub=lazy(()=>import('./games').then(m=>({default:m.GamesHub})));
 import {levelOf} from './rewards';
 import {games,type GameId} from './games-data';
+import {APP_RELEASE} from './version';
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
@@ -44,6 +45,7 @@ export default function WhatsLearnApp(){
  const [saved,setSaved]=useState<Saved|null>(null);
  const [reviews,setReviews]=useState<number|undefined>();
  const [online,setOnline]=useState(true);
+ const [updateAvailable,setUpdateAvailable]=useState(false);
  const [offlineGame,setOfflineGame]=useState(false);
  const dinoOpener=useRef<HTMLElement|null>(null);
  const showDino=useCallback(()=>{dinoOpener.current=document.activeElement as HTMLElement|null;setOfflineGame(true)},[]);
@@ -134,6 +136,18 @@ export default function WhatsLearnApp(){
  function backToCourse(track:string){setCourse(track);setOpen(null);setTab('courses')}
 
  async function retryLoad(){const s=await refresh();if(s!==undefined){setBooted(true);if(stage!=='app')route(s)}}
+ useEffect(()=>{
+  if(stage!=='app'||tab!=='home'||!online)return;
+  let active=true;
+  const check=async()=>{
+   const result=await api<{version?:string}>('/app/version',{timeoutMs:5000,accountKey:''});
+   if(active&&result.ok&&result.data?.version)setUpdateAvailable(result.data.version!==APP_RELEASE);
+  };
+  void check();
+  const onVisible=()=>{if(document.visibilityState==='visible')void check()};
+  document.addEventListener('visibilitychange',onVisible);
+  return()=>{active=false;document.removeEventListener('visibilitychange',onVisible)};
+ },[stage,tab,online]);
  const offlinePanel=offlineGame?<AppSheet title="Dino break" closeLabel="Close Dino game" onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title="Offline Dino game" src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>Return to my app</button></AppSheet>:null;
  if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>Play offline</button></div>{offlinePanel}</Shell>;
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
@@ -153,7 +167,7 @@ export default function WhatsLearnApp(){
   else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>backToCourse(target.track)} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
   else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={showPlans}>See plans</button></div></div>;
   else {const mission=localizeMission(target.mission,language,snap?.profile?.level),work=snap!.work.find(w=>w.mission_id===mission.id);
-   practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} onUpgrade={showPlans} onBack={()=>backToCourse(mission.track)} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
+   practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} online={online} onUpgrade={showPlans} onBack={()=>backToCourse(mission.track)} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
   }
  }
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',play:playView==='games'?'Play':'Challenges',mentor:'Mentor',me:'Me'};
@@ -174,7 +188,8 @@ export default function WhatsLearnApp(){
  return <Shell>
   <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay==='badges'?'Badges':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
    {signed?<span className="wla-pts"><b className="wla-lv">Lv {levelOf(snap).lv}</b>{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
-  {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">You’re offline. Keep drafting; reconnect to submit or get a review.</p><button type="button" className="wla-link" onClick={showDino}>Play offline</button></div>}
+  {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>App update available</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>Update now</button></div>}
+  {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">You’re offline.</p><button type="button" className="wla-link" onClick={showDino}>Play offline</button></div>}
   {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
   <main className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
   <nav className="wla-tabs" aria-label="App sections" inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
@@ -198,7 +213,7 @@ export default function WhatsLearnApp(){
  </Shell>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release="2026-10-29-game-replay-v9"><AppErrorBoundary>{children}</AppErrorBoundary></div>}
+function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release={APP_RELEASE}><AppErrorBoundary>{children}</AppErrorBoundary></div>}
 class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

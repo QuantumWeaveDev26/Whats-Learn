@@ -65,7 +65,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft}:{s:Snapshot;onOpen:(n
    <p className="wla-hero-kicker">{prog.name} · Day {next.position} of 10</p>
    <p className="wla-hero-title">{next.mission.title}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} min · {next.mission.skill}</p>
-   <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:<>Continue <ArrowRight size={18}/></>}</button>
+   <button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{next.kind==='plan'?<><Lock size={16}/>Unlock with a plan</>:<>Continue task <ArrowRight size={18}/></>}</button>
   </div>}
 
   <DailyMissions s={s} who={s.accountKey} onTask={()=>next.kind==='mission'||next.kind==='plan'||next.kind==='checkpoint'?onOpen(next):onTab('courses')} onGame={()=>onTab('play')} onMentor={()=>onTab('mentor')}
@@ -89,7 +89,7 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange}:{s:Snapsh
  const heading=useRef<HTMLHeadingElement>(null);useEffect(()=>{heading.current?.focus({preventScroll:true})},[open]);
  return <div className="wla-stack">
   {open&&<button type="button" className="wla-back" onClick={()=>setOpen('')}><ArrowLeft size={18}/>Back to courses</button>}
-  <div><h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{open?programmes.find(p=>p.id===open)!.name:'Courses'}</h2><p className="wla-muted">{open?'Your tasks and mini challenges. Choose an open task to continue.':<>Practical AI skills. Each course is 10 real tasks; the first 3 are free{s?'':'. Browse now, sign in when you’re ready'}.</>}</p></div>
+  <div><h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{open?programmes.find(p=>p.id===open)!.name:'Courses'}</h2>{!open&&<p className="wla-muted">Try the first three tasks of any course free.</p>}</div>
   {notice&&<p className="wla-note" role="status"><Lock size={16}/>{notice}</p>}
   {programmes.filter(p=>!open||p.id===open).map(p=>{const list=missionsOfCourse(p.id);const done=list.filter(m=>completed.has(m.id)).length;const isOpen=open===p.id;const L=courseLook[p.id];const I=L.Icon;
    const hours=Math.round(list.reduce((t,m)=>t+(m.minutes||0),0)/30)/2;
@@ -98,11 +98,11 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange}:{s:Snapsh
      <span className="wla-course-top"><span className="wla-ccard-icon"><I size={20}/></span><small className="wla-cnum">COURSE {p.number}</small><small className="wla-course-status">{done>=10?'Completed':done?`${done}/10 done`:'Free to start'}</small></span>
      <strong className="wla-course-name">{p.name}</strong>
      <span className="wla-course-make"><small>You’ll make</small>{p.finishedOutcome}</span>
-     <small className="wla-course-meta">10 tasks · about {hours} hrs · first 3 free</small>
+     <small className="wla-course-meta">10 tasks · about {hours} hrs</small>
      {done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}
      <span className="wla-course-pill">{done?'Continue':'View tasks'}<ChevronRight size={18}/></span>
     </button>:<div className="wla-course-summary"><p className="wla-muted"><strong>You’ll make:</strong> {p.finishedOutcome}</p><small>{list.length} tasks · about {hours} hrs · first 3 free</small></div>}
-    {isOpen&&<div className="wla-course-body"><p className="wla-course-note">{done}/10 saved · Select an open task to begin. One new task earns points per day.</p>{list.flatMap((m,i)=>{
+    {isOpen&&<div className="wla-course-body"><p className="wla-course-note">{done}/{list.length} tasks saved</p>{list.flatMap((m,i)=>{
      const isDone=completed.has(m.id);const lock=lockFor(m,completed,cleared);const plan=needsMembership(m,s?.paidAccess||false);
      const state=!s?(plan?'Plan':'Free'):isDone?'Saved':plan?'Plan':lock.locked?'Locked':'Open';
      const row=<button key={m.id} type="button" className={'wla-task'+(s&&lock.locked&&!isDone&&!plan?' locked':'')+(state==='Open'?' current':'')} onClick={()=>{setNotice('');if(!s){onSignIn();return}if(lock.locked&&!lock.checkpoint&&!isDone){setNotice(lock.message);return}onOpen(plan&&!isDone?{kind:'plan',mission:m,position:i+1}:lock.checkpoint?{kind:'checkpoint',track:lock.checkpoint.track,after:lock.checkpoint.after}:{kind:'mission',mission:m,position:i+1})}}>
@@ -119,13 +119,30 @@ type Msg={me:boolean;text:string};
 export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;language:string;signedIn:boolean;onSignIn?:()=>void}){
  const [msgs,setMsgs]=useState<Msg[]>([{me:false,text:'Need a hand? Ask for an explanation, an example, or a next step.'}]);
  const [q,setQ]=useState(''),[busy,setBusy]=useState(false);const end=useRef<HTMLDivElement>(null);
+ const [failed,setFailed]=useState<{question:string;message:string}|null>(null);
+ const sending=useRef(false);
  const voice=useDictation({language,value:q,onChange:setQ});
  useEffect(()=>{end.current?.scrollIntoView({block:'end'})},[msgs,busy]);
  const m=missions.find(x=>x.id===missionId);
  const ideas=['Explain this task simply','Show me an example','What should I do first?'];
- async function ask(text:string){const t=text.trim();if(!t||busy||voice.listening)return;markMentorDay(currentAccount());setQ('');setMsgs(x=>x.concat({me:true,text:t}));setBusy(true);
-  const r=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question:t.slice(0,500),body:'',language},timeoutMs:30000});setBusy(false);
-  setMsgs(x=>x.concat({me:false,text:r.ok&&r.data.answer?r.data.answer:(r.data.error||'The mentor could not answer just now. Please try again.')}))}
+ async function ask(text:string,retry=false){
+  const question=text.trim().slice(0,500);
+  if(!question||sending.current||voice.listening)return;
+  sending.current=true;
+  setBusy(true);
+  setFailed(null);
+  if(!retry){setQ('');setMsgs(previous=>previous.concat({me:true,text:question}))}
+  try{
+   const result=await api<{answer?:string}>('/api/feedback',{method:'POST',body:{action:'ask',missionId,question,body:'',language},timeoutMs:30000});
+   if(result.ok&&result.data.answer?.trim()){
+    markMentorDay(currentAccount());
+    const answer=result.data.answer;
+    setMsgs(previous=>previous.concat({me:false,text:answer}));
+   }else{
+    setFailed({question,message:result.status===0?(result.data.error||'Check your connection and try again.'):(result.data.error||'The mentor couldn’t answer right now.')});
+   }
+  }finally{sending.current=false;setBusy(false)}
+ }
  if(!signedIn)return <div className="wla-stack">
   <div className="wla-chat wla-chat-demo" aria-label="Example mentor chat"><div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Example conversation</small></div></div>
    <div className="wla-msgs"><p className="me">I don’t get what a “hook” is.</p><div className="wla-bot"><span><MessageCircle size={14}/></span><p>A hook is the first line that makes the right person stop scrolling. Try: name who it’s for, then the problem you solve for them.</p></div></div></div>
@@ -135,6 +152,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
   <div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>WhatsLearn Mentor</strong><small>Help with this task</small></div></div>
   <div className="wla-msgs">{msgs.map((x,i)=>x.me?<p key={i} className="me">{x.text}</p>:<div key={i} className="wla-bot"><span><MessageCircle size={14}/></span><p>{x.text}</p></div>)}{busy&&<p className="typing" role="status" aria-label="Mentor is typing"><span/><span/><span/></p>}<div ref={end}/></div>
   {msgs.length<2&&<div className="wla-ideas">{ideas.map(t=><button key={t} type="button" onClick={()=>ask(t)}>{t}</button>)}</div>}
+  {failed&&<div className="wla-note" role="status"><span>{failed.message}</span><button type="button" className="wla-link" disabled={voice.listening} onClick={()=>ask(failed.question,true)}>Retry question</button></div>}
   </div><div className="wla-mentor-compose">
   <form className="wla-ask" onSubmit={e=>{e.preventDefault();ask(q)}}><label htmlFor="wla-ask" className="wla-sr">Ask the mentor</label><input id="wla-ask" value={q} readOnly={voice.listening} onChange={e=>setQ(e.target.value)} placeholder="Ask about your task…" maxLength={500}/><button type="button" className={'wla-mic'+(voice.listening?' listening':'')} aria-label={voice.listening?'Stop dictation':'Dictate a question'} aria-pressed={voice.listening} aria-describedby="wla-voice-note" disabled={busy} onClick={voice.toggle}>{voice.listening?<Square size={17}/>:<Mic size={19}/>}</button><button type="submit" aria-label="Send" disabled={busy||voice.listening||!q.trim()}><Send size={20}/></button></form>
   <p id="wla-voice-note" className="wla-voice-note" role="status">{voice.message||'Voice uses your browser’s speech service. Review the text before sending.'}</p>
@@ -153,7 +171,9 @@ export function Creations({s,onBack,view,setView,onImprove}:{s:Snapshot;onBack:(
    <details className="wla-disclosure"><summary>Reviewed versions on this device · {versions.length}</summary><p className="wla-muted">Up to five versions reviewed in this app are kept on this device for this account. These copies do not sync between devices.</p>{versions.map((v,i)=><details className="wla-history-entry" key={i}><summary>Version from {new Date(v.createdAt).toLocaleString()}</summary><pre className="wla-pre">{readableBody(v.body)}</pre><p className="wla-read"><strong>Feedback:</strong> {v.review.summary}</p><p className="wla-read"><strong>Next:</strong> {v.review.nextStep}</p></details>)}</details>
   </div>;
  }
+ const skills=new Set(s.work.flatMap(work=>missions.find(mission=>mission.id===work.mission_id)?.skill||[]));
  return <div className="wla-stack"><button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>Back</button><h2 className="wla-h1 wla-tight">My <em>creations.</em></h2>
+  {skills.size>0&&<details className="wla-disclosure"><summary>Skills practised · {skills.size}</summary><ul className="wla-guide-steps">{[...skills].map(skill=><li key={skill}>{skill}</li>)}</ul></details>}
   {s.work.length?s.work.map(x=><button key={x.mission_id} type="button" className="wla-tile" onClick={()=>setView(x.mission_id)}><span><strong>{title(x.mission_id)}</strong><small>Saved {new Date(x.updated_at).toLocaleDateString()}</small></span><ChevronRight size={20}/></button>)
   :<div className="wla-card"><p className="wla-muted">Nothing saved yet. Your saved tasks appear here.</p></div>}
  </div>;

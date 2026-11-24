@@ -23,7 +23,9 @@ export const extraHooks=[
  {post:'New to cooking? Start with a five-ingredient dinner and a step-by-step shopping list.',strong:true,why:'Matches a beginner’s need with a manageable outcome.'},
  {post:'Everyone everywhere needs this product.',strong:false,why:'An audience that broad does not explain whose problem is solved.'},
  {post:'Your interview is tomorrow? Practise three answers in a 15-minute guided session.',strong:true,why:'Connects a timely problem to a bounded, relevant activity.'},
- {post:'Limited offer! Limited offer! Limited offer!',strong:false,why:'Urgency without the actual offer provides no decision-making information.'}
+ {post:'Limited offer! Limited offer! Limited offer!',strong:false,why:'Urgency without the actual offer provides no decision-making information.'},
+ {post:'Replacing your first guitar string? Bring your guitar to our free Sunday demo and leave with one string fitted.',strong:true,why:'It gives a beginner a concrete result, a time and a next step.'},
+ {post:'We have the lowest repair prices in town. Message us now.',strong:false,why:'The price claim is unsupported and the reader still cannot tell what repair is offered.'}
 ];
 
 export const extraBudgets=[
@@ -35,7 +37,8 @@ export const extraBudgets=[
  {goal:'A dance school wants people to discover a new class through short performance clips.',ideal:[60,15,10,15],why:'The creative is visual, so social discovery gets the largest share. Search can catch people already looking for classes.'},
  {goal:'A laundry service wants its 150 opted-in regular customers to book next week’s pickup.',ideal:[10,10,70,10],why:'Repeat bookings from a known, opted-in audience favour direct messages over broad acquisition.'},
  {goal:'A local maths tutor wants enquiries from parents searching for tuition near their school.',ideal:[15,55,10,20],why:'Search matches parents already looking for a tutor. Nearby distribution can support school-area awareness.'},
- {goal:'A new weekend craft market wants nearby visitors to discover stalls through product photos.',ideal:[45,15,5,35],why:'Product images support discovery while local flyers reach people close enough to visit.'}
+ {goal:'A new weekend craft market wants nearby visitors to discover stalls through product photos.',ideal:[45,15,5,35],why:'Product images support discovery while local flyers reach people close enough to visit.'},
+ {goal:'A craft teacher needs to fill six spaces tomorrow and has a list of people who opted in for last-minute class alerts.',ideal:[10,5,75,10],why:'The short deadline and opt-in audience favour a direct WhatsApp message. Discovery campaigns are less useful for this brief.'}
 ];
 
 export const extraBugs=[
@@ -53,7 +56,8 @@ export const extraBugs=[
  {title:'Remove an item even at index zero',lines:['const index = items.indexOf(target);','if (index) {','  items.splice(index, 1);','}'],bug:1,why:'Index 0 is valid and -1 means not found. Test index >= 0.'},
  {title:'Calculate the price of several tickets',lines:['function ticketTotal(price, quantity) {','  return price + quantity;','}'],bug:1,why:'Multiply unit price by quantity. Addition does not calculate the total ticket cost.'},
  {title:'Count only unread messages',lines:['function unreadCount(messages) {','  return messages.filter(m => m.read === true).length;','}'],bug:1,why:'The function asks for unread messages. Filter for read === false.'},
- {title:'Wait for all image downloads',lines:['async function downloadAll(urls) {','  const jobs = urls.map(url => download(url));','  await jobs;','  return "Ready";','}'],bug:2,why:'Awaiting the array does not await its promises. Use await Promise.all(jobs).'}
+ {title:'Wait for all image downloads',lines:['async function downloadAll(urls) {','  const jobs = urls.map(url => download(url));','  await jobs;','  return "Ready";','}'],bug:2,why:'Awaiting the array does not await its promises. Use await Promise.all(jobs).'},
+ {title:'Copy a list before sorting by price',lines:['function sortedCopy(items) {','  const copy = items;','  return copy.sort((a, b) => a.price - b.price);','}'],bug:1,why:'Assigning the same array to another variable does not copy it. Spread the items into a new array before sorting.'}
 ];
 
 export const extraFlows=[
@@ -68,7 +72,8 @@ export const extraFlows=[
  {title:'Return a borrowed tool',steps:['Open the active loan','Choose the return option','Confirm the return condition','Receive a return receipt'],why:'The active loan identifies the tool. Confirm its return before issuing a receipt.'},
  {title:'Change a delivery address before dispatch',steps:['Open the active order','Check that changes are allowed','Enter the new address','Confirm the updated address'],why:'Check the order can still change before collecting a replacement address. Confirm only after the update succeeds.'},
  {title:'Submit a support report',steps:['Choose the affected feature','Describe the problem','Review the report','Send the report','See the reference number'],why:'Provide the problem details before reviewing and sending. A reference number follows successful submission.'},
- {title:'Export saved learning work',steps:['Open saved creations','Choose the work to export','Choose an export format','Create the export','Save the exported file'],why:'The selection and format determine the export. Generate the file before asking the learner to save it.'}
+ {title:'Export saved learning work',steps:['Open saved creations','Choose the work to export','Choose an export format','Create the export','Save the exported file'],why:'The selection and format determine the export. Generate the file before asking the learner to save it.'},
+ {title:'Recover a failed upload',steps:['Show the upload error','Keep the selected file visible','Offer Retry for that file','Wait for the server to confirm','Show the uploaded file'],why:'Keep the file available through the failure so Retry knows what to upload. Show success after the server confirms it.'}
 ];
 
 export const extraShots=[
@@ -83,7 +88,8 @@ export const extraShots=[
  {title:'The rain-soaked shoes',frames:['A runner steps into a deep puddle','He stops beside a bench with wet shoes','He changes into the dry pair in his bag','He rejoins the running group'],why:'The puddle creates the problem. Stopping enables the change, and the change enables him to continue.'},
  {title:'The torn poster',frames:['A shopkeeper finds the new poster torn','She takes it down and brings out a spare','She fixes the spare neatly to the board','Customers stop to read the new display'],why:'Discover the damaged poster before replacing it. The completed display must exist before it can attract attention.'},
  {title:'The forgotten presentation cable',frames:['A speaker discovers the laptop cannot connect to the projector','She asks the organiser for the missing cable','The organiser brings a compatible cable','The first slide appears on the screen'],why:'Establish the connection problem, request what is missing, supply it, then show the working result.'},
- {title:'The quiet café delivery',frames:['A courier arrives carrying a stack of cups','The café owner clears a space on the counter','The courier sets the cups in that space','The owner begins preparing the next order'],why:'The arrival creates a need for space. Clearing it enables unloading, which enables the café to use the supplies.'}
+ {title:'The quiet café delivery',frames:['A courier arrives carrying a stack of cups','The café owner clears a space on the counter','The courier sets the cups in that space','The owner begins preparing the next order'],why:'The arrival creates a need for space. Clearing it enables unloading, which enables the café to use the supplies.'},
+ {title:'The audition take',frames:['A performer starts a take and stumbles over a line','She marks a pause before that line on the script','She tries the line again with the pause','She listens back and keeps the second take'],why:'The first take reveals the problem. The marked pause is a response, and listening back makes the choice visible.'}
 ];
 
 export const extraCaptions=[
@@ -102,5 +108,6 @@ export const extraCaptions=[
  {scene:'A volunteer places labelled meal boxes into a delivery crate.',options:['Boxes','Packed with care, ready for the next doorstep.','This solves hunger forever','Our brand is premium'],best:1,why:'Connects the careful packing to its immediate purpose without an exaggerated claim.'},
  {scene:'A musician replaces a broken guitar string before rehearsal.',options:['Unrelated holiday sale','Music music','One new string. Back to the song.','A person with an object'],best:2,why:'Turns the specific repair into a concise return to the activity.'},
  {scene:'A local bookshop opens its shutters as sunlight reaches the doorway.',options:['World’s largest library','Something is opening','Buy everything now','A new day. Another story waiting inside.'],best:3,why:'Connects the opening shop to what readers can discover there.'},
- {scene:'A student pins a finished prototype beside earlier sketches.',options:['From first sketch to something you can try.','Instant success guaranteed','A board','Very innovative premium solution'],best:0,why:'Explains the visible progression with a concrete outcome rather than a vague claim.'}
+ {scene:'A student pins a finished prototype beside earlier sketches.',options:['From first sketch to something you can try.','Instant success guaranteed','A board','Very innovative premium solution'],best:0,why:'Explains the visible progression with a concrete outcome rather than a vague claim.'},
+ {scene:'A baker labels two loaves “test 1” and “test 2” on the same tray.',options:['The best bread in town.','Two loaves, one change to test.','The second loaf sold out first.','Fresh bread is always simple.'],best:1,why:'The test labels support a comparison. The scene gives no evidence about sales or quality.'}
 ];

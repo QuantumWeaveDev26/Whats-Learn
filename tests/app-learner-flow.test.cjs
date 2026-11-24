@@ -21,6 +21,8 @@ test('a restored draft retains its Make step and typed answer without making an 
  const f=flow();let tree=f.render();find(tree,n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();tree=f.render();find(tree,n=>n.type==='button'&&text(n)===mission.options[mission.answer]).props.onClick();tree=f.render();
  const input=find(tree,n=>n.props.id==='f-story');input.props.onChange({target:{value:'A parent requests a trial class.'}});f.render();await f.h.flush();
  const reopened=flow(f.data);tree=reopened.render();assert.ok(find(tree,n=>n.props.id==='f-story'));assert.equal(find(tree,n=>n.props.id==='f-story').props.value,'A parent requests a trial class.');assert.equal(reopened.requests.length,0);
+ assert.equal(all(tree,n=>n.props.role==='status'&&/Draft saved on this phone/.test(text(n))).length,1);
+ assert.doesNotMatch(text(tree),/Draft restored/);
 });
 test('restoring navigation never bypasses a plan gate, a prerequisite or account isolation',()=>{
  const {restoreResume,resumeRecord}=load('components/whatslearn-app/learning-state.ts');
