@@ -17,7 +17,6 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla-reference-device{font-size:12px;line-height:1.2;margin:0 4px 3px}
 .wla-reference-device>span{display:flex;align-items:center;gap:4px}
 .wla-reference-brand-line{gap:7px;min-height:32px;font-size:16px;font-weight:750}
-.wla-reference-brand-line img{border-radius:5px}
 .wla-reference-brand-line b{margin-inline-end:auto}
 .wla-reference-bell{display:grid;place-items:center;width:28px;height:30px}
 .wla.wla-design-reference .wla-course-emoji,.wla.wla-design-reference .wla-mission-emoji,
@@ -141,3 +140,7 @@ body:has(.wla-design-reference){background:#e7f8f0}
 body:has(.wla-design-reference) .wla-install{width:max-content;max-width:calc(100vw - 26px)}
 body:has(.wla-design-reference) .wla-install-go{font-size:12px;white-space:nowrap;padding-inline:10px}
 body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) .wla-install-x{min-height:40px;height:40px}
+
+.wla .wla-profile-picker{position:relative;overflow:visible;border:0;padding:0}
+.wla .wla-profile-picker img{border-radius:50%}
+.wla .wla-profile-plus{position:absolute;inset-inline-end:-4px;inset-block-end:-3px;width:21px;height:21px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#d8fa99;color:#143520;font-size:15px;line-height:1}

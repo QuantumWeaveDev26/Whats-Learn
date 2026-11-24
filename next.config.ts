@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     // Keep APIs' route-specific cache and upload sandbox policies intact.
     const pages = ["/", "/learn", "/find-my-path", "/membership", "/companion", "/settings", "/support", "/signin", "/signup", "/forgot-password", "/reset-password", "/welcome", "/privacy", "/terms", "/refunds", "/age-policy", "/billing/setup", "/admin/quality"];
     return [
+      { source: "/app.webmanifest", headers: [
+        { key: "Content-Type", value: "application/manifest+json; charset=utf-8" },
+        { key: "Cache-Control", value: "no-cache" },
+      ] },
       // Explicit .* also matches / in Vinext's current config-header matcher.
       { source: "/:path(.*)", headers: [
         { key: "X-Content-Type-Options", value: "nosniff" },

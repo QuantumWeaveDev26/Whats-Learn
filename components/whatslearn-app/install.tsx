@@ -2,6 +2,7 @@
 import {useEffect,useState} from 'react';
 import {Download,X} from 'lucide-react';
 import {appTranslator} from './app-language';
+import {APP_MANIFEST} from './version';
 type PromptEvent=Event&{prompt:()=>Promise<void>;userChoice:Promise<{outcome:string}>};
 /** Makes /app installable: manifest and theme tags, a service worker scoped to /app, and an Install button when the browser offers one. */
 export default function InstallSupport({language}:{language:string}){
@@ -9,7 +10,7 @@ export default function InstallSupport({language}:{language:string}){
  const [prompt,setPrompt]=useState<PromptEvent|null>(null),[hidden,setHidden]=useState(false),[iosTip,setIosTip]=useState(false);
  useEffect(()=>{
   const ensure=(sel:string,make:()=>HTMLElement)=>{if(!document.head.querySelector(sel))document.head.appendChild(make())};
-  ensure('link[rel="manifest"]',()=>Object.assign(document.createElement('link'),{rel:'manifest',href:'/app.webmanifest'}));
+  ensure('link[rel="manifest"]',()=>Object.assign(document.createElement('link'),{rel:'manifest',href:APP_MANIFEST}));
   ensure('meta[name="theme-color"]',()=>Object.assign(document.createElement('meta'),{name:'theme-color',content:'#125C43'}));
   ensure('link[rel="apple-touch-icon"]',()=>Object.assign(document.createElement('link'),{rel:'apple-touch-icon',href:'/images/app-launch-mark-lime-apple-180.png'}));
   if('serviceWorker' in navigator)navigator.serviceWorker.register('/app-sw.js',{scope:'/app'}).catch(()=>{});
