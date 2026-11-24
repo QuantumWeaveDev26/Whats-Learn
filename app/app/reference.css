@@ -4,7 +4,6 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla-design-reference.wla{
  --g:#086b25;--gd:#0a5626;--gdd:#07341f;--ink:#101a15;--mut:#244936;--line:#bfdac9;
  --mint:#d6f5bd;--tint:#e3f3e7;--bg:#ecf8ef;
- --reference-art:url('/images/app-theme-illustrations.jpeg');
  --green-gloss:linear-gradient(180deg,#51ad22 0%,#198b22 38%,#087020 54%,#054a1b 100%);
  --lime-gloss:linear-gradient(180deg,#f4ffd2 0%,#d8ff8d 42%,#a6ef36 100%);
  background:linear-gradient(180deg,#06291b 0,#086134 12%,#dcf4e5 29%,#eaf8ee 65%);
@@ -23,8 +22,7 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla-reference-bell{display:grid;place-items:center;width:28px;height:30px}
 .wla.wla-design-reference .wla-course-emoji,.wla.wla-design-reference .wla-mission-emoji,
 .wla.wla-design-reference .wla-home-mentor-icon,.wla.wla-design-reference .wla-hello::after,.wla.wla-design-reference .wla-daily-head::after{
- background-image:var(--reference-art);background-repeat:no-repeat;
- background-size:calc(1536px * var(--s)) calc(1024px * var(--s));background-position:calc(var(--x) * var(--s) * -1px) calc(var(--y) * var(--s) * -1px)
+ background:var(--app-art) center/contain no-repeat
 }
 .wla-reference-avatar{width:29px;height:29px;border:1px solid #ecfff0;border-radius:50%;padding:0;background-color:#0c6337;display:grid;place-items:center;overflow:hidden;color:#fff;font-size:12px}
 .wla.wla-design-reference .wla-top{min-height:36px;flex:none;margin:0 15px 0;padding:3px 5px 3px 7px;border-radius:24px;background:linear-gradient(178deg,#fdfffa,#e0efe6);color:#071d14;box-shadow:0 3px 9px #07392330}
@@ -42,20 +40,20 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla.wla-design-reference .wla-hello .wla-h1{color:#fff;font-size:24px}
 .wla.wla-design-reference .wla-hello .wla-muted,.wla.wla-design-reference .wla-home .wla-goal{color:#e8ffec;font-size:11px;margin:2px 0}
 .wla.wla-design-reference .wla-hello .wla-streak{position:absolute;inset:0 0 auto auto;z-index:1}
-.wla.wla-design-reference .wla-hello::after{content:"";--s:1;--x:282;--y:115;position:absolute;inset:0 0 auto auto;width:81px;height:65px;mask-image:radial-gradient(ellipse,#000 55%,transparent 77%);pointer-events:none}
+.wla.wla-design-reference .wla-hello::after{content:"";--app-art:url('/images/app-art/trophy.svg');position:absolute;inset:0 0 auto auto;width:81px;height:65px;pointer-events:none}
 .wla.wla-design-reference .wla-hero-card{border-radius:16px;padding:13px 15px;border:1px solid #9be956;background:radial-gradient(ellipse at 91% 82%,#1eae25,transparent 43%),linear-gradient(150deg,#0c7138,#052a16 77%);box-shadow:0 4px 9px #083a2530}
 .wla.wla-design-reference .wla-home-mission .wla-hero-title{font-size:18px;line-height:1.2;max-inline-size:calc(100% - 84px)}
 .wla.wla-design-reference .wla-home-mission .wla-hero-kicker,.wla.wla-design-reference .wla-home-mission .wla-hero-sub{font-size:11px;color:#f0ffec}
-.wla.wla-design-reference .wla-mission-emoji{--s:1;--x:260;--y:217;inset:25px 0 auto auto;width:105px;height:74px;rotate:0deg;filter:none;font-size:0;mask-image:radial-gradient(ellipse,#000 54%,transparent 75%)}
-.wla.wla-design-reference .wla-home-mission[data-track=development] .wla-mission-emoji{--x:1016;--y:294}
-.wla.wla-design-reference .wla-home-mission[data-track=filmmaking] .wla-mission-emoji{--x:1383;--y:163}
-.wla.wla-design-reference .wla-home-mission[data-track=storytelling] .wla-mission-emoji{--x:1380;--y:320}
+.wla.wla-design-reference .wla-mission-emoji{--app-art:url('/images/app-art/marketing.svg');inset:25px 0 auto auto;width:105px;height:74px;rotate:0deg;filter:drop-shadow(0 2px 3px #05271973);font-size:0;}
+.wla.wla-design-reference .wla-home-mission[data-track=development] .wla-mission-emoji{--app-art:url('/images/app-art/development.svg');}
+.wla.wla-design-reference .wla-home-mission[data-track=filmmaking] .wla-mission-emoji{--app-art:url('/images/app-art/filmmaking.svg');}
+.wla.wla-design-reference .wla-home-mission[data-track=storytelling] .wla-mission-emoji{--app-art:url('/images/app-art/storytelling.svg');}
 .wla.wla-design-reference .wla-hero-card .wla-mint{position:relative;align-self:flex-start;min-height:35px;width:min(86%,260px);padding:6px 13px;color:#10220d;background:var(--lime-gloss);box-shadow:0 3px 5px #021f14a0;font-size:13px;font-weight:800}
 .wla.wla-design-reference .wla-daily{border-radius:16px;padding:8px 10px;background:linear-gradient(155deg,#f9fffa,#eff8f1)}
 .wla.wla-design-reference .wla-daily-head{position:relative;gap:9px;font-size:12px}
 .wla.wla-design-reference .wla-daily-head>svg{width:40px;height:40px}
 .wla.wla-design-reference .wla-daily-head strong{font-size:13px}
-.wla.wla-design-reference .wla-daily-head::after{content:"";--s:1;--x:311;--y:335;position:absolute;right:0;top:0;width:42px;height:40px;mask-image:radial-gradient(ellipse,#000 58%,transparent 79%)}
+.wla.wla-design-reference .wla-daily-head::after{content:"";--app-art:url('/images/app-art/target.svg');position:absolute;right:0;top:0;width:42px;height:40px;}
 .wla.wla-design-reference .wla-daily ul{gap:3px;margin-top:5px}
 .wla.wla-design-reference .wla-daily li button{min-height:37px;padding:3px 7px;gap:7px;border-radius:8px;font-size:11px;background:#e7f2eb}
 .wla.wla-design-reference .wla-dm-icon{width:25px;height:25px;color:#117322}
@@ -65,16 +63,20 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla.wla-design-reference .wla-daily .wla-days{margin-top:4px}
 .wla.wla-design-reference .wla-days i{width:23px;height:23px}
 .wla.wla-design-reference .wla-home-mentor{min-height:48px;padding:3px 9px 3px 4px;gap:8px;border-radius:13px;background:linear-gradient(175deg,#11813d,#064724 65%,#042c1c);box-shadow:0 2px 7px #0b54254a}
-.wla.wla-design-reference .wla-home-mentor-icon{--s:1;--x:80;--y:561;width:61px;height:43px;background-color:transparent;font-size:0;mask-image:radial-gradient(ellipse,#000 60%,transparent 85%)}
+.wla.wla-design-reference .wla-home-mentor-icon{--app-art:url('/images/app-art/mentor.svg');width:61px;height:43px;background-color:transparent;font-size:0;}
 .wla.wla-design-reference .wla-home-mentor strong{font-size:13px}
 .wla.wla-design-reference .wla-home-mentor small{font-size:11px;color:#eefff0}
 .wla.wla-design-reference .wla-home-mentor>svg{color:#123c1d;width:24px;height:24px;padding:4px;border-radius:100%;background:var(--lime-gloss)}
 .wla.wla-design-reference .wla-sec-head{margin:0}
 .wla.wla-design-reference .wla-carousel{margin:0;padding:0 1px 6px;gap:7px;scroll-padding:1px}
-.wla.wla-design-reference .wla-carousel .wla-ccard{flex:0 0 calc((100% - 14px)/3);min-width:0;height:148px;padding:8px;border:1px solid #0a642c;border-radius:11px;color:#fff;background:radial-gradient(ellipse at right bottom,#0eae36,transparent 45%),linear-gradient(165deg,#117a3a,#032c1c 55%,#094d27);box-shadow:0 4px 6px #14613030}
+.wla.wla-design-reference .wla-carousel .wla-ccard{flex:0 0 calc((100% - 14px)/3);min-width:0;min-height:148px;padding:8px;border:1px solid #0a642c;border-radius:11px;color:#fff;background:radial-gradient(ellipse at right bottom,#0eae36,transparent 45%),linear-gradient(165deg,#117a3a,#032c1c 55%,#094d27);box-shadow:0 4px 6px #14613030}
 .wla.wla-design-reference .wla-carousel .wla-ccard-icon{width:26px;height:25px;background:transparent;color:#d8fd85}
 .wla.wla-design-reference .wla-carousel .wla-ccard strong{font-size:12px;line-height:1.15;color:#fff}
 .wla.wla-design-reference .wla-carousel .wla-ccard small{font-size:10px;line-height:1.25;color:#edfce9}
+.wla.wla-design-reference .wla-carousel .wla-ccard .wla-ccard-foot{
+ display:block;padding:3px 5px;border-radius:5px;background:#073e25;color:#f4fff2;
+ font-size:11px;line-height:1.3;overflow-wrap:anywhere
+}
 .wla.wla-design-reference .wla-carousel .wla-cbar{height:3px;background:#568d64}
 .wla.wla-design-reference .wla-carousel .wla-cbar span{background:#bbf36d}
 .wla.wla-design-reference .wla-course{border:1px solid #bbd9c6;border-radius:13px;box-shadow:0 3px 6px #25633a14}
@@ -87,10 +89,10 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla.wla-design-reference .wla-course-meta,.wla.wla-design-reference .wla-course-status{font-size:11px}
 .wla.wla-design-reference .wla-course-card .wla-course-pill,.wla.wla-design-reference .wla-primary{background:var(--green-gloss);color:#fff;box-shadow:0 2px 3px #0b542842}
 .wla.wla-design-reference .wla-course-card .wla-course-pill{min-height:29px;margin-top:2px;padding:3px 9px;font-size:12px}
-.wla.wla-design-reference .wla-course-emoji{--s:1;--x:1012;--y:165;width:91px;height:77px;inset:auto 7px 20px auto;font-size:0;rotate:0deg;mask-image:radial-gradient(ellipse,#000 58%,transparent 81%)}
-.wla.wla-design-reference .c-ice .wla-course-emoji{--x:1015;--y:323}
-.wla.wla-design-reference .c-peach .wla-course-emoji{--x:1380;--y:161}
-.wla.wla-design-reference .c-lilac .wla-course-emoji{--x:1381;--y:321}
+.wla.wla-design-reference .wla-course-emoji{--app-art:url('/images/app-art/marketing.svg');width:91px;height:77px;inset:auto 7px 20px auto;filter:drop-shadow(0 3px 4px #2c783555);font-size:0;rotate:0deg;}
+.wla.wla-design-reference .c-ice .wla-course-emoji{--app-art:url('/images/app-art/development.svg');}
+.wla.wla-design-reference .c-peach .wla-course-emoji{--app-art:url('/images/app-art/filmmaking.svg');}
+.wla.wla-design-reference .c-lilac .wla-course-emoji{--app-art:url('/images/app-art/storytelling.svg');}
 .wla.wla-design-reference .wla-practice-flow .wla-card,.wla.wla-design-reference .wla-practice-flow .wla-disclosure{border-radius:11px;background:#f8fdf9}
 .wla.wla-design-reference .wla-practice-flow .wla-card.wla-tint{background:#d9f0d8}
 .wla.wla-design-reference .wla-play-intro>span{display:none}
