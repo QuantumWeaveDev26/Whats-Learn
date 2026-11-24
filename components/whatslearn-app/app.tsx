@@ -225,7 +225,7 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
    {referencePreview&&<div className="wla-reference-device" aria-hidden="true"><b>9:41</b><span><Signal size={12}/><Wifi size={12}/><BatteryFull size={14}/></span></div>}
    <div className="wla-reference-brand-line"><b>WhatsLearn</b><a className="wla-reference-bell" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener" aria-label={t("Connect WhatsApp reminders")}><BellRing size={17}/></a><button type="button" className="wla-reference-avatar" aria-label={t("Me")} onClick={()=>goTab('me')}>{avatar.src?<img src={avatar.src} alt=""/>:<User size={15}/>}</button></div>
   </div>
-  <header className="wla-top" inert={sheet||offlineGame}><div><strong>{previewTitle}</strong></div>
+  <header className={tab==='home'&&!overlay&&!saved&&!open?'wla-top wla-top-home':'wla-top'} inert={sheet||offlineGame}><div><strong>{previewTitle}</strong></div>
    {signed?<span className="wla-pts"><b className="wla-lv"><span aria-hidden="true">★ </span>{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
   {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}

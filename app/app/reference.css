@@ -29,6 +29,7 @@ body:has(.wla-design-reference){background:#e7f8f0}
  background:radial-gradient(ellipse at 88% 100%,#d6f5bd 0%,transparent 58%),linear-gradient(180deg,#fdfffa,#e0efe6);
  color:#071d14;border-bottom:1px solid #bfdac9;box-shadow:none
 }
+.wla.wla-design-reference .wla-top-home{margin-inline:16px;padding-inline:15px 7px;border-radius:999px}
 .wla.wla-design-reference .wla-top>div{min-width:0}
 .wla.wla-design-reference .wla-top strong{font-size:14px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
 .wla.wla-design-reference .wla-days span.today:not(.on) i{background:#c2ee9f;box-shadow:0 0 0 2px var(--bg),0 0 0 4px #5f9e68}
