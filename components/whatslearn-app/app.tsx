@@ -219,13 +219,13 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
  const previewTitle=overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab]);
- const SectionIcon=tabs.find(([id])=>id===tab)![2];
+
  return <Shell language={language} themed>
   <div className="wla-reference-brand" inert={sheet||offlineGame}>
    {referencePreview&&<div className="wla-reference-device" aria-hidden="true"><b>9:41</b><span><Signal size={12}/><Wifi size={12}/><BatteryFull size={14}/></span></div>}
    <div className="wla-reference-brand-line"><b>WhatsLearn</b><a className="wla-reference-bell" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener" aria-label={t("Connect WhatsApp reminders")}><BellRing size={17}/></a><button type="button" className="wla-reference-avatar" aria-label={t("Me")} onClick={()=>goTab('me')}>{avatar.src?<img src={avatar.src} alt=""/>:<User size={15}/>}</button></div>
   </div>
-  <header className="wla-top" inert={sheet||offlineGame}><div><span className="wla-reference-tab-icon" aria-hidden="true"><SectionIcon size={14}/></span><strong>{previewTitle}</strong></div>
+  <header className="wla-top" inert={sheet||offlineGame}><div><strong>{previewTitle}</strong></div>
    {signed?<span className="wla-pts"><b className="wla-lv"><span aria-hidden="true">★ </span>{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
   {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}

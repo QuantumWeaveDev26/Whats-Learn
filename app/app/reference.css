@@ -24,10 +24,10 @@ body:has(.wla-design-reference){background:#e7f8f0}
  background:var(--app-art) center/contain no-repeat
 }
 .wla-reference-avatar{width:29px;height:29px;border:1px solid #ecfff0;border-radius:50%;padding:0;background-color:#0c6337;display:grid;place-items:center;overflow:hidden;color:#fff;font-size:12px}
-.wla.wla-design-reference .wla-top{min-height:36px;flex:none;margin:0 15px 0;padding:3px 5px 3px 7px;border-radius:24px;background:linear-gradient(178deg,#fdfffa,#e0efe6);color:#071d14;box-shadow:0 3px 9px #07392330}
+.wla.wla-design-reference .wla-top{min-height:36px;flex:none;margin:0;padding:3px 20px 3px 21px;border-radius:0;background:linear-gradient(178deg,#fdfffa,#e0efe6);color:#071d14;box-shadow:0 3px 9px #07392330}
 .wla.wla-design-reference .wla-top>div{gap:6px}
 .wla.wla-design-reference .wla-top strong{font-size:12px;font-weight:800}
-.wla-reference-tab-icon{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:100%;background:var(--green-gloss);color:#fff}
+.wla.wla-design-reference .wla-days span.today:not(.on) i{background:#c2ee9f;box-shadow:0 0 0 2px var(--bg),0 0 0 4px #5f9e68}
 .wla.wla-design-reference .wla-pts{display:flex;align-items:center;min-height:23px;border-radius:99px;padding:2px 8px 2px 6px;background:var(--green-gloss);color:#fff;font-size:10px;white-space:nowrap}
 .wla.wla-design-reference .wla-lv{margin-inline-end:4px;padding:0 5px 0 0;border-radius:0;border-inline-end:1px solid #bce2bf;background:transparent;color:inherit;font-size:inherit}
 .wla.wla-design-reference .wla-lv span{color:#ffdd45}
@@ -153,3 +153,10 @@ body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) 
 .wla .wla-practice-summary{padding:12px 14px;border-color:#b6d8a0;background:#edf7df}
 .wla .wla-practice-summary p{margin:4px 0 0;font-size:14px;line-height:1.45}
 .wla .wla-score-emoji{display:grid;place-items:center;color:#dbff94}
+.wla .wla-make-next{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #c4dda6;border-radius:12px;background:#edf7df}
+.wla .wla-make-next strong{font-size:12px;color:#174f30}
+.wla .wla-make-next p{margin:0;overflow-wrap:anywhere;font-size:14px;font-weight:650}
+.wla .wla-make-next button{flex:none;min-height:44px;padding-inline:14px}
+.wla .wla-field-help{font-size:12px;color:var(--gd)}
+.wla .wla-field-help summary{display:list-item;width:fit-content;padding:4px 0;cursor:pointer;font-weight:650}
+.wla .wla-field-help p{margin:2px 0 5px;color:var(--mut);font-size:13px;overflow-wrap:anywhere}

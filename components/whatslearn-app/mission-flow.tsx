@@ -38,7 +38,7 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
  const latestBody=useRef(body);latestBody.current=body;
  const hasDraft=quizPassed||Object.entries(answer.fields).some(([id,value])=>value!==(initialAnswer?.fields[id]??mission.practical?.fields.find(field=>field.id===id)?.starter??''))||answer.reasoning!==(initialAnswer?.reasoning??'')||answer.link!==(initialAnswer?.link??'')||Object.values(evidence).some(value=>value.trim());
  const fields=mission.practical?.fields||[],missing=missingParts(mission,answer,evidence);
- const total=fields.length+5,complete=total-new Set(missing.filter(x=>x.id!=='f-link').map(x=>x.id)).size;
+ const nextPart=missing[0];
  const left=allow.limit===undefined?undefined:Math.max(0,allow.limit-(allow.used||0));
  const steps:Step[]=['learn','check','make','self','review'],at=steps.indexOf(step);
  const stepNames=['Learn','Check','Make','Self-check','Review'].map(label=>t(label));
@@ -48,13 +48,16 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
  useEffect(()=>{if(!focusPart)return;const field=document.getElementById(focusPart);field?.focus();field?.scrollIntoView({block:'center',behavior:'smooth'});setFocusPart('')},[focusPart,part,step]);
  function changeAnswer(a:Answer){setAnswer(a);setReview(null);setReviewBody('');setErr('')}
  function changeEvidence(id:keyof Evidence,value:string){setEvidence(e=>({...e,[id]:value}));setReview(null);setReviewBody('');setErr('')}
- function nextMissing(){const next=missing[0];if(!next)return;setAttempted(true);setStep('make');setPart(next.part);setFocusPart(next.id)}
+ function nextMissing(validate=true){if(!nextPart)return;if(validate)setAttempted(true);setStep('make');setPart(nextPart.part);setFocusPart(nextPart.id)}
  function go(next:Step){setErr('');setStep(next)}
  const instructions=<ol className="wla-guide-steps">{guide.steps.map((line,i)=><li key={i}>{t(line)}</li>)}</ol>;
  const practiceCheck=language==='en'?practiceChecks[mission.id]:undefined;
  const problem=(id:string)=>attempted?missing.find(x=>x.id===id)?.message:undefined;
- const common=(id:string)=>({'aria-required':true as const,'aria-invalid':!!problem(id),'aria-describedby':id+'-help'});
- const note=(id:string,hint?:string)=><small id={id+'-help'} className={problem(id)?'wla-field-error':undefined}>{problem(id)?(language==='kn'?'ಮುಂದುವರಿಯಲು ಈ ಕ್ಷೇತ್ರವನ್ನು ಪರಿಶೀಲಿಸಿ.':problem(id)):hint}</small>;
+ const common=(id:string)=>({'aria-required':true as const,'aria-invalid':!!problem(id),'aria-describedby':problem(id)?id+'-help':undefined});
+ const note=(id:string,hint?:string)=>{
+  const error=problem(id);
+  return <>{error&&<small id={id+'-help'} className="wla-field-error">{language==='kn'?'ಮುಂದುವರಿಯಲು ಈ ಕ್ಷೇತ್ರವನ್ನು ಪರಿಶೀಲಿಸಿ.':error}</small>}{hint&&<details className="wla-field-help"><summary>{t("Help with this task")}</summary><p>{hint}</p></details>}</>;
+ };
  function remember(r:Feedback){writeLocal(historyKey(accountKey,mission.id),addVersion(readLocal(historyKey(accountKey,mission.id)),body,r,new Date().toISOString()))}
  async function getReview(){
   if(missing.length){nextMissing();return}setErr('');if(left===0){onUpgrade();return}setBusy('review');
@@ -97,14 +100,14 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
     <div className="wla-explain wla-round-feedback no" role="status"><div className="wla-feedback-message"><span className="wla-feedback-emoji" aria-hidden="true"><Lightbulb size={16}/></span><p>{language==='en'?wrongAnswerMessage(mission):t(mission.explanation)}</p></div></div>
     <details className="wla-disclosure"><summary>{t("Worked example")}{practiceCheck?" "+t("and extra practice"):''}</summary>
      <p className="wla-read">{language==='kn'&&/[\u0C80-\u0CFF]/.test(mission.example)?mission.example:t(guide.example[0])}</p>
-     {practiceCheck?<fieldset className="wla-fieldset"><legend>{practiceCheck.question}</legend><div className="wla-options">{practiceCheck.options.map((option,index)=><button key={option} type="button" className="wla-option" aria-pressed={practicePick===index} onClick={()=>setPracticePick(index)}>{option}</button>)}</div>{practicePick!==null&&<p className="wla-muted" role="status">{practicePick===practiceCheck.answer?t("Correct."):t("Try the other choice.")}{practiceCheck.why}</p>}</fieldset>:<p className="wla-read">{t(guide.example[1])}</p>}
+     {practiceCheck?<fieldset className="wla-fieldset"><legend>{practiceCheck.question}</legend><div className="wla-options">{practiceCheck.options.map((option,index)=><button key={option} type="button" className="wla-option" aria-pressed={practicePick===index} onClick={()=>setPracticePick(index)}>{option}</button>)}</div>{practicePick!==null&&<p className="wla-muted" role="status">{practicePick===practiceCheck.answer?t("Correct."):t("Try the other choice.")}{" "}{practiceCheck.why}</p>}</fieldset>:<p className="wla-read">{t(guide.example[1])}</p>}
     </details>
    </>}
   </>}
   {step==='make'&&<>
    <button type="button" className="wla-back" onClick={()=>go('check')}><ArrowLeft size={16}/>{t("Back to check")}</button>
    <details className="wla-disclosure"><summary>{t("Task instructions")}</summary>{instructions}{mission.levelTask&&<p className="wla-read">{t(mission.levelTask)}</p>}</details>
-   <div className="wla-form-progress"><strong>{language==='kn'?`${total} ಭಾಗಗಳಲ್ಲಿ ${complete} ಸಿದ್ಧ`:t("{0} of {1} parts ready",[complete,total])}</strong></div>
+   {nextPart?<div className="wla-make-next"><div><strong>{t("Next")}</strong><p>{t(nextPart.label)}</p></div><button type="button" className="wla-outline" aria-label={t("Go to next incomplete part · {0} left",[missing.length])} onClick={()=>nextMissing(false)}>{t("Go")}</button></div>:<button type="button" className="wla-primary wla-full" onClick={()=>go('self')}>{t("Next: check your work")}</button>}
    <div className="wla-part-tabs" aria-label={t("Practical work sections")}>{['Your work','Test evidence','Your choices'].map((label,i)=><button type="button" key={label} aria-pressed={part===i} onClick={()=>setPart(i)}>{i+1}. {t(label)}</button>)}</div>
    {part===0&&<fieldset className="wla-fieldset"><legend>{t("Your work")}</legend>{fields.map(f=>{const id='f-'+f.id;return <div key={f.id} className="wla-field"><label htmlFor={id}>{t(f.prompt||f.label)}</label>{note(id,f.hint?t(f.hint):undefined)}
     {f.type==='choice'?<select id={id} {...common(id)} value={answer.fields[f.id]||''} onChange={e=>changeAnswer({...answer,fields:{...answer.fields,[f.id]:e.target.value}})}><option value="">{t("Choose one…")}</option>{(f.options||[]).map(o=><option key={o} value={o}>{t(o)}</option>)}</select>
@@ -115,13 +118,13 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
     {([['artifact','Your artifact or relevant code','Paste a short relevant extract, or refer to the code field in Your work.',800],['test','The test you actually ran','What did you try, using which input or viewing conditions?',180],['result','What actually happened','Give the output or observation. Label an expected result separately.',180],['improvement','The improvement you made','What did you change after the test, and what happened next?',180]] as const).map(([name,label,hint,max])=>{const id='e-'+name;return <div className="wla-field" key={name}><label htmlFor={id}>{t(label)}</label>{note(id,t(hint))}<textarea id={id} {...common(id)} className={name==='artifact'&&mission.track==='development'?'wla-code':''} rows={name==='artifact'?6:3} maxLength={max} value={evidence[name]} onChange={e=>changeEvidence(name,e.target.value)}/></div>})}
     <button type="button" className="wla-outline wla-full" onClick={()=>setPart(2)}>{t("Next: explain your choices")}</button></fieldset>}
    {part===2&&<fieldset className="wla-fieldset"><legend>{t("Your choices")}</legend><div className="wla-field"><label htmlFor="f-reason">{t("Why did you make these choices?")}</label>{note('f-reason',t("Explain your reasoning in your own words. At least {0} characters.",[LIMITS.minReasoning]))}<textarea id="f-reason" {...common('f-reason')} rows={4} maxLength={LIMITS.reasoning} value={answer.reasoning} onChange={e=>changeAnswer({...answer,reasoning:e.target.value})}/></div>
-    {mission.practical?.link&&<div className="wla-field"><label htmlFor="f-link">{t(mission.practical.link.label)} {t("· optional")}</label>{note('f-link',mission.practical.link.hint?t(mission.practical.link.hint):undefined)}<input id="f-link" aria-invalid={!!problem('f-link')} aria-describedby="f-link-help" inputMode="url" placeholder="https://" value={answer.link} maxLength={LIMITS.link} onChange={e=>changeAnswer({...answer,link:e.target.value})}/></div>}</fieldset>}
+    {mission.practical?.link&&<div className="wla-field"><label htmlFor="f-link">{t(mission.practical.link.label)} {t("· optional")}</label>{note('f-link',mission.practical.link.hint?t(mission.practical.link.hint):undefined)}<input id="f-link" aria-invalid={!!problem('f-link')} aria-describedby={problem('f-link')?'f-link-help':undefined} inputMode="url" placeholder="https://" value={answer.link} maxLength={LIMITS.link} onChange={e=>changeAnswer({...answer,link:e.target.value})}/></div>}</fieldset>}
    <details className="wla-disclosure"><summary>{t("Free learning help")}</summary><div className="wla-help"><button type="button" aria-pressed={help==='simple'} onClick={()=>setHelp(help==='simple'?'':'simple')}>{t("Explain simply")}</button><button type="button" aria-pressed={help==='example'} onClick={()=>setHelp(help==='example'?'':'example')}>{t("Worked example · free")}</button></div>
     {help==='simple'&&<div className="wla-help-text"><p className="wla-read">{t("Make one small version, try it yourself, and show what you learned:")}</p>{instructions}</div>}
     {help==='example'&&<div className="wla-help-text"><p className="wla-kicker">{t("Illustration")}</p><p className="wla-read">{language==='kn'&&/[\u0C80-\u0CFF]/.test(mission.example)?mission.example:t(guide.example[0])}</p><p className="wla-read"><strong>{t("Try it in your own work:")}</strong> {t(guide.example[1])}</p><small className="wla-muted">{t("This is a teaching example, not an executed test or a completed submission. No points or AI reviews are used.")}</small></div>}
    </details>
    {answerBody(answer,evidence).length>LIMITS.reasoning*.85&&<p className="wla-muted">{t("Evidence and reasoning:")}{' '}{answerBody(answer,evidence).length}/{LIMITS.reasoning} {t("characters")}</p>}
-   {missing.length>0?<button type="button" className="wla-primary wla-full" onClick={nextMissing}>{language==='kn'?`ಬಾಕಿ ಇರುವ ಭಾಗಕ್ಕೆ ಹೋಗಿ · ${missing.length} ಉಳಿದಿವೆ`:t("Go to next incomplete part · {0} left",[missing.length])}</button>:<button type="button" className="wla-primary wla-full" onClick={()=>go('self')}>{t("Next: check your work")}</button>}
+
   </>}
   {step==='self'&&<>
    <p className="wla-muted">{t("Check your work honestly. The AI will review it too.")}</p><div className="wla-options">{mission.checks.slice(0,5).map((c,i)=><button key={i} type="button" className={'wla-option'+(checks[i]?' on':'')} aria-pressed={checks[i]} onClick={()=>setChecks(checks.map((x,n)=>n===i?!x:x))}><span>{t(c)}</span>{checks[i]&&<Check size={18}/>}</button>)}</div>

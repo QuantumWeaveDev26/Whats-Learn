@@ -40,7 +40,7 @@ test('teaching examples do not call the points-deducting clue endpoint',async()=
 });
 test('incomplete work offers a direct next-part action rather than a disabled mystery button',()=>{
  const f=flow();let tree=f.render();find(tree,n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();tree=f.render();find(tree,n=>n.type==='button'&&text(n)===mission.options[mission.answer]).props.onClick();tree=f.render();
- const next=find(tree,n=>n.type==='button'&&text(n).includes('Go to next incomplete part'));assert.ok(next);assert.notEqual(next.props.disabled,true);assert.ok(all(tree,n=>n.props['aria-required']===true).length>0);
+ const next=find(tree,n=>n.type==='button'&&n.props['aria-label']?.includes('Go to next incomplete part'));assert.ok(next);assert.notEqual(next.props.disabled,true);assert.ok(all(tree,n=>n.props['aria-required']===true).length>0);
 });
 test('a restored draft retains its Make step and typed answer without making an AI request',async()=>{
  const f=flow();let tree=f.render();find(tree,n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();tree=f.render();find(tree,n=>n.type==='button'&&text(n)===mission.options[mission.answer]).props.onClick();tree=f.render();
