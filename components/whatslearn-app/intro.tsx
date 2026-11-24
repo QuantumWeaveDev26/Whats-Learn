@@ -12,7 +12,7 @@ export function Splash({onDone,language='en'}:{onDone:()=>void;language?:string}
  const t=appTranslator(language);
  useEffect(()=>{const t=setTimeout(onDone,1600);return()=>clearTimeout(t)},[onDone]);
  return <div className="wla-splash" onClick={onDone}>
-  <svg className="wla-splash-mark" viewBox="58 22 76 76" role="img" aria-label="WhatsLearn"><image href="/images/app-icon-192.png" width="192" height="192"/></svg>
+  <svg className="wla-splash-mark" viewBox="0 0 192 192" role="img" aria-label="WhatsLearn"><image href="/images/app-launch-mark-lime-192.png" width="192" height="192"/></svg>
   <p>{t("From chat to change.")}</p>
  </div>;
 }
@@ -76,7 +76,7 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
   onSignedIn();
  }
  if(sent)return <div className="wla-page wla-sent">
-  <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>{t("From chat to change")}</small></div></div>
+  <div className="wla-brand"><img src="/images/app-launch-mark-lime-192.png" alt=""/><div><strong>WhatsLearn</strong><small>{t("From chat to change")}</small></div></div>
   <p className="wla-kicker">{t("ONE LAST STEP")}</p><h1 className="wla-h1">{t("Check your")}{' '}<em>{t("email.")}</em></h1>
   <p className="wla-muted">{t("We sent a confirmation link to")}{' '}<strong>{sent}</strong>{t(". Open it on this phone and you’ll come straight back to the app.")}</p>
   {resent&&<p className="wla-ok" role="status">{t(resent)}</p>}
@@ -87,7 +87,7 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
  // The introduction already explains the product. Keep authentication focused on the form.
  return <div className="wla-page wla-auth">
   <div className="wla-auth-panel">
-  <div className="wla-auth-brand"><svg viewBox="58 22 76 76" role="img" aria-label="WhatsLearn"><image href="/images/app-icon-192.png" width="192" height="192"/></svg><strong>WhatsLearn</strong></div>
+  <div className="wla-auth-brand"><svg viewBox="0 0 192 192" role="img" aria-label="WhatsLearn"><image href="/images/app-launch-mark-lime-192.png" width="192" height="192"/></svg><strong>WhatsLearn</strong></div>
   {notice&&<p className="wla-challenge-note" role="status"><Trophy size={18}/>{notice}</p>}
   <h1 className="wla-h1">{notice&&mode==='in'?t("Join the challenge"):mode==='in'?t("Sign in to WhatsLearn"):t("Create your account")}</h1>
   <p className="wla-muted">{mode==='in'?t("Continue learning with your saved progress."):t("Free to start. No phone number needed.")}</p>

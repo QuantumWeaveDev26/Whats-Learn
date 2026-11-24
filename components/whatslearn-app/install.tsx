@@ -11,7 +11,7 @@ export default function InstallSupport({language}:{language:string}){
   const ensure=(sel:string,make:()=>HTMLElement)=>{if(!document.head.querySelector(sel))document.head.appendChild(make())};
   ensure('link[rel="manifest"]',()=>Object.assign(document.createElement('link'),{rel:'manifest',href:'/app.webmanifest'}));
   ensure('meta[name="theme-color"]',()=>Object.assign(document.createElement('meta'),{name:'theme-color',content:'#125C43'}));
-  ensure('link[rel="apple-touch-icon"]',()=>Object.assign(document.createElement('link'),{rel:'apple-touch-icon',href:'/images/app-icon-192.png'}));
+  ensure('link[rel="apple-touch-icon"]',()=>Object.assign(document.createElement('link'),{rel:'apple-touch-icon',href:'/images/app-launch-mark-lime-apple-180.png'}));
   if('serviceWorker' in navigator)navigator.serviceWorker.register('/app-sw.js',{scope:'/app'}).catch(()=>{});
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),standalone=(navigator as Navigator&{standalone?:boolean}).standalone===true||matchMedia('(display-mode: standalone)').matches;
   let seen=false;try{seen=!!localStorage.getItem('wla-ios-tip')}catch{}

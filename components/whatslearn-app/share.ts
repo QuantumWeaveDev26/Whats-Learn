@@ -10,7 +10,7 @@ function wrap(ctx:CanvasRenderingContext2D,text:string,max:number,lines:number){
  if(out.length===lines&&words.join(' ').length>out.join(' ').length){let last=out[lines-1];while(ctx.measureText(last+'…').width>max&&last.length)last=last.slice(0,-1);out[lines-1]=last.trimEnd()+'…'}
  return out;
 }
-function logo():Promise<HTMLImageElement|null>{return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='/images/app-icon-192.png'})}
+function logo():Promise<HTMLImageElement|null>{return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='/images/app-launch-mark-lime-192.png'})}
 function round(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
 const font=(px:number,weight=600)=>`${weight} ${px}px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
 
