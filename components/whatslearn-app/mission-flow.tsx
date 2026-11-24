@@ -9,6 +9,7 @@ import {learningGuide} from './learning-guide';
 import {addVersion,answerBody,draftKey,feedbackOf,historyKey,missingParts,restoreDraft,type Evidence,type Feedback,type Step} from './learning-state';
 import {FeedbackCard} from './feedback';
 import {appTranslator,appMissionTitle} from './app-language';
+import {withKannadaLesson} from './kannada-lessons';
 
 export type Saved={points?:number;balance?:number;message:string;status:string;track?:string};
 const practiceChecks: Record<string,{question:string;options:[string,string];answer:0|1;why:string}> = {
@@ -18,8 +19,9 @@ const practiceChecks: Record<string,{question:string;options:[string,string];ans
  v1:{question:'A character drops a key in frame one. Which next frame moves the story forward?',options:['They search under the table','The same key drops again with no new information'],answer:0,why:'The search shows what the character does about the problem and sets up a possible ending.'},
 };
 type Props={accountKey:string;mission:Mission;position:number;language:string;online?:boolean;initialAnswer?:Answer;onSaved:(s:Saved)=>void;onUpgrade:()=>void;onBack:()=>void;onPoints?:()=>void};
-export function MissionFlow({accountKey,mission,position,language,online=true,initialAnswer,onSaved,onUpgrade,onBack,onPoints}:Props){
+export function MissionFlow({accountKey,mission:sourceMission,position,language,online=true,initialAnswer,onSaved,onUpgrade,onBack,onPoints}:Props){
  const t=appTranslator(language);
+ const mission=withKannadaLesson(sourceMission,language);
  const key=draftKey(accountKey,mission.id),guide=learningGuide(mission);
  const [initial]=useState(()=>restoreDraft(readLocal(key),mission,language,initialAnswer||emptyAnswer()));
  const [step,setStep]=useState<Step>(initial.step),[part,setPart]=useState(initial.part);

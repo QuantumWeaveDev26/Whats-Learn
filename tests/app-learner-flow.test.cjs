@@ -19,6 +19,18 @@ test('Kannada practice translates controls and retains the canonical answer posi
  find(render(),n=>n.type==='button'&&text(n)===localized.options[mission.answer]).props.onClick();
  assert.match(text(render()),/ನಿಮ್ಮ ಕೆಲಸ|ಕರಡು ಈ ಫೋನ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ/);
 });
+test('Kannada lessons and questions cover all tasks at all practice levels',()=>{
+ const {localizeMission}=load('lib/personalization.ts');
+ const {withKannadaLesson}=load('components/whatslearn-app/kannada-lessons.ts');
+ for(const base of missions)for(const level of ['beginner','practising','experienced']){
+  const canonical=localizeMission(base,'en',level);
+  const localized=withKannadaLesson(localizeMission(base,'kn',level),'kn');
+  assert.match(localized.lesson,/[\u0C80-\u0CFF]/,base.id);
+  assert.match(localized.question,/[\u0C80-\u0CFF]/,base.id);
+  assert.equal(localized.answer,canonical.answer,base.id);
+  assert.equal(localized.options.length,canonical.options.length,base.id);
+ }
+});
 test('the knowledge check has a direct route back to the lesson',()=>{
  const f=flow();let tree=f.render();find(tree,n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();tree=f.render();const back=find(tree,n=>n.type==='button'&&text(n)==='Back to lesson');assert.ok(back);back.props.onClick();assert.ok(find(f.render(),n=>n.type==='button'&&text(n)==='Check my understanding'));
 });
