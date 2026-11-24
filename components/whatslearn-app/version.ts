@@ -1,1 +1,1 @@
-export const APP_RELEASE = '2026-11-24-app-translations';
+export const APP_RELEASE = '2026-11-24-app-theme-profile';

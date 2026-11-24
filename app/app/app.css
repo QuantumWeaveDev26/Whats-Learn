@@ -624,3 +624,70 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla .wla-order-result summary{min-height:44px;padding:10px 0;font-size:13px}
 .wla .wla-order-result>small{font-size:11px;line-height:1.5}
 .wla .wla-order-actions{display:flex;gap:8px}.wla .wla-order-actions button{flex:1;min-height:44px;padding:10px;font-size:13px}
+
+/* A welcoming app shell and clear feedback for each round. */
+.wla{--bg:#eff7ef}
+.wla .wla-top{background:linear-gradient(115deg,#082d20 8%,#0d5736 75%,#127348);color:#fff}
+.wla .wla-top .wla-pts{background:#d9f7ad;color:#17442f;font-variant-numeric:tabular-nums}
+.wla .wla-top .wla-lv{background:#bcea84;color:#17442f}
+.wla .wla-tabs button.on svg{background:#d5f4b9}
+.wla .wla-tabs button:focus-visible,.wla .wla-today:focus-visible,.wla .wla-pool button:focus-visible{outline:2px solid #087a4b;outline-offset:2px}
+.wla .wla-home-mission{background:radial-gradient(ellipse at 93% 6%,#228553 0%,transparent 59%),#0c422c;isolation:isolate}
+.wla .wla-home-mission .wla-hero-title,.wla .wla-home-mission .wla-hero-kicker{max-inline-size:calc(100% - 53px);overflow-wrap:anywhere}
+.wla .wla-mission-emoji{position:absolute;inset-block-start:18px;inset-inline-end:14px;z-index:0;font-size:36px;line-height:1.2;rotate:10deg;filter:drop-shadow(0 5px 5px #082d2080)}
+.wla .wla-home-mission .wla-mint{background:#d5f4a9;color:#153b26}
+.wla .wla-home-mentor{background:#114d34;color:#fff;border-color:#114d34}
+.wla .wla-home-mentor small{color:#d3ebdb}
+.wla .wla-home-mentor>svg{color:#d5f4a9}
+.wla .wla-home-mentor-icon{background:#266747;font-size:18px}
+.wla .wla-course-card{position:relative;background:linear-gradient(135deg,#fff 50%,var(--cbg));isolation:isolate}
+.wla .wla-course-card .wla-cnum{display:none}
+.wla .wla-course-card .wla-course-make{background:transparent;padding-inline-start:0;padding-inline-end:57px}
+.wla .wla-course-emoji{position:absolute;inset-inline-end:16px;inset-block-end:56px;font-size:34px;line-height:1.2;rotate:-8deg}
+.wla .wla-course-card .wla-course-pill{background:#d9f2c0;color:#12402a}
+.wla .wla-play-hub{gap:13px}
+.wla .wla-play-intro{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wla .wla-play-intro p{margin-block:4px 0}
+.wla .wla-play-intro>span{display:grid;place-items:center;flex:none;width:45px;height:45px;font-size:23px;border-radius:14px;background:#e0f3d3}
+.wla .wla-today.wla-today-compact{grid-template-columns:minmax(72px,.72fr) minmax(0,1.3fr);gap:13px;background:#0c422c;border-color:#0c422c;border-radius:16px}
+.wla .wla-today-art{width:100%;height:100%;min-height:96px}
+.wla .wla-today-art svg{object-fit:cover}
+.wla .wla-today-details{gap:4px}
+.wla .wla-today-details>strong{color:#fff;font-size:17px}
+.wla .wla-today-label{color:#d5f4a9;letter-spacing:.02em}
+.wla .wla-today-details>small,.wla .wla-today-bottom>small{color:#dbeee1}
+.wla .wla-today-bottom{flex-wrap:wrap}
+.wla .wla-today-play{min-height:30px;padding-inline:11px;border-radius:999px;color:#153b26;background:#d5f4a9}
+.wla .wla-game-photo .wla-gbody{overflow-wrap:anywhere}
+.wla .wla-round-segments{display:flex;gap:4px;margin-block:5px 0}
+.wla .wla-round-segments i{flex:1;height:4px;border-radius:99px;background:#d4e4d9}
+.wla .wla-round-segments .current{background:#23884e}
+.wla .wla-round-segments .done{background:#8eba90}
+.wla .wla-round-feedback{padding:13px;gap:12px}
+.wla .wla-round-feedback.no{border-color:#e9c9a0;background:#fff8ee}
+.wla .wla-round-feedback.no strong{color:#7b461b}
+.wla .wla-feedback-message{display:flex;align-items:flex-start;gap:9px;overflow-wrap:anywhere}
+.wla .wla-feedback-message strong{margin-block-end:2px}
+.wla .wla-feedback-emoji{flex:none;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#e6f4d9;font-size:15px;line-height:1}
+.wla .no .wla-feedback-emoji,.wla .wla-order-miss .wla-feedback-emoji{background:#f7ebd2}
+.wla .wla-order-result>strong{display:flex;align-items:center;gap:8px}
+.wla .wla-order-why{margin:0}
+.wla .wla-pool button{transition:background-color .16s,transform .16s}
+.wla .wla-pool button:active{transform:scale(.98);background:#d9f2c0}
+.wla .wla-order>li>button:disabled{opacity:1}
+.wla .wla-score{width:126px;height:126px}
+.wla .wla-score strong{font-size:40px}
+.wla .wla-score-emoji{font-size:19px;line-height:1.4}
+@media (prefers-reduced-motion:no-preference){
+ .wla .wla-round-feedback .wla-feedback-emoji,.wla .wla-order-result .wla-feedback-emoji{animation:wlaReaction .22s cubic-bezier(.2,.8,.3,1) both}
+ @keyframes wlaReaction{from{scale:.86;rotate:-8deg}to{scale:1;rotate:0deg}}
+}
+@media (prefers-reduced-motion:reduce){
+ .wla .wla-pool button,.wla .wla-score{animation:none;transition:none}
+ .wla .wla-pool button:active{transform:none}
+}
+.wla .wla-screen,.wla .wla-screen>.wla-stack>*{animation:none}
+.wla .wla-home-mission .wla-mint::after{animation:none}
+.wla .wla-reference-order{list-style-type:decimal}
+.wla .wla-reference-order li::marker{font-variant-numeric:tabular-nums}
+.wla-reference-play-copy{display:none}

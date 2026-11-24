@@ -2991,5 +2991,12 @@
  "Your own pace": "તમારી પોતાની ગતિ",
  "This is a {0}.": "આ {0} છે.",
  "ends tonight": "આજની રાત સમાપ્ત થાય છે",
- "{0} days left": "{0} દિવસ બાકી છે."
+ "{0} days left": "{0} દિવસ બાકી છે.",
+ "Add photo": "ફોટો ઉમેરો",
+ "Change photo": "ફોટો બદલો",
+ "Remove photo": "ફોટો દૂર કરો",
+ "Photo saved.": "ફોટો સાચવ્યો.",
+ "Photo removed.": "ફોટો દૂર કર્યો.",
+ "Could not update your photo. Try again.": "ફોટો બદલી શકાયો નથી. ફરી પ્રયાસ કરો.",
+ "Choose a supported image under 12 MB.": "12 MB કરતાં નાનું અને સમર્થિત ફૉર્મેટનું ચિત્ર પસંદ કરો."
 }

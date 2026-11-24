@@ -2991,5 +2991,12 @@
  "Your own pace": "भवतः गतिः",
  "This is a {0}.": "अयं {0} अस्ति।",
  "ends tonight": "अद्य रात्रौ समाप्यते।",
- "{0} days left": "{0} दिनानि अवशिष्टानि सन्ति।"
+ "{0} days left": "{0} दिनानि अवशिष्टानि सन्ति।",
+ "Add photo": "चित्रं योजयत",
+ "Change photo": "चित्रं परिवर्तयत",
+ "Remove photo": "चित्रम् अपाकुरुत",
+ "Photo saved.": "चित्रं सुरक्षितम्।",
+ "Photo removed.": "चित्रम् अपाकृतम्।",
+ "Could not update your photo. Try again.": "चित्रं परिवर्तयितुं न शक्यते। पुनः प्रयतध्वम्।",
+ "Choose a supported image under 12 MB.": "12 MB तः लघुतरं समर्थितं चित्रं चिनुत।"
 }

@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import type {AppAvatar} from './avatar';
 import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,markMentorDay,levelOf} from './rewards';
 import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Mic,Square,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
 import {shareStarterCard} from './share';
@@ -29,6 +30,8 @@ export function nextFor(track:string,s:Snapshot):Next{
  if(needsMembership(m,s.paidAccess))return {kind:'plan',mission:m,position:i+1};
  return {kind:'mission',mission:m,position:i+1};
 }
+
+const courseEmoji:Record<string,string>={marketing:'📣',development:'💻',filmmaking:'🎬',storytelling:'🎨'};
 
 /** Each course keeps the website's own colour (mint, ice, peach, lilac) so courses are recognisable at a glance. */
 export const courseLook:Record<string,{Icon:React.ComponentType<{size?:number}>;cls:string}>={marketing:{Icon:Megaphone,cls:'c-mint'},development:{Icon:Code,cls:'c-ice'},filmmaking:{Icon:Clapperboard,cls:'c-peach'},storytelling:{Icon:Images,cls:'c-lilac'}};
@@ -65,7 +68,8 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft,language='en'}:{s:Snap
   {next.kind==='finished'?<div className="wla-hero-card"><p className="wla-hero-kicker">{appCourseName(prog.id,prog.name,language).toUpperCase()}</p><p className="wla-hero-title">{t("Course complete. All 10 tasks saved.")}</p><button type="button" className="wla-mint" onClick={()=>onTab('courses')}>{t("Choose another course")}</button></div>
   :doneToday&&next.kind==='mission'?<div className="wla-hero-card"><p className="wla-hero-kicker"><Check size={14}/> {t("Done for today · Day")}{' '}{next.position} {t("of 10 next")}</p><p className="wla-hero-title">{t("Tomorrow:")}{' '}{appMissionTitle(next.mission.id,localizeMission(next.mission,language,s.profile?.level).title,language)}</p><p className="wla-hero-sub"><Clock size={14}/> {t("Earns points in")}{' '}<Countdown language={language}/>{t(". You can read and draft it now.")}</p><button type="button" className="wla-mint" onClick={()=>onTab('play')}><Gamepad2 size={18}/>{t("Play today’s game")}</button><button type="button" className="wla-hero-link" onClick={()=>onOpen(next)}>{t("Start drafting tomorrow’s task")}</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">{t("MINI CHALLENGE")}</p><p className="wla-hero-title">{t(checkpointFor(next.track,next.after)?.title||'')}</p><p className="wla-hero-sub">{t("Clear it to unlock your next task. No points needed.")}</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{t("Start mini challenge")}</button></div>
-  :<div className="wla-hero-card">
+  :<div className="wla-hero-card wla-home-mission" data-track={track}>
+   <span className="wla-mission-emoji" aria-hidden="true">{courseEmoji[track]}</span>
    <p className="wla-hero-kicker">{appCourseName(prog.id,prog.name,language)} {t("· Day")}{' '}{next.position} {t("of 10")}</p>
    <p className="wla-hero-title">{appMissionTitle(next.mission.id,localizeMission(next.mission,language,s.profile?.level).title,language)}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} {t("min ·")}{' '}{t(next.mission.skill)}</p>
@@ -78,7 +82,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft,language='en'}:{s:Snap
     <div className="wla-days">{days.map((d,i)=><span key={i} className={(d.on?'on ':'')+(d.today?'today':'')}><i>{d.on?<Check size={13}/>:null}</i>{d.label}</span>)}</div>
    </div>}/>
   <BadgeToast language={language} s={s} who={s.accountKey}/>
-  <button type="button" className="wla-home-mentor" onClick={()=>onTab('mentor')}><span className="wla-home-mentor-icon"><MessageCircle size={20}/></span><span className="wla-grow"><strong>{t("Stuck? Ask your mentor")}</strong><small>{t("Get help with your current task")}</small></span><ArrowRight size={18}/></button>
+  <button type="button" className="wla-home-mentor" onClick={()=>onTab('mentor')}><span className="wla-home-mentor-icon" aria-hidden="true">💬</span><span className="wla-grow"><strong>{t("Stuck? Ask your mentor")}</strong><small>{t("Get help with your current task")}</small></span><ArrowRight size={18}/></button>
 
   <div className="wla-split wla-sec-head"><strong>{t("Courses")}</strong><button type="button" className="wla-link" onClick={()=>onTab('courses')}>{t("See all")}</button></div>
   <div {...swipe.handlers} className={'wla-carousel'+(swipe.dragging?' is-dragging':'')} role="region" aria-label={t("Explore courses. Swipe or drag horizontally.")} tabIndex={0}>{programmes.map(p=>{const L=courseLook[p.id];const I=L.Icon;const done=missionsOfCourse(p.id).filter(m=>completed.has(m.id)).length;
@@ -103,6 +107,7 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange,language='
      <span className="wla-course-top"><span className="wla-ccard-icon"><I size={20}/></span><small className="wla-cnum">{t("COURSE")}{' '}{p.number}</small><small className="wla-course-status">{done>=10?t("Completed"):done?t("{0}/10 done",[done]):t("Free to start")}</small></span>
      <strong className="wla-course-name">{appCourseName(p.id,p.name,language)}</strong>
      <span className="wla-course-make"><small>{t("You’ll make")}</small>{t(p.finishedOutcome)}</span>
+     <span className="wla-course-emoji" aria-hidden="true">{courseEmoji[p.id]}</span>
      <small className="wla-course-meta">{t("10 tasks · about")}{' '}{hours} {t("hrs")}</small>
      {done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}
      <span className="wla-course-pill">{done?t("Continue"):t("View tasks")}<ChevronRight size={18}/></span>
@@ -193,14 +198,21 @@ export function Achievements({s,onBack,language='en'}:{s:Snapshot;onBack:()=>voi
  </div>;
 }
 
-export function Me({s,signedIn,onSignIn,onCreations,onBadges,onPrefs,onLanguage,onPlans,onSignOut,language='en'}:{s:Snapshot|null;language?:string;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onBadges:()=>void;onPrefs:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){ const t=appTranslator(language);const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{t(label)}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
+export function Me({s,signedIn,avatar,onSignIn,onCreations,onBadges,onPrefs,onLanguage,onPlans,onSignOut,language='en'}:{s:Snapshot|null;avatar?:AppAvatar;language?:string;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onBadges:()=>void;onPrefs:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){ const t=appTranslator(language);const photoInput=useRef<HTMLInputElement>(null);const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{t(label)}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
  return <div className="wla-stack">
-  {signedIn&&s?<div className="wla-profile"><span>{(s.name||'W').slice(0,1).toUpperCase()}</span><div><strong>{s.name||t("Your account")}</strong><small>{s.paidAccess?t("Paid plan"):t("Explore plan · Free")} · {s.points?.balance??0} {t("points")}</small><small>{s.work.length} {t("task")}{s.work.length===1?'':'s'} {t("saved")}{(s.points?.streak?.current||0)>0?" · "+t("{0}-day streak",[s.points!.streak.current]):''}</small></div></div>
+  {signedIn&&s?<div className="wla-profile"><span className="wla-profile-photo">{avatar?.src?<img src={avatar.src} alt=""/>:(s.name||'W').slice(0,1).toUpperCase()}</span><div><strong>{s.name||t("Your account")}</strong><small>{s.paidAccess?t("Paid plan"):t("Explore plan · Free")} · {s.points?.balance??0} {t("points")}</small><small>{s.work.length} {t("task")}{s.work.length===1?'':'s'} {t("saved")}{(s.points?.streak?.current||0)>0?" · "+t("{0}-day streak",[s.points!.streak.current]):''}</small>
+   {avatar&&<div className="wla-photo-actions">
+    <input ref={photoInput} type="file" accept="image/*" hidden onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void avatar.update(file)}}/>
+    <button type="button" className="wla-link" disabled={avatar.busy||!avatar.ready} onClick={()=>photoInput.current?.click()}>{t(avatar.src?"Change photo":"Add photo")}</button>
+    {avatar.src&&<button type="button" className="wla-link" disabled={avatar.busy} onClick={()=>void avatar.update(null)}>{t("Remove photo")}</button>}
+    {(avatar.busy||avatar.message)&&<p className="wla-photo-status" role="status">{t(avatar.busy?"Saving…":avatar.message)}</p>}
+   </div>}
+  </div></div>
   :<div className="wla-card"><strong>{t("You’re exploring as a guest")}</strong><p className="wla-muted">{t("Sign in to save your work and keep your points.")}</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>{t("Sign in or create an account")}</button></div>}
   <p className="wla-section">{t("LEARNING")}</p>
   <details className="wla-disclosure"><summary>{t("Points, reviews and saved work")}</summary><p className="wla-read">{t("Points record completed practice. A new task can earn up to 100 points, with one new scored task per day. Points are not money.")}</p><p className="wla-read">{t("AI reviews are a separate daily allowance. Explore includes 3 reviews per day after sign-in; paid plans provide more. The allowance resets at midnight India time.")}</p><p className="wla-read">{t("The app’s teaching examples are free. Drafts stay on this device; accepted work and its saved feedback are stored in your account.")}</p></details>
   <div className="wla-list">
-   {signedIn&&s&&<button type="button" className="wla-row" onClick={onBadges}><Award size={20}/>{t("Level &amp; badges")}<span className="wla-end">{t("Lv")}{' '}{levelOf(s).lv}<ChevronRight size={18}/></span></button>}
+   {signedIn&&s&&<button type="button" className="wla-row" onClick={onBadges}><Award size={20}/>{t("Level &amp; badges").replace("&amp;","&")}<span className="wla-end">{t("Lv")}{' '}{levelOf(s).lv}<ChevronRight size={18}/></span></button>}
    {signedIn&&<button type="button" className="wla-row" onClick={onCreations}><BookMarked size={20}/>{t("My Creations")}<span className="wla-end">{s?.work.length||0}<ChevronRight size={18}/></span></button>}
    {signedIn&&<button type="button" className="wla-row" onClick={onPrefs}><SlidersHorizontal size={20}/>{t("Learning preferences")}<span className="wla-end"><ChevronRight size={18}/></span></button>}
    <button type="button" className="wla-row" onClick={onLanguage}><Languages size={20}/>{t("Language")}<span className="wla-end">{languages[s?.profile?.language||'en']}<ChevronRight size={18}/></span></button>

@@ -1,0 +1,141 @@
+
+/* The approved WhatsLearn theme, scoped to the app shell. */
+body:has(.wla-design-reference){background:#e7f8f0}
+.wla-design-reference.wla{
+ --g:#086b25;--gd:#0a5626;--gdd:#07341f;--ink:#101a15;--mut:#244936;--line:#bfdac9;
+ --mint:#d6f5bd;--tint:#e3f3e7;--bg:#ecf8ef;
+ --reference-art:url('/images/app-theme-illustrations.jpeg');
+ --green-gloss:linear-gradient(180deg,#51ad22 0%,#198b22 38%,#087020 54%,#054a1b 100%);
+ --lime-gloss:linear-gradient(180deg,#f4ffd2 0%,#d8ff8d 42%,#a6ef36 100%);
+ background:linear-gradient(180deg,#06291b 0,#086134 12%,#dcf4e5 29%,#eaf8ee 65%);
+}
+@media (min-width:560px){
+ .wla-design-reference.wla{inset-block:12px;border-radius:23px;box-shadow:0 10px 38px #0c45272e}
+}
+.wla.wla-design-reference .wla-reference-brand{position:relative;isolation:isolate;flex:none;color:#fff;padding:8px 17px 6px;background:radial-gradient(ellipse at 52% -90%,#157946 25%,#084425 59%,#05291d 76%)}
+.wla-reference-brand::before{content:"";position:absolute;inset:-79px 28% auto 19%;height:128px;border-radius:50%;background:radial-gradient(ellipse at 45% 3%,#063022 45%,#087d3c 73%,#61ba25 98%);z-index:-1;transform:rotate(-13deg);box-shadow:0 1px 10px #18a63b8c;pointer-events:none}
+.wla-reference-device,.wla-reference-brand-line{display:flex;align-items:center;justify-content:space-between}
+.wla-reference-device{font-size:12px;line-height:1.2;margin:0 4px 3px}
+.wla-reference-device>span{display:flex;align-items:center;gap:4px}
+.wla-reference-brand-line{gap:7px;min-height:32px;font-size:16px;font-weight:750}
+.wla-reference-brand-line img{border-radius:5px}
+.wla-reference-brand-line b{margin-inline-end:auto}
+.wla-reference-bell{display:grid;place-items:center;width:28px;height:30px}
+.wla.wla-design-reference .wla-course-emoji,.wla.wla-design-reference .wla-mission-emoji,
+.wla.wla-design-reference .wla-home-mentor-icon,.wla.wla-design-reference .wla-hello::after,.wla.wla-design-reference .wla-daily-head::after{
+ background-image:var(--reference-art);background-repeat:no-repeat;
+ background-size:calc(1536px * var(--s)) calc(1024px * var(--s));background-position:calc(var(--x) * var(--s) * -1px) calc(var(--y) * var(--s) * -1px)
+}
+.wla-reference-avatar{width:29px;height:29px;border:1px solid #ecfff0;border-radius:50%;padding:0;background-color:#0c6337;display:grid;place-items:center;overflow:hidden;color:#fff;font-size:12px}
+.wla.wla-design-reference .wla-top{min-height:36px;flex:none;margin:0 15px 0;padding:3px 5px 3px 7px;border-radius:24px;background:linear-gradient(178deg,#fdfffa,#e0efe6);color:#071d14;box-shadow:0 3px 9px #07392330}
+.wla.wla-design-reference .wla-top>div{gap:6px}
+.wla.wla-design-reference .wla-top strong{font-size:12px;font-weight:800}
+.wla-reference-tab-icon{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:100%;background:var(--green-gloss);color:#fff}
+.wla.wla-design-reference .wla-pts{display:flex;align-items:center;min-height:23px;border-radius:99px;padding:2px 8px 2px 6px;background:var(--green-gloss);color:#fff;font-size:10px;white-space:nowrap}
+.wla.wla-design-reference .wla-lv{margin-inline-end:4px;padding:0 5px 0 0;border-radius:0;border-inline-end:1px solid #bce2bf;background:transparent;color:inherit;font-size:inherit}
+.wla.wla-design-reference .wla-lv span{color:#ffdd45}
+.wla.wla-design-reference .wla-main{padding:14px 16px 18px;scrollbar-width:none;background:linear-gradient(180deg,#a9dfc7 0,#d7f0e1 44px,#eaf8ee 120px)}
+.wla.wla-design-reference .wla-main:has(.wla-home){background:linear-gradient(180deg,#086237 0,#09713d 175px,#d5f0de 310px,#e9f9ee 460px);padding-top:13px}
+.wla.wla-design-reference .wla-stack,.wla.wla-design-reference .wla-home{gap:10px}
+.wla.wla-design-reference .wla-h1{font-size:20px;line-height:1.18;letter-spacing:-.025em}
+.wla.wla-design-reference .wla-hello{min-height:68px;position:relative;color:#fff;padding:0 81px 0 4px}
+.wla.wla-design-reference .wla-hello .wla-h1{color:#fff;font-size:24px}
+.wla.wla-design-reference .wla-hello .wla-muted,.wla.wla-design-reference .wla-home .wla-goal{color:#e8ffec;font-size:11px;margin:2px 0}
+.wla.wla-design-reference .wla-hello .wla-streak{position:absolute;inset:0 0 auto auto;z-index:1}
+.wla.wla-design-reference .wla-hello::after{content:"";--s:1;--x:282;--y:115;position:absolute;inset:0 0 auto auto;width:81px;height:65px;mask-image:radial-gradient(ellipse,#000 55%,transparent 77%);pointer-events:none}
+.wla.wla-design-reference .wla-hero-card{border-radius:16px;padding:13px 15px;border:1px solid #9be956;background:radial-gradient(ellipse at 91% 82%,#1eae25,transparent 43%),linear-gradient(150deg,#0c7138,#052a16 77%);box-shadow:0 4px 9px #083a2530}
+.wla.wla-design-reference .wla-home-mission .wla-hero-title{font-size:18px;line-height:1.2;max-inline-size:calc(100% - 84px)}
+.wla.wla-design-reference .wla-home-mission .wla-hero-kicker,.wla.wla-design-reference .wla-home-mission .wla-hero-sub{font-size:11px;color:#f0ffec}
+.wla.wla-design-reference .wla-mission-emoji{--s:1;--x:260;--y:217;inset:25px 0 auto auto;width:105px;height:74px;rotate:0deg;filter:none;font-size:0;mask-image:radial-gradient(ellipse,#000 54%,transparent 75%)}
+.wla.wla-design-reference .wla-home-mission[data-track=development] .wla-mission-emoji{--x:1016;--y:294}
+.wla.wla-design-reference .wla-home-mission[data-track=filmmaking] .wla-mission-emoji{--x:1383;--y:163}
+.wla.wla-design-reference .wla-home-mission[data-track=storytelling] .wla-mission-emoji{--x:1380;--y:320}
+.wla.wla-design-reference .wla-hero-card .wla-mint{position:relative;align-self:flex-start;min-height:35px;width:min(86%,260px);padding:6px 13px;color:#10220d;background:var(--lime-gloss);box-shadow:0 3px 5px #021f14a0;font-size:13px;font-weight:800}
+.wla.wla-design-reference .wla-daily{border-radius:16px;padding:8px 10px;background:linear-gradient(155deg,#f9fffa,#eff8f1)}
+.wla.wla-design-reference .wla-daily-head{position:relative;gap:9px;font-size:12px}
+.wla.wla-design-reference .wla-daily-head>svg{width:40px;height:40px}
+.wla.wla-design-reference .wla-daily-head strong{font-size:13px}
+.wla.wla-design-reference .wla-daily-head::after{content:"";--s:1;--x:311;--y:335;position:absolute;right:0;top:0;width:42px;height:40px;mask-image:radial-gradient(ellipse,#000 58%,transparent 79%)}
+.wla.wla-design-reference .wla-daily ul{gap:3px;margin-top:5px}
+.wla.wla-design-reference .wla-daily li button{min-height:37px;padding:3px 7px;gap:7px;border-radius:8px;font-size:11px;background:#e7f2eb}
+.wla.wla-design-reference .wla-dm-icon{width:25px;height:25px;color:#117322}
+.wla.wla-design-reference .wla-daily li button small{padding:1px 6px;border-radius:10px;background:var(--lime-gloss);font-size:10px;color:#0a3616}
+.wla.wla-design-reference .wla-daily .wla-week{margin-top:6px;padding-top:7px}
+.wla.wla-design-reference .wla-daily .wla-week small,.wla.wla-design-reference .wla-days span{font-size:10px}
+.wla.wla-design-reference .wla-daily .wla-days{margin-top:4px}
+.wla.wla-design-reference .wla-days i{width:23px;height:23px}
+.wla.wla-design-reference .wla-home-mentor{min-height:48px;padding:3px 9px 3px 4px;gap:8px;border-radius:13px;background:linear-gradient(175deg,#11813d,#064724 65%,#042c1c);box-shadow:0 2px 7px #0b54254a}
+.wla.wla-design-reference .wla-home-mentor-icon{--s:1;--x:80;--y:561;width:61px;height:43px;background-color:transparent;font-size:0;mask-image:radial-gradient(ellipse,#000 60%,transparent 85%)}
+.wla.wla-design-reference .wla-home-mentor strong{font-size:13px}
+.wla.wla-design-reference .wla-home-mentor small{font-size:11px;color:#eefff0}
+.wla.wla-design-reference .wla-home-mentor>svg{color:#123c1d;width:24px;height:24px;padding:4px;border-radius:100%;background:var(--lime-gloss)}
+.wla.wla-design-reference .wla-sec-head{margin:0}
+.wla.wla-design-reference .wla-carousel{margin:0;padding:0 1px 6px;gap:7px;scroll-padding:1px}
+.wla.wla-design-reference .wla-carousel .wla-ccard{flex:0 0 calc((100% - 14px)/3);min-width:0;height:148px;padding:8px;border:1px solid #0a642c;border-radius:11px;color:#fff;background:radial-gradient(ellipse at right bottom,#0eae36,transparent 45%),linear-gradient(165deg,#117a3a,#032c1c 55%,#094d27);box-shadow:0 4px 6px #14613030}
+.wla.wla-design-reference .wla-carousel .wla-ccard-icon{width:26px;height:25px;background:transparent;color:#d8fd85}
+.wla.wla-design-reference .wla-carousel .wla-ccard strong{font-size:12px;line-height:1.15;color:#fff}
+.wla.wla-design-reference .wla-carousel .wla-ccard small{font-size:10px;line-height:1.25;color:#edfce9}
+.wla.wla-design-reference .wla-carousel .wla-cbar{height:3px;background:#568d64}
+.wla.wla-design-reference .wla-carousel .wla-cbar span{background:#bbf36d}
+.wla.wla-design-reference .wla-course{border:1px solid #bbd9c6;border-radius:13px;box-shadow:0 3px 6px #25633a14}
+.wla.wla-design-reference .wla-course-card{gap:5px;padding:10px 12px;background:linear-gradient(145deg,#fbfffb,#effaf1)}
+.wla.wla-design-reference .wla-course-top .wla-ccard-icon{width:24px;height:24px;border-radius:6px;color:#0c6426;background:#d2f6d0}
+.wla.wla-design-reference .wla-course-top .wla-cnum{display:block;color:#10271b!important;letter-spacing:0;font-size:11px!important}
+.wla.wla-design-reference .wla-course-name{font-size:16px}
+.wla.wla-design-reference .wla-course-card .wla-course-make{margin-inline-end:68px;padding:4px 7px;border-radius:7px;background:linear-gradient(90deg,#e0f2e3,#edf7ee);font-size:12px}
+.wla.wla-design-reference .wla-course-make small{color:#152f20;letter-spacing:0}
+.wla.wla-design-reference .wla-course-meta,.wla.wla-design-reference .wla-course-status{font-size:11px}
+.wla.wla-design-reference .wla-course-card .wla-course-pill,.wla.wla-design-reference .wla-primary{background:var(--green-gloss);color:#fff;box-shadow:0 2px 3px #0b542842}
+.wla.wla-design-reference .wla-course-card .wla-course-pill{min-height:29px;margin-top:2px;padding:3px 9px;font-size:12px}
+.wla.wla-design-reference .wla-course-emoji{--s:1;--x:1012;--y:165;width:91px;height:77px;inset:auto 7px 20px auto;font-size:0;rotate:0deg;mask-image:radial-gradient(ellipse,#000 58%,transparent 81%)}
+.wla.wla-design-reference .c-ice .wla-course-emoji{--x:1015;--y:323}
+.wla.wla-design-reference .c-peach .wla-course-emoji{--x:1380;--y:161}
+.wla.wla-design-reference .c-lilac .wla-course-emoji{--x:1381;--y:321}
+.wla.wla-design-reference .wla-practice-flow .wla-card,.wla.wla-design-reference .wla-practice-flow .wla-disclosure{border-radius:11px;background:#f8fdf9}
+.wla.wla-design-reference .wla-practice-flow .wla-card.wla-tint{background:#d9f0d8}
+.wla.wla-design-reference .wla-play-intro>span{display:none}
+.wla.wla-design-reference .wla-today.wla-today-compact{grid-template-columns:55px minmax(0,1fr);gap:10px;padding:8px;background:#f8fff9;border:1px solid #b4d7c6;border-radius:12px;box-shadow:0 3px 6px #21563d1a}
+.wla.wla-design-reference .wla-today-art{min-height:58px;height:100%;border-radius:6px}
+.wla.wla-design-reference .wla-today-details{gap:1px}
+.wla.wla-design-reference .wla-today-details>strong,.wla.wla-design-reference .wla-today-details>small,.wla.wla-design-reference .wla-today-bottom>small{color:#122e1f}
+.wla.wla-design-reference .wla-today-details>strong{font-size:14px}
+.wla.wla-design-reference .wla-today-label{color:#146321}
+.wla.wla-design-reference .wla-today-play{min-height:25px;line-height:1;padding-inline:9px;color:#fff;background:var(--green-gloss)}
+.wla.wla-design-reference .wla-game-filters{scrollbar-width:none;gap:4px;padding-bottom:2px}
+.wla.wla-design-reference .wla-game-filters button{min-height:33px;padding:4px 8px;font-size:11px;background:#f9fff9}
+.wla.wla-design-reference .wla-game-filters button[aria-pressed=true]{background:var(--green-gloss)}
+.wla.wla-design-reference .wla-game-photo{border-radius:11px;box-shadow:0 2px 5px #0c392221}
+.wla.wla-design-reference .wla-game-photo .wla-gbody{padding:5px 7px}
+.wla.wla-design-reference .wla-challenge-links{gap:4px}
+.wla.wla-design-reference .wla-challenge-row{min-height:41px;padding:4px 7px;gap:6px;border-radius:9px;background:#f8fdf8}
+.wla.wla-design-reference .wla-challenge-row strong{font-size:12px}
+.wla.wla-design-reference .wla-challenge-row small{margin-top:0;font-size:10px}
+.wla.wla-design-reference .wla-row{min-height:38px}
+.wla.wla-design-reference .wla-tabs{padding:4px 5px;margin:0 13px max(8px,env(safe-area-inset-bottom));background:linear-gradient(#fdfffd,#f2fbf3);border:1px solid #d1e5d8;box-shadow:0 3px 8px #0c432b1f;border-radius:15px}
+.wla.wla-design-reference .wla-tabs button{min-height:40px;color:#103823;font-size:10px;gap:1px}
+.wla.wla-design-reference .wla-tabs button svg{width:17px;height:17px;padding:3px 10px}
+.wla.wla-design-reference .wla-tabs button.on svg{background:var(--green-gloss);color:#fff}
+.wla.wla-design-reference .wla-tabs button.on span{color:#08471e}
+
+
+.wla.wla-design-reference .wla-hello .wla-streak:not(.on){display:none}
+.wla.wla-design-reference .wla-hero-card{gap:6px}
+.wla.wla-design-reference .wla-home-mission .wla-hero-title{max-inline-size:calc(100% - 72px)}
+.wla.wla-design-reference .wla-daily li button{min-height:31px}
+.wla.wla-design-reference .wla-home-mentor-icon{flex-shrink:0}
+
+.wla.wla-design-reference .wla-reference-play-copy{display:inline}
+.wla.wla-design-reference .wla-guide-steps{list-style:none;counter-reset:practice-step;padding:0;margin-top:6px}
+.wla.wla-design-reference .wla-guide-steps li{counter-increment:practice-step;display:grid;grid-template-columns:23px 1fr;gap:7px;align-items:start;padding:0}
+.wla.wla-design-reference .wla-guide-steps li::before{content:counter(practice-step);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#d6efcf;color:#164e27;font-size:11px;font-weight:700}
+.wla-reference-avatar img,.wla-profile-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.wla .wla-profile-photo{display:grid;place-items:center;flex:none;width:44px;height:44px;overflow:hidden;border-radius:50%;background:#0c6337;color:white;font-weight:700}
+.wla .wla-profile .wla-photo-actions{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:4px}
+.wla .wla-photo-actions button{min-height:32px}
+.wla .wla-photo-status{margin:0;font-size:12px}
+.wla-reference-bell{color:#fff}
+.wla .wla-profile .wla-photo-actions{flex-direction:row;justify-content:flex-start}
+.wla .wla-photo-status{flex-basis:100%}
+body:has(.wla-design-reference) .wla-install{width:max-content;max-width:calc(100vw - 26px)}
+body:has(.wla-design-reference) .wla-install-go{font-size:12px;white-space:nowrap;padding-inline:10px}
+body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) .wla-install-x{min-height:40px;height:40px}

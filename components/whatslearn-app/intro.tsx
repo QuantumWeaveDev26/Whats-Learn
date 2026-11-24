@@ -67,9 +67,9 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
  const [google,setGoogle]=useState(()=>readLocal('wla-google')==='1');
  useEffect(()=>{api<{google?:boolean}>('/api/auth/providers').then(r=>{if(!r.ok)return;const on=r.data.google===true;setGoogle(on);writeLocal('wla-google',on?'1':'0')})},[]);
  async function submit(e:React.FormEvent){
-  e.preventDefault();setErr('');setInfo('');setBusy(true);
+  e.preventDefault();if(busy||!email.trim()||!password||(mode==='up'&&!name.trim()))return;setErr('');setInfo('');setBusy(true);
   const r=mode==='in'?await api<{ok?:boolean;message?:string}>('/api/auth/signin',{method:'POST',body:{email,password,returnTo:'/app'}})
-   :await api<{ok?:boolean;message?:string}>('/api/auth/signup',{method:'POST',body:{name,email,password,returnTo:'/app'}});
+   :await api<{ok?:boolean;message?:string}>('/api/auth/signup',{method:'POST',body:{name:name.trim(),email,password,returnTo:'/app'}});
   setBusy(false);
   if(!r.ok){setErr(r.data.error||'That did not work. Please try again.');return}
   if(mode==='up'){setSent(email);return}
@@ -99,7 +99,7 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
    <label htmlFor="wla-password">{t("Password")}</label>
    <div className="wla-pass"><input id="wla-password" type={show?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='in'?'current-password':'new-password'} maxLength={200}/><button type="button" onClick={()=>setShow(!show)} aria-label={show?t("Hide password"):t("Show password")} aria-pressed={show}>{show?<EyeOff size={20}/>:<Eye size={20}/>}</button></div>
    {err&&<p className="wla-error" role="alert">{t(err)}</p>}{info&&<p className="wla-ok" role="status">{t(info)}</p>}
-   <button className="wla-primary wla-full" type="submit" disabled={busy||!email||!password||(mode==='up'&&!name)}>{busy?t("Please wait…"):mode==='in'?t("Sign in"):t("Create account")}</button>
+   <button className="wla-primary wla-full" type="submit" disabled={busy||!email||!password||(mode==='up'&&!name.trim())}>{busy?t("Please wait…"):mode==='in'?t("Sign in"):t("Create account")}</button>
   </form>
   {mode==='in'&&<a className="wla-link wla-center" href="/forgot-password?return_to=%2Fapp">{t("Forgot your password?")}</a>}
   <div className="wla-auth-foot"><p className="wla-or">{mode==='in'?t("New to WhatsLearn?"):t("Already learning with us?")}</p>

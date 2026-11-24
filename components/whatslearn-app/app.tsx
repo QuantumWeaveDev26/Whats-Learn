@@ -1,6 +1,6 @@
 'use client';
 import {Component,Suspense,lazy,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
-import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check} from 'lucide-react';
+import {Home as HomeIcon,BookOpen,PenLine,MessageCircle,User,Lock,Gamepad2,Flame,BellRing,CalendarClock,Check,Signal,Wifi,BatteryFull} from 'lucide-react';
 import {localizeMission} from '@/lib/personalization';
 import {missionsOfCourse} from '@/lib/progression';
 import {missions} from '@/lib/missions';
@@ -22,6 +22,7 @@ import {games,type GameId} from './games-data';
 import {APP_RELEASE} from './version';
 import {appMissionTitle,appTranslator} from './app-language';
 import {useAppCopy} from './app-copy';
+import {useAppAvatar} from './avatar';
 import {useLessonLanguage} from '@/components/whatslearn/use-lesson-language';
 import {lessonLanguage} from '@/lib/languages';
 
@@ -38,7 +39,7 @@ type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
 type Overlay=''|'creations'|'badges'|'prefs'|'language';
 
-export default function WhatsLearnApp(){
+export default function WhatsLearnApp({referencePreview=false}:{referencePreview?:boolean}={}){
  const [stage,setStage]=useState<Stage>('splash');
  const [booted,setBooted]=useState(false);
  const [snap,setSnap]=useState<Snapshot|null>(null);
@@ -85,6 +86,7 @@ export default function WhatsLearnApp(){
  const [storeApp,setStoreApp]=useState(false);
  useEffect(()=>{try{const q=new URLSearchParams(window.location.search).get('source');if(q==='store')writeLocal('wla-store-app-2','1');setStoreApp(readLocal('wla-store-app-2')==='1')}catch{}},[]);
  const mainRef=useRef<HTMLElement>(null);
+ const avatar=useAppAvatar(snap?.accountKey||'');
  const accountRef=useRef('');accountRef.current=snap?.accountKey||'';
 
  const refresh=useCallback(async()=>{
@@ -213,12 +215,18 @@ export default function WhatsLearnApp(){
  else if(tab==='practice')body=null;
  else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">{t("Loading games…")}</p>}><GamesHub language={language} key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
+ else body=<Me key={snap?.accountKey||"guest"} avatar={avatar} language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
- return <Shell language={language}>
-  <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab])}</strong></div>
-   {signed?<span className="wla-pts"><b className="wla-lv">{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
+ const previewTitle=overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab]);
+ const SectionIcon=tabs.find(([id])=>id===tab)![2];
+ return <Shell language={language} themed>
+  <div className="wla-reference-brand" inert={sheet||offlineGame}>
+   {referencePreview&&<div className="wla-reference-device" aria-hidden="true"><b>9:41</b><span><Signal size={12}/><Wifi size={12}/><BatteryFull size={14}/></span></div>}
+   <div className="wla-reference-brand-line"><img src="/images/whatslearn-logo-green.png" alt="" width={25} height={25}/><b>WhatsLearn</b><a className="wla-reference-bell" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener" aria-label={t("Connect WhatsApp reminders")}><BellRing size={17}/></a><button type="button" className="wla-reference-avatar" aria-label={t("Me")} onClick={()=>goTab('me')}>{avatar.src?<img src={avatar.src} alt=""/>:<User size={15}/>}</button></div>
+  </div>
+  <header className="wla-top" inert={sheet||offlineGame}><div><span className="wla-reference-tab-icon" aria-hidden="true"><SectionIcon size={14}/></span><strong>{previewTitle}</strong></div>
+   {signed?<span className="wla-pts"><b className="wla-lv"><span aria-hidden="true">★ </span>{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
   {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}
   {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{t(loadError)}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
@@ -252,7 +260,7 @@ function LanguageStatus({error,retry,language}:{error:boolean;retry:()=>void;lan
  </div>;
 }
 
-function Shell({children,wide,language='en'}:{children:React.ReactNode;wide?:boolean;language?:string}){return <><div className={"wla"+(wide?" wla-wide":"")} lang={language} data-app-release={APP_RELEASE}><AppErrorBoundary language={language}>{children}</AppErrorBoundary></div><InstallSupport language={language}/></>}
+function Shell({children,wide,themed,language='en'}:{children:React.ReactNode;wide?:boolean;themed?:boolean;language?:string}){return <><div className={"wla"+(wide?" wla-wide":"")+(themed?" wla-design-reference":"")} lang={language} data-app-release={APP_RELEASE}><AppErrorBoundary language={language}>{children}</AppErrorBoundary></div><InstallSupport language={language}/></>}
 class AppErrorBoundary extends Component<{children:ReactNode;language:string},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}

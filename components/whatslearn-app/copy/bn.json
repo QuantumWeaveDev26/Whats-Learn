@@ -2991,5 +2991,12 @@
  "Your own pace": "আপনার নিজের গতি",
  "This is a {0}.": "এটি একটি {0}।",
  "ends tonight": "আজ রাতে শেষ হবে",
- "{0} days left": "{0} দিন বাকি"
+ "{0} days left": "{0} দিন বাকি",
+ "Add photo": "ছবি যোগ করুন",
+ "Change photo": "ছবি বদলান",
+ "Remove photo": "ছবি সরান",
+ "Photo saved.": "ছবি সংরক্ষণ করা হয়েছে।",
+ "Photo removed.": "ছবি সরানো হয়েছে।",
+ "Could not update your photo. Try again.": "ছবি বদলানো যায়নি। আবার চেষ্টা করুন।",
+ "Choose a supported image under 12 MB.": "12 MB-এর কম আকারের সমর্থিত ছবি বেছে নিন।"
 }

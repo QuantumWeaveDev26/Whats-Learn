@@ -1,6 +1,7 @@
 import type {Metadata,Viewport} from 'next';
 import WhatsLearnApp from '@/components/whatslearn-app/app';
 import './app.css';
+import './reference.css';
 export const metadata:Metadata={title:'WhatsLearn app',description:'Learn AI skills in 15 minutes a day. Real tasks, AI feedback and your WhatsApp mentor.',manifest:'/app.webmanifest',appleWebApp:{capable:true,title:'WhatsLearn',statusBarStyle:'default'},icons:{icon:'/images/app-launch-mark-192.png',apple:'/images/app-launch-mark-192.png'},robots:{index:false}};
 export const viewport:Viewport={themeColor:'#125C43',width:'device-width',initialScale:1,viewportFit:'cover',interactiveWidget:'resizes-content'};
 export const dynamic='force-dynamic';

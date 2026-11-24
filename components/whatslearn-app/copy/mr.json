@@ -2991,5 +2991,12 @@
  "Your own pace": "तुमची स्वतःची गती",
  "This is a {0}.": "हा {0} आहे.",
  "ends tonight": "आज रात्री संपेल",
- "{0} days left": "{0} दिवस उरले आहेत."
+ "{0} days left": "{0} दिवस उरले आहेत.",
+ "Add photo": "फोटो जोडा",
+ "Change photo": "फोटो बदला",
+ "Remove photo": "फोटो काढा",
+ "Photo saved.": "फोटो जतन झाला.",
+ "Photo removed.": "फोटो काढला.",
+ "Could not update your photo. Try again.": "फोटो बदलता आला नाही. पुन्हा प्रयत्न करा.",
+ "Choose a supported image under 12 MB.": "12 MB पेक्षा लहान आणि समर्थित स्वरूपातील चित्र निवडा."
 }

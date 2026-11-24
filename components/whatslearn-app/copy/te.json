@@ -2991,5 +2991,12 @@
  "Your own pace": "మీ సొంత వేగం",
  "This is a {0}.": "ఇది {0}.",
  "ends tonight": "ఈ రాత్రి ముగుస్తుంది",
- "{0} days left": "{0} రోజులు మిగిలి ఉన్నాయి."
+ "{0} days left": "{0} రోజులు మిగిలి ఉన్నాయి.",
+ "Add photo": "ఫోటో జోడించండి",
+ "Change photo": "ఫోటో మార్చండి",
+ "Remove photo": "ఫోటో తొలగించండి",
+ "Photo saved.": "ఫోటో సేవ్ అయింది.",
+ "Photo removed.": "ఫోటో తొలగించబడింది.",
+ "Could not update your photo. Try again.": "ఫోటోను మార్చలేకపోయాం. మళ్లీ ప్రయత్నించండి.",
+ "Choose a supported image under 12 MB.": "12 MB కంటే తక్కువ పరిమాణంలో ఉన్న మద్దతు గల చిత్రాన్ని ఎంచుకోండి."
 }

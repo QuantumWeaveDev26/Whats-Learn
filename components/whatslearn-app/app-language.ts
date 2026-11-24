@@ -3,6 +3,12 @@ import {appInterfaceCopy} from './app-interface-copy';
 import {findAppCopy} from './app-copy';
 
 const kannada: Record<string, string> = {
+ 'Check my order':'ನನ್ನ ಕ್ರಮವನ್ನು ಪರಿಶೀಲಿಸಿ',
+ 'Reference order':'ಸರಿಯಾದ ಕ್ರಮ',
+ 'Why this order?':'ಈ ಕ್ರಮ ಏಕೆ ಸರಿಯಾಗಿದೆ?',
+ '{0} of {1} in the expected position':'{1}ರಲ್ಲಿ {0} ಸರಿಯಾದ ಸ್ಥಾನದಲ್ಲಿವೆ',
+ 'Your first attempt counts. Retrying is free practice.':'ಅಂಕಗಳಿಗೆ ಮೊದಲ ಪ್ರಯತ್ನ ಮಾತ್ರ ಪರಿಗಣಿಸಲಾಗುತ್ತದೆ. ಅಭ್ಯಾಸಕ್ಕಾಗಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಬಹುದು.',
+ 'Retry round':'ಈ ಸುತ್ತನ್ನು ಮತ್ತೆ ಆಡಿ',
  'Mentor':'ಮಾರ್ಗದರ್ಶಕ', 'Me':'ನನ್ನ ಖಾತೆ', 'Sign in':'ಲಾಗಿನ್ ಮಾಡಿ', 'Saved':'ಉಳಿಸಲಾಗಿದೆ',
  'Settings':'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', 'Badges':'ಬ್ಯಾಡ್ಜ್‌ಗಳು', 'My Creations':'ನನ್ನ ಕೃತಿಗಳು',
  'App sections':'ಆ್ಯಪ್ ವಿಭಾಗಗಳು', 'App update available':'ಆ್ಯಪ್ ನವೀಕರಣ ಲಭ್ಯವಿದೆ', 'Update now':'ಈಗ ನವೀಕರಿಸಿ',
@@ -43,7 +49,6 @@ const kannada: Record<string, string> = {
  'All courses':'ಎಲ್ಲಾ ಕೋರ್ಸ್‌ಗಳು', 'Marketing':'ಮಾರ್ಕೆಟಿಂಗ್', 'Development':'ಅಭಿವೃದ್ಧಿ', 'Filmmaking':'ಚಲನಚಿತ್ರ ನಿರ್ಮಾಣ', 'Storytelling':'ಕಥೆ ಹೇಳುವಿಕೆ',
  'TODAY’S GAME':'ಇಂದಿನ ಆಟ', 'Weekly tournament':'ವಾರದ ಪಂದ್ಯಾವಳಿ', 'Squad challenge':'ತಂಡದ ಸವಾಲು', 'Challenge a friend':'ಸ್ನೇಹಿತರಿಗೆ ಸವಾಲು ಹಾಕಿ',
  'See my score':'ನನ್ನ ಅಂಕ ನೋಡಿ', 'Next':'ಮುಂದೆ', 'Back':'ಹಿಂದೆ', 'Correct':'ಸರಿ', 'Not this time':'ಈ ಬಾರಿ ಸರಿಯಾಗಿಲ್ಲ',
- 'Check my order':'ನನ್ನ ಕ್ರಮ ಪರಿಶೀಲಿಸಿ', 'Reference order':'ಮಾದರಿ ಕ್ರಮ', 'Why this order?':'ಈ ಕ್ರಮ ಏಕೆ?', 'Retry round':'ಸುತ್ತನ್ನು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ',
  'Keep':'ಉಳಿಸಿ', 'Skip':'ಬಿಟ್ಟುಬಿಡಿ', 'Lock in my budget':'ಬಜೆಟ್ ಖಚಿತಪಡಿಸಿ', 'Next goal':'ಮುಂದಿನ ಗುರಿ',
  'Finish my story':'ನನ್ನ ಕಥೆ ಮುಗಿಸಿ', 'Challenge a friend on WhatsApp':'WhatsApp ನಲ್ಲಿ ಸ್ನೇಹಿತರಿಗೆ ಸವಾಲು ಹಾಕಿ',
  'Language':'ಭಾಷೆ', 'Learning preferences':'ಕಲಿಕಾ ಆದ್ಯತೆಗಳು', 'Help & support':'ಸಹಾಯ ಮತ್ತು ಬೆಂಬಲ',

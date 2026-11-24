@@ -2991,5 +2991,12 @@
  "Your own pace": "ଆପଣଙ୍କର ନିଜସ୍ୱ ଗତି",
  "This is a {0}.": "ଏହା ହେଉଛି {0}।",
  "ends tonight": "ଆଜି ରାତିରେ ଶେଷ ହେବ।",
- "{0} days left": "{0} ଦିନ ବାକି ଅଛି।"
+ "{0} days left": "{0} ଦିନ ବାକି ଅଛି।",
+ "Add photo": "ଫଟୋ ଯୋଡ଼ନ୍ତୁ",
+ "Change photo": "ଫଟୋ ବଦଳାନ୍ତୁ",
+ "Remove photo": "ଫଟୋ ହଟାନ୍ତୁ",
+ "Photo saved.": "ଫଟୋ ସଞ୍ଚୟ ହେଲା।",
+ "Photo removed.": "ଫଟୋ ହଟାଗଲା।",
+ "Could not update your photo. Try again.": "ଫଟୋ ବଦଳାଇ ହେଲା ନାହିଁ। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।",
+ "Choose a supported image under 12 MB.": "12 MB ଠାରୁ ଛୋଟ ସମର୍ଥିତ ଛବି ବାଛନ୍ତୁ।"
 }

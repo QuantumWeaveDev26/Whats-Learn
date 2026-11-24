@@ -2991,5 +2991,12 @@
  "Your own pace": "ꯅꯍꯥꯛꯀꯤ ꯃꯁꯥꯒꯤ ꯈꯣꯡꯖꯦꯜ",
  "This is a {0}.": "ꯃꯁꯤ {0}ꯅꯤ ꯫",
  "ends tonight": "ꯉꯁꯤ ꯅꯨꯡꯊꯤꯜꯗ ꯂꯣꯏꯁꯤꯜꯂꯤ",
- "{0} days left": "ꯅꯨꯃꯤꯠ {0} ꯂꯩꯔꯦ"
+ "{0} days left": "ꯅꯨꯃꯤꯠ {0} ꯂꯩꯔꯦ",
+ "Add photo": "ꯐꯣꯇꯣ ꯍꯥꯞꯆꯤꯟꯕꯤꯌꯨ",
+ "Change photo": "ꯐꯣꯇꯣ ꯍꯣꯡꯗꯣꯛꯄꯤꯌꯨ",
+ "Remove photo": "ꯐꯣꯇꯣ ꯂꯧꯊꯣꯛꯄꯤꯌꯨ",
+ "Photo saved.": "ꯐꯣꯇꯣ ꯊꯝꯈ꯭ꯔꯦ ꯫",
+ "Photo removed.": "ꯐꯣꯇꯣ ꯂꯧꯊꯣꯛꯈ꯭ꯔꯦ ꯫",
+ "Could not update your photo. Try again.": "ꯐꯣꯇꯣ ꯍꯣꯡꯗꯣꯛꯄ ꯉꯝꯂꯃꯗꯦ ꯫ ꯑꯃꯨꯛ ꯍꯣꯠꯅꯕꯤꯌꯨ ꯫",
+ "Choose a supported image under 12 MB.": "12 MB ꯗꯒꯤ ꯄꯤꯛꯄ ꯌꯥꯕ ꯐꯣꯇꯣ ꯑꯃ ꯈꯟꯕꯤꯌꯨ ꯫"
 }

@@ -94,7 +94,7 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
    <h3 className="wla-q">{t(mission.question)}</h3>
    <div className="wla-options">{mission.options.map((o,i)=><button key={i} type="button" disabled={missed.includes(i)} className={'wla-option'+(missed.includes(i)?' off':'')} onClick={()=>{if(i===mission.answer){setQuizPassed(true);go('make')}else setMissed(x=>x.concat(i))}}><span>{t(o)}</span></button>)}</div>
    {missed.length>0&&<>
-    <p className="wla-muted" role="status">{language==='en'?wrongAnswerMessage(mission):t(mission.explanation)}</p>
+    <div className="wla-explain wla-round-feedback no" role="status"><div className="wla-feedback-message"><span className="wla-feedback-emoji" aria-hidden="true">💡</span><p>{language==='en'?wrongAnswerMessage(mission):t(mission.explanation)}</p></div></div>
     <details className="wla-disclosure"><summary>{t("Worked example")}{practiceCheck?" "+t("and extra practice"):''}</summary>
      <p className="wla-read">{language==='kn'&&/[\u0C80-\u0CFF]/.test(mission.example)?mission.example:t(guide.example[0])}</p>
      {practiceCheck?<fieldset className="wla-fieldset"><legend>{practiceCheck.question}</legend><div className="wla-options">{practiceCheck.options.map((option,index)=><button key={option} type="button" className="wla-option" aria-pressed={practicePick===index} onClick={()=>setPracticePick(index)}>{option}</button>)}</div>{practicePick!==null&&<p className="wla-muted" role="status">{practicePick===practiceCheck.answer?t("Correct."):t("Try the other choice.")}{practiceCheck.why}</p>}</fieldset>:<p className="wla-read">{t(guide.example[1])}</p>}
