@@ -24,13 +24,17 @@ body:has(.wla-design-reference){background:#e7f8f0}
  background:var(--app-art) center/contain no-repeat
 }
 .wla-reference-avatar{width:29px;height:29px;border:1px solid #ecfff0;border-radius:50%;padding:0;background-color:#0c6337;display:grid;place-items:center;overflow:hidden;color:#fff;font-size:12px}
-.wla.wla-design-reference .wla-top{min-height:36px;flex:none;margin:0;padding:3px 20px 3px 21px;border-radius:0;background:linear-gradient(178deg,#fdfffa,#e0efe6);color:#071d14;box-shadow:0 3px 9px #07392330}
-.wla.wla-design-reference .wla-top>div{gap:6px}
-.wla.wla-design-reference .wla-top strong{font-size:12px;font-weight:800}
+.wla.wla-design-reference .wla-top{
+ min-height:42px;flex:none;gap:10px;margin:0;padding:5px 20px 6px 21px;border-radius:0;
+ background:radial-gradient(ellipse at 88% 100%,#d6f5bd 0%,transparent 58%),linear-gradient(180deg,#fdfffa,#e0efe6);
+ color:#071d14;border-bottom:1px solid #bfdac9;box-shadow:none
+}
+.wla.wla-design-reference .wla-top>div{min-width:0}
+.wla.wla-design-reference .wla-top strong{font-size:14px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
 .wla.wla-design-reference .wla-days span.today:not(.on) i{background:#c2ee9f;box-shadow:0 0 0 2px var(--bg),0 0 0 4px #5f9e68}
-.wla.wla-design-reference .wla-pts{display:flex;align-items:center;min-height:23px;border-radius:99px;padding:2px 8px 2px 6px;background:var(--green-gloss);color:#fff;font-size:10px;white-space:nowrap}
-.wla.wla-design-reference .wla-lv{margin-inline-end:4px;padding:0 5px 0 0;border-radius:0;border-inline-end:1px solid #bce2bf;background:transparent;color:inherit;font-size:inherit}
-.wla.wla-design-reference .wla-lv span{color:#ffdd45}
+.wla.wla-design-reference .wla-pts{display:flex;align-items:center;flex:none;min-height:26px;border-radius:99px;gap:5px;padding:2px 9px 2px 3px;background:var(--green-gloss);color:#fff;font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wla.wla-design-reference .wla-lv{padding:2px 7px;border-radius:999px;background:var(--lime-gloss);color:#14351c;font-size:inherit;line-height:1.3}
+.wla.wla-design-reference .wla-lv span{color:#315c19}
 .wla.wla-design-reference .wla-main{padding:14px 16px 18px;scrollbar-width:none;background:linear-gradient(180deg,#a9dfc7 0,#d7f0e1 44px,#eaf8ee 120px)}
 .wla.wla-design-reference .wla-main:has(.wla-home){background:linear-gradient(180deg,#086237 0,#09713d 175px,#d5f0de 310px,#e9f9ee 460px);padding-top:13px}
 .wla.wla-design-reference .wla-stack,.wla.wla-design-reference .wla-home{gap:10px}
