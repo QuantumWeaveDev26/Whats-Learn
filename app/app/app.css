@@ -68,6 +68,8 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-tabs{display:flex;padding:6px 6px max(10px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
 .wla-tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:56px;border:0;background:transparent;color:#4E655A;font-size:11px;font-weight:600}
 .wla-tabs button.on{color:var(--g)}
+.wla-tabs button{min-width:0;flex-basis:0;padding-inline:2px}
+.wla-tabs button span{text-align:center;max-width:100%;line-height:1.25;overflow-wrap:anywhere}
 .wla-stack{display:flex;flex-direction:column;gap:14px}
 .wla-card{padding:16px;border-radius:18px;background:#fff;border:1px solid var(--line)}
 .wla-card>strong{display:flex;align-items:center;gap:6px;font-size:16px}.wla-card>p{margin:6px 0 0}.wla-card>.wla-full{margin-top:12px}

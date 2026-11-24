@@ -1,3 +1,6 @@
+import {messageCopy} from '@/lib/question-translations';
+import {appInterfaceCopy} from './app-interface-copy';
+
 const kannada: Record<string, string> = {
  'Mentor':'ಮಾರ್ಗದರ್ಶಕ', 'Me':'ನನ್ನ ಖಾತೆ', 'Sign in':'ಲಾಗಿನ್ ಮಾಡಿ', 'Saved':'ಉಳಿಸಲಾಗಿದೆ',
  'Settings':'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', 'Badges':'ಬ್ಯಾಡ್ಜ್‌ಗಳು', 'My Creations':'ನನ್ನ ಕೃತಿಗಳು',
@@ -75,7 +78,7 @@ const kannada: Record<string, string> = {
  'Real performances. New possibilities.':'ನೈಜ ಅಭಿನಯ. ಹೊಸ ಸಾಧ್ಯತೆಗಳು.',
  'Make a message impossible to miss.':'ಸಂದೇಶ ಎಲ್ಲರ ಗಮನಕ್ಕೂ ಬರುವಂತೆ ಮಾಡಿ.',
  'Choose your language':'ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆರಿಸಿ',
- 'Lessons and mentor replies use your selection where available. Home, Courses, Practice, Play and level names stay in English.':'ಲಭ್ಯವಿರುವ ಪಾಠಗಳು ಮತ್ತು ಮಾರ್ಗದರ್ಶಕರ ಉತ್ತರಗಳು ನಿಮ್ಮ ಆಯ್ಕೆಯ ಭಾಷೆಯನ್ನು ಬಳಸುತ್ತವೆ. Home, Courses, Practice, Play ಮತ್ತು ಹಂತಗಳ ಹೆಸರುಗಳು ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿರುತ್ತವೆ.',
+ 'Choose the language for learning and using the app.':'ಕಲಿಕೆ ಮತ್ತು ಆ್ಯಪ್ ಬಳಕೆಗೆ ಭಾಷೆಯನ್ನು ಆರಿಸಿ.',
  'Skip · keep English':'ಬಿಟ್ಟುಬಿಡಿ · ಇಂಗ್ಲಿಷ್ ಇರಲಿ',
  'Sign in to WhatsLearn':'WhatsLearn ಗೆ ಲಾಗಿನ್ ಮಾಡಿ','Create your account':'ನಿಮ್ಮ ಖಾತೆ ತೆರೆಯಿರಿ','Join the challenge':'ಸವಾಲಿಗೆ ಸೇರಿ',
  'Continue learning with your saved progress.':'ಉಳಿಸಿದ ಪ್ರಗತಿಯಿಂದ ಕಲಿಕೆಯನ್ನು ಮುಂದುವರಿಸಿ.',
@@ -88,7 +91,19 @@ const kannada: Record<string, string> = {
 };
 
 export function appTranslator(language = 'en') {
- return (text: string) => language === 'kn' && Object.hasOwn(kannada,text) ? kannada[text] : text;
+ const interfaceCopy=appInterfaceCopy[language];
+ const learning=messageCopy(language);
+ const shared:Record<string,string>={
+  'Choose one…':learning.choose,
+  'Show what you tried':learning.try,
+  'Next step:':learning.next+':',
+ };
+ return (text:string)=>{
+  if(language==='en')return text;
+  if(language==='kn'&&Object.hasOwn(kannada,text))return kannada[text];
+  if(interfaceCopy&&Object.hasOwn(interfaceCopy,text))return interfaceCopy[text];
+  return Object.hasOwn(shared,text)?shared[text]:text;
+ };
 }
 
 const courseNames: Record<string,string> = {

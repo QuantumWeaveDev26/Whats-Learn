@@ -20,6 +20,8 @@ import {levelOf} from './rewards';
 import {games,type GameId} from './games-data';
 import {APP_RELEASE} from './version';
 import {appTranslator} from './app-language';
+import {useLessonLanguage} from '@/components/whatslearn/use-lesson-language';
+import {lessonLanguage} from '@/lib/languages';
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
@@ -31,6 +33,8 @@ export default function WhatsLearnApp(){
  const [snap,setSnap]=useState<Snapshot|null>(null);
  const [guest,setGuest]=useState(false);
  const [language,setLanguage]=useState('en');
+ const languagePack=useLessonLanguage(language);
+ const languageWrites=useRef<Promise<unknown>>(Promise.resolve());
  const t=appTranslator(language);
  const [tab,setTab]=useState<Tab>('home');
  const [playView,setPlayView]=useState<PlayView>('games');
@@ -74,7 +78,7 @@ export default function WhatsLearnApp(){
   const run=++refreshRun.current;setLoading(true);
   try{
    const s=await loadSnapshot();if(run!==refreshRun.current)return;setAccountKey(s?.accountKey||'');setSnap(s);setLoadError('');
-   if(s){setGuest(false);writeLocal('wla-signed-before','1');writeLocal('wla-guest','');if(s.profile?.language)setLanguage(s.profile.language);
+   if(s){setGuest(false);writeLocal('wla-signed-before','1');writeLocal('wla-guest','');setLanguage(lessonLanguage(readLocal('wla-language:'+s.accountKey)||s.profile?.language||readLocal('wla-language')||'en'));
     void api<{limit?:number;used?:number}>('/api/feedback',{timeoutMs:15000}).then(a=>{if(run===refreshRun.current&&a.ok&&a.data.limit!==undefined)setReviews(Math.max(0,a.data.limit-(a.data.used||0)))})}
    return s;
   }catch(error){
@@ -87,7 +91,7 @@ export default function WhatsLearnApp(){
   }
   finally{if(run===refreshRun.current)setLoading(false)}
  },[]);
- useEffect(()=>{const l=readLocal('wla-language');if(l)setLanguage(l);refresh().then(s=>{if(s!==undefined)setBooted(true)})},[refresh]);
+ useEffect(()=>{const l=readLocal('wla-language');if(l)setLanguage(lessonLanguage(l));refresh().then(s=>{if(s!==undefined)setBooted(true)})},[refresh]);
  /** Coming back to the app (after paying on the website, or learning on WhatsApp) refreshes plan, points and progress. */
  useEffect(()=>{let last=Date.now();const on=()=>{if(document.visibilityState==='visible'&&Date.now()-last>15000){last=Date.now();refresh()}};document.addEventListener('visibilitychange',on);return()=>document.removeEventListener('visibilitychange',on)},[refresh]);
  useEffect(()=>{const up=()=>setOnline(navigator.onLine);up();window.addEventListener('online',up);window.addEventListener('offline',up);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',up)}},[]);
@@ -127,7 +131,17 @@ export default function WhatsLearnApp(){
  async function signedIn(){const s=await refresh();route(s)}
  async function paid(){setPayMsg('');await refresh();setPaidNote('Payment confirmed. Your plan is active: all 10 tasks in every course are open.')}
  async function signOut(){++refreshRun.current;setLoading(false);setLoadError('');await api('/api/auth/signout',{method:'POST',body:{returnTo:'/app'}});if(snap)writeLocal(resumeKey(snap.accountKey),'');setAccountKey('');setResumeAccount('');setOpen(null);setSaved(null);setCourse(undefined);setOverlay('');setSnap(null);setGuest(false);setTab('home');setStage('auth')}
- async function changeLanguage(l:string){setLanguage(l);writeLocal('wla-language',l);if(snap){await api('/api/profile',{method:'PATCH',body:{language:l}});await refresh()}}
+ function changeLanguage(requested:string){
+  const selected=lessonLanguage(requested);
+  setLanguage(selected);
+  const owner=snap?.accountKey;
+  if(!owner){writeLocal('wla-language',selected);return}
+  writeLocal('wla-language:'+owner,selected);
+  languageWrites.current=languageWrites.current.catch(()=>{}).then(async()=>{
+   if(accountRef.current!==owner)return;
+   await api('/api/profile',{method:'PATCH',body:{language:selected},accountKey:owner,timeoutMs:10000});
+  });
+ }
  function openNext(n:Next){if(n.kind==='plan'){showPlans();return}if(n.kind==='mission')setCourse(n.mission.track);if(n.kind==='checkpoint')setCourse(n.track);setOpen(n);setTab('practice');setOverlay('')}
 
  const track=snap?.profile?.track||'marketing';
@@ -168,6 +182,7 @@ export default function WhatsLearnApp(){
   else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
   else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>backToCourse(target.track)} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
   else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={showPlans}>See plans</button></div></div>;
+  else if(!languagePack.ready)practiceBody=<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>;
   else {const mission=localizeMission(target.mission,language,snap?.profile?.level),work=snap!.work.find(w=>w.mission_id===mission.id);
    practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} online={online} onUpgrade={showPlans} onBack={()=>backToCourse(mission.track)} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
   }
@@ -193,8 +208,8 @@ export default function WhatsLearnApp(){
   {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}
   {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
-  <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
-  <nav className="wla-tabs" aria-label={t("App sections")} inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{t(label)}</button>)}</nav>
+  <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{!languagePack.ready&&!overlay&&(tab==='courses'||tab==='home')?<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>:body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  <nav lang={language} className="wla-tabs" aria-label={t("App sections")} inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/><span>{t(label)}</span></button>)}</nav>
   {offlinePanel}
   {sheet&&storeApp&&<AppSheet title="WhatsLearn Plus" onClose={closePlans} returnFocusTo={sheetOpener.current}>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.</p>
@@ -213,6 +228,14 @@ export default function WhatsLearnApp(){
    <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>Maybe later</button>
   </AppSheet>}
  </Shell>;
+}
+
+function LanguageStatus({error,retry,language}:{error:boolean;retry:()=>void;language:string}){
+ const t=appTranslator(language);
+ return <div className="wla-card" role={error?'alert':'status'}>
+  <p>{error?t('Try again'):t('Loading…')}</p>
+  {error&&<button type="button" className="wla-outline" onClick={retry}>{t('Try again')}</button>}
+ </div>;
 }
 
 function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release={APP_RELEASE}><AppErrorBoundary>{children}</AppErrorBoundary></div>}

@@ -32,6 +32,8 @@ function mountApp(s=snapshot,storage=new Map()){
   if(id==='react')return h.api;
   if(id==='lucide-react')return new Proxy({},{get:()=>nothing});
   if(id==='@/lib/personalization')return {localizeMission:m=>m};
+  if(id==='@/lib/languages')return loadLocal('lib/languages.ts',h);
+  if(id==='@/components/whatslearn/use-lesson-language')return {useLessonLanguage:()=>({ready:true,error:false,retry(){}})};
   if(id==='@/lib/progression')return {missionsOfCourse:()=>[fallback.mission,fullStack.mission]};
   if(id==='@/lib/missions')return loadLocal('lib/missions.ts',h);
   if(id==='@/lib/practical')return loadLocal('lib/practical.ts',h);
@@ -61,7 +63,24 @@ test('Play recommendations receive the selected course',async()=>{const m=mountA
 test.before(()=>{global.window={addEventListener(){},removeEventListener(){}};global.document={visibilityState:'hidden',addEventListener(){},removeEventListener(){}};global.history={pushState(){},back(){}}});
 test.after(()=>Object.assign(global,host));
 async function enterApp(m){m.render();await m.flush();const splash=m.render();find(splash,n=>n.type===components.Splash).props.onDone();m.render();await m.flush();return m.render()}
-function nav(tree,label){return find(tree,n=>n.type==='button'&&n.props.children?.[1]===label)}
+function nav(tree,label){
+ const bar=find(tree,n=>n.type==='nav'&&n.props.className==='wla-tabs');
+ return find(bar,n=>n.type==='button'&&text(n)===label);
+}
+
+test('language selection updates all six tabs and persists per account',async()=>{
+ const storage=new Map(),m=mountApp(snapshot,storage);
+ const tree=await enterApp(m);
+ nav(tree,'Me').props.onClick();
+ find(m.render(),n=>n.type===components.Me).props.onLanguage();
+ const picker=find(m.render(),n=>n.type===components.LanguageStep);
+ picker.props.onChange('ta');
+ const tamil=m.render();
+ for(const label of ['முகப்பு','பாடங்கள்','பயிற்சி','விளையாட்டு','வழிகாட்டி','என் கணக்கு'])assert.ok(nav(tamil,label),label);
+ assert.equal(nav(tamil,'Home'),undefined);
+ assert.equal(storage.get('wla-language:synthetic-a'),'ta');
+ assert.ok(nav(await enterApp(mountApp(snapshot,storage)),'முகப்பு'));
+});
 
 test('a fresh visitor gets the introduction, language choice and sign-in before entering the app',async()=>{
  const m=mountApp(null);let tree=await enterApp(m);const welcome=find(tree,n=>n.type===components.Welcome);assert.ok(welcome,'fresh visitors must see the introduction');assert.equal(find(tree,n=>n.type===components.Home),undefined);

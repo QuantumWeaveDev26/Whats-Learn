@@ -48,7 +48,7 @@ export function LanguageStep({value,onChange,onNext,onBack,step}:{value:string;o
   {onBack&&<button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>{t("Back")}</button>}
   {step&&<div className="wla-split"><p className="wla-kicker">{step}</p><button type="button" className="wla-link" onClick={()=>{onChange('en');onNext()}}>{t("Skip · keep English")}</button></div>}
   <h1 className="wla-h1">{t("Choose your language")}</h1>
-  <p className="wla-muted">{t("Lessons and mentor replies use your selection where available. Home, Courses, Practice, Play and level names stay in English.")}</p>
+  <p className="wla-muted">{t("Choose the language for learning and using the app.")}</p>
   <div className="wla-grid2">{appLanguages.map(code=><button key={code} type="button" className={'wla-chip'+(value===code?' on':'')} aria-pressed={value===code} onClick={()=>onChange(code)}>{languages[code]}</button>)}</div>
   <button type="button" className="wla-primary wla-stick" onClick={onNext}>{t("Continue")}</button>
  </div>;
