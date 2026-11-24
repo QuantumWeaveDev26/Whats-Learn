@@ -29,16 +29,21 @@ export function useAppAvatar(accountKey:string){
  const owner=useRef(accountKey);
  owner.current=accountKey;
  const saving=useRef('');
+ const [attempt,retry]=useState(0);
+ const [failedOwner,setFailedOwner]=useState('');
  const [state,setState]=useState<{owner:string;photo:string|null;ready:boolean}>({owner:'',photo:null,ready:false});
  const [status,setStatus]=useState<{owner:string;busy:boolean;message:string}>({owner:'',busy:false,message:''});
  useEffect(()=>{
   if(!accountKey)return;
   let active=true;
+  setFailedOwner('');
   void api<{photo:string|null}>(route,{accountKey,timeoutMs:10000}).then(result=>{
-   if(active)setState({owner:accountKey,photo:result.ok?result.data.photo:null,ready:true});
+   if(!active)return;
+   if(result.ok&&(result.data.photo===null||typeof result.data.photo==='string'))setState({owner:accountKey,photo:result.data.photo,ready:true});
+   else setFailedOwner(accountKey);
   });
   return()=>{active=false};
- },[accountKey]);
+ },[accountKey,attempt]);
  async function update(file:File|null){
   if(!accountKey||saving.current===accountKey)return;
   saving.current=accountKey;
@@ -62,6 +67,8 @@ export function useAppAvatar(accountKey:string){
   ready:state.owner===accountKey&&state.ready,
   busy:status.owner===accountKey&&status.busy,
   message:status.owner===accountKey?status.message:'',
+  loadFailed:!!accountKey&&failedOwner===accountKey,
+  retry:()=>retry(i=>i+1),
   update,
  };
 }

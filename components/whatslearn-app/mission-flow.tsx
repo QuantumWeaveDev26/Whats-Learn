@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {Check,ArrowLeft,Clock} from 'lucide-react';
+import {Check,ArrowLeft,Clock,Lightbulb} from 'lucide-react';
 import type {Mission} from '@/lib/missions';
 import {composeAnswer,emptyAnswer,LIMITS,type Answer} from '@/lib/practical';
 import {wrongAnswerMessage} from '@/lib/submission';
@@ -83,8 +83,8 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
   {step==='learn'&&<p className="wla-meta"><Clock size={15}/>{t("About")} {mission.minutes} {t("min")}</p>}
   {hasDraft&&!leaving&&<p className={draftSaved?'wla-draft-status':'wla-error'} role="status">{draftSaved?(online?t("Draft saved on this phone"):t("Draft saved on this phone. Reconnect to submit.")):t("Couldn’t save this draft. Copy your work before leaving.")}</p>}
   {step==='learn'&&<>
-   <div className="wla-card wla-tint"><p>{t(mission.brief)}</p></div>
-   <div className="wla-card"><strong>{t("What to do")}</strong>{instructions}</div>
+   <div className="wla-card wla-practice-summary"><strong>{t("What to do")}</strong><p>{t(guide.outcome)}</p></div>
+   <details className="wla-disclosure"><summary>{t("Task instructions")}</summary><p className="wla-read">{t(mission.brief)}</p>{instructions}</details>
    <details className="wla-disclosure"><summary>{t("The idea behind it")}</summary><p className="wla-read">{t(mission.lesson)}</p></details>
    <button type="button" className="wla-primary wla-full" onClick={()=>go('check')}>{t("Check my understanding")}</button>
    {quizPassed&&<button type="button" className="wla-ghost wla-full" onClick={()=>go('make')}>{t("Return to my work")}</button>}
@@ -94,7 +94,7 @@ export function MissionFlow({accountKey,mission:sourceMission,position,language,
    <h3 className="wla-q">{t(mission.question)}</h3>
    <div className="wla-options">{mission.options.map((o,i)=><button key={i} type="button" disabled={missed.includes(i)} className={'wla-option'+(missed.includes(i)?' off':'')} onClick={()=>{if(i===mission.answer){setQuizPassed(true);go('make')}else setMissed(x=>x.concat(i))}}><span>{t(o)}</span></button>)}</div>
    {missed.length>0&&<>
-    <div className="wla-explain wla-round-feedback no" role="status"><div className="wla-feedback-message"><span className="wla-feedback-emoji" aria-hidden="true">💡</span><p>{language==='en'?wrongAnswerMessage(mission):t(mission.explanation)}</p></div></div>
+    <div className="wla-explain wla-round-feedback no" role="status"><div className="wla-feedback-message"><span className="wla-feedback-emoji" aria-hidden="true"><Lightbulb size={16}/></span><p>{language==='en'?wrongAnswerMessage(mission):t(mission.explanation)}</p></div></div>
     <details className="wla-disclosure"><summary>{t("Worked example")}{practiceCheck?" "+t("and extra practice"):''}</summary>
      <p className="wla-read">{language==='kn'&&/[\u0C80-\u0CFF]/.test(mission.example)?mission.example:t(guide.example[0])}</p>
      {practiceCheck?<fieldset className="wla-fieldset"><legend>{practiceCheck.question}</legend><div className="wla-options">{practiceCheck.options.map((option,index)=><button key={option} type="button" className="wla-option" aria-pressed={practicePick===index} onClick={()=>setPracticePick(index)}>{option}</button>)}</div>{practicePick!==null&&<p className="wla-muted" role="status">{practicePick===practiceCheck.answer?t("Correct."):t("Try the other choice.")}{practiceCheck.why}</p>}</fieldset>:<p className="wla-read">{t(guide.example[1])}</p>}

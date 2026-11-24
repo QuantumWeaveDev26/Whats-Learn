@@ -31,8 +31,6 @@ export function nextFor(track:string,s:Snapshot):Next{
  return {kind:'mission',mission:m,position:i+1};
 }
 
-const courseEmoji:Record<string,string>={marketing:'📣',development:'💻',filmmaking:'🎬',storytelling:'🎨'};
-
 /** Each course keeps the website's own colour (mint, ice, peach, lilac) so courses are recognisable at a glance. */
 export const courseLook:Record<string,{Icon:React.ComponentType<{size?:number}>;cls:string}>={marketing:{Icon:Megaphone,cls:'c-mint'},development:{Icon:Code,cls:'c-ice'},filmmaking:{Icon:Clapperboard,cls:'c-peach'},storytelling:{Icon:Images,cls:'c-lilac'}};
 /** The last seven practice days, from the scores the website already keeps. */
@@ -69,7 +67,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft,language='en'}:{s:Snap
   :doneToday&&next.kind==='mission'?<div className="wla-hero-card"><p className="wla-hero-kicker"><Check size={14}/> {t("Done for today · Day")}{' '}{next.position} {t("of 10 next")}</p><p className="wla-hero-title">{t("Tomorrow:")}{' '}{appMissionTitle(next.mission.id,localizeMission(next.mission,language,s.profile?.level).title,language)}</p><p className="wla-hero-sub"><Clock size={14}/> {t("Earns points in")}{' '}<Countdown language={language}/>{t(". You can read and draft it now.")}</p><button type="button" className="wla-mint" onClick={()=>onTab('play')}><Gamepad2 size={18}/>{t("Play today’s game")}</button><button type="button" className="wla-hero-link" onClick={()=>onOpen(next)}>{t("Start drafting tomorrow’s task")}</button></div>
   :next.kind==='checkpoint'?<div className="wla-hero-card"><p className="wla-hero-kicker">{t("MINI CHALLENGE")}</p><p className="wla-hero-title">{t(checkpointFor(next.track,next.after)?.title||'')}</p><p className="wla-hero-sub">{t("Clear it to unlock your next task. No points needed.")}</p><button type="button" className="wla-mint" onClick={()=>onOpen(next)}>{t("Start mini challenge")}</button></div>
   :<div className="wla-hero-card wla-home-mission" data-track={track}>
-   <span className="wla-mission-emoji" aria-hidden="true">{courseEmoji[track]}</span>
+   <span className="wla-mission-emoji" aria-hidden="true"></span>
    <p className="wla-hero-kicker">{appCourseName(prog.id,prog.name,language)} {t("· Day")}{' '}{next.position} {t("of 10")}</p>
    <p className="wla-hero-title">{appMissionTitle(next.mission.id,localizeMission(next.mission,language,s.profile?.level).title,language)}</p>
    <p className="wla-hero-sub"><Clock size={14}/> {next.mission.minutes} {t("min ·")}{' '}{t(next.mission.skill)}</p>
@@ -82,7 +80,7 @@ export function Home({s,onOpen,onTab,onCourse,reviewsLeft,language='en'}:{s:Snap
     <div className="wla-days">{days.map((d,i)=><span key={i} className={(d.on?'on ':'')+(d.today?'today':'')}><i>{d.on?<Check size={13}/>:null}</i>{d.label}</span>)}</div>
    </div>}/>
   <BadgeToast language={language} s={s} who={s.accountKey}/>
-  <button type="button" className="wla-home-mentor" onClick={()=>onTab('mentor')}><span className="wla-home-mentor-icon" aria-hidden="true">💬</span><span className="wla-grow"><strong>{t("Stuck? Ask your mentor")}</strong><small>{t("Get help with your current task")}</small></span><ArrowRight size={18}/></button>
+  <button type="button" className="wla-home-mentor" onClick={()=>onTab('mentor')}><span className="wla-home-mentor-icon" aria-hidden="true"></span><span className="wla-grow"><strong>{t("Stuck? Ask your mentor")}</strong><small>{t("Get help with your current task")}</small></span><ArrowRight size={18}/></button>
 
   <div className="wla-split wla-sec-head"><strong>{t("Courses")}</strong><button type="button" className="wla-link" onClick={()=>onTab('courses')}>{t("See all")}</button></div>
   <div {...swipe.handlers} className={'wla-carousel'+(swipe.dragging?' is-dragging':'')} role="region" aria-label={t("Explore courses. Swipe or drag horizontally.")} tabIndex={0}>{programmes.map(p=>{const L=courseLook[p.id];const I=L.Icon;const done=missionsOfCourse(p.id).filter(m=>completed.has(m.id)).length;
@@ -107,7 +105,7 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange,language='
      <span className="wla-course-top"><span className="wla-ccard-icon"><I size={20}/></span><small className="wla-cnum">{t("COURSE")}{' '}{p.number}</small><small className="wla-course-status">{done>=10?t("Completed"):done?t("{0}/10 done",[done]):t("Free to start")}</small></span>
      <strong className="wla-course-name">{appCourseName(p.id,p.name,language)}</strong>
      <span className="wla-course-make"><small>{t("You’ll make")}</small>{t(p.finishedOutcome)}</span>
-     <span className="wla-course-emoji" aria-hidden="true">{courseEmoji[p.id]}</span>
+     <span className="wla-course-emoji" aria-hidden="true"></span>
      <small className="wla-course-meta">{t("10 tasks · about")}{' '}{hours} {t("hrs")}</small>
      {done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}
      <span className="wla-course-pill">{done?t("Continue"):t("View tasks")}<ChevronRight size={18}/></span>
@@ -200,10 +198,11 @@ export function Achievements({s,onBack,language='en'}:{s:Snapshot;onBack:()=>voi
 
 export function Me({s,signedIn,avatar,onSignIn,onCreations,onBadges,onPrefs,onLanguage,onPlans,onSignOut,language='en'}:{s:Snapshot|null;avatar?:AppAvatar;language?:string;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onBadges:()=>void;onPrefs:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){ const t=appTranslator(language);const photoInput=useRef<HTMLInputElement>(null);const photoLabel=avatar?.src?t("Change photo"):language==="en"?"Add profile photo":t("Add photo");const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{t(label)}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
  return <div className="wla-stack">
-  {signedIn&&s?<div className="wla-profile">{avatar?<button type="button" className="wla-profile-photo wla-profile-picker" aria-label={photoLabel} title={photoLabel} disabled={avatar.busy||!avatar.ready} onClick={()=>photoInput.current?.click()}>{avatar?.src?<img src={avatar.src} alt=""/>:(s.name||'W').slice(0,1).toUpperCase()}<span className="wla-profile-plus" aria-hidden="true">+</span></button>:<span className="wla-profile-photo">{(s.name||'W').slice(0,1).toUpperCase()}</span>}<div><strong>{s.name||t("Your account")}</strong><small>{s.paidAccess?t("Paid plan"):t("Explore plan · Free")} · {s.points?.balance??0} {t("points")}</small><small>{s.work.length} {t("task")}{s.work.length===1?'':'s'} {t("saved")}{(s.points?.streak?.current||0)>0?" · "+t("{0}-day streak",[s.points!.streak.current]):''}</small>
+  {signedIn&&s?<div className="wla-profile">{avatar?<button type="button" className="wla-profile-photo wla-profile-picker" aria-label={avatar.ready?photoLabel:undefined} title={avatar.ready?photoLabel:undefined} disabled={avatar.busy||!avatar.ready} onClick={()=>photoInput.current?.click()}>{avatar?.src?<img src={avatar.src} alt=""/>:(s.name||'W').slice(0,1).toUpperCase()}{avatar.ready&&!avatar.src&&<span className="wla-profile-plus" aria-hidden="true">+</span>}</button>:<span className="wla-profile-photo">{(s.name||'W').slice(0,1).toUpperCase()}</span>}<div><strong>{s.name||t("Your account")}</strong><small>{s.paidAccess?t("Paid plan"):t("Explore plan · Free")} · {s.points?.balance??0} {t("points")}</small><small>{s.work.length} {t("task")}{s.work.length===1?'':'s'} {t("saved")}{(s.points?.streak?.current||0)>0?" · "+t("{0}-day streak",[s.points!.streak.current]):''}</small>
    {avatar&&<div className="wla-photo-actions">
     <input ref={photoInput} type="file" accept="image/*" hidden onChange={e=>{const file=e.currentTarget.files?.[0];e.currentTarget.value='';if(file)void avatar.update(file)}}/>
-    {!avatar.src&&!avatar.busy&&!avatar.message&&<small>{photoLabel}</small>}
+    {avatar.ready&&!avatar.src&&!avatar.busy&&!avatar.message&&<small>{photoLabel}</small>}
+    {avatar.loadFailed&&<button type="button" className="wla-link" onClick={avatar.retry}>{t("Try again")}</button>}
     {avatar.src&&<button type="button" className="wla-link" disabled={avatar.busy} onClick={()=>void avatar.update(null)}>{t("Remove photo")}</button>}
     {(avatar.busy||avatar.message)&&<p className="wla-photo-status" role="status">{t(avatar.busy?"Saving…":avatar.message)}</p>}
    </div>}

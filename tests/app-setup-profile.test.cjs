@@ -50,3 +50,14 @@ test('app profile photos require their owner and support replacement and removal
  user='';
  assert.equal((await GET(json('/app/avatar',undefined,'a','GET'))).status,401);
 });
+test('profile only offers Add profile photo when account storage confirms no photo',()=>{
+ const {find,text}=require('./helpers/client-components.cjs');
+ const h=hooks(),{Me}=load('components/whatslearn-app/tabs.tsx',h);
+ const props={signedIn:true,s:{name:'Learner',paidAccess:false,work:[],points:null,profile:null}};
+ for(const [src,ready,loadFailed,add] of [[null,false,false,false],[null,false,true,false],[null,true,false,true],['data:image/jpeg;base64,test',true,false,false]]){
+  h.start();
+  const view=Me({...props,avatar:{src,ready,loadFailed,busy:false,message:'',update(){},retry(){}}});
+  assert.equal(text(view).includes('Add profile photo'),add);
+  assert.equal(!!find(view,node=>node.props?.className==='wla-profile-plus'),add);
+ }
+});

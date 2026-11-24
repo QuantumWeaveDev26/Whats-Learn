@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useRef,useState} from 'react';
-import {ArrowLeft,ArrowRight,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake} from 'lucide-react';
+import {ArrowLeft,ArrowRight,Check,X,Timer,Share2,RotateCcw,Crown,Dices,Trophy,Users,LogOut,Copy,Coffee,Bike,Umbrella,Smartphone,Key,Dog,Rocket,Book,Music,Camera,TreePine,Cake,Lightbulb,Sparkles,Target} from 'lucide-react';
 import {api,readLocal,writeLocal} from './api';
 import {appTranslator} from './app-language';
 import {markGameDay} from './rewards';
@@ -46,7 +46,7 @@ export function GamesHub({who,track,challenge,onChallengeDone,joinCode,onSignIn,
  </div>;
  const today=todaysGame(filter==='all'?track:filter);
  return <div className="wla-stack wla-play-hub">
-  <div className="wla-play-intro"><div><h2 className="wla-h1 wla-tight">{t("Play a little.")}<span className="wla-reference-play-copy"> {t("Learn a lot.")}</span></h2><p className="wla-muted">{t("Quick 1–2 minute games from each course.")}</p></div><span aria-hidden="true">🎮</span></div>
+  <div className="wla-play-intro"><div><h2 className="wla-h1 wla-tight">{t("Play a little.")}<span className="wla-reference-play-copy"> {t("Learn a lot.")}</span></h2><p className="wla-muted">{t("Quick 1–2 minute games from each course.")}</p></div></div>
   <button type="button" className="wla-today wla-today-compact" onClick={()=>setPlaying(today.id)}>
    <span className="wla-today-art"><GameArt id={today.id}/></span>
    <span className="wla-today-details"><span className="wla-today-label">{t("TODAY’S GAME")}</span><strong>{t(today.name)}</strong><small>{t(today.tagline)}</small>
@@ -101,7 +101,7 @@ function Result({meta,score,who,beat,rank,tournament,onAgain,onExit,language='en
  const text=`I scored ${score}${meta.id==='story-dice'?' completion points':''} in ${meta.name} on WhatsLearn. Can you beat it? Sign in free and play: ${gameLink(meta.id,score)}`;
  return <div className="wla-stack wla-center wla-celebrate">
   {score>=60&&<div className="wla-confetti" aria-hidden="true">{Array.from({length:16},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%6)*0.12}s`,background:['#087A4B','#D5F4DE','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>}
-  <div className="wla-score"><span className="wla-score-emoji" aria-hidden="true">{score>=80?"🏆":score>=50?"✨":"🎯"}</span><strong>{score}</strong><small>{t("out of 100")}</small></div>
+  <div className="wla-score"><span className="wla-score-emoji" aria-hidden="true">{score>=80?<Trophy size={20}/>:score>=50?<Sparkles size={20}/>:<Target size={20}/>}</span><strong>{score}</strong><small>{t("out of 100")}</small></div>
   <h2 className="wla-h1 wla-tight">{meta.id==='story-dice'?t("Story drafted"):score>=80?<>{t("Brilliant.")}{' '}<em>{t("Sharp eye.")}</em></>:score>=50?<>{t("Good run.")}{' '}<em>{t("Go again?")}</em></>:<>{t("Warming up.")}{' '}<em>{t("Try once more.")}</em></>}</h2>
   {meta.id==='story-dice'&&<p className="wla-muted">{t("Completion score: distinct frames and required items, not a rating of creativity or story quality.")}</p>}
   {beat!==undefined&&<p className={score>beat?'wla-win':'wla-note'}>{score>beat?t("You beat your friend’s {0}!",[beat]):score===beat?t("A tie with your friend’s {0}.",[beat]):t("Your friend’s {0} still stands.",[beat])}</p>}
@@ -119,7 +119,7 @@ function Progress({at,of,label,language='en'}:{at:number;of:number;label?:string
 function Explain({ok,why,onNext,last,language='en'}:{ok:boolean;why:string;onNext:()=>void;last:boolean;language?:string}){
  const t=appTranslator(language);
  useEffect(()=>{try{navigator.vibrate?.(ok?25:[50,40,50])}catch{}},[ok]);
- return <div className={'wla-explain wla-round-feedback '+(ok?'ok':'no')}><div className="wla-feedback-message" role="status"><span className="wla-feedback-emoji" aria-hidden="true">{ok?'✨':'💡'}</span><div><strong>{ok?t("Correct"):t("Not this time")}</strong><p>{t(why)}</p></div></div><button type="button" className="wla-primary wla-full" onClick={onNext}>{last?t("See my score"):t("Next")}<ArrowRight size={16}/></button></div>;
+ return <div className={'wla-explain wla-round-feedback '+(ok?'ok':'no')}><div className="wla-feedback-message" role="status"><span className="wla-feedback-emoji" aria-hidden="true">{ok?<Sparkles size={16}/>:<Lightbulb size={16}/>}</span><div><strong>{ok?t("Correct"):t("Not this time")}</strong><p>{t(why)}</p></div></div><button type="button" className="wla-primary wla-full" onClick={onNext}>{last?t("See my score"):t("Next")}<ArrowRight size={16}/></button></div>;
 }
 
 function HookHunter({onDone,feed:provided=hookFeed,language='en'}:{onDone:(s:number)=>void;feed?:typeof hookFeed;language?:string}){
@@ -153,7 +153,7 @@ function BudgetBoss({onDone,rounds=budgetRounds,language='en'}:{onDone:(s:number
    <button type="button" aria-label={t("Less on {0}",[c])} onClick={()=>change(k,-250)} disabled={shown!==null||alloc[k]===0}>−</button><b>₹{alloc[k].toLocaleString('en-IN')}</b><button type="button" aria-label={t("More on {0}",[c])} onClick={()=>change(k,250)} disabled={shown!==null||left<250}>+</button></div>)}</div>
   <p className={left?'wla-note':'wla-muted'}>{left?t("₹{0} left to place",[left.toLocaleString('en-IN')]):t("All ₹5,000 placed.")}</p>
   {shown===null?<button type="button" className="wla-primary wla-full" disabled={left!==0} onClick={check}>{t("Lock in my budget")}</button>
-  :<div className="wla-explain ok" role="status"><strong>{t("Round score:")}{' '}{shown}/100</strong><p><span aria-hidden="true">💡 </span>{t("A strong split:")}{' '}{channels.map((c,k)=>`${t(c)} ${round.ideal[k]}%`).join(' · ')}. {t(round.why)}</p><button type="button" className="wla-primary wla-full" onClick={next}>{r+1>=rounds.length?t("See my score"):t("Next goal")}</button></div>}
+  :<div className="wla-explain ok" role="status"><strong>{t("Round score:")}{' '}{shown}/100</strong><p>{t("A strong split:")}{' '}{channels.map((c,k)=>`${t(c)} ${round.ideal[k]}%`).join(' · ')}. {t(round.why)}</p><button type="button" className="wla-primary wla-full" onClick={next}>{r+1>=rounds.length?t("See my score"):t("Next goal")}</button></div>}
  </div>;
 }
 
@@ -188,7 +188,7 @@ function OrderGame({rounds,noun,onDone,language='en'}:{rounds:{title:string;item
   <ol className="wla-order">{round.items.map((_,n)=>{const v=order[n];return <li key={n} className={checked?(v===round.items[n]?'right':'wrong'):''}><i>{n+1}</i>{v?<button type="button" disabled={checked} onClick={()=>setOrder(order.filter(x=>x!==v))}>{t(v)}</button>:<span>{t("Tap a {0} below",[t(noun)])}</span>}</li>})}</ol>
   {!checked&&<div className="wla-pool">{pool.filter(x=>!order.includes(x)).map(x=><button key={x} type="button" onClick={()=>setOrder(order.concat(x))}>{t(x)}</button>)}</div>}
   {!checked?<button type="button" className="wla-primary wla-full" disabled={!full} onClick={check}>{t("Check my order")}</button>
-  :<section className="wla-card wla-order-result" aria-label={t("Round result")}><strong className={right===round.items.length?'wla-order-match':'wla-order-miss'} role="status" ref={resultHeading} tabIndex={-1}><span className="wla-feedback-emoji" aria-hidden="true">{right===round.items.length?'✨':'💡'}</span>{t("{0} of {1} in the expected position",[right,round.items.length])}</strong>{right===round.items.length?<p className="wla-read wla-order-why">{t(round.why)}</p>:<><p className="wla-order-answer-title">{t("Reference order")}</p><ol className="wla-reference-order">{round.items.map(item=><li key={item}>{t(item)}</li>)}</ol><details className="wla-disclosure"><summary>{t("Why this order?")}</summary><p className="wla-read">{t(round.why)}</p></details></>}<small className="wla-muted">{retryCount.current?t("Scored first attempt: {0}/{1}. This retry is practice.",[Math.round((firstAttempt.current||0)*round.items.length/100),round.items.length]):t("Your first attempt counts. Retrying is free practice.")}</small><div className="wla-order-actions">{right!==round.items.length&&<button type="button" className="wla-outline" onClick={()=>{retryCount.current++;setOrder([]);setChecked(false)}}>{t("Retry round")}</button>}<button type="button" className="wla-primary" onClick={next}>{r+1>=rounds.length?t("See my score"):t("Next")}</button></div></section>}
+  :<section className="wla-card wla-order-result" aria-label={t("Round result")}><strong className={right===round.items.length?'wla-order-match':'wla-order-miss'} role="status" ref={resultHeading} tabIndex={-1}><span className="wla-feedback-emoji" aria-hidden="true">{right===round.items.length?<Sparkles size={16}/>:<Lightbulb size={16}/>}</span>{t("{0} of {1} in the expected position",[right,round.items.length])}</strong>{right===round.items.length?<p className="wla-read wla-order-why">{t(round.why)}</p>:<><p className="wla-order-answer-title">{t("Reference order")}</p><ol className="wla-reference-order">{round.items.map(item=><li key={item}>{t(item)}</li>)}</ol><details className="wla-disclosure"><summary>{t("Why this order?")}</summary><p className="wla-read">{t(round.why)}</p></details></>}<small className="wla-muted">{retryCount.current?t("Scored first attempt: {0}/{1}. This retry is practice.",[Math.round((firstAttempt.current||0)*round.items.length/100),round.items.length]):t("Your first attempt counts. Retrying is free practice.")}</small><div className="wla-order-actions">{right!==round.items.length&&<button type="button" className="wla-outline" onClick={()=>{retryCount.current++;setOrder([]);setChecked(false)}}>{t("Retry round")}</button>}<button type="button" className="wla-primary" onClick={next}>{r+1>=rounds.length?t("See my score"):t("Next")}</button></div></section>}
  </div>;
 }
 
