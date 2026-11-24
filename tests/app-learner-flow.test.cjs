@@ -6,6 +6,19 @@ function flow(data=new Map(),respond){const h=hooks(),requests=[],saved=[];const
 test('the app exposes the actual runnable artifact and testing requirements before the quiz',()=>{
  const f=flow(),tree=f.render();assert.ok(text(tree).includes('local test server'),'show the real create step');assert.ok(text(tree).includes('forced failure'),'show the real test step');assert.ok(text(tree).includes('Share the code'),'show the required deliverable');
 });
+test('Kannada practice translates controls and retains the canonical answer position',()=>{
+ const h=hooks();
+ const {localizeMission}=load('lib/personalization.ts',h);
+ const {MissionFlow}=load('components/whatslearn-app/practice.tsx',h,{'./api':{readLocal:()=>null,writeLocal:()=>true,api:async()=>({ok:true,data:{}})}});
+ const localized=localizeMission(mission,'kn');
+ const render=()=>{h.start();return MissionFlow({mission:localized,language:'kn',accountKey:'a',position:1,onSaved(){},onBack(){},onUpgrade(){}})};
+ const start=find(render(),n=>n.type==='button'&&text(n)==='ನನ್ನ ತಿಳುವಳಿಕೆ ಪರಿಶೀಲಿಸಿ');
+ assert.ok(start);
+ start.props.onClick();
+ assert.equal(localized.answer,mission.answer);
+ find(render(),n=>n.type==='button'&&text(n)===localized.options[mission.answer]).props.onClick();
+ assert.match(text(render()),/ನಿಮ್ಮ ಕೆಲಸ|ಕರಡು ಈ ಫೋನ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ/);
+});
 test('the knowledge check has a direct route back to the lesson',()=>{
  const f=flow();let tree=f.render();find(tree,n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();tree=f.render();const back=find(tree,n=>n.type==='button'&&text(n)==='Back to lesson');assert.ok(back);back.props.onClick();assert.ok(find(f.render(),n=>n.type==='button'&&text(n)==='Check my understanding'));
 });

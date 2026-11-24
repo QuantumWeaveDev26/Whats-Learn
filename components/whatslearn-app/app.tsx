@@ -19,6 +19,7 @@ const GamesHub=lazy(()=>import('./games').then(m=>({default:m.GamesHub})));
 import {levelOf} from './rewards';
 import {games,type GameId} from './games-data';
 import {APP_RELEASE} from './version';
+import {appTranslator} from './app-language';
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
@@ -30,6 +31,7 @@ export default function WhatsLearnApp(){
  const [snap,setSnap]=useState<Snapshot|null>(null);
  const [guest,setGuest]=useState(false);
  const [language,setLanguage]=useState('en');
+ const t=appTranslator(language);
  const [tab,setTab]=useState<Tab>('home');
  const [playView,setPlayView]=useState<PlayView>('games');
  const [overlay,setOverlay]=useState<Overlay>('');
@@ -149,11 +151,11 @@ export default function WhatsLearnApp(){
   return()=>{active=false;document.removeEventListener('visibilitychange',onVisible)};
  },[stage,tab,online]);
  const offlinePanel=offlineGame?<AppSheet title="Dino break" closeLabel="Close Dino game" onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title="Offline Dino game" src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>Return to my app</button></AppSheet>:null;
- if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>Play offline</button></div>{offlinePanel}</Shell>;
+ if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>{t("Play offline")}</button></div>{offlinePanel}</Shell>;
  if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
  if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
  if(stage==='language')return <Shell><LanguageStep step="STEP 1 OF 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
- if(stage==='auth')return <Shell wide><AuthScreen firstRun={!challenge&&readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} notice={challenge?`Your friend scored ${challenge.beat} in ${games.find(g=>g.id===challenge.game)?.name||'a WhatsLearn game'}. Sign in or create a free account to take the challenge.`:undefined} allowGuest={!challenge} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
+ if(stage==='auth')return <Shell wide><AuthScreen language={language} firstRun={!challenge&&readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} notice={challenge?`Your friend scored ${challenge.beat} in ${games.find(g=>g.id===challenge.game)?.name||'a WhatsLearn game'}. Sign in or create a free account to take the challenge.`:undefined} allowGuest={!challenge} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
  if(stage==='context')return <Shell><PersonalSetup onDone={async()=>{const s=await refresh();route(s)}}/></Shell>;
  if(stage==='path')return <Shell><PathSetup initial={snap?.profile||null} language={language} onDone={async()=>{const s=await refresh();setTab('home');route(s)}}/></Shell>;
 
@@ -172,27 +174,27 @@ export default function WhatsLearnApp(){
  }
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',play:playView==='games'?'Play':'Challenges',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
- if(overlay==='creations'&&snap)body=<Creations s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
+ if(overlay==='creations'&&snap)body=<Creations language={language} s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
  else if(overlay==='badges'&&snap)body=<Achievements s={snap} onBack={()=>setOverlay('')}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
  else if(saved)body=<Celebrate s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}} onPlay={()=>{setSaved(null);setOpen(null);setTab('play')}}/>;
- else if(tab==='home')body=signed?<Home s={snap!} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);setTab('courses');setOverlay('');setSaved(null)}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
- else if(tab==='courses')body=<Courses s={snap} initialTrack={course} onTrackChange={setCourse} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
+ else if(tab==='home')body=signed?<Home s={snap!} language={language} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);setTab('courses');setOverlay('');setSaved(null)}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
+ else if(tab==='courses')body=<Courses language={language} s={snap} initialTrack={course} onTrackChange={setCourse} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub language={language} key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
+ else body=<Me language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
  return <Shell>
-  <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?'My Creations':overlay==='badges'?'Badges':overlay?'Settings':saved?'Saved':titles[tab]}</strong></div>
-   {signed?<span className="wla-pts"><b className="wla-lv">Lv {levelOf(snap).lv}</b>{snap?.points?.balance??0} pts</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>Sign in</button>}</header>
-  {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>App update available</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>Update now</button></div>}
-  {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">You’re offline.</p><button type="button" className="wla-link" onClick={showDino}>Play offline</button></div>}
-  {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?'Loading…':'Try again'}</button></div>}
-  <main className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
-  <nav className="wla-tabs" aria-label="App sections" inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{label}</button>)}</nav>
+  <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab])}</strong></div>
+   {signed?<span className="wla-pts"><b className="wla-lv">Lv {levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':'pts'}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
+  {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
+  {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}
+  {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
+  <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  <nav className="wla-tabs" aria-label={t("App sections")} inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/>{t(label)}</button>)}</nav>
   {offlinePanel}
   {sheet&&storeApp&&<AppSheet title="WhatsLearn Plus" onClose={closePlans} returnFocusTo={sheetOpener.current}>
    <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.</p>

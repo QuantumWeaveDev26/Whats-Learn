@@ -44,6 +44,7 @@ function mountApp(s=snapshot,storage=new Map()){
   if(id==='./games')return {GamesHub:function GamesHub(){return null}};
   if(id==='./games-data')return {games:[]};
   if(id==='./version')return loadLocal('components/whatslearn-app/version.ts',h);
+  if(id==='./app-language')return loadLocal('components/whatslearn-app/app-language.ts',h);
   if(id==='./rewards')return {levelOf:()=>({lv:1,xp:0,into:0,need:200,title:'Curious'})};
   return require(id);
  });
