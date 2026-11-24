@@ -11,6 +11,7 @@ import {Splash,Welcome,LanguageStep,AuthScreen} from './intro';
 import {PersonalSetup,PathSetup} from './onboarding';
 import {MissionFlow,CheckpointFlow,type Saved} from './practice';
 import {AppSheet} from './sheet';
+import InstallSupport from './install';
 import {BuyButton,useBillingStatus} from './checkout';
 import {Home,Courses,Mentor,Me,Creations,Achievements,GuestHome,nextFor,type Next} from './tabs';
 import type {Challenge,PlayView} from './games';
@@ -19,9 +20,19 @@ const GamesHub=lazy(()=>import('./games').then(m=>({default:m.GamesHub})));
 import {levelOf} from './rewards';
 import {games,type GameId} from './games-data';
 import {APP_RELEASE} from './version';
-import {appTranslator} from './app-language';
+import {appMissionTitle,appTranslator} from './app-language';
+import {useAppCopy} from './app-copy';
 import {useLessonLanguage} from '@/components/whatslearn/use-lesson-language';
 import {lessonLanguage} from '@/lib/languages';
+
+const offlineLabels = ["Dino break", "Distance", "A little game while you wait. No course points.", "Dino playfield. Tap, Space or Up arrow to jump.", "Start game", "Jump", "Pause", "Restart", "Resume", "Tap Start, then tap the playfield or Jump to clear obstacles.", "Reconnect to submit work or ask your mentor. This game does not read or change your drafts.", "Try WhatsLearn again", "Good run! Distance {0}. Tap Restart for another try.", "Tap to jump. You can pause at any time.", "Paused. Tap Resume when you’re ready.", "Tap to jump."];
+function saveOfflineCopy(language:string){
+ try{
+  const translate=appTranslator(language);
+  const labels=Object.fromEntries(offlineLabels.map(label=>[label,translate(label)]));
+  localStorage.setItem('wla-offline-copy',JSON.stringify({language,labels}));
+ }catch{/* The offline game can still use English when storage is unavailable. */}
+}
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
@@ -34,6 +45,8 @@ export default function WhatsLearnApp(){
  const [guest,setGuest]=useState(false);
  const [language,setLanguage]=useState('en');
  const languagePack=useLessonLanguage(language);
+ const appCopy=useAppCopy(language);
+ useEffect(()=>{if(booted&&appCopy.ready)saveOfflineCopy(language)},[booted,appCopy.ready,language]);
  const languageWrites=useRef<Promise<unknown>>(Promise.resolve());
  const t=appTranslator(language);
  const [tab,setTab]=useState<Tab>('home');
@@ -164,25 +177,26 @@ export default function WhatsLearnApp(){
   document.addEventListener('visibilitychange',onVisible);
   return()=>{active=false;document.removeEventListener('visibilitychange',onVisible)};
  },[stage,tab,online]);
- const offlinePanel=offlineGame?<AppSheet title="Dino break" closeLabel="Close Dino game" onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title="Offline Dino game" src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>Return to my app</button></AppSheet>:null;
- if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">Let’s reconnect</h1><p className="wla-muted">{loadError}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>{t("Play offline")}</button></div>{offlinePanel}</Shell>;
- if(stage==='splash')return <Shell><Splash onDone={afterSplash}/></Shell>;
- if(stage==='welcome')return <Shell><Welcome onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
- if(stage==='language')return <Shell><LanguageStep step="STEP 1 OF 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
- if(stage==='auth')return <Shell wide><AuthScreen language={language} firstRun={!challenge&&readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} notice={challenge?`Your friend scored ${challenge.beat} in ${games.find(g=>g.id===challenge.game)?.name||'a WhatsLearn game'}. Sign in or create a free account to take the challenge.`:undefined} allowGuest={!challenge} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
- if(stage==='context')return <Shell><PersonalSetup onDone={async()=>{const s=await refresh();route(s)}}/></Shell>;
- if(stage==='path')return <Shell><PathSetup initial={snap?.profile||null} language={language} onDone={async()=>{const s=await refresh();setTab('home');route(s)}}/></Shell>;
+ const offlinePanel=offlineGame?<AppSheet title={t("Dino break")} closeLabel={t("Close Dino game")} onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title={t("Offline Dino game")} src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>{t("Return to my app")}</button></AppSheet>:null;
+ if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell language={language}><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-icon-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">{t("Let’s reconnect")}</h1><p className="wla-muted">{t(loadError)}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>{t("Play offline")}</button></div>{offlinePanel}</Shell>;
+ if(stage==='splash')return <Shell language={language}><Splash language={language} onDone={afterSplash}/></Shell>;
+ if(stage==='welcome')return <Shell language={language}><Welcome language={language} onDone={()=>{writeLocal('wla-intro-seen','1');setStage('language')}}/></Shell>;
+ if(stage==='language')return <Shell language={language}><LanguageStep step="1 / 2" value={language} onChange={l=>{setLanguage(l);writeLocal('wla-language',l)}} onNext={()=>setStage('auth')}/></Shell>;
+ if((stage==='auth'||stage==='context'||stage==='path')&&!appCopy.ready)return <Shell language={language}><LanguageStatus error={appCopy.error} retry={appCopy.retry} language={language}/></Shell>;
+ if(stage==='auth')return <Shell language={language} wide><AuthScreen language={language} firstRun={!challenge&&readLocal('wla-guest')!=='1'&&!readLocal('wla-signed-before')} notice={challenge?t("Your friend scored {0} in {1}. Sign in or create a free account to take the challenge.",[challenge.beat,t(games.find(g=>g.id===challenge.game)?.name||"a WhatsLearn game")]):undefined} allowGuest={!challenge} onSignedIn={signedIn} onGuest={()=>{writeLocal('wla-guest','1');setGuest(true);setTab('home');setStage('app')}}/></Shell>;
+ if(stage==='context')return <Shell language={language}><PersonalSetup language={language} onDone={async()=>{const s=await refresh();route(s)}}/></Shell>;
+ if(stage==='path')return <Shell language={language}><PathSetup initial={snap?.profile||null} language={language} onDone={async()=>{const s=await refresh();setTab('home');route(s)}}/></Shell>;
 
  const signed=!!snap;
  // Keep practice mounted while visiting other tabs so its step and unsaved work survive.
  let practiceBody:React.ReactNode=null;
  if(tab==='practice'||open){
   const target=open||current;
-  if(!signed)practiceBody=<SignInCard what="do full practice tasks with AI review" onSignIn={()=>setStage('auth')}/>;
-  else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>Course complete.</strong><p className="wla-muted">Pick another course in Courses.</p></div>;
-  else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>backToCourse(target.track)} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
-  else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {target.mission.title}</strong><p className="wla-muted">Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.</p><button type="button" className="wla-primary wla-full" onClick={showPlans}>See plans</button></div></div>;
-  else if(!languagePack.ready)practiceBody=<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>;
+  if(!signed)practiceBody=<SignInCard language={language} what="do full practice tasks with AI review" onSignIn={()=>setStage('auth')}/>;
+  else if(!target||target.kind==='finished')practiceBody=<div className="wla-card"><strong>{t("Course complete.")}</strong><p className="wla-muted">{t("Pick another course in Courses.")}</p></div>;
+  else if(target.kind==='checkpoint')practiceBody=<CheckpointFlow language={language} key={snap!.accountKey+'|'+target.track+'|'+target.after} track={target.track} after={target.after} onBack={()=>backToCourse(target.track)} onCleared={async()=>{await refresh();setOpen(null);setTab('home')}}/>;
+  else if(target.kind==='plan')practiceBody=<div className="wla-stack"><div className="wla-card"><strong><Lock size={16}/> {appMissionTitle(target.mission.id,localizeMission(target.mission,language,snap?.profile?.level).title,language)}</strong><p className="wla-muted">{t("Explore includes tasks 1–3 in each course. A plan unlocks tasks 4–10.")}</p><button type="button" className="wla-primary wla-full" onClick={showPlans}>{t("See plans")}</button></div></div>;
+  else if(!languagePack.ready||!appCopy.ready)practiceBody=<LanguageStatus error={languagePack.error||appCopy.error} retry={()=>{languagePack.retry();appCopy.retry()}} language={language}/>;
   else {const mission=localizeMission(target.mission,language,snap?.profile?.level),work=snap!.work.find(w=>w.mission_id===mission.id);
    practiceBody=<MissionFlow key={snap!.accountKey+'|'+target.mission.id+'|'+language+'|'+snap?.profile?.level} accountKey={snap!.accountKey} mission={mission} initialAnswer={work?parseAnswer(mission.practical,work.body):undefined} position={target.position} language={language} online={online} onUpgrade={showPlans} onBack={()=>backToCourse(mission.track)} onSaved={async s=>{if(accountRef.current!==snap!.accountKey)return;setSaved(s);setOpen(null);await refresh()}} onPoints={()=>{refresh()}}/>;
   }
@@ -190,42 +204,42 @@ export default function WhatsLearnApp(){
  const titles:Record<Tab,string>={home:'Home',courses:'Courses',practice:'Practice',play:playView==='games'?'Play':'Challenges',mentor:'Mentor',me:'Me'};
  let body:React.ReactNode;
  if(overlay==='creations'&&snap)body=<Creations language={language} s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
- else if(overlay==='badges'&&snap)body=<Achievements s={snap} onBack={()=>setOverlay('')}/>;
+ else if(overlay==='badges'&&snap)body=<Achievements language={language} s={snap} onBack={()=>setOverlay('')}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
- else if(saved)body=<Celebrate s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}} onPlay={()=>{setSaved(null);setOpen(null);setTab('play')}}/>;
+ else if(saved)body=<Celebrate language={language} s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}} onPlay={()=>{setSaved(null);setOpen(null);setTab('play')}}/>;
  else if(tab==='home')body=signed?<Home s={snap!} language={language} reviewsLeft={reviews} onOpen={openNext} onTab={t=>goTab(t as Tab)} onCourse={id=>{setCourse(id);setTab('courses');setOverlay('');setSaved(null)}}/>:<GuestHome language={language} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='courses')body=<Courses language={language} s={snap} initialTrack={course} onTrackChange={setCourse} onOpen={openNext} onSignIn={()=>setStage('auth')}/>;
  else if(tab==='practice')body=null;
- else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">Loading games…</p>}><GamesHub language={language} key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
+ else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">{t("Loading games…")}</p>}><GamesHub language={language} key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
  else body=<Me language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
- return <Shell>
+ return <Shell language={language}>
   <header className="wla-top" inert={sheet||offlineGame}><div><img src="/images/whatslearn-logo-green.png" alt="" width={32} height={32}/><strong>{overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab])}</strong></div>
-   {signed?<span className="wla-pts"><b className="wla-lv">Lv {levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':'pts'}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
+   {signed?<span className="wla-pts"><b className="wla-lv">{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
   {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}
-  {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{loadError}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
-  <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{!languagePack.ready&&!overlay&&(tab==='courses'||tab==='home')?<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>:body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
+  {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{t(loadError)}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
+  <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{!appCopy.ready&&overlay!=='language'?<LanguageStatus error={appCopy.error} retry={appCopy.retry} language={language}/>:!languagePack.ready&&!overlay&&(tab==='courses'||tab==='home')?<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>:body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
   <nav lang={language} className="wla-tabs" aria-label={t("App sections")} inert={sheet||offlineGame}>{tabs.map(([id,label,Icon])=><button key={id} type="button" aria-current={tab===id&&!overlay?'page':undefined} className={tab===id&&!overlay?'on':''} onClick={()=>goTab(id)}><Icon size={24}/><span>{t(label)}</span></button>)}</nav>
   {offlinePanel}
-  {sheet&&storeApp&&<AppSheet title="WhatsLearn Plus" onClose={closePlans} returnFocusTo={sheetOpener.current}>
-   <p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.</p>
-   <p className="wla-muted">Already a member? Sign in with the same account and your plan is ready here.</p>
-   <button type="button" className="wla-primary wla-full" onClick={()=>setSheet(false)}>Got it</button>
+  {sheet&&storeApp&&<AppSheet title={t("WhatsLearn Plus")} onClose={closePlans} closeLabel={t("Close plans")} returnFocusTo={sheetOpener.current}>
+   <p className="wla-muted">{t("Explore includes the first 3 tasks in each course and 3 AI reviews a day. Tasks 4–10 are part of WhatsLearn Plus.")}</p>
+   <p className="wla-muted">{t("Already a member? Sign in with the same account and your plan is ready here.")}</p>
+   <button type="button" className="wla-primary wla-full" onClick={()=>setSheet(false)}>{t("Got it")}</button>
   </AppSheet>}
-  {sheet&&!storeApp&&<AppSheet title="Membership plans" onClose={closePlans} returnFocusTo={sheetOpener.current}>
-   {paidNote?<p className="wla-ok" role="status">{paidNote}</p>:snap?.paidAccess?<p className="wla-ok" role="status">You’re on a paid plan. All 10 tasks in every course are open.</p>:<p className="wla-muted">Explore includes the first 3 tasks in each course and 3 AI reviews a day.</p>}
-   <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 10 AI reviews a day</small>
-    {!snap?.paidAccess&&(signed?<BuyButton sku="plus_monthly" label="Get Plus · ₹199/month" status={billing} onPaid={paid} onMessage={setPayMsg}/>:<button type="button" className="wla-primary wla-full" onClick={()=>{setSheet(false);setStage('auth')}}>Sign in to buy</button>)}</div>
-   <div className="wla-card wla-plan-alt"><div className="wla-split"><strong>Pro</strong><span><strong>₹499</strong> <small>per month</small></span></div><small>All 10 tasks in each course · 25 AI reviews a day</small>
-    {!snap?.paidAccess&&signed&&<BuyButton sku="pro_monthly" label="Get Pro · ₹499/month" status={billing} onPaid={paid} onMessage={setPayMsg}/>}</div>
-   {payMsg&&<p className="wla-note" role="status">{payMsg}</p>}
-   {signed&&billing.enabled&&<p className="wla-muted wla-center"><small>Secure payment by Razorpay · UPI, cards and net banking. Renews monthly until you cancel.</small></p>}
-   <a className="wla-link wla-center" href="/membership" target="_blank" rel="noopener">Yearly plans and details on the website</a>
-   <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>Maybe later</button>
+  {sheet&&!storeApp&&<AppSheet title={t("Membership plans")} onClose={closePlans} closeLabel={t("Close plans")} returnFocusTo={sheetOpener.current}>
+   {paidNote?<p className="wla-ok" role="status">{t(paidNote)}</p>:snap?.paidAccess?<p className="wla-ok" role="status">{t("You’re on a paid plan. All 10 tasks in every course are open.")}</p>:<p className="wla-muted">{t("Explore includes the first 3 tasks in each course and 3 AI reviews a day.")}</p>}
+   <div className="wla-card wla-plan"><div className="wla-split"><strong>Plus</strong><span><strong>₹199</strong> <small>{t("per month")}</small></span></div><small>{t("All 10 tasks in each course · 10 AI reviews a day")}</small>
+    {!snap?.paidAccess&&(signed?<BuyButton language={language} sku="plus_monthly" label={t("Get Plus · ₹199/month")} status={billing} onPaid={paid} onMessage={setPayMsg}/>:<button type="button" className="wla-primary wla-full" onClick={()=>{setSheet(false);setStage('auth')}}>{t("Sign in to buy")}</button>)}</div>
+   <div className="wla-card wla-plan-alt"><div className="wla-split"><strong>Pro</strong><span><strong>₹499</strong> <small>{t("per month")}</small></span></div><small>{t("All 10 tasks in each course · 25 AI reviews a day")}</small>
+    {!snap?.paidAccess&&signed&&<BuyButton language={language} sku="pro_monthly" label={t("Get Pro · ₹499/month")} status={billing} onPaid={paid} onMessage={setPayMsg}/>}</div>
+   {payMsg&&<p className="wla-note" role="status">{t(payMsg)}</p>}
+   {signed&&billing.enabled&&<p className="wla-muted wla-center"><small>{t("Secure payment by Razorpay · UPI, cards and net banking. Renews monthly until you cancel.")}</small></p>}
+   <a className="wla-link wla-center" href="/membership" target="_blank" rel="noopener">{t("Yearly plans and details on the website")}</a>
+   <button type="button" className="wla-link wla-center" onClick={()=>setSheet(false)}>{t("Maybe later")}</button>
   </AppSheet>}
  </Shell>;
 }
@@ -238,31 +252,34 @@ function LanguageStatus({error,retry,language}:{error:boolean;retry:()=>void;lan
  </div>;
 }
 
-function Shell({children,wide}:{children:React.ReactNode;wide?:boolean}){return <div className={"wla"+(wide?" wla-wide":"")} data-app-release={APP_RELEASE}><AppErrorBoundary>{children}</AppErrorBoundary></div>}
-class AppErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{
+function Shell({children,wide,language='en'}:{children:React.ReactNode;wide?:boolean;language?:string}){return <><div className={"wla"+(wide?" wla-wide":"")} lang={language} data-app-release={APP_RELEASE}><AppErrorBoundary language={language}>{children}</AppErrorBoundary></div><InstallSupport language={language}/></>}
+class AppErrorBoundary extends Component<{children:ReactNode;language:string},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
  render(){if(!this.state.failed)return this.props.children;
-  return <div className="wla-page wla-center" role="alert"><img src="/images/app-icon-192.png" alt="" width={72} height={72} style={{borderRadius:18,alignSelf:'center'}}/><h1 className="wla-h1">Something went <em>wrong.</em></h1><p className="wla-muted">Your saved work is safe. Try again, and if it keeps happening, message us from Help.</p><button type="button" className="wla-primary wla-full" onClick={()=>window.location.reload()}>Try again</button></div>}
+  const t=appTranslator(this.props.language);
+  return <div className="wla-page wla-center" role="alert"><img src="/images/app-icon-192.png" alt="" width={72} height={72} style={{borderRadius:18,alignSelf:'center'}}/><h1 className="wla-h1">{t("Something went wrong.")}</h1><p className="wla-muted">{t("Your saved work is safe. Try again, and if it keeps happening, message us from Help.")}</p><button type="button" className="wla-primary wla-full" onClick={()=>window.location.reload()}>{t("Try again")}</button></div>}
 }
 /** Guests see what a full task gives them before being asked to sign in. */
-function SignInCard({what,onSignIn}:{what:string;onSignIn:()=>void}){return <div className="wla-stack">
- <div className="wla-hero-card"><p className="wla-hero-kicker">What a full task looks like</p><p className="wla-hero-title">Learn it, make it, get feedback.</p>
-  <ul className="wla-perks"><li><Check size={16}/>A short lesson and a worked example</li><li><Check size={16}/>A real task you finish in about 15 minutes</li><li><Check size={16}/>An AI review of your own words, with a next step</li><li><Check size={16}/>Points, streaks and badges as you go</li></ul></div>
- <div className="wla-card"><strong>Sign in to {what}</strong><p className="wla-muted">Free to start. Your work, points and AI reviews are saved to your account.</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>Sign in or create an account</button></div></div>}
-function Celebrate({s,snap,onHome,onPlay}:{s:Saved;snap:Snapshot|null;onHome:()=>void;onPlay:()=>void}){
+function SignInCard({what,onSignIn,language='en'}:{what:string;onSignIn:()=>void;language?:string}){
+ const t=appTranslator(language);return <div className="wla-stack">
+ <div className="wla-hero-card"><p className="wla-hero-kicker">{t("What a full task looks like")}</p><p className="wla-hero-title">{t("Learn it, make it, get feedback.")}</p>
+  <ul className="wla-perks"><li><Check size={16}/>{t("A short lesson and a worked example")}</li><li><Check size={16}/>{t("A real task you finish in about 15 minutes")}</li><li><Check size={16}/>{t("An AI review of your own words, with a next step")}</li><li><Check size={16}/>{t("Points, streaks and badges as you go")}</li></ul></div>
+ <div className="wla-card"><strong>{t("Sign in to {0}",[t(what)])}</strong><p className="wla-muted">{t("Free to start. Your work, points and AI reviews are saved to your account.")}</p><button type="button" className="wla-primary wla-full" onClick={onSignIn}>{t("Sign in or create an account")}</button></div></div>}
+function Celebrate({s,snap,onHome,onPlay,language='en'}:{s:Saved;snap:Snapshot|null;onHome:()=>void;onPlay:()=>void;language?:string}){
+ const t=appTranslator(language);
  const track=s.track||snap?.profile?.track||'marketing';const done=snap?missionsOfCourse(track).filter(m=>snap.work.some(w=>w.mission_id===m.id)).length:0;
  const awarded=s.status==='awarded';const pct=Math.min(1,done/10);const c=2*Math.PI*64;
  return <div className="wla-stack wla-center wla-celebrate">
   <div className="wla-confetti" aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%6)*0.12}s`,background:['#087A4B','#D5F4DE','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>
-  <div className="wla-ring"><svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="64" fill="none" stroke="#E4F8ED" strokeWidth="14"/><circle cx="75" cy="75" r="64" fill="none" stroke="#087A4B" strokeWidth="14" strokeLinecap="round" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 75 75)"/></svg><div><strong>{done}/10</strong><small>tasks saved</small></div></div>
-  <h2 className="wla-h1 wla-tight">Task saved. <em>Nice work.</em></h2>
-  {awarded&&s.points!==undefined?<p className="wla-win">+{s.points} points{s.balance!==undefined?` · ${s.balance} total`:''}</p>:null}
-  {s.message&&<p className="wla-muted">{s.message}</p>}
-  <p className="wla-muted">It’s in My Creations now.</p>  {(snap?.points?.streak?.current||0)>0&&<p className="wla-streak-big"><Flame size={20}/>{snap!.points!.streak.current}-day streak</p>}
-  {(()=>{const n=snap?nextFor(track,snap):null;return n&&(n.kind==='mission'||n.kind==='plan')?<div className="wla-card wla-tomorrow"><p className="wla-kicker"><CalendarClock size={14}/> TOMORROW · DAY {n.position} OF 10</p><strong>{n.mission.title}</strong><small>{n.mission.minutes} min · up to 100 points</small></div>:n&&n.kind==='checkpoint'?<div className="wla-card wla-tomorrow"><p className="wla-kicker">NEXT · MINI CHALLENGE</p><strong>Clear it to unlock your next task.</strong></div>:null})()}
-  <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener"><BellRing size={18}/>Remind me on WhatsApp tomorrow</a>
-  <button type="button" className="wla-primary wla-full" onClick={onHome}>Back to Home</button>
-  <button type="button" className="wla-link wla-center" onClick={onPlay}><Gamepad2 size={16}/> Play today’s game</button>
+  <div className="wla-ring"><svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="64" fill="none" stroke="#E4F8ED" strokeWidth="14"/><circle cx="75" cy="75" r="64" fill="none" stroke="#087A4B" strokeWidth="14" strokeLinecap="round" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 75 75)"/></svg><div><strong>{done}/10</strong><small>{t("tasks saved")}</small></div></div>
+  <h2 className="wla-h1 wla-tight">{t("Task saved.")}{' '}<em>{t("Nice work.")}</em></h2>
+  {awarded&&s.points!==undefined?<p className="wla-win">+{s.points} {t("points")}{s.balance!==undefined?" · "+t("{0} total",[s.balance]):''}</p>:null}
+  {s.message&&<p className="wla-muted">{t(s.message)}</p>}
+  <p className="wla-muted">{t("It’s in My Creations now.")}</p>  {(snap?.points?.streak?.current||0)>0&&<p className="wla-streak-big"><Flame size={20}/>{snap!.points!.streak.current}{t("-day streak")}</p>}
+  {(()=>{const n=snap?nextFor(track,snap):null;return n&&(n.kind==='mission'||n.kind==='plan')?<div className="wla-card wla-tomorrow"><p className="wla-kicker"><CalendarClock size={14}/> {t("TOMORROW · DAY")}{' '}{n.position} {t("OF 10")}</p><strong>{appMissionTitle(n.mission.id,localizeMission(n.mission,language,snap?.profile?.level).title,language)}</strong><small>{n.mission.minutes} {t("min · up to 100 points")}</small></div>:n&&n.kind==='checkpoint'?<div className="wla-card wla-tomorrow"><p className="wla-kicker">{t("NEXT · MINI CHALLENGE")}</p><strong>{t("Clear it to unlock your next task.")}</strong></div>:null})()}
+  <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener"><BellRing size={18}/>{t("Remind me on WhatsApp tomorrow")}</a>
+  <button type="button" className="wla-primary wla-full" onClick={onHome}>{t("Back to Home")}</button>
+  <button type="button" className="wla-link wla-center" onClick={onPlay}><Gamepad2 size={16}/> {t("Play today’s game")}</button>
  </div>;
 }

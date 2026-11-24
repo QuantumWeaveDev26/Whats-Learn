@@ -1,4 +1,5 @@
 'use client';
+import {appTranslator} from './app-language';
 import {useEffect,useRef,useState} from 'react';
 import {Check,Footprints,Flame,Zap,Star,Flag,Crown,Gamepad2,Target,Shapes,Trophy,Users,PenLine,MessageCircle,Award,X} from 'lucide-react';
 import {api,readLocal,writeLocal,type Snapshot} from './api';
@@ -27,18 +28,20 @@ export function CountUp({value}:{value:number}){
  return <>{shown}</>;
 }
 
-export function LevelCard({s}:{s:Snapshot}){
+export function LevelCard({s,language='en'}:{s:Snapshot;language?:string}){
+ const t=appTranslator(language);
  const l=levelOf(s);
- return <div className="wla-level" aria-label={`Level ${l.lv}, ${l.title}. ${l.into} of ${l.need} XP to the next level.`}>
-  <span className="wla-level-badge"><small>LV</small><strong>{l.lv}</strong></span>
-  <div className="wla-grow"><div className="wla-split"><strong>{l.title}</strong><small>{l.into}/{l.need} XP</small></div>
+ return <div className="wla-level" aria-label={t("Level {0}, {1}. {2} of {3} XP to the next level.",[l.lv,l.title,l.into,l.need])}>
+  <span className="wla-level-badge"><small>{t("LV")}</small><strong>{l.lv}</strong></span>
+  <div className="wla-grow"><div className="wla-split"><strong>{l.title}</strong><small>{l.into}/{l.need} {t("XP")}</small></div>
    <div className="wla-xp"><span style={{width:`${l.into*100/l.need}%`}}/></div>
-   <small className="wla-muted">{l.need-l.into} XP to level {l.lv+1} · save a task for up to 100 XP</small></div>
+   <small className="wla-muted">{l.need-l.into} {t("XP to level")}{' '}{l.lv+1} {t("· save a task for up to 100 XP")}</small></div>
  </div>;
 }
 
 /** Three small things to do each day. Finishing all three earns a celebration. */
-export function DailyMissions({s,who,onTask,onGame,onMentor,footer}:{s:Snapshot;who:string;onTask:()=>void;onGame:()=>void;onMentor:()=>void;footer?:React.ReactNode}){
+export function DailyMissions({s,who,onTask,onGame,onMentor,footer,language='en'}:{s:Snapshot;who:string;onTask:()=>void;onGame:()=>void;onMentor:()=>void;footer?:React.ReactNode;language?:string}){
+ const t=appTranslator(language);
  const day=todayKey();
  const items=[
   {id:'task',label:'Save today’s task',done:!!s.points?.todayUsed,go:onTask,Icon:PenLine},
@@ -51,8 +54,8 @@ export function DailyMissions({s,who,onTask,onGame,onMentor,footer}:{s:Snapshot;
  return <section className={'wla-daily'+(all?' all':'')} aria-labelledby="wla-daily-t">
   {firstAll&&<div className="wla-confetti" aria-hidden="true">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${(i*53)%100}%`,animationDelay:`${(i%5)*0.1}s`,background:['#087A4B','#F6C445','#FFB27A','#9FB8FF','#C9A9F2'][i%5]}}/>)}</div>}
   <div className="wla-daily-head"><svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="22" fill="none" stroke="#E4EDE6" strokeWidth="6"/><circle cx="27" cy="27" r="22" fill="none" stroke="#087A4B" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${c*done/3} ${c}`} transform="rotate(-90 27 27)"/><text x="27" y="32" textAnchor="middle" fontSize="15" fontWeight="700" fill="#202020">{done}/3</text></svg>
-   <div><p className="wla-kicker">TODAY</p><strong id="wla-daily-t">{all?'All done today. Brilliant!':`${3-done} small wins left`}</strong></div></div>
-  <ul>{items.map(i=><li key={i.id}><button type="button" className={i.done?'done':''} onClick={i.go} disabled={i.done} aria-label={`${i.label}${i.done?', done':''}`}><span className="wla-dm-icon">{i.done?<Check size={16}/>:<i.Icon size={16}/>}</span><span className="wla-grow">{i.label}</span>{!i.done&&<small>Go</small>}</button></li>)}</ul>
+   <div><p className="wla-kicker">{t("TODAY")}</p><strong id="wla-daily-t">{all?t("All done today. Brilliant!"):t("{0} small wins left",[3-done])}</strong></div></div>
+  <ul>{items.map(i=><li key={i.id}><button type="button" className={i.done?'done':''} onClick={i.go} disabled={i.done} aria-label={`${i.label}${i.done?', done':''}`}><span className="wla-dm-icon">{i.done?<Check size={16}/>:<i.Icon size={16}/>}</span><span className="wla-grow">{t(i.label)}</span>{!i.done&&<small>{t("Go")}</small>}</button></li>)}</ul>
   {footer}
  </section>;
 }
@@ -77,17 +80,19 @@ export function badgesFor(s:Snapshot|null,who:string,board?:{me:null|{rank:numbe
   {id:'team',name:'Team player',how:'Join a squad',Icon:Users,earned:!!inSquad}
  ];
 }
-export function BadgeGrid({s,who}:{s:Snapshot|null;who:string}){
+export function BadgeGrid({s,who,language='en'}:{s:Snapshot|null;who:string;language?:string}){
+ const t=appTranslator(language);
  const [board,setBoard]=useState<{me:null|{rank:number};squad:unknown}|null>(null);
  useEffect(()=>{let live=true;void api<{me:null|{rank:number};squad:unknown}>('/api/games').then(r=>{if(live&&r.ok)setBoard(r.data)});return()=>{live=false}},[who]);
  const list=badgesFor(s,who,board,!!board?.squad);const got=list.filter(b=>b.earned).length;
  return <section className="wla-badges" aria-labelledby="wla-badges-t">
-  <div className="wla-split"><p className="wla-section" id="wla-badges-t">BADGES</p><small className="wla-muted">{got} of {list.length}</small></div>
-  <div className="wla-badge-grid">{list.map(b=><div key={b.id} className={'wla-badge'+(b.earned?' got':'')} title={b.how}><span><b.Icon size={22}/></span><strong>{b.name}</strong><small>{b.earned?'Earned':b.how}</small></div>)}</div>
+  <div className="wla-split"><p className="wla-section" id="wla-badges-t">{t("BADGES")}</p><small className="wla-muted">{got} {t("of")}{' '}{list.length}</small></div>
+  <div className="wla-badge-grid">{list.map(b=><div key={b.id} className={'wla-badge'+(b.earned?' got':'')} title={t(b.how)}><span><b.Icon size={22}/></span><strong>{t(b.name)}</strong><small>{b.earned?t("Earned"):t(b.how)}</small></div>)}</div>
  </section>;
 }
 /** Shows a short toast the first time a badge is earned on this phone. */
-export function BadgeToast({s,who}:{s:Snapshot;who:string}){
+export function BadgeToast({s,who,language='en'}:{s:Snapshot;who:string;language?:string}){
+ const t=appTranslator(language);
  const [toast,setToast]=useState<Badge|null>(null);
  useEffect(()=>{
   const key=`wla-badges-seen:${who}`,initKey=`wla-badges-init:${who}`;const seen=new Set((readLocal(key)||'').split(',').filter(Boolean));
@@ -98,5 +103,5 @@ export function BadgeToast({s,who}:{s:Snapshot;who:string}){
   setToast(fresh);try{navigator.vibrate?.([20,30,20])}catch{}const t=setTimeout(()=>setToast(null),4500);return()=>clearTimeout(t);
  },[s,who]);
  if(!toast)return null;
- return <div className="wla-toast" role="status"><span><Award size={22}/></span><div><small>NEW BADGE</small><strong>{toast.name}</strong><small>{toast.how}</small></div><button type="button" aria-label="Close" onClick={()=>setToast(null)}><X size={18}/></button></div>;
+ return <div className="wla-toast" role="status"><span><Award size={22}/></span><div><small>{t("NEW BADGE")}</small><strong>{t(toast.name)}</strong><small>{toast.how}</small></div><button type="button" aria-label={t("Close")} onClick={()=>setToast(null)}><X size={18}/></button></div>;
 }

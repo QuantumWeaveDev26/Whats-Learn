@@ -8,11 +8,12 @@ const appLanguages=lessonLanguages.filter(code=>!hiddenInApp.includes(code));
 import {api,readLocal,writeLocal} from './api';
 import {appTranslator} from './app-language';
 
-export function Splash({onDone}:{onDone:()=>void}){
+export function Splash({onDone,language='en'}:{onDone:()=>void;language?:string}){
+ const t=appTranslator(language);
  useEffect(()=>{const t=setTimeout(onDone,1600);return()=>clearTimeout(t)},[onDone]);
  return <div className="wla-splash" onClick={onDone}>
   <svg className="wla-splash-mark" viewBox="58 22 76 76" role="img" aria-label="WhatsLearn"><image href="/images/app-icon-192.png" width="192" height="192"/></svg>
-  <p>From chat to change.</p>
+  <p>{t("From chat to change.")}</p>
  </div>;
 }
 
@@ -21,23 +22,24 @@ const slides=[
  {t:'Make real things.',e:'Get AI feedback.',b:'Each task ends with something you made. The AI reviews your own words, not a template.',Icon:PenLine,img:'/images/app-welcome-2.webp'},
  {t:'Learn here',e:'or on WhatsApp.',b:'Same course, synced progress. Your mentor is one message away.',Icon:MessageCircle,img:'/images/app-welcome-3.webp'}
 ];
-export function Welcome({onDone}:{onDone:()=>void}){
+export function Welcome({onDone,language='en'}:{onDone:()=>void;language?:string}){
+ const t=appTranslator(language);
  const [i,setI]=useState(0);const s=slides[i];const Icon=s.Icon;
  // Each slide shows its own illustration; if an image is missing the icon art is shown instead.
  const [missing,setMissing]=useState<Record<string,boolean>>({});
  // Fetch the later slides' images as soon as the intro opens, so they never appear blank.
  useEffect(()=>{slides.slice(1).forEach(x=>{const im=new Image();im.decoding='async';im.src=x.img})},[]);
  return <div className="wla-page wla-welcome">
-  <div className="wla-row-end"><button type="button" className="wla-link" onClick={onDone}>Skip</button></div>
+  <div className="wla-row-end"><button type="button" className="wla-link" onClick={onDone}>{t("Skip")}</button></div>
   <div className="wla-welcome-body">
    {!missing[s.img]?<div className="wla-hero-art wla-hero-img" aria-hidden="true"><img key={s.img} src={s.img} alt="" width={720} height={540} onError={()=>setMissing(m=>({...m,[s.img]:true}))}/></div>
    :<div className="wla-hero-art" aria-hidden="true"><span/><div><Icon size={44}/></div></div>}
-   <h1>{s.t}<br/><em>{s.e}</em></h1>
-   <p className="wla-muted">{s.b}</p>
+   <h1>{t(s.t)}<br/><em>{t(s.e)}</em></h1>
+   <p className="wla-muted">{t(s.b)}</p>
   </div>
   <div className="wla-welcome-foot">
-   <div className="wla-dots" role="img" aria-label={`Slide ${i+1} of 3`}>{slides.map((_,n)=><span key={n} className={n===i?'on':''}/>)}</div>
-   <button type="button" className="wla-primary" onClick={()=>i<2?setI(i+1):onDone()}>{i<2?'Next':'Get started'}</button>
+   <div className="wla-dots" role="img" aria-label={t("Slide {0} of 3",[i+1])}>{slides.map((_,n)=><span key={n} className={n===i?'on':''}/>)}</div>
+   <button type="button" className="wla-primary" onClick={()=>i<2?setI(i+1):onDone()}>{i<2?t("Next"):t("Get started")}</button>
   </div>
  </div>;
 }
@@ -74,10 +76,10 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
   onSignedIn();
  }
  if(sent)return <div className="wla-page wla-sent">
-  <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>From chat to change</small></div></div>
-  <p className="wla-kicker">ONE LAST STEP</p><h1 className="wla-h1">Check your <em>email.</em></h1>
-  <p className="wla-muted">We sent a confirmation link to <strong>{sent}</strong>. Open it on this phone and you’ll come straight back to the app.</p>
-  {resent&&<p className="wla-ok" role="status">{resent}</p>}
+  <div className="wla-brand"><img src="/images/app-icon-192.png" alt=""/><div><strong>WhatsLearn</strong><small>{t("From chat to change")}</small></div></div>
+  <p className="wla-kicker">{t("ONE LAST STEP")}</p><h1 className="wla-h1">{t("Check your")}{' '}<em>{t("email.")}</em></h1>
+  <p className="wla-muted">{t("We sent a confirmation link to")}{' '}<strong>{sent}</strong>{t(". Open it on this phone and you’ll come straight back to the app.")}</p>
+  {resent&&<p className="wla-ok" role="status">{t(resent)}</p>}
   <button type="button" className="wla-outline wla-full" disabled={busy} onClick={async()=>{setBusy(true);const r=await api<{message?:string}>('/api/auth/resend',{method:'POST',body:{email:sent,returnTo:'/app'}});setBusy(false);setResent(r.ok?(r.data.message||'Sent again. Check your inbox and spam folder.'):(r.data.error||'Could not resend just now. Try again in a minute.'))}}>{busy?t("Sending…"):t("Resend the email")}</button>
   <button type="button" className="wla-primary wla-full" onClick={()=>{setSent('');setResent('');setMode('in')}}>{t("I’ve confirmed. Sign in")}</button>
   <button type="button" className="wla-link wla-center" onClick={()=>{setSent('');setMode('up')}}>{t("Use a different email")}</button>
@@ -96,7 +98,7 @@ export function AuthScreen({onSignedIn,onGuest,notice,allowGuest=true,language='
    <label htmlFor="wla-email">{t("Email")}</label><input id="wla-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" maxLength={254}/>
    <label htmlFor="wla-password">{t("Password")}</label>
    <div className="wla-pass"><input id="wla-password" type={show?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='in'?'current-password':'new-password'} maxLength={200}/><button type="button" onClick={()=>setShow(!show)} aria-label={show?t("Hide password"):t("Show password")} aria-pressed={show}>{show?<EyeOff size={20}/>:<Eye size={20}/>}</button></div>
-   {err&&<p className="wla-error" role="alert">{err}</p>}{info&&<p className="wla-ok" role="status">{info}</p>}
+   {err&&<p className="wla-error" role="alert">{t(err)}</p>}{info&&<p className="wla-ok" role="status">{t(info)}</p>}
    <button className="wla-primary wla-full" type="submit" disabled={busy||!email||!password||(mode==='up'&&!name)}>{busy?t("Please wait…"):mode==='in'?t("Sign in"):t("Create account")}</button>
   </form>
   {mode==='in'&&<a className="wla-link wla-center" href="/forgot-password?return_to=%2Fapp">{t("Forgot your password?")}</a>}

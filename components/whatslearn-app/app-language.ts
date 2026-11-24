@@ -1,5 +1,6 @@
 import {messageCopy} from '@/lib/question-translations';
 import {appInterfaceCopy} from './app-interface-copy';
+import {findAppCopy} from './app-copy';
 
 const kannada: Record<string, string> = {
  'Mentor':'ಮಾರ್ಗದರ್ಶಕ', 'Me':'ನನ್ನ ಖಾತೆ', 'Sign in':'ಲಾಗಿನ್ ಮಾಡಿ', 'Saved':'ಉಳಿಸಲಾಗಿದೆ',
@@ -98,11 +99,14 @@ export function appTranslator(language = 'en') {
   'Show what you tried':learning.try,
   'Next step:':learning.next+':',
  };
- return (text:string)=>{
-  if(language==='en')return text;
-  if(language==='kn'&&Object.hasOwn(kannada,text))return kannada[text];
-  if(interfaceCopy&&Object.hasOwn(interfaceCopy,text))return interfaceCopy[text];
-  return Object.hasOwn(shared,text)?shared[text]:text;
+ return (text:string,values:readonly unknown[]=[])=>{
+  let translated=text;
+  if(language!=='en'){
+   translated=language==='kn'&&Object.hasOwn(kannada,text)?kannada[text]:
+    interfaceCopy&&Object.hasOwn(interfaceCopy,text)?interfaceCopy[text]:
+    Object.hasOwn(shared,text)?shared[text]:findAppCopy(language,text)??text;
+  }
+  return values.length?translated.replace(/\{(\d+)\}/g,(token,index)=>Number(index)<values.length?String(values[Number(index)]):token):translated;
  };
 }
 
@@ -112,7 +116,7 @@ const courseNames: Record<string,string> = {
 };
 
 export function appCourseName(id:string, name:string, language:string) {
- return language==='kn' ? courseNames[id]??name : name;
+ return language==='kn' ? courseNames[id]??name : appTranslator(language)(name);
 }
 
 const missionTitles: Record<string,string> = {
@@ -123,5 +127,5 @@ const missionTitles: Record<string,string> = {
 };
 
 export function appMissionTitle(id:string, title:string, language:string) {
- return language==='kn' ? missionTitles[id]??title : title;
+ return language==='kn' ? missionTitles[id]??title : appTranslator(language)(title);
 }

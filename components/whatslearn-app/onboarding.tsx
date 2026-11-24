@@ -1,4 +1,5 @@
 'use client';
+import {appTranslator} from './app-language';
 import {useState} from 'react';
 import {ArrowLeft,Check} from 'lucide-react';
 import {contextQuestions} from '@/lib/learner-context';
@@ -9,7 +10,8 @@ import {api,type Profile} from './api';
 
 type Answers=Record<string,string|string[]>;
 /** Part 1: the website's personal setup questions (saved to /api/learner-context). Every question can be skipped, as on the website. */
-export function PersonalSetup({onDone}:{onDone:()=>void}){
+export function PersonalSetup({onDone,language='en'}:{onDone:()=>void;language?:string}){
+ const t=appTranslator(language);
  const [i,setI]=useState(0),[answers,setAnswers]=useState<Answers>({}),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const q=contextQuestions[i];const opts=Object.entries(q.options as Record<string,string>);
  const multi='multi' in q&&q.multi,text=('shortText' in q&&q.shortText)||('text' in q&&q.text);
@@ -24,16 +26,16 @@ export function PersonalSetup({onDone}:{onDone:()=>void}){
  const last=i===contextQuestions.length-1;
  return <div className="wla-page">
   <div className="wla-progress"><span style={{width:`${(i+1)*100/contextQuestions.length}%`}}/></div>
-  <p className="wla-kicker">ABOUT YOU · {i+1} OF {contextQuestions.length}</p>
-  <h1 className="wla-h1">{q.title}</h1>
-  <p className="wla-muted">{q.hint}</p>
-  {text?<input className="wla-input" value={typeof value==='string'?value:''} onChange={e=>setAnswers({...answers,[q.key]:e.target.value})} maxLength={q.key==='project'?160:60} aria-label={q.title}/>
-   :<div className="wla-options">{opts.map(([v,label])=>{const on=multi?Array.isArray(value)&&value.includes(v):value===v;return <button key={v} type="button" className={'wla-option'+(on?' on':'')} aria-pressed={on} onClick={()=>pick(v)}><span>{label}</span>{on&&<Check size={18}/>}</button>})}</div>}
-  {err&&<p className="wla-error" role="alert">{err}</p>}
+  <p className="wla-kicker">{t("ABOUT YOU ·")}{' '}{i+1} {t("OF")}{' '}{contextQuestions.length}</p>
+  <h1 className="wla-h1">{t(q.title)}</h1>
+  <p className="wla-muted">{t(q.hint)}</p>
+  {text?<input className="wla-input" value={typeof value==='string'?value:''} onChange={e=>setAnswers({...answers,[q.key]:e.target.value})} maxLength={q.key==='project'?160:60} aria-label={t(q.title)}/>
+   :<div className="wla-options">{opts.map(([v,label])=>{const on=multi?Array.isArray(value)&&value.includes(v):value===v;return <button key={v} type="button" className={'wla-option'+(on?' on':'')} aria-pressed={on} onClick={()=>pick(v)}><span>{t(label)}</span>{on&&<Check size={18}/>}</button>})}</div>}
+  {err&&<p className="wla-error" role="alert">{t(err)}</p>}
   <div className="wla-actions">
-   <button type="button" className="wla-ghost" disabled={!i||busy} onClick={()=>setI(i-1)}><ArrowLeft size={18}/>Back</button>
-   <button type="button" className="wla-link" disabled={busy} onClick={()=>last?finish():setI(i+1)}>Skip</button>
-   <button type="button" className="wla-primary" disabled={busy} onClick={()=>last?finish():setI(i+1)}>{busy?'Saving…':last?'Finish':'Next'}</button>
+   <button type="button" className="wla-ghost" disabled={!i||busy} onClick={()=>setI(i-1)}><ArrowLeft size={18}/>{t("Back")}</button>
+   <button type="button" className="wla-link" disabled={busy} onClick={()=>last?finish():setI(i+1)}>{t("Skip")}</button>
+   <button type="button" className="wla-primary" disabled={busy} onClick={()=>last?finish():setI(i+1)}>{busy?t("Saving…"):last?t("Finish"):t("Next")}</button>
   </div>
  </div>;
 }
@@ -47,21 +49,22 @@ const pathQuestions=[
 ] as const;
 /** Part 2: the website's "Find my path" questions (saved to /api/profile). Language comes from the app's language step. */
 export function PathSetup({initial,language,onDone,onCancel}:{initial:Profile|null;language:string;onDone:()=>void;onCancel?:()=>void}){
+ const t=appTranslator(language);
  const [i,setI]=useState(0),[busy,setBusy]=useState(false),[err,setErr]=useState('');
  const [p,setP]=useState<Profile>({goal:'job',track:'marketing',level:'beginner',minutes:'15',style:'casual',...(initial||{}),language});
  const q=pathQuestions[i];const last=i===pathQuestions.length-1;const val=(p as Record<string,string|undefined>)[q.key];
  async function finish(){setBusy(true);setErr('');const r=await api('/api/profile',{method:'POST',body:p});setBusy(false);if(r.ok)onDone();else setErr(r.data.error||'Could not save your choices. Please try again.')}
  return <div className="wla-page">
-  {onCancel&&!i&&<button type="button" className="wla-back" onClick={onCancel}><ArrowLeft size={18}/>Back</button>}
+  {onCancel&&!i&&<button type="button" className="wla-back" onClick={onCancel}><ArrowLeft size={18}/>{t("Back")}</button>}
   <div className="wla-progress"><span style={{width:`${(i+1)*100/pathQuestions.length}%`}}/></div>
-  <p className="wla-kicker">FIND MY PATH · {i+1} OF {pathQuestions.length}</p>
-  <h1 className="wla-h1">{q.title}</h1>
-  <p className="wla-muted">{q.sub}</p>
-  <div className="wla-options">{q.options.map(o=><button key={o.value} type="button" className={'wla-option'+(val===o.value?' on':'')} aria-pressed={val===o.value} onClick={()=>setP({...p,[q.key]:o.value})}><span><strong>{o.label}</strong>{o.detail&&<small>{o.detail}</small>}</span>{val===o.value&&<Check size={18}/>}</button>)}</div>
-  {err&&<p className="wla-error" role="alert">{err}</p>}
+  <p className="wla-kicker">{t("FIND MY PATH ·")}{' '}{i+1} {t("OF")}{' '}{pathQuestions.length}</p>
+  <h1 className="wla-h1">{t(q.title)}</h1>
+  <p className="wla-muted">{t(q.sub)}</p>
+  <div className="wla-options">{q.options.map(o=><button key={o.value} type="button" className={'wla-option'+(val===o.value?' on':'')} aria-pressed={val===o.value} onClick={()=>setP({...p,[q.key]:o.value})}><span><strong>{t(o.label)}</strong>{o.detail&&<small>{t(o.detail)}</small>}</span>{val===o.value&&<Check size={18}/>}</button>)}</div>
+  {err&&<p className="wla-error" role="alert">{t(err)}</p>}
   <div className="wla-actions">
-   <button type="button" className="wla-ghost" disabled={!i||busy} onClick={()=>setI(i-1)}><ArrowLeft size={18}/>Back</button>
-   <button type="button" className="wla-primary" disabled={busy} onClick={()=>last?finish():setI(i+1)}>{busy?'Saving…':last?'Show my path':'Continue'}</button>
+   <button type="button" className="wla-ghost" disabled={!i||busy} onClick={()=>setI(i-1)}><ArrowLeft size={18}/>{t("Back")}</button>
+   <button type="button" className="wla-primary" disabled={busy} onClick={()=>last?finish():setI(i+1)}>{busy?t("Saving…"):last?t("Show my path"):t("Continue")}</button>
   </div>
  </div>;
 }

@@ -1,1 +1,1 @@
-export const APP_RELEASE = '2026-11-24-app-language-switch';
+export const APP_RELEASE = '2026-11-24-app-translations';

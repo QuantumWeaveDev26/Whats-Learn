@@ -1,5 +1,5 @@
 // Only /app navigations belong to this worker. Never store personalized HTML.
-const PUBLIC_CACHE='wla-offline-v1',PUBLIC_GAME='/app-offline.html';
+const PUBLIC_CACHE='wla-offline-v2',PUBLIC_GAME='/app-offline.html';
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(PUBLIC_CACHE).then(cache=>cache.addAll([PUBLIC_GAME])).catch(()=>{}).then(()=>self.skipWaiting()));
 });

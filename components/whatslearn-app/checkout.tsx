@@ -3,6 +3,7 @@
  * a successful payment keeps the learner in the app and refreshes their plan here. */
 import {useEffect,useState} from 'react';
 import {Lock} from 'lucide-react';
+import {appTranslator} from './app-language';
 import {billingRequest} from '@/components/whatslearn/razorpay-checkout';
 
 type Status={enabled:boolean;mode:string;checked:boolean};
@@ -19,7 +20,8 @@ export function useBillingStatus(){
  return s;
 }
 
-export function BuyButton({sku,label,status,onPaid,onMessage}:{sku:'plus_monthly'|'pro_monthly';label:string;status:Status;onPaid:()=>void;onMessage:(m:string)=>void}){
+export function BuyButton({sku,label,status,onPaid,onMessage,language='en'}:{language?:string;sku:'plus_monthly'|'pro_monthly';label:string;status:Status;onPaid:()=>void;onMessage:(m:string)=>void}){
+ const t=appTranslator(language);
  const [busy,setBusy]=useState(false);const live=status.mode==='live';
  async function start(){
   if(!status.enabled||busy)return;setBusy(true);onMessage('');
@@ -38,5 +40,5 @@ export function BuyButton({sku,label,status,onPaid,onMessage}:{sku:'plus_monthly
    modal.open();
   }catch(e){onMessage(e instanceof Error?e.message:'Checkout failed. Please try again.');setBusy(false)}
  }
- return <button type="button" className="wla-primary wla-full" disabled={!status.enabled||busy} onClick={start}>{busy?'Opening secure checkout…':!status.checked?'Checking…':status.enabled?<>{!live&&'TEST · '}{label}</>:<><Lock size={16}/>Checkout is not open yet</>}</button>;
+ return <button type="button" className="wla-primary wla-full" disabled={!status.enabled||busy} onClick={start}>{busy?t("Opening secure checkout…"):!status.checked?t("Checking…"):status.enabled?<>{!live&&t('TEST')+' · '}{label}</>:<><Lock size={16}/>{t("Checkout is not open yet")}</>}</button>;
 }

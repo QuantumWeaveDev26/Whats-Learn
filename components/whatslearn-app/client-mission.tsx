@@ -1,4 +1,5 @@
 'use client';
+import {appTranslator} from './app-language';
 import {useEffect,useRef,useState} from 'react';
 import {ArrowLeft,Check} from 'lucide-react';
 import {readLocal,writeLocal} from './api';
@@ -18,12 +19,13 @@ const checks=(d:Draft)=>[
 function restore(who:string):Draft{try{const d=JSON.parse(readLocal(key(who))||'null');if(d?.v!==1||d.owner!==who)return blank(who);const clean={...blank(who),audience:['students','everyone','regulars'].includes(d.audience)?d.audience:'',ad:typeof d.ad==='string'?d.ad.slice(0,280):'',revision:typeof d.revision==='string'?d.revision.slice(0,280):'',reason:typeof d.reason==='string'?d.reason.slice(0,220):''} as Draft;const step=Number.isInteger(d.step)?Math.max(0,Math.min(3,d.step)):0;clean.step=!clean.audience?0:step>=2&&clean.ad.trim().length<25?1:step===3&&!checks(clean).every(c=>c.met)?2:step;return clean}catch{return blank(who)}}
 
 /** An optional deterministic simulation. It does not grade course work or contact a real client. */
-export function ClientMission({who,onBack}:{who:string;onBack:()=>void}){
+export function ClientMission({who,onBack,language='en'}:{who:string;onBack:()=>void;language?:string}){
  const [brief,setBrief]=useState<'cafe'|'bookshop'>('cafe');
- return <ClientBrief key={brief} who={who} brief={brief} onBack={onBack} onSwitch={()=>setBrief(brief==='cafe'?'bookshop':'cafe')}/>;
+ return <ClientBrief language={language} key={brief} who={who} brief={brief} onBack={onBack} onSwitch={()=>setBrief(brief==='cafe'?'bookshop':'cafe')}/>;
 }
 
-function ClientBrief({who,brief,onBack,onSwitch}:{who:string;brief:'cafe'|'bookshop';onBack:()=>void;onSwitch:()=>void}){
+function ClientBrief({who,brief,onBack,onSwitch,language='en'}:{who:string;brief:'cafe'|'bookshop';onBack:()=>void;onSwitch:()=>void;language?:string}){
+ const t=appTranslator(language);
  // Keep the original café draft key and give the bookshop a separate key.
  const bookshop=brief==='bookshop';
  const owner=bookshop?'bookshop:'+who:who;
@@ -33,37 +35,37 @@ function ClientBrief({who,brief,onBack,onSwitch}:{who:string;brief:'cafe'|'books
  useEffect(()=>{if(d.owner!==owner){setDraft(restore(owner));setSaved(null)}},[owner,d.owner]);
  useEffect(()=>{if(d.owner===owner)setSaved(writeLocal(key(owner),JSON.stringify(d))!==false)},[d,owner]);
  useEffect(()=>{heading.current?.focus({preventScroll:true})},[d.step]);
- if(d.owner!==owner)return <p role="status">Loading your mission…</p>;
+ if(d.owner!==owner)return <p role="status">{t("Loading your mission…")}</p>;
  const update=(patch:Partial<Draft>)=>{setSaved(null);setDraft(previous=>({...previous,...patch}))};
  const checklist=checks(d),complete=checklist.every(c=>c.met);
  const consequences:Record<Exclude<Audience,''>,string>={students:bookshop?'A useful fit: students nearby can pick up study supplies after class. Give them a reason to stop by.':'A useful fit: students nearby can walk in after class. Make the offer and the time clear.',everyone:'Too broad: much of your reach could go to people outside walking distance. Focus on nearby students.',regulars:'Regulars may return, but this brief asks for new student visits. Existing customers alone will not meet that goal.'};
  return <div className="wla-stack wla-client-mission">
-  <button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>All games</button>
-  <div><p className="wla-kicker">CLIENT STUDIO · 5 MIN</p><h2 ref={heading} tabIndex={-1} className="wla-h1">{d.step===3?'Mission complete':bookshop?'The bookshop brief':'The café brief'}</h2><p className="wla-muted">Simulated client practice · no course credit</p></div>
-  <button type="button" className="wla-link" disabled={saved!==true} onClick={onSwitch}>{bookshop?'Open the café brief':'Open the bookshop brief'}</button>
-  <p className="wla-draft-status" role="status">{saved===false?'Couldn’t save on this phone. Keep this screen open and copy your work.':saved?'Draft saved on this phone.':'Saving draft on this phone…'}</p>
+  <button type="button" className="wla-back" onClick={onBack}><ArrowLeft size={18}/>{t("All games")}</button>
+  <div><p className="wla-kicker">{t("CLIENT STUDIO · 5 MIN")}</p><h2 ref={heading} tabIndex={-1} className="wla-h1">{d.step===3?t("Mission complete"):bookshop?t("The bookshop brief"):t("The café brief")}</h2><p className="wla-muted">{t("Simulated client practice · no course credit")}</p></div>
+  <button type="button" className="wla-link" disabled={saved!==true} onClick={onSwitch}>{bookshop?t("Open the café brief"):t("Open the bookshop brief")}</button>
+  <p className="wla-draft-status" role="status">{saved===false?t("Couldn’t save on this phone. Keep this screen open and copy your work."):saved?t("Draft saved on this phone."):t("Saving draft on this phone…")}</p>
   {d.step<3&&<p className="wla-muted">{['1. Investigate','2. Create','3. Respond to feedback'][d.step]} · {d.step+1}/3</p>}
   {d.step===0&&<>
-   <div className="wla-card wla-tint"><strong>{bookshop?'Campus Corner Books':'Campus Corner Café'}</strong><p className="wla-read">{bookshop?'“Help us bring new students into the shop for our exam-week study kit.”':'“Help us attract new students who can walk here after class. We have ₹5,000 for a weekday campaign.”'}</p><ul className="wla-read"><li>50 metres from the college gate.</li><li>{offer}: ₹99, weekdays, 4–6 pm.</li><li>Show a campus ID to claim the offer.</li></ul></div>
-   <fieldset className="wla-fieldset"><legend>Who should the campaign focus on?</legend><div className="wla-stack">{([['students','Nearby college students'],['everyone','Everyone in the city'],['regulars','Existing regulars']] as const).map(([id,label])=><button key={id} type="button" className={'wla-option'+(d.audience===id?' on':'')} aria-pressed={d.audience===id} onClick={()=>update({audience:id})}>{label}</button>)}</div></fieldset>
-   {d.audience&&<p className="wla-note" role="status">{consequences[d.audience]}</p>}
-   <button type="button" className="wla-primary wla-full" disabled={!d.audience} onClick={()=>{if(d.audience)update({step:1})}}>Write the advert</button>
+   <div className="wla-card wla-tint"><strong>{bookshop?t("Campus Corner Books"):t("Campus Corner Café")}</strong><p className="wla-read">{bookshop?t("“Help us bring new students into the shop for our exam-week study kit.”"):t("“Help us attract new students who can walk here after class. We have ₹5,000 for a weekday campaign.”")}</p><ul className="wla-read"><li>{t("50 metres from the college gate.")}</li><li>{t(offer)}{t(": ₹99, weekdays, 4–6 pm.")}</li><li>{t("Show a campus ID to claim the offer.")}</li></ul></div>
+   <fieldset className="wla-fieldset"><legend>{t("Who should the campaign focus on?")}</legend><div className="wla-stack">{([['students','Nearby college students'],['everyone','Everyone in the city'],['regulars','Existing regulars']] as const).map(([id,label])=><button key={id} type="button" className={'wla-option'+(d.audience===id?' on':'')} aria-pressed={d.audience===id} onClick={()=>update({audience:id})}>{label}</button>)}</div></fieldset>
+   {d.audience&&<p className="wla-note" role="status">{t(consequences[d.audience])}</p>}
+   <button type="button" className="wla-primary wla-full" disabled={!d.audience} onClick={()=>{if(d.audience)update({step:1})}}>{t("Write the advert")}</button>
   </>}
   {d.step===1&&<>
-   <p className="wla-read">Write a short advert. Offer: {offer} for ₹99, weekdays 4–6 pm, with a campus ID. Give students one clear next step.</p>
-   <div className="wla-field"><label htmlFor="cm-ad">Your first advert</label><textarea id="cm-ad" rows={4} maxLength={280} value={d.ad} onChange={e=>update({ad:e.target.value.slice(0,280)})}/><small>{d.ad.length}/280 · at least 25 characters</small></div>
-   <button type="button" className="wla-primary wla-full" disabled={d.ad.trim().length<25} onClick={()=>{if(d.ad.trim().length>=25)update({step:2})}}>Show client feedback</button>
-   <button type="button" className="wla-ghost" onClick={()=>update({step:0})}>Reconsider the audience</button>
+   <p className="wla-read">{t("Write a short advert. Offer:")}{' '}{t(offer)} {t("for ₹99, weekdays 4–6 pm, with a campus ID. Give students one clear next step.")}</p>
+   <div className="wla-field"><label htmlFor="cm-ad">{t("Your first advert")}</label><textarea id="cm-ad" rows={4} maxLength={280} value={d.ad} onChange={e=>update({ad:e.target.value.slice(0,280)})}/><small>{t("{0}/280 · at least 25 characters",[d.ad.length])}</small></div>
+   <button type="button" className="wla-primary wla-full" disabled={d.ad.trim().length<25} onClick={()=>{if(d.ad.trim().length>=25)update({step:2})}}>{t("Show client feedback")}</button>
+   <button type="button" className="wla-ghost" onClick={()=>update({step:0})}>{t("Reconsider the audience")}</button>
   </>}
   {d.step===2&&<>
-   <div className="wla-card wla-tint"><strong>Client revision request · simulated</strong><p className="wla-read">{d.audience==='students'?'“Keep the student audience. Make the offer and how to claim it clear.”':d.audience==='everyone'?'“Focus on students who can walk here after class. Give them the exact offer.”':'“Rewrite this for students who haven’t visited yet. Tell them what they get and how to claim it.”'}</p></div>
-   <details className="wla-disclosure"><summary>Your first advert</summary><p className="wla-read">{d.ad}</p></details>
-   <div className="wla-field"><label htmlFor="cm-revision">Your revised advert</label><textarea id="cm-revision" rows={4} maxLength={280} value={d.revision} onChange={e=>update({revision:e.target.value.slice(0,280)})}/><small>Include {offer}, weekdays 4–6 pm, ₹99 and “show your campus ID”.</small></div>
-   <div className="wla-field"><label htmlFor="cm-reason">What did you change, and why?</label><textarea id="cm-reason" rows={2} maxLength={220} value={d.reason} onChange={e=>update({reason:e.target.value.slice(0,220)})}/><small>At least 12 characters.</small></div>
-   <ul className="wla-checklist" aria-label="Brief completion checklist">{checklist.map(c=><li key={c.label} className={c.met?'met':''}>{c.met?<Check size={14}/>:'•'}{c.label}</li>)}</ul>
-   <button type="button" className="wla-primary wla-full" disabled={!complete} onClick={()=>{if(complete)update({step:3})}}>Finish mission</button>
-   <button type="button" className="wla-ghost" onClick={()=>update({step:1})}>Edit the first advert</button>
+   <div className="wla-card wla-tint"><strong>{t("Client revision request · simulated")}</strong><p className="wla-read">{d.audience==='students'?t("“Keep the student audience. Make the offer and how to claim it clear.”"):d.audience==='everyone'?t("“Focus on students who can walk here after class. Give them the exact offer.”"):t("“Rewrite this for students who haven’t visited yet. Tell them what they get and how to claim it.”")}</p></div>
+   <details className="wla-disclosure"><summary>{t("Your first advert")}</summary><p className="wla-read">{d.ad}</p></details>
+   <div className="wla-field"><label htmlFor="cm-revision">{t("Your revised advert")}</label><textarea id="cm-revision" rows={4} maxLength={280} value={d.revision} onChange={e=>update({revision:e.target.value.slice(0,280)})}/><small>{t("Include")}{' '}{t(offer)}{t(", weekdays 4–6 pm, ₹99 and “show your campus ID”.")}</small></div>
+   <div className="wla-field"><label htmlFor="cm-reason">{t("What did you change, and why?")}</label><textarea id="cm-reason" rows={2} maxLength={220} value={d.reason} onChange={e=>update({reason:e.target.value.slice(0,220)})}/><small>{t("At least 12 characters.")}</small></div>
+   <ul className="wla-checklist" aria-label={t("Brief completion checklist")}>{checklist.map(c=><li key={c.label} className={c.met?'met':''}>{c.met?<Check size={14}/>:'•'}{t(c.label)}</li>)}</ul>
+   <button type="button" className="wla-primary wla-full" disabled={!complete} onClick={()=>{if(complete)update({step:3})}}>{t("Finish mission")}</button>
+   <button type="button" className="wla-ghost" onClick={()=>update({step:1})}>{t("Edit the first advert")}</button>
   </>}
-  {d.step===3&&<><div className="wla-card"><strong>Your revised advert</strong><p className="wla-read">{d.revision}</p><small>{d.reason}</small></div><p className="wla-read">You made a decision, produced an advert and revised it to meet a brief. The checklist checks required details; it does not predict campaign results or judge creativity.</p><button type="button" className="wla-outline wla-full" onClick={()=>update({step:2})}>Improve this version</button><button type="button" className="wla-primary wla-full" onClick={onBack}>Back to games</button></>}
+  {d.step===3&&<><div className="wla-card"><strong>{t("Your revised advert")}</strong><p className="wla-read">{d.revision}</p><small>{d.reason}</small></div><p className="wla-read">{t("You made a decision, produced an advert and revised it to meet a brief. The checklist checks required details; it does not predict campaign results or judge creativity.")}</p><button type="button" className="wla-outline wla-full" onClick={()=>update({step:2})}>{t("Improve this version")}</button><button type="button" className="wla-primary wla-full" onClick={onBack}>{t("Back to games")}</button></>}
  </div>;
 }

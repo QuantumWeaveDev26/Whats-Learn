@@ -1,19 +1,27 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-function runner(){
+function runner(copy){
+ const reads=[];
  const file='public/app-offline.html';assert.ok(fs.existsSync(file),'a self-contained offline game must exist');
  const html=fs.readFileSync(file,'utf8'),nodes=new Map(),frames=new Map();let time=0,id=0;
- function element(name){if(!nodes.has(name))nodes.set(name,{style:{},dataset:{},textContent:'',hidden:false,disabled:false,listeners:{},addEventListener(type,fn){this.listeners[type]=fn},focus(){this.focused=true}});return nodes.get(name)}
- const document={hidden:false,visibilityState:'visible',listeners:{},getElementById:element,addEventListener(type,fn){this.listeners[type]=fn}};
+ function element(name){if(!nodes.has(name))nodes.set(name,{style:{},dataset:{},getAttribute:()=>'',setAttribute(){},textContent:'',hidden:false,disabled:false,listeners:{},addEventListener(type,fn){this.listeners[type]=fn},focus(){this.focused=true}});return nodes.get(name)}
+ const document={hidden:false,visibilityState:'visible',listeners:{},documentElement:{lang:'en'},getElementById:element,querySelectorAll:()=>[],addEventListener(type,fn){this.listeners[type]=fn}};
  const window={listeners:{},addEventListener(type,fn){this.listeners[type]=fn}};window.self=window;window.top=window;
- vm.runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],{document,window,performance:{now:()=>time},requestAnimationFrame:fn=>{frames.set(++id,fn);return id},cancelAnimationFrame:id=>frames.delete(id),Math});
+ vm.runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],{document,window,performance:{now:()=>time},requestAnimationFrame:fn=>{frames.set(++id,fn);return id},cancelAnimationFrame:id=>frames.delete(id),Math,localStorage:{getItem(key){reads.push(key);return JSON.stringify(copy||null)}}});
  const fire=(name,type='click',extra={})=>element(name).listeners[type]?.({preventDefault(){},target:element(name),...extra});
  function tick(ms=16){time+=ms;const pending=[...frames.values()];frames.clear();pending.forEach(fn=>fn(time))}
- return {html,document,window,element,fire,tick,frames};
+ return {html,document,window,element,fire,tick,frames,reads};
 }
 test('offline runner waits for explicit start and supports jump without a double jump',()=>{const r=runner();assert.equal(r.frames.size,0);r.fire('start');assert.equal(r.element('arena').dataset.state,'running');r.fire('jump');r.tick();assert.ok(Math.abs(parseFloat(r.element('dino').style.transform.slice(11))+9.92)<.001);r.fire('jump');r.tick();assert.ok(Math.abs(parseFloat(r.element('dino').style.transform.slice(11))+19.3792)<.001,'second input must not reset airborne velocity');assert.equal(r.frames.size,1)});
 test('pause freezes obstacles, hidden tabs pause, and restarting resets a collision',()=>{const r=runner();r.fire('start');r.tick();r.fire('pause');assert.equal(r.element('arena').dataset.state,'paused');const x=r.element('obstacle').style.transform;r.tick(1000);assert.equal(r.element('obstacle').style.transform,x);r.fire('pause');r.document.hidden=true;r.document.listeners.visibilitychange();assert.equal(r.element('arena').dataset.state,'paused');r.document.hidden=false;r.fire('pause');for(let i=0;i<260;i++)r.tick();assert.equal(r.element('arena').dataset.state,'over');assert.equal(r.frames.size,0);r.fire('restart');assert.equal(r.element('arena').dataset.state,'running');assert.equal(r.element('score').textContent,'0')});
 test('Space and ArrowUp jump only from the playfield, keeping buttons keyboard usable',()=>{const r=runner();r.fire('start');let prevented=false;r.fire('arena','keydown',{key:' ',target:{tagName:'BUTTON'},preventDefault(){prevented=true}});assert.equal(prevented,false);r.fire('arena','keydown',{key:'ArrowUp',target:r.element('arena'),preventDefault(){prevented=true}});r.tick();assert.equal(prevented,true);assert.match(r.element('dino').style.transform,/-/)});
-test('offline HTML is entirely local and never submits or requests learner data',()=>{const r=runner();assert.doesNotMatch(r.html,/<script[^>]+src|<link[^>]+href|fetch\(|XMLHttpRequest|localStorage|\/api\//);assert.match(r.html,/not.*course points|no course points/i)});
+test('offline HTML is entirely local and never submits or requests learner data',()=>{const r=runner();assert.doesNotMatch(r.html,/<script[^>]+src|<link[^>]+href|fetch\(|XMLHttpRequest|\/api\//);assert.match(r.html,/not.*course points|no course points/i);assert.deepEqual(r.reads,['wla-offline-copy'])});
+
+test('offline play uses the last selected language and translates the changing status',()=>{
+ const r=runner({language:'kn',labels:{'Dino break':'ಡೈನೋ ವಿರಾಮ','Tap to jump. You can pause at any time.':'ಜಿಗಿಯಲು ಒತ್ತಿ.','Resume':'ಮುಂದುವರಿಸಿ'}});
+ assert.equal(r.document.documentElement.lang,'kn');assert.equal(r.document.title,'WhatsLearn · ಡೈನೋ ವಿರಾಮ');
+ r.fire('start');assert.equal(r.element('status').textContent,'ಜಿಗಿಯಲು ಒತ್ತಿ.');
+ r.fire('pause');assert.equal(r.element('pause').textContent,'ಮುಂದುವರಿಸಿ');
+});
 
 function worker(options={}){const events={},cached=[],deleted=[],reads=[],pending=[];let stored=null,network=false;
  const cache={addAll:async paths=>{if(options.failInstall)throw Error('Temporary precache failure');cached.push(...paths);stored=new Response(fs.existsSync('public/app-offline.html')?fs.readFileSync('public/app-offline.html','utf8'):'NO GAME')},put:async(path,response)=>{cached.push(path);stored=response},match:async path=>{reads.push(path);return stored?.clone()}};
