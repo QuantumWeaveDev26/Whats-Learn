@@ -11,17 +11,14 @@ import {appTranslator} from './app-language';
 export function Splash({onDone,language='en'}:{onDone:()=>void;language?:string}){
  const t=appTranslator(language);
  const [ready,setReady]=useState(false);
- const [androidInstalled,setAndroidInstalled]=useState(false);
  useEffect(()=>{
-  const installed=window.matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
-  // Android supplies the icon for an installed launch. Render only the tagline in the web splash.
-  setAndroidInstalled(installed&&/Android/i.test(window.navigator.userAgent));
+  // Give the installed window's launch transition time to clear before showing our mark.
   const timer=setTimeout(()=>setReady(true),350);
   return()=>clearTimeout(timer);
  },[]);
  useEffect(()=>{const timer=setTimeout(onDone,1600);return()=>clearTimeout(timer)},[onDone]);
  return <div className={ready?"wla-splash":"wla-splash wla-splash-handoff"} onClick={onDone}>
-  {!androidInstalled&&<svg className="wla-splash-mark" viewBox="0 0 192 192" role="img" aria-label="WhatsLearn"><image href="/images/app-launch-mark-lime-192.png" width="192" height="192"/></svg>}
+  <svg className="wla-splash-mark" viewBox="0 0 192 192" role="img" aria-label="WhatsLearn"><image href="/images/app-launch-mark-lime-192.png" width="192" height="192"/></svg>
   <p>{t("From chat to change.")}</p>
  </div>;
 }

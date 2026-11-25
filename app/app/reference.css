@@ -150,7 +150,7 @@ body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) 
 .wla .wla-profile-plus{position:absolute;inset-inline-end:-4px;inset-block-end:-3px;width:21px;height:21px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#d8fa99;color:#143520;font-size:15px;line-height:1}
 .wla .wla-splash{background:radial-gradient(ellipse at 50% 43%,#153b27 0%,#0a201a 48%,#071412 100%)}
 .wla .wla-splash-mark{width:92px;height:92px;animation:none}
-@media (display-mode:standalone), (display-mode:fullscreen){
+@media (display-mode:standalone){
  .wla .wla-splash-handoff>.wla-splash-mark,.wla .wla-splash-handoff>p{visibility:hidden}
 }
 .wla .wla-splash p{color:#defbb1}
