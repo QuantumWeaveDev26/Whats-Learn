@@ -7,7 +7,7 @@
   "scope": "/app",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#125C43",
+  "background_color": "#071412",
   "theme_color": "#125C43",
   "icons": [
     {"src": "/images/app-launch-mark-lime-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},

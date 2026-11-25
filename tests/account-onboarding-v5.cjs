@@ -20,6 +20,10 @@ test('app Personal setup can replace the account answers without reopening websi
  const u=await learner();
  const store=h.load('lib/learner-context-store.ts');
  await store.finishContext(u.id,{name:'Old name',ageBand:'18-24',nickname:'Old nickname'});
+ h.db.prepare('INSERT INTO work (user_id,mission_id,body,checks,quiz,updated_at) VALUES (?,?,?,?,?,?)').run(u.id,'m1','Saved course work','[]',1,'2026-11-25T00:00:00Z');
+ const readWork=async()=> (await (await h.load('app/api/work/route.ts').GET(h.req('/api/work'))).json()).work;
+ const savedWork=await readWork();
+ assert.ok(savedWork.some(task=>task.mission_id==='m1'&&task.body==='Saved course work'));
  const {PATCH}=h.load('app/app/context/route.ts');
  const account=h.load('lib/auth/account-key.ts').accountKey(u.id);
  const answers={ageBand:'25-34',name:'New name',stage:'working',hobbies:['music'],interests:['food'],project:'A recipe app',barrier:'time',device:'phone'};
@@ -28,7 +32,9 @@ test('app Personal setup can replace the account answers without reopening websi
  assert.equal((await update({...answers,name:' '})).status,400);
  assert.equal((await store.readContext(u.id)).answers.name,'Old name');
  assert.equal((await update(answers)).status,200);
- assert.deepEqual((await store.readContext(u.id)).answers,answers);
+ const reopened=await h.load('app/api/learner-context/route.ts').GET(h.req('/api/learner-context',{headers:{'x-whatslearn-account':account}}));
+ assert.deepEqual((await reopened.json()).context.answers,answers);
+ assert.deepEqual(await readWork(),savedWork);
  assert.equal(await store.afterSignIn(u.id,'/app'),'/app');
  await assert.rejects(store.finishContext(u.id,{...answers,name:'Website replacement'}),/already submitted/);
  assert.equal((await update({ageBand:'under-18',name:'Discarded name'})).status,200);
