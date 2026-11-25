@@ -15,3 +15,23 @@ test('homepage first action depends on saved activity and setup rechecks complet
 test('account display names retain ordinary letters and reject email addresses as greetings',async()=>{const u=await learner(),route=h.load('app/api/profile/route.ts'),base=h.load('lib/personalization.ts').defaultProfile,headers={'x-whatslearn-account':h.load('lib/auth/account-key.ts').accountKey(u.id)};const r=await route.POST(h.req('/api/profile',{body:{...base,name:'Pavana Kiran'},headers}));assert.equal(r.status,200);assert.equal(await h.load('lib/learner-name.ts').learnerName(u.id),'Pavana Kiran');await route.POST(h.req('/api/profile',{body:{...base,name:'learner@example.test'},headers}));assert.equal(await h.load('lib/learner-name.ts').learnerName(u.id),'')});
 
 test('a non-empty account starter draft enables resume without requiring an AI review',async()=>{const u=await learner(),s=h.load('lib/learning-session.ts'),activity=h.load('lib/learner-activity.ts').hasLearningActivity;await s.writeSession(u.id,'starter-draft:development',{body:''});assert.equal(await activity(u.id),false);await s.writeSession(u.id,'starter-draft:development',{body:'Share the client draft and collect comments.'});assert.equal(await activity(u.id),true);assert.equal(await activity('other-account'),false);assert.equal(h.db.prepare('SELECT count(*) n FROM work').get().n,0)});
+
+test('app Personal setup can replace the account answers without reopening website setup',async()=>{
+ const u=await learner();
+ const store=h.load('lib/learner-context-store.ts');
+ await store.finishContext(u.id,{name:'Old name',ageBand:'18-24',nickname:'Old nickname'});
+ const {PATCH}=h.load('app/app/context/route.ts');
+ const account=h.load('lib/auth/account-key.ts').accountKey(u.id);
+ const answers={ageBand:'25-34',name:'New name',stage:'working',hobbies:['music'],interests:['food'],project:'A recipe app',barrier:'time',device:'phone'};
+ const update=(body,key=account)=>PATCH(h.req('/app/context',{method:'PATCH',body:{answers:body},headers:{'x-whatslearn-account':key}}));
+ assert.equal((await update(answers,'wrong')).status,409);
+ assert.equal((await update({...answers,name:' '})).status,400);
+ assert.equal((await store.readContext(u.id)).answers.name,'Old name');
+ assert.equal((await update(answers)).status,200);
+ assert.deepEqual((await store.readContext(u.id)).answers,answers);
+ assert.equal(await store.afterSignIn(u.id,'/app'),'/app');
+ await assert.rejects(store.finishContext(u.id,{...answers,name:'Website replacement'}),/already submitted/);
+ assert.equal((await update({ageBand:'under-18',name:'Discarded name'})).status,200);
+ assert.deepEqual((await store.readContext(u.id)).answers,{ageBand:'under-18'});
+ assert.equal((await update(answers)).status,401);
+});

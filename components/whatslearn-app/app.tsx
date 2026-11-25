@@ -37,7 +37,7 @@ function saveOfflineCopy(language:string){
 
 type Stage='splash'|'welcome'|'language'|'auth'|'context'|'path'|'app';
 type Tab='home'|'courses'|'practice'|'play'|'mentor'|'me';
-type Overlay=''|'creations'|'badges'|'prefs'|'language';
+type Overlay=''|'creations'|'badges'|'prefs'|'language'|'personal-setup';
 
 export default function WhatsLearnApp({referencePreview=false}:{referencePreview?:boolean}={}){
  const [stage,setStage]=useState<Stage>('splash');
@@ -208,6 +208,7 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
  let body:React.ReactNode;
  if(overlay==='creations'&&snap)body=<Creations language={language} s={snap} view={creation} setView={setCreation} onBack={()=>setOverlay('')} onImprove={id=>{const m=missions.find(m=>m.id===id);if(m)openNext({kind:'mission',mission:m,position:missionsOfCourse(m.track).findIndex(v=>v.id===id)+1})}}/>;
  else if(overlay==='badges'&&snap)body=<Achievements language={language} s={snap} onBack={()=>setOverlay('')}/>;
+ else if(overlay==='personal-setup'&&snap)body=<PersonalSetup key={snap.accountKey} language={language} editing={{initial:snap.contextAnswers||{},accountKey:snap.accountKey}} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('')}}/>;
  else if(overlay==='prefs')body=<PathSetup initial={snap?.profile||null} language={language} onCancel={()=>setOverlay('')} onDone={async()=>{await refresh();setOverlay('');setTab('home')}}/>;
  else if(overlay==='language')body=<LanguageStep value={language} onChange={changeLanguage} onNext={()=>setOverlay('')} onBack={()=>setOverlay('')}/>;
  else if(saved)body=<Celebrate language={language} s={saved} snap={snap} onHome={()=>{setSaved(null);setOpen(null);setTab('home')}} onPlay={()=>{setSaved(null);setOpen(null);setTab('play')}}/>;
@@ -216,10 +217,10 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
  else if(tab==='practice')body=null;
  else if(tab==='play')body=<Suspense fallback={<p className="wla-muted wla-center" role="status">{t("Loading games…")}</p>}><GamesHub language={language} key={snap?.accountKey||'guest'} who={snap?.accountKey||''} track={course||snap?.profile?.track} view={playView} onView={setPlayView} challenge={signed?challenge:null} onChallengeDone={()=>setChallenge(null)} joinCode={squadCode} onSignIn={()=>setStage('auth')}/></Suspense>;
  else if(tab==='mentor')body=<Mentor key={mentorMission+'|'+language+'|'+snap?.accountKey} missionId={mentorMission} language={language} signedIn={signed} onSignIn={()=>setStage('auth')}/>;
- else body=<Me key={snap?.accountKey||"guest"} avatar={avatar} language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
+ else body=<Me key={snap?.accountKey||"guest"} avatar={avatar} language={language} s={snap} signedIn={signed} onSignIn={()=>setStage('auth')} onCreations={()=>{setCreation('');setOverlay('creations')}} onBadges={()=>setOverlay('badges')} onPrefs={()=>setOverlay('prefs')} onContext={()=>setOverlay('personal-setup')} onLanguage={()=>setOverlay('language')} onPlans={showPlans} onSignOut={signOut}/>;
 
  const tabs:[Tab,string,React.ComponentType<{size?:number}>][]=[['home','Home',HomeIcon],['courses','Courses',BookOpen],['practice','Practice',PenLine],['play','Play',Gamepad2],['mentor','Mentor',MessageCircle],['me','Me',User]];
- const previewTitle=overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab]);
+ const previewTitle=overlay==='creations'?t("My Creations"):overlay==='badges'?t("Badges"):overlay==='personal-setup'?t("Personal setup"):overlay?t("Settings"):saved?t("Saved"):t(titles[tab]);
 
  return <Shell language={language} themed>
   <div className="wla-reference-brand" inert={sheet||offlineGame}>

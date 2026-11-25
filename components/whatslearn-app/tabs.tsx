@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import type {AppAvatar} from './avatar';
 import {LevelCard,DailyMissions,BadgeGrid,BadgeToast,markMentorDay,levelOf} from './rewards';
-import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Mic,Square,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
+import {ArrowLeft,ArrowUpRight,Check,ChevronRight,Lock,MessageCircle,Send,Mic,Square,Megaphone,Code,Clapperboard,Images,CreditCard,SlidersHorizontal,Languages,LifeBuoy,UserRound,Shield,FileText,Receipt,LogOut,Trash2,BookMarked,Flame,Trophy,Sparkles,Target,Clock,ArrowRight,Star,Award,Share2,BellRing,Gamepad2} from 'lucide-react';
 import {shareStarterCard} from './share';
 import {missions,type Mission} from '@/lib/missions';
 import {programmes} from '@/lib/programmes';
@@ -237,7 +237,7 @@ export function Achievements({s,onBack,language='en'}:{s:Snapshot;onBack:()=>voi
  </div>;
 }
 
-export function Me({s,signedIn,avatar,onSignIn,onCreations,onBadges,onPrefs,onLanguage,onPlans,onSignOut,language='en'}:{s:Snapshot|null;avatar?:AppAvatar;language?:string;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onBadges:()=>void;onPrefs:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){ const t=appTranslator(language);const photoInput=useRef<HTMLInputElement>(null);const photoLabel=avatar?.src?t("Change photo"):language==="en"?"Add profile photo":t("Add photo");const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{t(label)}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
+export function Me({s,signedIn,avatar,onSignIn,onCreations,onBadges,onPrefs,onContext,onLanguage,onPlans,onSignOut,language='en'}:{s:Snapshot|null;avatar?:AppAvatar;language?:string;signedIn:boolean;onSignIn:()=>void;onCreations:()=>void;onBadges:()=>void;onPrefs:()=>void;onContext?:()=>void;onLanguage:()=>void;onPlans:()=>void;onSignOut:()=>void}){ const t=appTranslator(language);const photoInput=useRef<HTMLInputElement>(null);const photoLabel=avatar?.src?t("Change photo"):language==="en"?"Add profile photo":t("Add photo");const ext=(href:string,label:string,Icon:React.ComponentType<{size?:number}>,danger?:boolean)=><a className={'wla-row'+(danger?' danger':'')} href={href} target="_blank" rel="noopener"><Icon size={20}/>{t(label)}<span className="wla-end"><ArrowUpRight size={18}/></span></a>;
  return <div className="wla-stack">
   {signedIn&&s?<div className="wla-profile">{avatar?<button type="button" className="wla-profile-photo wla-profile-picker" aria-label={avatar.ready?photoLabel:undefined} title={avatar.ready?photoLabel:undefined} disabled={avatar.busy||!avatar.ready} onClick={()=>photoInput.current?.click()}>{avatar?.src?<img src={avatar.src} alt=""/>:(s.name||'W').slice(0,1).toUpperCase()}{avatar.ready&&!avatar.src&&<span className="wla-profile-plus" aria-hidden="true">+</span>}</button>:<span className="wla-profile-photo">{(s.name||'W').slice(0,1).toUpperCase()}</span>}<div><strong>{s.name||t("Your account")}</strong><small>{s.paidAccess?t("Paid plan"):t("Explore plan · Free")} · {s.points?.balance??0} {t("points")}</small><small>{s.work.length} {t("task")}{s.work.length===1?'':'s'} {t("saved")}{(s.points?.streak?.current||0)>0?" · "+t("{0}-day streak",[s.points!.streak.current]):''}</small>
    {avatar&&<div className="wla-photo-actions">
@@ -254,6 +254,7 @@ export function Me({s,signedIn,avatar,onSignIn,onCreations,onBadges,onPrefs,onLa
   <div className="wla-list">
    {signedIn&&s&&<button type="button" className="wla-row" onClick={onBadges}><Award size={20}/>{t("Level &amp; badges").replace("&amp;","&")}<span className="wla-end">{t("Lv")}{' '}{levelOf(s).lv}<ChevronRight size={18}/></span></button>}
    {signedIn&&<button type="button" className="wla-row" onClick={onCreations}><BookMarked size={20}/>{t("My Creations")}<span className="wla-end">{s?.work.length||0}<ChevronRight size={18}/></span></button>}
+   {signedIn&&onContext&&<button type="button" className="wla-row" onClick={onContext}><UserRound size={20}/>{t("Personal setup")}<span className="wla-end"><ChevronRight size={18}/></span></button>}
    {signedIn&&<button type="button" className="wla-row" onClick={onPrefs}><SlidersHorizontal size={20}/>{t("Learning preferences")}<span className="wla-end"><ChevronRight size={18}/></span></button>}
    <button type="button" className="wla-row" onClick={onLanguage}><Languages size={20}/>{t("Language")}<span className="wla-end">{languages[s?.profile?.language||'en']}<ChevronRight size={18}/></span></button>
    {signedIn&&ext('/settings?connect=whatsapp#whatsapp','Connect WhatsApp reminders',MessageCircle)}

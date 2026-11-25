@@ -10,6 +10,8 @@ test('app onboarding requires every answer except the explicitly optional nickna
  const saved=[];
  const {POST}=load('app/app/context/route.ts',hooks(),{
   '@/lib/storage':storage,
+  '@/app/chatgpt-auth':{getChatGPTUser:async()=>null},
+  '@/lib/learner-eligibility':{restrictToGuest:async()=>{}},
   '@/app/api/learner-context/route':{POST:async request=>{saved.push(await request.json());return Response.json({saved:true})}},
  });
  const answers={ageBand:'18-24',name:'Learner',stage:'student',hobbies:['music'],interests:['technology'],project:'A reading app',barrier:'time',device:'phone'};
@@ -60,4 +62,22 @@ test('profile only offers Add profile photo when account storage confirms no pho
   assert.equal(text(view).includes('Add profile photo'),add);
   assert.equal(!!find(view,node=>node.props?.className==='wla-profile-plus'),add);
  }
+});
+
+test('revisiting personal setup prefills current choices and Start over clears the draft',()=>{
+ const {find,text}=require('./helpers/client-components.cjs');
+ const h=hooks();
+ const {PersonalSetup}=load('components/whatslearn-app/onboarding.tsx',h);
+ let returned=false;
+ const props={editing:{initial:{ageBand:'18-24',name:'Saved learner'},accountKey:'a'},onDone(){},onCancel(){returned=true}};
+ const button=label=>{h.start();return find(PersonalSetup(props),n=>n.type==='button'&&text(n)===label)};
+ assert.equal(button('Next').props.disabled,false);
+ button('Start over').props.onClick();
+ assert.equal(button('Next').props.disabled,true);
+ button('25–34').props.onClick();
+ button('Next').props.onClick();
+ assert.equal(button('Next').props.disabled,true);
+ button('Back').props.onClick();
+ button('Back').props.onClick();
+ assert.ok(returned);
 });
