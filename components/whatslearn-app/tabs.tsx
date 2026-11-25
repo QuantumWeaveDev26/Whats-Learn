@@ -96,11 +96,11 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange,language='
  const heading=useRef<HTMLHeadingElement>(null);useEffect(()=>{heading.current?.focus({preventScroll:true})},[open]);
  return <div className="wla-stack">
   {open&&<button type="button" className="wla-back" onClick={()=>setOpen('')}><ArrowLeft size={18}/>{t("Back to courses")}</button>}
-  <div><h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{open?appCourseName(open,programmes.find(p=>p.id===open)!.name,language):t("Courses")}</h2>{!open&&<p className="wla-muted">{t("Try the first three tasks of any course free.")}</p>}</div>
+  {!open&&<div><h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{t("Courses")}</h2><p className="wla-muted">{t("Try the first three tasks of any course free.")}</p></div>}
   {notice&&<p className="wla-note" role="status"><Lock size={16}/>{t(notice)}</p>}
   {programmes.filter(p=>!open||p.id===open).map(p=>{const list=missionsOfCourse(p.id);const done=list.filter(m=>completed.has(m.id)).length;const isOpen=open===p.id;const L=courseLook[p.id];const I=L.Icon;
    const hours=Math.round(list.reduce((t,m)=>t+(m.minutes||0),0)/30)/2;
-   return <div key={p.id} className={'wla-course '+L.cls}>
+   return <div key={p.id} className={'wla-course '+L.cls+(isOpen?' wla-course-detail':'')}>
     {!isOpen?<button type="button" className="wla-course-cover wla-course-card" onClick={()=>setOpen(p.id)}>
      <span className="wla-course-top"><span className="wla-ccard-icon"><I size={20}/></span><small className="wla-cnum">{t("COURSE")}{' '}{p.number}</small><small className="wla-course-status">{done>=10?t("Completed"):done?t("{0}/10 done",[done]):t("Free to start")}</small></span>
      <strong className="wla-course-name">{appCourseName(p.id,p.name,language)}</strong>
@@ -109,8 +109,14 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange,language='
      <small className="wla-course-meta">{t("10 tasks · about")}{' '}{hours} {t("hrs")}</small>
      {done>0&&<span className="wla-cbar" aria-hidden="true"><span style={{width:`${done*10}%`}}/></span>}
      <span className="wla-course-pill">{done?t("Continue"):t("View tasks")}<ChevronRight size={18}/></span>
-    </button>:<div className="wla-course-summary"><p className="wla-muted"><strong>{t("You’ll make:")}</strong> {t(p.finishedOutcome)}</p><small>{list.length} {t("tasks · about")}{' '}{hours} {t("hrs · first 3 free")}</small></div>}
-    {isOpen&&<div className="wla-course-body"><p className="wla-course-note">{done}/{list.length} {t("tasks saved")}</p>{list.flatMap((m,i)=>{
+    </button>:<div className="wla-course-summary">
+     <h2 ref={heading} tabIndex={-1} className="wla-h1 wla-tight">{appCourseName(p.id,p.name,language)}</h2>
+     <p><strong>{t("You’ll make:")}</strong> {t(p.finishedOutcome)}</p>
+     <span className="wla-course-emoji" aria-hidden="true"/>
+     <small>{list.length} {t("tasks · about")}{' '}{hours} {t("hrs · first 3 free")}</small>
+     <div className="wla-course-progress"><small>{done}/{list.length} {t("tasks saved")}</small><progress value={done} max={list.length} aria-label={t("tasks saved")}/></div>
+    </div>}
+    {isOpen&&<div className="wla-course-body">{list.flatMap((m,i)=>{
      const isDone=completed.has(m.id);const lock=lockFor(m,completed,cleared);const plan=needsMembership(m,s?.paidAccess||false);
      const state=!s?(plan?'Plan':'Free'):isDone?'Saved':plan?'Plan':lock.locked?'Locked':'Open';
      const row=<button key={m.id} type="button" className={'wla-task'+(s&&lock.locked&&!isDone&&!plan?' locked':'')+(state==='Open'?' current':'')} onClick={()=>{setNotice('');if(!s){onSignIn();return}if(lock.locked&&!lock.checkpoint&&!isDone){setNotice(lock.message);return}onOpen(plan&&!isDone?{kind:'plan',mission:m,position:i+1}:lock.checkpoint?{kind:'checkpoint',track:lock.checkpoint.track,after:lock.checkpoint.after}:{kind:'mission',mission:m,position:i+1})}}>
@@ -121,6 +127,41 @@ export function Courses({s,onOpen,onSignIn,initialTrack,onTrackChange,language='
     })}</div>}
    </div>})}
  </div>;
+}
+
+type MentorBlock=
+ | {kind:'text';lines:string[]}
+ | {kind:'ordered'|'unordered';items:{number?:number;text:string}[]};
+
+function renderMentorReply(reply:string){
+ const blocks:MentorBlock[]=[];
+ const lines=reply.split(/\r?\n/);
+ const listMarker=/^\s*(?:(\d{1,3})[.)]|[-*•])(?:[ \t]+(.*)|\s*)$/;
+ for(let i=0;i<lines.length;i++){
+  const line=lines[i];
+  const match=line.match(listMarker);
+  if(match){
+   let item=match[2]?.trim();
+   const next=lines[i+1]?.trim();
+   if(!item&&next&&!listMarker.test(next)){item=next;i++}
+   if(item){
+    const kind=match[1]===undefined?'unordered':'ordered';
+    const entry={number:match[1]===undefined?undefined:Number(match[1]),text:item};
+    const previous=blocks.at(-1);
+    if(previous?.kind===kind)previous.items.push(entry);
+    else blocks.push({kind,items:[entry]});
+    continue;
+   }
+  }
+  const previous=blocks.at(-1);
+  if(previous?.kind==='text')previous.lines.push(line);
+  else if(line.trim())blocks.push({kind:'text',lines:[line]});
+ }
+ return blocks.map((block,i)=>{
+  if(block.kind==='text')return <div key={i}>{block.lines.join('\n').trimEnd()}</div>;
+  const List=block.kind==='ordered'?'ol':'ul';
+  return <List key={i} start={List==='ol'?block.items[0].number:undefined}>{block.items.map((item,j)=><li key={j} value={item.number}>{item.text}</li>)}</List>;
+ });
 }
 
 type Msg={me:boolean;text:string};
@@ -159,7 +200,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
  return <div className="wla-chat wla-mentor-chat"><div className="wla-mentor-feed" role="log" aria-label={t("Mentor conversation")} aria-live="polite">
   {m&&<p className="wla-muted wla-task-context">{t("Task:")}{' '}{appMissionTitle(m.id,localizeMission(m,language).title,language)}</p>}
   <div className="wla-mentor-intro"><span><MessageCircle size={18}/></span><div><strong>{t("WhatsLearn Mentor")}</strong><small>{t("Help with this task")}</small></div></div>
-  <div className="wla-msgs">{msgs.map((x,i)=>x.me?<p key={i} className="me">{x.text}</p>:<div key={i} className="wla-bot"><span><MessageCircle size={14}/></span><p>{x.text}</p></div>)}{busy&&<p className="typing" role="status" aria-label={t("Mentor is typing")}><span/><span/><span/></p>}<div ref={end}/></div>
+  <div className="wla-msgs">{msgs.map((x,i)=>x.me?<p key={i} className="me">{x.text}</p>:<div key={i} className="wla-bot"><span><MessageCircle size={14}/></span><div className="wla-mentor-reply">{renderMentorReply(x.text)}</div></div>)}{busy&&<p className="typing" role="status" aria-label={t("Mentor is typing")}><span/><span/><span/></p>}<div ref={end}/></div>
   {msgs.length<2&&<div className="wla-ideas">{ideas.map(idea=><button key={idea} type="button" onClick={()=>ask(idea)}>{idea}</button>)}</div>}
   {failed&&<div className="wla-note" role="status"><span>{t(failed.message)}</span><button type="button" className="wla-link" disabled={voice.listening} onClick={()=>ask(failed.question,true)}>{t("Retry question")}</button></div>}
   </div><div className="wla-mentor-compose">

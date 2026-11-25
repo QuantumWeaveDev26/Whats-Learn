@@ -36,3 +36,19 @@ test('unsupported dictation keeps the typed question and offers a keyboard fallb
 test('dictation starts only on tap, appends final speech once and never sends a question',async()=>{const {sessions,host}=speechHost(),m=dictation(host);try{m.render();await m.h.flush();assert.equal(sessions.length,0);m.render().toggle();const s=sessions[0];assert.equal(s.started,true);assert.match(s.lang,/hi/);s.onresult({results:[{isFinal:true,0:{transcript:'about this task'}}]});assert.equal(m.value(),'My question about this task');s.onresult({results:[{isFinal:true,0:{transcript:'about this task'}}]});assert.equal(m.value(),'My question about this task');s.onend();assert.equal(m.render().listening,false);assert.ok(m.value().includes('about this task'))}finally{m.restore()}});
 test('permission rejection preserves input and stops the listening state',async()=>{const {sessions,host}=speechHost(),m=dictation(host);try{m.render();await m.h.flush();m.render().toggle();sessions[0].onerror({error:'not-allowed'});assert.equal(m.render().listening,false);assert.match(m.render().message,/permission|blocked/i);assert.equal(m.value(),'My question')}finally{m.restore()}});
 test('dictation cleans up the microphone session when the mentor screen unmounts',async()=>{const {sessions,host}=speechHost(),m=dictation(host);try{m.render();await m.h.flush();m.render().toggle();m.h.unmount();assert.equal(sessions[0].aborted,true);assert.equal(sessions[0].onresult,null)}finally{m.restore()}});
+
+test('Mentor keeps split list markers with their items and leaves user text alone',async()=>{
+ const h=hooks();
+ const answer='Topics we’ll cover:\n1.\nWrite a clear offer\n2. Draft a brief\n3)\nDesign a follow-up\n\nTry these:\n- Check your claims\n• Ask fair questions';
+ const {Mentor}=load('components/whatslearn-app/tabs.tsx',h,{'./api':{
+  api:async()=>({ok:true,data:{answer}}),currentAccount:()=>'',readLocal:()=>null,writeLocal:()=>true
+ }});
+ const render=()=>{h.start();return Mentor({missionId:'m1',language:'en',signedIn:true})};
+ await find(render(),n=>n.type==='button'&&text(n)==='Explain this task simply').props.onClick();
+ const screen=render();
+ const ordered=find(screen,n=>n.type==='ol');
+ assert.equal(ordered.props.start,1);
+ assert.deepEqual(all(ordered,n=>n.type==='li').map(n=>[n.props.value,text(n)]),[[1,'Write a clear offer'],[2,'Draft a brief'],[3,'Design a follow-up']]);
+ assert.deepEqual(all(find(screen,n=>n.type==='ul'),n=>n.type==='li').map(text),['Check your claims','Ask fair questions']);
+ assert.equal(text(find(screen,n=>n.props.className==='me')),'Explain this task simply');
+});

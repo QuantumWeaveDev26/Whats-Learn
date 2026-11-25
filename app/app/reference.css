@@ -165,3 +165,35 @@ body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) 
 .wla .wla-field-help{font-size:12px;color:var(--gd)}
 .wla .wla-field-help summary{display:list-item;width:fit-content;padding:4px 0;cursor:pointer;font-weight:650}
 .wla .wla-field-help p{margin:2px 0 5px;color:var(--mut);font-size:13px;overflow-wrap:anywhere}
+
+.wla.wla-design-reference .wla-course-detail .wla-course-summary{
+ position:relative;isolation:isolate;display:grid;gap:7px;padding:16px;
+ background:radial-gradient(ellipse at 100% 100%,#227329,transparent 67%),linear-gradient(150deg,#135630,#092a1d);
+ color:#fff
+}
+.wla .wla-course-detail .wla-course-summary h2,.wla .wla-course-detail .wla-course-summary p{margin:0;overflow-wrap:anywhere;padding-inline-end:78px}
+.wla .wla-course-detail .wla-course-summary small{color:#e4f6e8}
+.wla.wla-design-reference .wla-course-detail .wla-course-emoji{width:76px;height:70px;inset:12px 10px auto auto}
+.wla .wla-course-progress{display:grid;gap:4px;margin-top:3px}
+.wla .wla-course-progress progress{appearance:none;width:100%;height:5px;border:0;border-radius:6px;background:#426951;overflow:hidden}
+.wla .wla-course-progress progress::-webkit-progress-bar{background:#426951}
+.wla .wla-course-progress progress::-webkit-progress-value{background:#b9f466}
+.wla .wla-course-progress progress::-moz-progress-bar{background:#b9f466}
+.wla .wla-course-detail .wla-course-body{padding:7px 8px 0}
+.wla .wla-course-detail .wla-task{padding-inline:8px;font-weight:650}
+.wla .wla-course-detail .wla-task .wla-grow{min-width:0}
+.wla .wla-course-detail .wla-task small{font-weight:500}
+.wla .wla-course-detail .wla-cp{background:#f0f7e7;border-radius:9px}
+.wla .wla-course-detail .wla-cp .wla-dot.star{color:#72531b;background:#ffedb8}
+.wla .wla-course-detail .wla-cp .wla-dot.star.done{color:#fff;background:var(--g)}
+
+.wla .wla-mentor-reply{
+ display:grid;gap:.45em;min-width:0;padding:11px 13px;border:1px solid var(--line);
+ border-radius:18px 18px 18px 4px;background:#fff;font-size:14px;line-height:1.5;
+ white-space:pre-line;overflow-wrap:anywhere
+}
+.wla .wla-mentor-reply ol,.wla .wla-mentor-reply ul{margin:0;padding-inline-start:1.65em;list-style-position:outside}
+.wla .wla-mentor-reply ol{list-style-type:decimal}
+.wla .wla-mentor-reply ul{list-style-type:disc}
+.wla .wla-mentor-reply li+li{margin-top:.25em}
+.wla .wla-mentor-reply li::marker{color:var(--gd);font-weight:700}
