@@ -196,3 +196,8 @@ body:has(.wla-design-reference) .wla-install-go,body:has(.wla-design-reference) 
 .wla .wla-mentor-reply ul{list-style-type:disc}
 .wla .wla-mentor-reply li+li{margin-top:.25em}
 .wla .wla-mentor-reply li::marker{color:var(--gd);font-weight:700}
+
+.wla .wla-setup-summary{margin:0}
+.wla .wla-setup-summary>div+div{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.wla .wla-setup-summary dt{font-size:12px;color:var(--mut)}
+.wla .wla-setup-summary dd{margin:2px 0 0;font-weight:650;overflow-wrap:anywhere}
