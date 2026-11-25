@@ -74,13 +74,13 @@ body:has(.wla-design-reference){background:#e7f8f0}
 .wla.wla-design-reference .wla-carousel{margin:0;padding:0 1px 6px;gap:7px;scroll-padding:1px}
 .wla.wla-design-reference .wla-carousel .wla-ccard{flex:0 0 calc((100% - 14px)/3);min-width:0;min-height:148px;padding:8px;border:1px solid #0a642c;border-radius:11px;color:#fff;background:radial-gradient(ellipse at right bottom,#0eae36,transparent 45%),linear-gradient(165deg,#117a3a,#032c1c 55%,#094d27);box-shadow:0 4px 6px #14613030}
 .wla.wla-design-reference .wla-carousel .wla-ccard-icon{width:26px;height:25px;background:transparent;color:#d8fd85}
-.wla.wla-design-reference .wla-carousel .wla-ccard strong{font-size:12px;line-height:1.15;color:#fff}
+.wla.wla-design-reference .wla-carousel .wla-ccard strong{font-size:12px;line-height:1.15;min-height:2.3em;color:#fff;overflow-wrap:anywhere}
 .wla.wla-design-reference .wla-carousel .wla-ccard small{font-size:10px;line-height:1.25;color:#edfce9}
 .wla.wla-design-reference .wla-carousel .wla-ccard .wla-ccard-foot{
- display:block;padding:3px 5px;border-radius:5px;background:#073e25;color:#f4fff2;
+ display:flex;align-items:center;align-self:stretch;min-height:calc(2.6em + 6px);padding:3px 5px;border-radius:5px;background:#073e25;color:#f4fff2;
  font-size:11px;line-height:1.3;overflow-wrap:anywhere
 }
-.wla.wla-design-reference .wla-carousel .wla-cbar{height:3px;background:#568d64}
+.wla.wla-design-reference .wla-carousel .wla-cbar{flex:none;height:3px;background:#568d64}
 .wla.wla-design-reference .wla-carousel .wla-cbar span{background:#bbf36d}
 .wla.wla-design-reference .wla-course{border:1px solid #bbd9c6;border-radius:13px;box-shadow:0 3px 6px #25633a14}
 .wla.wla-design-reference .wla-course-card{gap:5px;padding:10px 12px;background:linear-gradient(145deg,#fbfffb,#effaf1)}
