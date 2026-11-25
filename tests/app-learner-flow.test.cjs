@@ -89,3 +89,22 @@ test('the course row supports mouse dragging and prevents a drag from opening a 
  row.props.onPointerUp({pointerId:1,currentTarget:el});let blocked=false;row.props.onClickCapture({detail:1,preventDefault(){blocked=true},stopPropagation(){}});assert.equal(blocked,true);assert.equal(opened,0);
  row.props.onPointerDown({button:0,pointerType:'mouse',pointerId:2,clientX:150,clientY:50,currentTarget:el});let tapBlocked=false;row.props.onClickCapture({detail:1,preventDefault(){tapBlocked=true},stopPropagation(){}});assert.equal(tapBlocked,false);
 });
+
+test('Make choice prompts keep the empty placeholder out of the available answers',()=>{
+ const h=hooks(),marketing=missions.find(m=>m.id==='m2');
+ const {MissionFlow}=load('components/whatslearn-app/practice.tsx',h,{'./api':{readLocal:()=>null,writeLocal:()=>true,api:async()=>({ok:true,data:{}})}});
+ const render=()=>{h.start();return MissionFlow({mission:marketing,accountKey:'a',position:2,language:'en',onSaved(){},onUpgrade(){},onBack(){}})};
+ find(render(),n=>n.type==='button'&&text(n)==='Check my understanding').props.onClick();
+ find(render(),n=>n.type==='button'&&text(n)===marketing.options[marketing.answer]).props.onClick();
+ for(const id of ['f-goal','f-tone']){
+  const field=find(render(),n=>n.type==='select'&&n.props.id===id);
+  assert.ok(field,id);
+  assert.equal(field.props.value,'');
+  const options=all(field,n=>n.type==='option');
+  assert.equal(options[0].props.value,'');
+  assert.equal(options[0].props.disabled,true);
+  assert.equal(options[0].props.hidden,true);
+  field.props.onChange({target:{value:options[1].props.value}});
+  assert.equal(find(render(),n=>n.props.id===id).props.value,options[1].props.value);
+ }
+});

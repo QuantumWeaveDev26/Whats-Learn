@@ -168,7 +168,7 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
 
  async function retryLoad(){const s=await refresh();if(s!==undefined){setBooted(true);if(stage!=='app')route(s)}}
  useEffect(()=>{
-  if(stage!=='app'||tab!=='home'||!online)return;
+  if(stage!=='app'||!online)return;
   let active=true;
   const check=async()=>{
    const result=await api<{version?:string}>('/app/version',{timeoutMs:5000,accountKey:''});
@@ -177,7 +177,8 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
   void check();
   const onVisible=()=>{if(document.visibilityState==='visible')void check()};
   document.addEventListener('visibilitychange',onVisible);
-  return()=>{active=false;document.removeEventListener('visibilitychange',onVisible)};
+  window.addEventListener('pageshow',onVisible);
+  return()=>{active=false;document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('pageshow',onVisible)};
  },[stage,tab,online]);
  const offlinePanel=offlineGame?<AppSheet title={t("Dino break")} closeLabel={t("Close Dino game")} onClose={closeDino} returnFocusTo={dinoOpener.current}><iframe className="wla-dino-frame" title={t("Offline Dino game")} src="/app-offline.html" tabIndex={0}/><button type="button" className="wla-outline wla-full" onClick={closeDino}>{t("Return to my app")}</button></AppSheet>:null;
  if(loadError&&['splash','auth','context','path'].includes(stage))return <Shell language={language}><div className="wla-page wla-load-error" role="alert" inert={offlineGame}><img src="/images/app-launch-mark-lime-192.png" alt="" width={48} height={48}/><h1 className="wla-h1">{t("Let’s reconnect")}</h1><p className="wla-muted">{t(loadError)}</p><button type="button" className="wla-primary wla-full" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button><button type="button" className="wla-outline wla-full" onClick={showDino}>{t("Play offline")}</button></div>{offlinePanel}</Shell>;
@@ -225,9 +226,9 @@ export default function WhatsLearnApp({referencePreview=false}:{referencePreview
    {referencePreview&&<div className="wla-reference-device" aria-hidden="true"><b>9:41</b><span><Signal size={12}/><Wifi size={12}/><BatteryFull size={14}/></span></div>}
    <div className="wla-reference-brand-line"><b>WhatsLearn</b><a className="wla-reference-bell" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener" aria-label={t("Connect WhatsApp reminders")}><BellRing size={17}/></a><button type="button" className="wla-reference-avatar" aria-label={t("Me")} onClick={()=>goTab('me')}>{avatar.src?<img src={avatar.src} alt=""/>:<User size={15}/>}</button></div>
   </div>
-  <header className={tab==='home'&&!overlay&&!saved&&!open?'wla-top wla-top-home':'wla-top'} inert={sheet||offlineGame}><div><strong>{previewTitle}</strong></div>
+  <header className="wla-top" inert={sheet||offlineGame}><div><strong>{previewTitle}</strong></div>
    {signed?<span className="wla-pts"><b className="wla-lv"><span aria-hidden="true">★ </span>{t("Lv")}{' '}{levelOf(snap).lv}</b>{snap?.points?.balance??0} {language==='kn'?'ಅಂಕ':t("pts")}</span>:<button type="button" className="wla-pill" onClick={()=>setStage('auth')}>{t("Sign in")}</button>}</header>
-  {updateAvailable&&online&&tab==='home'&&!open&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
+  {updateAvailable&&online&&tab==='home'&&!overlay&&!saved&&!sheet&&!offlineGame&&<div className="wla-banner"><span>{t("App update available")}</span><button type="button" className="wla-link" onClick={()=>window.location.reload()}>{t("Update now")}</button></div>}
   {!online&&<div className="wla-banner wla-offline-banner" inert={sheet||offlineGame}><p role="status">{t("You’re offline.")}</p><button type="button" className="wla-link" onClick={showDino}>{t("Play offline")}</button></div>}
   {loadError&&<div className="wla-banner wla-retry" role="status" inert={sheet||offlineGame}><span>{t(loadError)}</span><button type="button" className="wla-link" disabled={loading} onClick={retryLoad}>{loading?t("Loading…"):t("Try again")}</button></div>}
   <main lang={language} className={'wla-main'+(tab==='mentor'&&signed&&!overlay&&!saved?' wla-main-mentor':'')} ref={mainRef} inert={sheet||offlineGame}><div key={'screen:'+tab+overlay+(saved?'s':'')+(open?'o':'')} className="wla-screen" hidden={tab==='practice'&&!overlay&&!saved}>{!appCopy.ready&&overlay!=='language'?<LanguageStatus error={appCopy.error} retry={appCopy.retry} language={language}/>:!languagePack.ready&&!overlay&&(tab==='courses'||tab==='home')?<LanguageStatus error={languagePack.error} retry={languagePack.retry} language={language}/>:body}</div><div key="practice-flow" className="wla-screen" hidden={tab!=='practice'||!!overlay||!!saved}>{practiceBody}</div></main>
