@@ -206,7 +206,7 @@ export function Mentor({missionId,language,signedIn,onSignIn}:{missionId:string;
   </div><div className="wla-mentor-compose">
   <form className="wla-ask" onSubmit={e=>{e.preventDefault();ask(q)}}><label htmlFor="wla-ask" className="wla-sr">{t("Ask the mentor")}</label><input id="wla-ask" value={q} readOnly={voice.listening} onChange={e=>setQ(e.target.value)} placeholder={t("Ask about your task…")} maxLength={500}/><button type="button" className={'wla-mic'+(voice.listening?' listening':'')} aria-label={voice.listening?t("Stop dictation"):t("Dictate a question")} aria-pressed={voice.listening} aria-describedby="wla-voice-note" disabled={busy} onClick={voice.toggle}>{voice.listening?<Square size={17}/>:<Mic size={19}/>}</button><button type="submit" aria-label={t("Send")} disabled={busy||voice.listening||!q.trim()}><Send size={20}/></button></form>
   <p id="wla-voice-note" className="wla-voice-note" role="status">{t(voice.message||"Voice uses your browser’s speech service. Review the text before sending.")}</p>
-  <a className="wla-outline wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener">{t("Continue on WhatsApp")}</a>
+  <a className="wla-primary wla-full" href="/settings?connect=whatsapp#whatsapp" target="_blank" rel="noopener">{t("Continue on WhatsApp")}</a>
   </div>
  </div>;
 }

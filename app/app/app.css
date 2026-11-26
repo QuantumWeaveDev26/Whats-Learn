@@ -600,7 +600,7 @@ body:has(.wla) .whatsapp-mentor-widget,body:has(.wla) .website-tour-launch,body:
 .wla-mentor-compose .wla-ask .wla-mic{background:var(--tint);color:var(--g);border:1px solid #C8DDCF}
 .wla-mentor-compose .wla-ask .wla-mic.listening{background:#FDECEA;color:#9A1C11;border-color:#EFB4AC}
 .wla-voice-note{margin:0;color:var(--mut);font-size:11px;line-height:1.4;overflow-wrap:anywhere}
-.wla-mentor-compose>.wla-outline{min-height:44px;padding-block:6px;font-size:13px}
+.wla-mentor-compose>.wla-primary{min-height:44px;padding-block:6px;font-size:13px}
 .wla .wla-game-filters{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:2px 2px 6px;overscroll-behavior-x:contain}
 .wla .wla-game-filters button{flex:none;border:1px solid #d0dfd5;border-radius:22px;background:#fff;color:#476653;min-height:44px;padding:8px 13px;font-size:12px;font-weight:650;white-space:nowrap}
 .wla .wla-game-filters button[aria-pressed=true]{background:#087a4b;border-color:#087a4b;color:#fff}
